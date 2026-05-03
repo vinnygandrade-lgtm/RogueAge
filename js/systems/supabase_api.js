@@ -24,7 +24,7 @@ const SupabaseAPI = {
 
     // --- NOVO: CONEXÃO COM SERVIDOR NODE.JS (ARENA) ---
     nodeSocket: null,
-    nodeServerUrl: 'http://localhost:3000', // Mudar para a URL do Render/Railway depois
+    nodeServerUrl: 'https://l2mini-arena.onrender.com', // URL do Render configurada!
 
     async init() {
         if (typeof window.supabase !== 'undefined' && !this.client) {
