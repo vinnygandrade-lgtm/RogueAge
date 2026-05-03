@@ -85,6 +85,16 @@ io.on('connection', (socket) => {
         }
     });
 
+    // Limpeza de sala ao desconectar para evitar que o servidor "se perca"
+    socket.on('disconnect', () => {
+        const roomId = 'olympiad_global';
+        const room = rooms.get(roomId);
+        if (room && socket.charName) {
+            room.readyPlayers.delete(socket.charName.toLowerCase());
+        }
+        console.log(`❌ Jogador desconectado: ${socket.charName || socket.id}`);
+    });
+
     // 4. COMBATE EM TEMPO REAL (Retransmissão Global)
     socket.on('oly_combat_event', (payload) => {
         // Envia para todos exceto o remetente

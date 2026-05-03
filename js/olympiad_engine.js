@@ -249,6 +249,17 @@ window.OlympiadEngine = {
                     this.finalizar(false);
                 }
                 break;
+
+            case 'oly_opponent_fled':
+                if (this.inimigo && this.sameCharName(remetente, this.inimigo.nome)) {
+                    this.logOly("Oponente fugiu da batalha!");
+                    this.escreverLog(`<span style="color:#facc15; font-weight:bold;">[Olympiad] ${this.inimigo.nome} fled the arena! You win by forfeit.</span>`);
+                    if (window.mostrarAviso) window.mostrarAviso(mb('game.olympiad.opponentFled') || "Opponent fled!");
+                    
+                    // Finaliza com vitória forçada
+                    this.finalizar(true);
+                }
+                break;
         }
     },
 
@@ -1558,6 +1569,14 @@ window.OlympiadEngine = {
             this.escreverLog(`<span style="color:#ef4444; font-weight:bold;">${fleeMsg}</span>`);
             if (typeof mostrarAviso === 'function') mostrarAviso(typeof window.t === 'function' ? window.t('game.olympiad.fledLostPoints') : "You fled and lost Olympiad points!");
             
+            // MULTIPLAYER: Avisar ao oponente que eu fugi
+            if (this.multiplayer && window.SupabaseAPI) {
+                window.SupabaseAPI.broadcastCombat('oly_opponent_fled', {
+                    nome: window.charName,
+                    olyPairSessionId: this.olyPairSessionId
+                });
+            }
+
             olympiadLosses++;
             let botMMR = this.inimigo ? this.inimigo.olympiadPoints : olympiadPoints;
             let diferencaMMR = olympiadPoints - botMMR;
