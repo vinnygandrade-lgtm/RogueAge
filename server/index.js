@@ -4,128 +4,105 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 
 const app = express();
-
-// Configuração de CORS robusta para Express
-app.use(cors({
-    origin: "*",
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"]
-}));
-
-// Rota de Health Check para diagnóstico
-app.get('/', (req, res) => {
-    res.send('L2 Mini Arena Server is running!');
-});
-
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', players: io.engine.clientsCount });
-});
+app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
 
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: {
-        origin: "*", // Permite qualquer origem para evitar bloqueios no Vercel/GitHub Pages
-        methods: ["GET", "POST"],
-        credentials: true
-    },
-    allowEIO3: true // Compatibilidade extra
+    cors: { origin: "*", methods: ["GET", "POST"] },
+    allowEIO3: true
 });
 
-// --- ESTADO DO SERVIDOR (MMO STYLE) ---
-// No Node.js, os dados ficam na memória, blindados contra F5 do jogador
-const rooms = new Map(); // roomId -> { players: Map, state: 'waiting'|'fighting' }
-const playerToRoom = new Map(); // socket.id -> roomId
+// --- BANCO DE DADOS EM MEMÓRIA (MMO STYLE) ---
+const players = new Map(); // socket.id -> { nome, state, matchId }
+const matches = new Map(); // matchId -> { p1, p2, ready: Set }
 
 io.on('connection', (socket) => {
-    console.log(`⚡ Novo jogador conectado: ${socket.id}`);
+    console.log(`⚡ Conectado: ${socket.id}`);
 
-    // 1. ENTRAR NO LOBBY / PROCURAR LUTA
-    socket.on('oly_join_lobby', (playerData) => {
-        socket.charName = playerData.nome;
-        const roomId = 'olympiad_global'; 
-        socket.join(roomId);
-        playerToRoom.set(socket.id, roomId);
-        
-        console.log(`⚔️ ${playerData.nome} entrou no lobby global`);
-
-        // Notifica TODOS que alguém entrou para forçar o pareamento visual
-        io.to(roomId).emit('oly_player_entered', playerData);
-    });
-
-    // SAIR DO LOBBY
-    socket.on('oly_leave_lobby', (data) => {
-        const roomId = 'olympiad_global';
-        if (rooms.has(roomId)) {
-            const room = rooms.get(roomId);
-            if (socket.charName) room.readyPlayers.delete(socket.charName.toLowerCase());
-        }
-        socket.leave(roomId);
-        console.log(`🚪 ${socket.charName || socket.id} saiu do lobby`);
-    });
-
-    // 2. ENVIAR DESAFIO DIRETO (Broadcast para todos no lobby)
-    socket.on('oly_send_challenge', (data) => {
-        console.log(`📣 Desafio de ${socket.charName} enviado para todos.`);
-        // Usamos io.emit para garantir que chegue em todas as abas, inclusive mobile
-        io.emit('oly_challenge_received', data);
-    });
-
-    // 3. CONFIRMAÇÃO DE LUTA
-    socket.on('oly_confirm_ready', (data) => {
-        const roomId = 'olympiad_global';
-        if (!rooms.has(roomId)) {
-            rooms.set(roomId, { readyPlayers: new Map() });
-        }
-        
-        const room = rooms.get(roomId);
-        room.readyPlayers.set(socket.charName.toLowerCase(), true);
-
-        console.log(`✅ ${socket.charName} está pronto.`);
-
-        // Sincroniza o estado de pronto para todos
-        io.emit('oly_player_ready_sync', {
-            nome: socket.charName,
-            readyCount: room.readyPlayers.size
+    socket.on('oly_join_lobby', (data) => {
+        players.set(socket.id, { 
+            nome: data.nome.toLowerCase(), 
+            state: 'LOBBY', 
+            matchId: null 
         });
+        socket.join('olympiad_global');
+        console.log(`⚔️ ${data.nome} entrou no lobby.`);
+    });
 
-        // Se houver 2 ou mais prontos, manda começar
-        if (room.readyPlayers.size >= 2) {
-            console.log("🚀 Iniciando duelo para todos os prontos!");
-            io.emit('oly_start_duel_now');
-            room.readyPlayers.clear(); 
+    socket.on('oly_send_challenge', (data) => {
+        const p = players.get(socket.id);
+        if (p) p.state = 'CHALLENGING';
+        socket.broadcast.to('olympiad_global').emit('oly_challenge_received', data);
+    });
+
+    socket.on('oly_challenge_response', (data) => {
+        // Cria um contrato de partida único para os dois
+        const matchId = `match_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+        const p1Name = data.oponenteAlvo.toLowerCase();
+        const p2Name = data.nome.toLowerCase();
+
+        const match = {
+            id: matchId,
+            players: [p1Name, p2Name],
+            ready: new Set()
+        };
+
+        matches.set(matchId, match);
+        
+        // Avisa aos dois sobre o novo contrato
+        io.to('olympiad_global').emit('oly_match_created', {
+            matchId: matchId,
+            p1: p1Name,
+            p2: p2Name,
+            details: data
+        });
+    });
+
+    socket.on('oly_confirm_ready', (data) => {
+        const match = matches.get(data.matchId);
+        if (match) {
+            match.ready.add(data.nome.toLowerCase());
+            console.log(`✅ ${data.nome} pronto para ${data.matchId} (${match.ready.size}/2)`);
+
+            // Sincroniza o "botão verde" para os dois
+            io.emit('oly_player_ready_sync', {
+                nome: data.nome,
+                matchId: data.matchId,
+                readyCount: match.ready.size
+            });
+
+            if (match.ready.size >= 2) {
+                console.log("🚀 LUTA INICIADA!");
+                io.emit('oly_start_duel_now', { matchId: data.matchId });
+                matches.delete(data.matchId); // Limpa o contrato
+            }
         }
     });
 
-    // Limpeza de sala ao desconectar para evitar que o servidor "se perca"
-    socket.on('disconnect', () => {
-        const roomId = 'olympiad_global';
-        const room = rooms.get(roomId);
-        if (room && socket.charName) {
-            room.readyPlayers.delete(socket.charName.toLowerCase());
+    socket.on('oly_leave_lobby', (data) => {
+        const p = players.get(socket.id);
+        if (p) {
+            // Se ele estava em um contrato, avisa o outro
+            io.emit('oly_lobby_left', { nome: data.nome });
+            players.delete(socket.id);
         }
-        console.log(`❌ Jogador desconectado: ${socket.charName || socket.id}`);
+        socket.leave('olympiad_global');
     });
 
-    // 4. COMBATE EM TEMPO REAL (Retransmissão Global)
     socket.on('oly_combat_event', (payload) => {
-        // Envia para todos exceto o remetente
         socket.broadcast.emit('oly_combat_update', payload);
     });
 
-    // 5. DESCONEXÃO (A TOLERÂNCIA DE 5 MINUTOS)
     socket.on('disconnect', () => {
-        console.log(`❌ Jogador desconectado: ${socket.charName || socket.id}`);
-        // Aqui poderíamos implementar a lógica de "esperar 5 minutos" 
-        // antes de remover o personagem do mundo.
+        const p = players.get(socket.id);
+        if (p) {
+            io.emit('oly_lobby_left', { nome: p.nome });
+            players.delete(socket.id);
+        }
     });
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`
-    ==========================================
-    L2 MINI - ARENA SERVER (NODE.JS)
-    Status: ONLINE na porta ${PORT}
-    ==========================================
-    `);
+    console.log(`ARENA SERVER ONLINE - PORT ${PORT}`);
 });
