@@ -22,10 +22,90 @@ window.OlympiadEngine = {
     multHpRival: 2.10,
     capHitPlayerPct: 0.06,
     capHitRivalPct: 0.05,
-    dbRanking: [], 
+    /** Redução PvP realtime Olympiad — espelhar em receberDanoMultiplayer (vítima faz a lei) */
+    olyRealtimePvpMitigation: 0.35,
+
+    /** ID de pareamento oly_sess_* (handshake Olympiad — não sobrescrever com tabSessionId) */
+    olyPairSessionId: null,
+
+    dbRanking: [],
+
+    sameCharName(a, b) {
+        if (a == null || b == null) return false;
+        return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+    },
+
+    // Helper para logar eventos com timestamp e dispositivo
+    logOly(msg, dados) {
+        const time = new Date().toLocaleTimeString();
+        console.log(`[Oly ${time}] ${msg}`, dados || "");
+    },
+
+    rejectStaleOlympiadTok(dados) {
+        if (!dados || !this.olyPairSessionId) return false;
+        const t = dados.olyPairSessionId;
+        return !!(t && t !== this.olyPairSessionId);
+    },
+
+    setOlympiadLobbyMatched(matched) {
+        const lobby = document.getElementById('olympiad-lobby');
+        if (!lobby) return;
+        lobby.classList.toggle('olympiad-lobby--matched', !!matched);
+    },
+
+    mitigateDamageForRealtimeOlyPvP(rawDamage) {
+        const raw = typeof rawDamage === 'number' && !isNaN(rawDamage) ? rawDamage : 0;
+        const mult = typeof this.olyRealtimePvpMitigation === 'number' ? this.olyRealtimePvpMitigation : 0.35;
+        return Math.max(1, Math.floor(raw * mult));
+    },
+
+    mirrorApplyDamageToRival(danoMitigado) {
+        if (!this.multiplayer || !this.inimigo || !danoMitigado || danoMitigado <= 0) return;
+        if (typeof this.inimigo.cp !== 'number') this.inimigo.cp = 0;
+        if (typeof this.inimigo.hp !== 'number') this.inimigo.hp = 0;
+
+        if (this.inimigo.cp > 0) {
+            if (this.inimigo.cp >= danoMitigado) this.inimigo.cp -= danoMitigado;
+            else {
+                let sobra = danoMitigado - this.inimigo.cp;
+                this.inimigo.cp = 0;
+                this.inimigo.hp -= sobra;
+            }
+        } else {
+            this.inimigo.hp -= danoMitigado;
+        }
+        if (this.inimigo.hp < 0) this.inimigo.hp = 0;
+        if (this.inimigo.cp < 0) this.inimigo.cp = 0;
+    },
+
+    broadcastMyOlyVitalityToPeer() {
+        if (!this.multiplayer || !this.ativo || !window.SupabaseAPI) return;
+        const hp = typeof window.playerHP === 'number' ? window.playerHP : (typeof playerHP !== 'undefined' ? playerHP : 0);
+        const cp = typeof window.playerCP === 'number' ? window.playerCP : (typeof playerCP !== 'undefined' ? playerCP : 0);
+        window.SupabaseAPI.broadcastCombat('oly_sync_hp', {
+            hp,
+            cp,
+            olyPairSessionId: this.olyPairSessionId
+        });
+    },
+
+    buildOlympiadChallengePayload() {
+        const dados = JSON.parse(JSON.stringify(this.gerarMeusDadosParaOponente()));
+        if (this.currentOlySessionId) dados.sessionId = this.currentOlySessionId;
+        return dados;
+    },
     
-    // --- MULTIPLAYER CORE ---
+    // --- MULTIPLAYER CORE (REFORMULADO - MMORPG STYLE) ---
     reset() {
+        // Se estivermos no meio de um duelo ativo, tentamos preservar o inimigo por 5 minutos
+        // caso o jogador tenha apenas recarregado a página
+        const tempoDesdeUltimoReset = Date.now() - (window._lastOlyReset || 0);
+        if (this.ativo && tempoDesdeUltimoReset < 5000) {
+            console.log("🛡️ [Oly] Reset ignorado (possível recarregamento de página).");
+            return;
+        }
+        window._lastOlyReset = Date.now();
+
         this.ativo = false;
         this.multiplayer = false;
         this.lobbyAtivo = false;
@@ -36,199 +116,189 @@ window.OlympiadEngine = {
         this.danoCausado = 0;
         this.danoRecebido = 0;
         this.pararLoopInimigo();
+        
+        // Limpeza de Timers e Intervalos
         if (this.timerConfirmRival) clearTimeout(this.timerConfirmRival);
         if (this.syncInterval) clearInterval(this.syncInterval);
+        this.syncInterval = null;
         if (this.challengeInterval) clearInterval(this.challengeInterval);
+        this.challengeInterval = null;
+        if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+        this.heartbeatInterval = null;
+        if (this._duelBothReadyTimer) {
+            clearTimeout(this._duelBothReadyTimer);
+            this._duelBothReadyTimer = null;
+        }
+        
+        this.olyPairSessionId = null;
+        this.currentOlySessionId = null;
+        this.lastHandshakeTime = 0;
+        this.handshakeAttempts = 0;
+    },
+
+    /**
+     * HEARTBEAT DE LOBBY: Mantém a conexão viva e sincroniza estados
+     * Inspirado em protocolos de rede de MMOs (Keep-Alive)
+     */
+    iniciarHeartbeatLobby() {
+        if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+        this.heartbeatInterval = setInterval(() => {
+            if (!this.lobbyAtivo || this.ativo) {
+                clearInterval(this.heartbeatInterval);
+                return;
+            }
+
+            // Se temos um inimigo mas ele não confirmou, enviamos um sinal de "Estou aqui"
+            if (this.inimigo) {
+                window.SupabaseAPI.broadcastCombat('oly_lobby_heartbeat', {
+                    nome: window.charName,
+                    confirmado: this.playerConfirmou,
+                    sessionId: this.olyPairSessionId
+                });
+            } else {
+                // Se não temos inimigo, continuamos enviando o desafio
+                window.SupabaseAPI.broadcastCombat('oly_challenge', this.buildOlympiadChallengePayload());
+            }
+        }, 2000);
     },
 
     handleMultiplayerEvent(evento, dados) {
-        // Validação de Segurança: Ignora eventos inválidos
         if (!dados || typeof dados !== 'object') return;
         
         const remetente = dados.nome || dados.sender || dados.attacker;
-        
-        // SEGURANÇA: Ignora mensagens de si mesmo (evita fantasmas de troca de char na mesma aba)
-        // Mas permite se for uma resposta a um desafio (para garantir que o pareamento feche)
-        if (remetente === window.charName && evento !== 'oly_challenge_response') return; 
+        const meuNome = window.charName;
 
-        // SEGURANÇA EXTRA: Se o evento tem um sessionId e é diferente do meu atual para o mesmo nome, é fantasma
-        if (remetente === window.charName && dados.sessionId && dados.sessionId !== this.currentOlySessionId) {
-            console.log("🚫 [Oly] Bloqueando evento de fantasma (Session ID divergente)");
-            return;
-        }
+        // SEGURANÇA: Ignora mensagens de si mesmo (comparação case-insensitive)
+        if (this.sameCharName(remetente, meuNome)) return; 
 
-        // Log para debug de eventos recebidos
-        console.log(`📡 Evento Multi Oly: ${evento} de ${remetente} (Eu: ${window.charName})`, dados);
+        this.logOly(`Evento: ${evento} de ${remetente}`, dados);
 
         switch(evento) {
             case 'oly_challenge':
-                // Alguém está procurando luta
-                // Se eu estou no lobby e não tenho inimigo, aceito o desafio
                 if (this.lobbyAtivo && !this.inimigo && !this.ativo) {
-                    console.log(`⚔️ Desafio detectado de ${remetente}. Analisando...`);
+                    this.logOly(`Desafio aceito de ${remetente}`);
                     this.aceitarDesafio(dados);
                 }
                 break;
+
             case 'oly_challenge_response':
-                // Alguém respondeu ao MEU desafio
-                // Verificamos se o sessionId bate para garantir que é o par correto
-                if (this.lobbyAtivo && !this.inimigo && !this.ativo && dados.sessionId === this.currentOlySessionId) {
-                    console.log("⚔️ Oponente respondeu ao meu desafio:", dados.nome);
-                    this.multiplayer = true;
-                    this.inimigo = dados;
-                    this.inimigo.hp = dados.maxHp;
-                    this.inimigo.cp = dados.maxCp;
-                    this.inimigo.mp = dados.maxMp;
-                    this.setupPaperdolls();
-                    this.renderizarUI();
-                    this.escreverLog(`<span style="color:#facc15;">[Multiplayer] Oponente conectado: ${this.inimigo.nome}!</span>`);
-                    
-                    // Se ele respondeu ao meu desafio, eu paro de enviar o desafio
-                    if (this.challengeInterval) {
-                        clearInterval(this.challengeInterval);
-                        this.challengeInterval = null;
+                // Recebi resposta ao meu desafio.
+                if (this.lobbyAtivo && !this.inimigo && !this.ativo) {
+                    console.log("⚔️ [Oly] Oponente aceitou o desafio:", dados.nome);
+                    this.vincularInimigo(dados);
+                }
+                break;
+
+            case 'oly_lobby_heartbeat':
+                // Sincronização de estado de lobby (Keep-Alive)
+                if (this.lobbyAtivo && this.inimigo && this.sameCharName(remetente, this.inimigo.nome)) {
+                    // Se o oponente diz que está confirmado, nós atualizamos aqui
+                    if (dados.confirmado && !this.rivalConfirmou) {
+                        console.log("⚔️ [Oly] Sincronizando confirmação do rival via Heartbeat.");
+                        this.rivalConfirmou = true;
+                        this.atualizarStatusConfirmacao();
                     }
                 }
                 break;
+
             case 'oly_confirm':
-                if (this.inimigo && remetente === this.inimigo.nome) {
+                if (this.inimigo && this.sameCharName(remetente, this.inimigo.nome)) {
+                    this.logOly(`Confirmação direta recebida de: ${remetente}`);
                     this.rivalConfirmou = true;
                     this.atualizarStatusConfirmacao();
                 }
                 break;
+
+            case 'oly_start_trigger':
+                // Evento de segurança para forçar o início do duelo se uma conta já entrou
+                if (this.lobbyAtivo && this.inimigo && this.sameCharName(remetente, this.inimigo.nome)) {
+                    this.logOly("Gatilho de início remoto recebido. Forçando entrada!");
+                    
+                    // RESET DE TRAVAS: Garante que a conta local entre, não importa o estado anterior
+                    this.playerConfirmou = true; 
+                    this.rivalConfirmou = true;
+                    
+                    // Se o botão de confirmar ainda estava ativo, desabilita para feedback visual
+                    this.atualizarStatusUIConfirmacaoLocal();
+                    
+                    // Pequeno delay para garantir que a UI processou a confirmação antes de mudar de tela
+                    setTimeout(() => {
+                        this.entrarNoDuelo();
+                    }, 100);
+                }
+                break;
+
             case 'oly_hit':
-                if (this.inimigo && remetente === this.inimigo.nome) {
+                if (this.inimigo && this.sameCharName(remetente, this.inimigo.nome)) {
                     this.receberDanoMultiplayer(dados.damage, dados.isCrit, dados.skillName);
                 }
                 break;
-            case 'oly_skill_effect':
-                if (this.inimigo && remetente === this.inimigo.nome) {
-                    this.processarEfeitoMultiplayer(dados);
-                }
-                break;
+
             case 'oly_sync_hp':
-                if (this.inimigo && remetente === this.inimigo.nome) {
+                if (this.inimigo && this.sameCharName(remetente, this.inimigo.nome)) {
                     this.inimigo.hp = dados.hp;
                     this.inimigo.cp = dados.cp;
                     this.renderizarUI();
                 }
                 break;
+
             case 'oly_end':
-                // Se recebi o sinal de fim e o vencedor sou EU, eu ganhei!
-                if (dados.winner === window.charName) {
-                    console.log("🏆 Vitória recebida via sinal cloud!");
+                if (this.sameCharName(dados.winner, window.charName)) {
                     this.finalizar(true);
-                } else if (this.inimigo && dados.winner === this.inimigo.nome) {
-                    // Se o vencedor é o outro, eu perdi (redundância)
+                } else if (this.inimigo && this.sameCharName(dados.winner, this.inimigo.nome)) {
                     this.finalizar(false);
                 }
                 break;
         }
     },
 
-    processarEfeitoMultiplayer(dados) {
-        const { skillName, tipo, poder, icone, cor } = dados;
-        
-        if (tipo === "cura") {
-            this.inimigo.hp = Math.min(this.inimigo.maxHp, this.inimigo.hp + Math.floor(this.inimigo.maxHp * poder));
-            this.escreverLog(`<span style="color:#10b981;">[${skillName}] ${this.inimigo.nome} healed!</span>`);
-        } 
-        else if (tipo === "debuff") {
-            this.escreverLog(`<span style="color:${cor || '#fca5a5'}; font-weight:bold;">[${skillName}] ${this.inimigo.nome} cursed you!</span>`);
-            this.aplicarMeuDebuff(skillName, poder || 0.7);
-        }
-        else if (tipo.startsWith("buff")) {
-            this.escreverLog(`<span style="color:${cor || '#ddd'};">[${skillName}] ${this.inimigo.nome} ativou um buff!</span>`);
-        }
-        else if (tipo === "stun") {
-            this.escreverLog(`<span style="color:#facc15; font-weight:bold;">[${skillName}] ${this.inimigo.nome} te ATORDOOU!</span>`);
-            this.aplicarMeuStun(dados.duracao || 3000);
-        }
+    vincularInimigo(dados) {
+        this.multiplayer = true;
+        this.olyPairSessionId = dados.sessionId || ('oly_pair_' + Date.now());
+        this.inimigo = dados;
+        this.inimigo.hp = dados.maxHp;
+        this.inimigo.cp = dados.maxCp;
+        this.inimigo.mp = dados.maxMp;
 
+        // Salva a sessão no localStorage para persistência de 5 minutos
+        localStorage.setItem('l2mini_oly_session', JSON.stringify({
+            inimigo: this.inimigo,
+            sessionId: this.olyPairSessionId,
+            timestamp: Date.now()
+        }));
+
+        this.setupPaperdolls();
         this.renderizarUI();
-    },
-
-    aplicarMeuDebuff(nome, mult) {
-        if (!window.meusDebuffsOly) window.meusDebuffsOly = {};
-        window.meusDebuffsOly[nome] = true;
+        this.setOlympiadLobbyMatched(true);
+        this.escreverLog(`<span style="color:#facc15;">[Multiplayer] Oponente conectado: ${this.inimigo.nome}!</span>`);
         
-        // Aplica efeito temporário nos status globais
-        const originalPDef = window.playerStats.pDef;
-        const originalMDef = window.playerStats.mDef;
-        
-        if (nome.includes("Hex") || nome.includes("Gloom") || nome.includes("Surrender")) {
-            window.playerStats.pDef = Math.floor(window.playerStats.pDef * mult);
-            window.playerStats.mDef = Math.floor(window.playerStats.mDef * mult);
+        // Para o envio de desafios, mas mantém o heartbeat
+        if (this.challengeInterval) {
+            clearInterval(this.challengeInterval);
+            this.challengeInterval = null;
         }
-
-        if (typeof window.atualizar === 'function') window.atualizar();
-
-        setTimeout(() => {
-            delete window.meusDebuffsOly[nome];
-            window.playerStats.pDef = originalPDef;
-            window.playerStats.mDef = originalMDef;
-            this.escreverLog(`<span style="color:#aaa;">O efeito de ${nome} expirou.</span>`);
-            if (typeof window.atualizar === 'function') window.atualizar();
-        }, 15000);
-    },
-
-    aplicarMeuStun(ms) {
-        window.isStunnedOly = true;
-        if (window.mostrarAviso) window.mostrarAviso(typeof window.t === 'function' ? window.t('game.olympiad.stunned') : 'STUNNED!');
-        
-        // Bloqueia comandos (simulado via flag)
-        const btnAtaque = document.getElementById('btn-oly-ataque');
-        if (btnAtaque) btnAtaque.disabled = true;
-
-        setTimeout(() => {
-            window.isStunnedOly = false;
-            if (btnAtaque) btnAtaque.disabled = false;
-            this.escreverLog(`<span style="color:#aaa;">You recovered from stun.</span>`);
-        }, ms);
-    },
-
-    atualizarStatusConfirmacao() {
-        const statusRival = document.getElementById('oly-status-rival');
-        if (statusRival && this.rivalConfirmou) {
-            statusRival.innerText = (typeof window.t === 'function') ? window.t('game.olympiadUi.confirmed') : 'CONFIRMED';
-            statusRival.style.color = "#22c55e";
-        }
-        if (this.playerConfirmou && this.rivalConfirmou) {
-            this.escreverLog(`<span style="color:#22c55e;">[Multiplayer] Both players ready! The duel is starting...</span>`);
-            setTimeout(() => this.entrarNoDuelo(), 1000);
-        }
+        this.iniciarHeartbeatLobby();
     },
 
     aceitarDesafio(dadosOponente) {
-        // SEGURANÇA: Se eu já tenho um inimigo ou não estou no lobby, ignoro
         if (!this.lobbyAtivo || this.inimigo || this.ativo) return;
-        
-        // SEGURANÇA: Não aceitar desafio de si mesmo (mesmo nome)
-        if (dadosOponente.nome === window.charName) return;
-
-        // SEGURANÇA: Só aceita se for um player real (evita bots fantasmas)
+        if (this.sameCharName(dadosOponente.nome, window.charName)) return;
         if (!dadosOponente.isRealPlayer) return;
 
-        console.log("⚔️ Desafio Recebido de:", dadosOponente.nome, "Session:", dadosOponente.sessionId);
+        console.log("⚔️ [Oly] Aceitando desafio de:", dadosOponente.nome);
         
-        // Se eu aceitei o desafio dele, eu respondo com os meus dados e o MESMO sessionId para fechar o par
         const meusDados = this.gerarMeusDadosParaOponente();
-        meusDados.sessionId = dadosOponente.sessionId;
+        meusDados.sessionId = dadosOponente.sessionId || ('oly_pair_' + Date.now());
         meusDados.isResponse = true;
 
-        // Agora eu me conecto a ele ANTES de enviar a resposta para garantir que estou pronto para receber o oly_confirm
-        this.multiplayer = true;
-        this.inimigo = dadosOponente;
-        this.inimigo.hp = dadosOponente.maxHp;
-        this.inimigo.cp = dadosOponente.maxCp;
-        this.inimigo.mp = dadosOponente.maxMp;
-        
-        this.setupPaperdolls();
-        this.renderizarUI();
-        this.escreverLog(`<span style="color:#facc15;">[Multiplayer] Oponente encontrado: ${this.inimigo.nome}!</span>`);
+        this.vincularInimigo(dadosOponente);
+        this.olyPairSessionId = meusDados.sessionId;
 
-        // Agora sim enviamos a resposta
-        window.SupabaseAPI.broadcastCombat('oly_challenge_response', meusDados);
+        // Responde ao desafio (envio múltiplo para garantir entrega)
+        const responder = () => window.SupabaseAPI.broadcastCombat('oly_challenge_response', meusDados);
+        responder();
+        setTimeout(responder, 500);
+        setTimeout(responder, 1500);
     },
 
     gerarMeusDadosParaOponente() {
@@ -247,6 +317,7 @@ window.OlympiadEngine = {
             critRate: window.playerStats.critRate,
             atkSpd: window.playerStats.atkSpeed,
             isRealPlayer: true,
+            isMage: typeof window.isClasseMagica === 'function' ? window.isClasseMagica(window.charClass) : false,
             visual: {
                 raca: window.charRace,
                 isFem: window.charGender === "Female",
@@ -257,9 +328,10 @@ window.OlympiadEngine = {
     },
 
     receberDanoMultiplayer(dano, isCrit, skillName) {
-        // Aplica o multiplicador global de PvP para players reais (0.35 conforme GDD §6)
-        // Isso evita que um player dê "one-shot" no outro instantaneamente, permitindo estratégia.
-        const danoAjustado = Math.max(1, Math.floor(dano * 0.35));
+        const rawD = Number(dano);
+        if (!Number.isFinite(rawD) || rawD <= 0 || rawD > 5e7) return;
+
+        const danoAjustado = this.mitigateDamageForRealtimeOlyPvP(rawD);
         
         this.danoRecebido += danoAjustado;
         
@@ -282,11 +354,15 @@ window.OlympiadEngine = {
         this.renderizarUI();
         if (typeof atualizar === 'function') atualizar();
 
+        if (this.multiplayer) this.broadcastMyOlyVitalityToPeer();
+
         if (window.playerHP <= 0) {
             window.playerHP = 0;
-            // Avisa a rede quem é o herói vencedor
             if (window.SupabaseAPI) {
-                window.SupabaseAPI.broadcastCombat('oly_end', { winner: this.inimigo.nome });
+                window.SupabaseAPI.broadcastCombat('oly_end', {
+                    winner: this.inimigo.nome,
+                    olyPairSessionId: this.olyPairSessionId
+                });
             }
             this.finalizar(false);
         }
@@ -366,6 +442,29 @@ window.OlympiadEngine = {
             return;
         }
         
+        // Verifica se há uma sessão de duelo persistente no localStorage (5 min de tolerância)
+        const savedSession = localStorage.getItem('l2mini_oly_session');
+        if (savedSession) {
+            try {
+                const session = JSON.parse(savedSession);
+                const age = Date.now() - session.timestamp;
+                if (age < 300000) { // 5 minutos
+                    console.log("🛡️ [Oly] Recuperando sessão de duelo anterior...");
+                    this.multiplayer = true;
+                    this.inimigo = session.inimigo;
+                    this.olyPairSessionId = session.sessionId;
+                    this.lobbyAtivo = true;
+                    this.setupPaperdolls();
+                    this.renderizarUI();
+                    this.setOlympiadLobbyMatched(true);
+                    this.escreverLog(`<span style="color:#facc15;">[Multiplayer] Sessão recuperada com ${this.inimigo.nome}!</span>`);
+                    this.iniciarHeartbeatLobby();
+                    this.prepararTelaLobby();
+                    return;
+                }
+            } catch (e) { localStorage.removeItem('l2mini_oly_session'); }
+        }
+
         // Limpa estado anterior completamente para evitar "fantasmas"
         this.reset();
         this.lobbyAtivo = true;
@@ -383,33 +482,11 @@ window.OlympiadEngine = {
         
         // Envia sinal de que estou buscando luta para todos
         if (window.SupabaseAPI && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.enabled) {
-            // Adicionamos um ID de sessão único para esta busca de luta
             this.currentOlySessionId = 'oly_sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            console.log("📡 [Oly] Iniciando busca de luta. SessionId:", this.currentOlySessionId);
             
-            const dadosDesafio = this.gerarMeusDadosParaOponente();
-            dadosDesafio.sessionId = this.currentOlySessionId;
-            
-            // Log para debug
-            console.log("📡 Enviando oly_challenge com sessionId:", this.currentOlySessionId);
-            
-            // Força uma reconexão limpa antes de começar os desafios
-            window.SupabaseAPI.ensureChatConnected(window.charName, {}).then(() => {
-                // Pequeno delay para garantir que o canal está pronto para broadcast
-                setTimeout(() => {
-                    window.SupabaseAPI.broadcastCombat('oly_challenge', dadosDesafio);
-                    
-                    // Inicia um intervalo de re-broadcast para garantir que novos jogadores vejam o lobby
-                    if (this.challengeInterval) clearInterval(this.challengeInterval);
-                    this.challengeInterval = setInterval(() => {
-                        if (this.lobbyAtivo && !this.inimigo && !this.ativo) {
-                            console.log("📡 Re-enviando desafio Olympiad...");
-                            window.SupabaseAPI.broadcastCombat('oly_challenge', dadosDesafio);
-                        } else {
-                            clearInterval(this.challengeInterval);
-                        }
-                    }, 2500); // Mais agressivo ainda para vencer o cache
-                }, 1000);
-            });
+            // Inicia o heartbeat imediatamente, o SupabaseAPI agora gerencia o canal de combate global
+            this.iniciarHeartbeatLobby();
         }
 
         // CORREÇÃO: Garante que a barra de atalhos apareça e seja renderizada no lobby
@@ -485,15 +562,17 @@ window.OlympiadEngine = {
             const visual = this.inimigo.visual;
             const racaRival = visual.raca;
             const isFem = visual.isFem;
+            const rivalMage = !!this.inimigo.isMage;
 
             let baseRivalSrc = 'assets/chars/base_fighter.png';
-            if (racaRival === "Human" && !this.inimigo.isMage) {
+            if (racaRival === "Human" && !rivalMage) {
                 baseRivalSrc = 'assets/chars/base_fighter.png'; 
             } else {
                 let pR = "";
                 if (racaRival === "Dark Elf") pR = "de_";
                 else if (racaRival === "Elf") pR = "elf_";
                 else if (racaRival === "Orc") pR = "orc_";
+                else if (racaRival === "Dwarf") pR = "dwarf_";
 
                 let sR = isFem ? "mulher" : "homem";
                 baseRivalSrc = `assets/chars/${pR}${sR}.png`; 
@@ -531,13 +610,10 @@ window.OlympiadEngine = {
             // Em multiplayer, inicia um loop silencioso de sincronização de HP para evitar desync
             this.syncInterval = setInterval(() => {
                 if (this.ativo) {
-                    window.SupabaseAPI.broadcastCombat('oly_sync_hp', { 
-                        sender: window.charName, 
-                        hp: window.playerHP, 
-                        cp: window.playerCP 
-                    });
+                    this.broadcastMyOlyVitalityToPeer();
                 } else {
                     clearInterval(this.syncInterval);
+                    this.syncInterval = null;
                 }
             }, 2000);
         }
@@ -572,12 +648,38 @@ window.OlympiadEngine = {
             btn.style.opacity = '1';
             btn.innerText = (typeof window.t === 'function') ? window.t('game.olympiadUi.confirmBtn') : 'CONFIRM';
         }
+        this.setOlympiadLobbyMatched(false);
     },
 
     confirmarPlayer() {
         if (!this.lobbyAtivo || this.playerConfirmou) return;
+        
         this.playerConfirmou = true;
+        this.atualizarStatusUIConfirmacaoLocal();
 
+        if (this.multiplayer) {
+            // MULTIPLAYER: Comunica confirmação via Supabase (Envio Múltiplo)
+            if (window.SupabaseAPI) {
+                console.log("📡 [Oly] Enviando oly_confirm.");
+                const enviar = () => {
+                    window.SupabaseAPI.broadcastCombat('oly_confirm', {
+                        nome: window.charName,
+                        olyPairSessionId: this.olyPairSessionId
+                    });
+                };
+                enviar();
+                setTimeout(enviar, 500);
+                setTimeout(enviar, 1500);
+                this.atualizarStatusConfirmacao();
+            }
+        } else {
+            // BOT (Apenas offline)
+            const atraso = 1200 + Math.floor(Math.random() * 2500);
+            this.timerConfirmRival = setTimeout(() => this.confirmarRival(), atraso);
+        }
+    },
+
+    atualizarStatusUIConfirmacaoLocal() {
         const statusPlayer = document.getElementById('oly-status-player');
         const msg = document.getElementById('oly-lobby-msg');
         const btn = document.getElementById('btn-oly-confirmar');
@@ -592,14 +694,7 @@ window.OlympiadEngine = {
             btn.style.opacity = '0.7';
             btn.innerText = (typeof window.t === 'function') ? window.t('game.olympiadUi.confirmed') : 'CONFIRMED';
         }
-
-        if (this.multiplayer) {
-            // MULTIPLAYER: Comunica confirmação via Supabase
-            if (window.SupabaseAPI) {
-                window.SupabaseAPI.broadcastCombat('oly_confirm', { sender: window.charName });
-                this.atualizarStatusConfirmacao();
-            }
-        } else {
+    },
             // SEGURANÇA: Em modo online, não permitimos confirmação de bots
             if (window.SupabaseAPI && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.enabled && window.SupabaseAPI.getUser()) {
                 console.log("ℹ️ Modo Online: Aguardando confirmação de jogador real...");
@@ -640,13 +735,7 @@ window.OlympiadEngine = {
     confirmarRival() {
         if (!this.lobbyAtivo) return;
         
-        // SEGURANÇA: Em modo online, NUNCA confirmar rival se ele não for um player real
-        if (window.SupabaseAPI && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.enabled && window.SupabaseAPI.getUser()) {
-            if (!this.inimigo || !this.inimigo.isRealPlayer) {
-                console.warn("⚠️ Tentativa de confirmar rival inválido em modo online. Abortando.");
-                return;
-            }
-        }
+        this.logOly("Rival confirmou (via evento ou bot)");
 
         this.rivalConfirmou = true;
         const statusRival = document.getElementById('oly-status-rival');
@@ -664,10 +753,35 @@ window.OlympiadEngine = {
     },
 
     entrarNoDuelo() {
-        if (!this.lobbyAtivo) return;
-        this.lobbyAtivo = false;
+        // Se já estiver ativo, não faz nada
+        if (this.ativo) return;
+        
+        // Se não tem inimigo, algo está errado
+        if (!this.inimigo) {
+            this.logOly("Erro: Tentativa de entrar no duelo sem inimigo.");
+            return;
+        }
+
+        this.logOly("Entrando no duelo!");
+
+        // Se for multiplayer, envia um gatilho de segurança para a outra conta entrar também
+        if (this.multiplayer && window.SupabaseAPI) {
+            const sendTrigger = () => {
+                window.SupabaseAPI.broadcastCombat('oly_start_trigger', {
+                    nome: window.charName,
+                    olyPairSessionId: this.olyPairSessionId
+                });
+            };
+            sendTrigger();
+            setTimeout(sendTrigger, 500); // Redundância para o PC/Celular que ficou pra trás
+        }
+
         const lobby = document.getElementById('olympiad-lobby');
-        if (lobby) lobby.style.display = 'none';
+        if (this.lobbyAtivo) this.lobbyAtivo = false;
+        if (lobby) {
+            lobby.style.display = 'none';
+            lobby.classList.remove('olympiad-lobby--matched');
+        }
 
         // Regra anti-trapaça:
         // só recupera HP/MP quando a revanche for confirmada e o duelo realmente começar.
@@ -1131,7 +1245,9 @@ window.OlympiadEngine = {
         // Multiplicador global de PvP (Aumentado para ser mais "cruel")
         dano = Math.floor(dano * 0.80); 
 
+        let atkCrit = false;
         if (!isMage && Math.random() * 100 < playerStats.critRate) {
+            atkCrit = true;
             dano = Math.floor(dano * (motorBuffsEspeciais?.critMult || 2.0));
             this.escreverLog(`<span style="color:#ef4444; font-weight:bold;">CRITICAL HIT! ${dano}</span>`);
         } else {
@@ -1140,13 +1256,16 @@ window.OlympiadEngine = {
 
         this.danoCausado += dano;
 
-        if (this.multiplayer) {
-            // MULTIPLAYER: Envia o dano para o oponente
+        if (this.multiplayer && window.SupabaseAPI) {
+            const dMit = this.mitigateDamageForRealtimeOlyPvP(dano);
+            this.mirrorApplyDamageToRival(dMit);
+            this.renderizarUI();
             window.SupabaseAPI.broadcastCombat('oly_hit', { 
                 attacker: window.charName, 
                 damage: dano, 
-                isCrit: true,
-                target: this.inimigo.nome 
+                isCrit: atkCrit,
+                target: this.inimigo.nome,
+                olyPairSessionId: this.olyPairSessionId
             });
         } else {
             this.receberDano(dano);
@@ -1181,11 +1300,13 @@ window.OlympiadEngine = {
             this.escreverLog(`<span style="color:#10b981;">${nomeSkill}: +${Math.max(1, cura)} HP.</span>`);
             if (this.multiplayer) {
                 window.SupabaseAPI.broadcastCombat('oly_skill_effect', { 
-                    sender: window.charName, skillName: nomeSkill, tipo: "cura", poder: skill.poder || 0.3 
+                    sender: window.charName, skillName: nomeSkill, tipo: "cura", poder: skill.poder || 0.3,
+                    olyPairSessionId: this.olyPairSessionId
                 });
             }
             this.renderizarUI();
             if (typeof atualizar === 'function') atualizar();
+            if (this.multiplayer && this.ativo) this.broadcastMyOlyVitalityToPeer();
             return;
         }
 
@@ -1207,7 +1328,8 @@ window.OlympiadEngine = {
             
             if (this.multiplayer) {
                 window.SupabaseAPI.broadcastCombat('oly_skill_effect', { 
-                    sender: window.charName, skillName: nomeSkill, tipo: tipo, cor: skill.cor 
+                    sender: window.charName, skillName: nomeSkill, tipo: tipo, cor: skill.cor,
+                    olyPairSessionId: this.olyPairSessionId
                 });
             }
 
@@ -1248,7 +1370,8 @@ window.OlympiadEngine = {
                     skillName: nomeSkill, 
                     tipo: "debuff", 
                     poder: 0.7, 
-                    cor: skill.cor 
+                    cor: skill.cor,
+                    olyPairSessionId: this.olyPairSessionId
                 });
             }
         }
@@ -1258,7 +1381,8 @@ window.OlympiadEngine = {
             if (Math.random() < 0.5) { // 50% chance de stun no PvP
                 if (this.multiplayer) {
                     window.SupabaseAPI.broadcastCombat('oly_skill_effect', { 
-                        sender: window.charName, skillName: nomeSkill, tipo: "stun", duracao: 3000 
+                        sender: window.charName, skillName: nomeSkill, tipo: "stun", duracao: 3000,
+                        olyPairSessionId: this.olyPairSessionId
                     });
                 }
             }
@@ -1267,13 +1391,17 @@ window.OlympiadEngine = {
         this.escreverLog(`<span style="color:${skill.cor || '#ddd'};">${nomeSkill} causou ${dano} de dano.</span>`);
         this.danoCausado += dano;
 
-        if (this.multiplayer) {
+        if (this.multiplayer && window.SupabaseAPI) {
+            const dMit = this.mitigateDamageForRealtimeOlyPvP(dano);
+            this.mirrorApplyDamageToRival(dMit);
+            this.renderizarUI();
             window.SupabaseAPI.broadcastCombat('oly_hit', { 
                 attacker: window.charName, 
                 damage: dano, 
                 isCrit: false, 
                 skillName: nomeSkill,
-                target: this.inimigo.nome 
+                target: this.inimigo.nome,
+                olyPairSessionId: this.olyPairSessionId
             });
         } else {
             this.receberDano(dano);
@@ -1284,6 +1412,7 @@ window.OlympiadEngine = {
             window.playerHP = Math.min(window.playerStats.maxHp, window.playerHP + Math.max(1, cura));
             this.escreverLog(`<span style="color:#10b981;">Dreno: +${Math.max(1, cura)} HP.</span>`);
             if (typeof atualizar === 'function') atualizar();
+            if (this.multiplayer && this.ativo) this.broadcastMyOlyVitalityToPeer();
         }
     },
 
@@ -1309,6 +1438,18 @@ window.OlympiadEngine = {
 
     finalizar(vitoria) {
         if (!this.ativo) return;
+
+        // Limpa a sessão persistente ao finalizar a luta normalmente
+        localStorage.removeItem('l2mini_oly_session');
+
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+            this.syncInterval = null;
+        }
+        if (this._duelBothReadyTimer) {
+            clearTimeout(this._duelBothReadyTimer);
+            this._duelBothReadyTimer = null;
+        }
 
         this.ativo = false;
         this.resumoAtivo = true;

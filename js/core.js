@@ -49,8 +49,38 @@ function iniciarJogo() {
         }
     }
 
+    // --- SISTEMA DE PERSISTÊNCIA MOBILE (RESUME) ---
+    const lastLoc = localStorage.getItem('l2mini_last_location');
+    const lastNpc = localStorage.getItem('l2mini_last_npc');
+    const lastSocial = localStorage.getItem('l2mini_last_social_menu');
+
+    if (lastLoc) {
+        console.log("📱 [Mobile] Retornando para última localização:", lastLoc);
+        irPara(lastLoc);
+        
+        // Se estava em um NPC ou menu social, reabre
+        if (lastLoc === 'cidade' && lastNpc) {
+            abrirNpc(lastNpc);
+        } else if (lastLoc === 'social' && lastSocial) {
+            abrirMenuSocial(lastSocial);
+        }
+    } else {
+        atualizar(); irPara('perfil'); 
+    }
+
     if (typeof atualizarWorldDailyBossUI === 'function') atualizarWorldDailyBossUI();
     if (typeof iniciarChatAutomatico === 'function') iniciarChatAutomatico();
+
+    // Limpeza periódica de sessões antigas (Heartbeat Global)
+    setInterval(() => {
+        const olySession = localStorage.getItem('l2mini_oly_session');
+        if (olySession) {
+            const session = JSON.parse(olySession);
+            if (Date.now() - session.timestamp > 300000) {
+                localStorage.removeItem('l2mini_oly_session');
+            }
+        }
+    }, 60000);
 }
 
 function escreverLog(msg) { 

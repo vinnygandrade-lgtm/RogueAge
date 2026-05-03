@@ -25,6 +25,7 @@ alwaysApply: true
 
 ## GM / servidor
 - Mensagens vindas do Supabase: idealmente campo único por idioma (`message_en` / `message_pt`) ou payload estruturado; o cliente escolhe com `I18n.getLocale()`.
+- **Sessão / multi-login / kick:** Textos mostrados ao jogador (sessão encerrada noutro dispositivo, expiração, troca de personagem) devem usar **`t('…')`** + chaves em **`locales_bundle.js`** (**en** + **pt-BR** na mesma alteração). Ver **§7 — Multiplayer Realtime** em `l2mini-project-rules.mdc`.
 
 ## Ordem de scripts
 - `js/i18n/i18n.js` **depois** `js/core_globals.js`, em seguida `js/i18n/locales_bundle.js` (define `window.I18N_LOCALES`).
@@ -37,4 +38,4 @@ alwaysApply: true
 - **`t()`**, **`refreshDom`** e aplicação por elemento são **defensivos** (`try/catch`, chave inválida → fallback seguro): um bundle corrupto, nó DOM estranho ou chave em falha **não** deve derrubar o jogo inteiro.
 
 ## Alinhamento com o GDD
-- Checklist evolutivo (persistência, economia, contratos, texto servidor): **§12** em `l2mini-project-rules.mdc`.
+- Checklist evolutivo (persistência, economia, contratos, texto servidor, **Realtime / anti-fantasma**): **§7** e **§12** em `l2mini-project-rules.mdc`.

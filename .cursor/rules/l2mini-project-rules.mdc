@@ -38,7 +38,8 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
   - `endgame_pursuits.js`: Metas contínuas pós–S-Grade (Renome, caça semanal a campeões elite, painel Ascensão, título derivado thresholds); persistência em `window.endgameData` / `data.endgame` no save — ver §7 e §12.3.
   - `ui_chat.js`: Chat global/clã, histórico local, inspeção de jogadores (`inspectionCache`) e payloads estruturados (ex.: `ascensionTitle`) — alinhado a §7 e §12.5.
 - `db/`: Bancos de dados estáticos (ex: `db_items.js`, `db_mobs.js`, `db_bosses.js`, `db_bots.js`, `db_castles.js`).
-- `systems/`: Motores complexos (ex.: `raid_engine.js`, `olympiad_engine.js`, `clan_war_engine.js`, `castle_engine.js`, `mailbox_engine.js`, `ranking_seasons.js`, `reward_engine.js`, `gm_engine.js`, `market_cloud.js`, `ranking_manager.js` — merge do Top mundial (bots + `characters`); `multiplayer_visuals.js` — tooltip / UX de presença Realtime.
+- `systems/`: Motores complexos (ex.: `raid_engine.js`, `clan_war_engine.js`, `castle_engine.js`, `mailbox_engine.js`, `ranking_seasons.js`, `reward_engine.js`, `gm_engine.js`, `market_cloud.js`, `ranking_manager.js` — merge do Top mundial (bots + `characters`); `multiplayer_visuals.js` — tooltip / UX de presença Realtime.
+- **`js/olympiad_engine.js`** (na raiz de `js/`, não em `systems/`): lobby, pareamento e combate da **Olympiada X1**; com sessão Supabase usa broadcast via `SupabaseAPI` — ver §7 (Multiplayer Realtime).
 - **SQL Supabase (raiz do repo):** `supabase_security_rules.sql`, `supabase_market_listings.sql`, `supabase_market_01_create_table.sql` / `02` / `03` ou `supabase_market_full_setup.sql`, `supabase_market_authority.sql` — mercado: ver §7; **chat de clã:** `supabase_clan_chat.sql`, `supabase_clan_chat_ascension_title.sql` (coluna opcional `ascension_title` nas mensagens).
 
 ## 3. Regras de Edição (Golden Rules)
@@ -108,6 +109,15 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
     - **Chat global (broadcast Realtime):** payload com campos estruturados (`autor`, `mensagem`, `tipo`, `canal`, **`ascensionTitle`**) — §12.5.
     - **Chat de clã:** tabela `clan_chat_messages`; coluna opcional **`ascension_title`** — script `supabase_clan_chat_ascension_title.sql` (reaplicar no Supabase se a feature estiver ativa).
     - **Presença (`presence.track`):** metadados opcionais **`ascensionTitle`** / **`renown`** para UX (tooltip, futuras UIs); mesma ressalva de confiança que o JSONB até haver autoridade no servidor.
+- **Multiplayer Realtime (Presence + Broadcast)** — `js/systems/supabase_api.js` + consumidores (`ui_chat.js`, `js/olympiad_engine.js`, etc.):
+    - **Canal único partilhado:** Chat global e eventos de combate/Olympiada devem usar **o mesmo** `client.channel(<nome>)` que está subscrito na sessão ativa. Evitar criar canais paralelos com nomes diferentes para o “mesmo” propósito sem documentar — divide a audiência e parece “multiplayer morto”.
+    - **Versão do nome do canal (“bump” controlado):** Quando houver **mudança breaking** de payload, bug grave de cache/CDN ou migração coordenada de clientes, pode-se incrementar o nome estável (ex.: `online-players-v2`). **Documentar no commit** o motivo e avisar deploy; todos os clientes em produção devem estar na mesma versão ou ficam em ilhas.
+    - **Presença (`presence.key`):** Usar **`charName`** (ou identificador explícito acordado) como chave de presença. Ao **mudar de personagem** ou refazer login na mesma aba, é obrigatório **desmontar e recriar** o canal de presença (ou fluxo equivalente em `updatePresence`) para não deixar **fantasma** do nome antigo no servidor.
+    - **Sessão de aba / anti-fantasma:** Gerar e manter um **`tabSessionId`** (ou equivalente) por carregamento da app; incluir nos payloads de **broadcast** relevantes (`chat`, `combat`, desafios Olympiada). No handler, **descartar** eventos que pareçam originados pelo **mesmo `charName` com `sessionId` obsoleto** (sessão anterior, outra aba já encerrada), salvo caminhos documentados (ex.: handshake que fecha pareamento).
+    - **Olympiada X1 em nuvem:** Manter **`sessionId` / correlacionador** por tentativa de match (`currentOlySessionId` ou nome estável no código); **proibir auto-match** contra o próprio `charName` exceto o caso explícito de **`oly_challenge_response`** necessário para fechar o par. Com sessão Supabase ativa, **não** simular oponente humano com bots nem “confirmar” rival fictício — só jogador real do outro lado (comportamento já desejado pelo produto).
+    - **Chat em modo nuvem:** Com utilizador autenticado no Supabase, **desativar** geração de mensagens de bots no chat global (`ui_chat.js`) para não mascarar falhas de Realtime nem poluir UX.
+    - **Multi-login (mesma conta):** Política desejada — **uma sessão jogável por conta** (kick das outras abas/dispositivos via broadcast `gm_command` / `kick_other_sessions` direcionado ao **email da conta**, não só ao nome do personagem). Mensagem ao cliente expulso via `l2Alert` / i18n. Manter envio **idempotente/repetido** curto (vários timeouts) se necessário para robustez em redes lentas — sem spam excessivo.
+    - **Autoridade futura:** Pareamento, aceitação de duelo e resultados de arena devem, **em destino**, passar por **RPC ou sala autoritativa** (Postgres/Edge), não só broadcast cliente-a-cliente; enquanto for bridge Realtime, **sinalizar dívida** no código (§9, §12.7).
 - **Reward Hub (Prêmios GM e Staff):**
     - **Tabela Supabase:** `public.rewards` (ex.: `char_name`, `items` JSONB, `claimed`, `sender`, `message`, timestamps). Realtime/RLS conforme políticas do projeto.
     - **Cliente:** `RewardEngine` busca prêmios pendentes (`claimed = false`), exibe o hub/modal, aplica moedas/itens no **CLAIM** e persiste com `salvarJogo` / sync cloud.
@@ -194,6 +204,7 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 4. Renomeou conteúdo persistido → **migração** ou alias documentado.
 5. Novo ícone de item em **`assets/itens`** → **quadrado 1:1**, **`256×256` px** PNG (ver **§11.3 Ícones de loot**) e moldura compatível com o set de referência — **cor de fundo** conforme **brief** do utilizador/fornecedor quando houver; sem brief, igualar aos irmãos da série ou perguntar antes de fugir à paleta.
 6. Nova arte de skill em **`assets/skills`** → **PNG `256×256` px**, moldura/set coerentes (**§11.3 Ícones de habilidades**).
+7. Tocar em **Realtime / Olympiada / chat global** → alinhar a **§7 — Multiplayer Realtime** (canal único, bump de nome só documentado, `tabSessionId` nos broadcasts quando aplicável, teardown de presença ao trocar personagem).
 
 ## 12. Checklist evolutivo (anti-retrabalho / caminho para lançamento sério)
 
@@ -234,7 +245,7 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 - **Modal / overlay único (`abrirModal`):** Ao adicionar janelas flutuantes “de jogo” com véu escuro partilhado, alinhar a **estrutura HTML** e o **lifecycle** ao que está documentado na **§5** (pilha `#modal-overlay`, evitar orphans, reset ao `irPara`/`mudarTela`).
 - **Poucos pontos de entrada** por domínio (mercado, recompensa, mail); evitar espalhar a mesma regra em dezenas de ficheiros.
 - Respostas/erros com **códigos ou mensagens estáveis** consumíveis pela UI (evitar depender de `substring` em texto livre).
-- **Broadcast / Realtime:** preferir **objetos com campos** a frases montadas só no servidor — facilita i18n, filtros e evolução sem breaking todos os clientes.
+- **Broadcast / Realtime:** preferir **objetos com campos** a frases montadas só no servidor — facilita i18n, filtros e evolução sem breaking todos os clientes. Incluir **`sessionId` / `tabSessionId`** onde importe distinguir sessão atual de fantasmas; reset de estado de Olympiada ao **carregar personagem** (`carregarJogo` / `OlympiadEngine.reset()` quando aplicável). Contrato detalhado: **§7 — Multiplayer Realtime**.
 
 ### 12.6 SQL, RLS e operação
 - Scripts SQL relevantes **versionados no repositório**; mudanças aplicadas no projeto Supabase **manualmente** quando necessário (o remoto não segue Git automaticamente).
@@ -249,3 +260,4 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 2. **Segurança:** Implementar validação de `auth.uid()` e posse de recursos no SQL.
 3. **API:** Adicionar o método correspondente em `js/systems/supabase_api.js`.
 4. **UX:** No frontend, tratar o estado `loading` (bloquear botões) e sincronizar o resultado do servidor com o estado local.
+5. **Realtime (quando aplicável):** Se a feature usar **Presence** ou **broadcast** no mesmo canal global, seguir **§7 — Multiplayer Realtime** (canal partilhado, payloads com correlacionadores, anti-fantasma); preferir evolução para **RPC autoritativa** quando o fluxo for competitivo ou económico (§9).

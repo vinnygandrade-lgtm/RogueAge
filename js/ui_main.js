@@ -296,6 +296,11 @@ function atualizarPreview() {
 }
 
 function mudarTela(id) { 
+    // Salva a tela atual para persistência (exceto telas de transição/login)
+    if (id === 'screen-game') {
+        localStorage.setItem('l2mini_last_main_screen', id);
+    }
+
     // Esconde absolutamente todas as telas principais primeiro (Garantia de Ouro)
     // Usamos display: none !important para evitar qualquer conflito com outras classes
     document.querySelectorAll('.screen').forEach(s => {
@@ -426,14 +431,20 @@ function fecharTodosModaisBackdropStack() {
 window.fecharTodosModaisBackdropStack = fecharTodosModaisBackdropStack;
 
 function abrirNpc(npcId) { 
+    localStorage.setItem('l2mini_last_npc', npcId);
     document.getElementById('praca-cidade').style.display = 'none'; 
     document.querySelectorAll('.npc-menu').forEach(menu => menu.style.display = 'none'); 
     document.getElementById('menu-' + npcId).style.display = 'flex'; 
     if (npcId === 'clans' && typeof renderizarClans === 'function') renderizarClans();
 }
-function fecharNpc() { document.querySelectorAll('.npc-menu').forEach(menu => menu.style.display = 'none'); document.getElementById('praca-cidade').style.display = 'block'; }
+function fecharNpc() { 
+    localStorage.removeItem('l2mini_last_npc');
+    document.querySelectorAll('.npc-menu').forEach(menu => menu.style.display = 'none'); 
+    document.getElementById('praca-cidade').style.display = 'block'; 
+}
 
 function abrirMenuSocial(menuId) {
+    localStorage.setItem('l2mini_last_social_menu', menuId);
     // Esconde absolutamente todos os sub-menus antes de abrir o novo
     document.querySelectorAll('.npc-menu').forEach(menu => menu.style.display = 'none'); 
 
@@ -449,6 +460,7 @@ function abrirMenuSocial(menuId) {
 }
 
 function fecharNpcSocial() {
+    localStorage.removeItem('l2mini_last_social_menu');
     let pracaSocial = document.getElementById('praca-social');
     if (pracaSocial) pracaSocial.style.display = 'block';
     if (document.getElementById('menu-social-ranking')) document.getElementById('menu-social-ranking').style.display = 'none';
@@ -459,6 +471,9 @@ function fecharNpcSocial() {
 function irPara(lugar) {
     let telaVitoria = document.getElementById('janela-vitoria');
     if (telaVitoria && telaVitoria.style.display === 'flex') return; 
+
+    // Salva o lugar atual para persistência mobile
+    localStorage.setItem('l2mini_last_location', lugar);
 
     if (typeof OlympiadEngine !== 'undefined' && OlympiadEngine.ativo) {
         escreverLog(`<span style="color:#ef4444; font-weight:bold;">⚠️ You are in an Olympiad duel! Finish or leave the arena.</span>`);

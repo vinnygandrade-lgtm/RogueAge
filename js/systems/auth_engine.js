@@ -525,9 +525,24 @@ const AuthEngine = {
             localStorage.setItem('l2mini_accounts', JSON.stringify(accounts));
         }
 
-        // Recarrega e renderiza
-        this.loadCharacterList();
-        this.renderCharacterList();
+        // Nuvem: apaga o registo (sem isto, o personagem volta na próxima lista)
+        if (typeof SupabaseAPI !== 'undefined' && SUPABASE_CONFIG.enabled && SupabaseAPI.client) {
+            try {
+                const { data: { user } } = await SupabaseAPI.client.auth.getUser();
+                if (user) {
+                    const { error } = await SupabaseAPI.client
+                        .from('characters')
+                        .delete()
+                        .eq('char_name', name)
+                        .eq('user_id', user.id);
+                    if (error) console.error('[deleteCharacter] Supabase:', error);
+                }
+            } catch (e) {
+                console.error('[deleteCharacter]', e);
+            }
+        }
+
+        await this.loadCharacterList();
         if (window.mostrarAviso) window.mostrarAviso(authT('auth.characterDeleted'));
     },
 

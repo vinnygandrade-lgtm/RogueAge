@@ -523,3 +523,17 @@
     letter-spacing: 1px;
 }
 
+/* Olympiad: quando já há oponente, o lobby vira faixa compacta para ver os dois paperdolls na arena */
+#olympiad-lobby.olympiad-lobby--matched {
+    background: transparent !important;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 12px 170px;
+    pointer-events: none;
+}
+#olympiad-lobby.olympiad-lobby--matched > div:first-child {
+    pointer-events: auto;
+    max-width: 420px;
+    width: 100%;
+}
+
