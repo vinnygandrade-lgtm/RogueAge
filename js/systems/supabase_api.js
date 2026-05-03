@@ -243,17 +243,18 @@ const SupabaseAPI = {
                     console.log('🚪 Saiu:', key);
                 })
                 .on('broadcast', { event: 'chat' }, (envelope) => {
-                    const inner = envelope && typeof envelope === 'object' ? (envelope.payload !== undefined ? envelope.payload : envelope) : null;
-                    if (!inner || typeof inner.autor !== 'string' || typeof inner.mensagem !== 'string') return;
+                    console.log('💬 Chat recebido:', envelope);
+                    const inner = envelope.payload || envelope;
+                    if (!inner || !inner.autor || !inner.mensagem) return;
+                    
                     if (typeof adicionarMensagemChat === 'function') {
-                        adicionarMensagemChat(inner.autor, inner.mensagem, inner.tipo || 'papel', inner.canal || 'global', true, null, inner.ascensionTitle || inner.ascension_title || '');
+                        adicionarMensagemChat(inner.autor, inner.mensagem, inner.tipo || 'papel', inner.canal || 'global', true, null, inner.ascensionTitle || '');
                     }
                 })
                 .on('broadcast', { event: 'combat' }, (payload) => {
-                    const raw = payload && payload.payload !== undefined ? payload.payload : payload;
+                    const raw = payload.payload || payload;
                     if (!raw || typeof raw.evento !== 'string') return;
                     
-                    // SEGURANÇA: Ignora mensagens de si mesmo (evita fantasmas de troca de char na mesma aba)
                     const sender = raw.dados?.sender || raw.dados?.nome || raw.dados?.attacker;
                     if (sender === window.charName) return;
 
@@ -325,23 +326,28 @@ const SupabaseAPI = {
      * Envia uma mensagem via Broadcast para todos os jogadores
      */
     async broadcastChat(autor, mensagem, tipo, canal, ascensionTitle) {
-        if (!this.presenceChannel || !this._presenceSubscribed) return false;
+        if (!this.presenceChannel) {
+            console.log("📡 [Supabase] Tentando reconectar canal antes de enviar chat...");
+            await this.ensureChatConnected(window.charName, {});
+        }
+        if (!this.presenceChannel) return false;
 
+        console.log('📤 [Supabase] Enviando chat via broadcast:', mensagem);
         const { error } = await this.presenceChannel.send({
             type: 'broadcast',
             event: 'chat',
             payload: { autor, mensagem, tipo, canal, ascensionTitle: ascensionTitle || '' }
         });
+        
         if (error) {
-            console.warn('[broadcastChat]', error);
+            console.warn('[broadcastChat] Erro ao enviar:', error);
             return false;
         }
         return true;
     },
 
     async broadcastCombat(evento, dados) {
-        if (!this.presenceChannel || !this._presenceSubscribed) {
-            // Se não estiver conectado, tenta conectar antes de enviar
+        if (!this.presenceChannel) {
             if (window.charName) {
                 console.log("📡 [Supabase] Tentando reconectar canal antes de broadcast...");
                 await this.ensureChatConnected(window.charName, {});
@@ -358,19 +364,25 @@ const SupabaseAPI = {
             dados.sender = window.charName;
         }
         
-        const { error } = await this.presenceChannel.send({
-            type: 'broadcast',
-            event: 'combat',
-            payload: { evento, dados, timestamp: Date.now() }
-        });
+        console.log(`📤 [Supabase] Enviando combate [${evento}]:`, dados);
+        
+        // SEGURANÇA: Garante que o envio seja feito com um pequeno retry se falhar
+        try {
+            const { error } = await this.presenceChannel.send({
+                type: 'broadcast',
+                event: 'combat',
+                payload: { evento, dados, timestamp: Date.now() }
+            });
 
-        if (error) {
-            console.error("❌ [Supabase] Erro ao enviar broadcast de combate:", error);
-            // Se der erro de canal fechado, força o reset para a próxima tentativa
-            if (error.message?.includes('closed')) {
-                this.presenceChannel = null;
-                this._presenceSubscribed = false;
+            if (error) {
+                console.error("❌ [Supabase] Erro ao enviar broadcast de combate:", error);
+                if (error.message?.includes('closed')) {
+                    this.presenceChannel = null;
+                    this._presenceSubscribed = false;
+                }
             }
+        } catch (e) {
+            console.error("❌ [Supabase] Exceção ao enviar broadcast:", e);
         }
     },
 

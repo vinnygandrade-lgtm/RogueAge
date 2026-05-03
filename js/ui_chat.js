@@ -578,8 +578,10 @@ function iniciarChatAutomatico() {
 
     carregarHistoricoChat();
 
+    // SEGURANÇA: Se estiver logado na nuvem (Multiplayer Real), DESATIVA os bots de chat completamente.
     const cloudUser = isCloudChatUser();
     if (cloudUser) {
+        console.log("🚫 [Chat] Bots desativados (Modo Multiplayer Ativo)");
         return;
     }
 

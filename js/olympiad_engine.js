@@ -385,16 +385,19 @@ window.OlympiadEngine = {
             
             // Força uma reconexão limpa antes de começar os desafios
             window.SupabaseAPI.ensureChatConnected(window.charName, {}).then(() => {
-                window.SupabaseAPI.broadcastCombat('oly_challenge', dadosDesafio);
-                
-                // Inicia um intervalo de re-broadcast para garantir que novos jogadores vejam o lobby
-                this.challengeInterval = setInterval(() => {
-                    if (this.lobbyAtivo && !this.inimigo && !this.ativo) {
-                        window.SupabaseAPI.broadcastCombat('oly_challenge', dadosDesafio);
-                    } else {
-                        clearInterval(this.challengeInterval);
-                    }
-                }, 4000); // Reduzi para 4s para ser mais responsivo
+                // Pequeno delay para garantir que o canal está pronto para broadcast
+                setTimeout(() => {
+                    window.SupabaseAPI.broadcastCombat('oly_challenge', dadosDesafio);
+                    
+                    // Inicia um intervalo de re-broadcast para garantir que novos jogadores vejam o lobby
+                    this.challengeInterval = setInterval(() => {
+                        if (this.lobbyAtivo && !this.inimigo && !this.ativo) {
+                            window.SupabaseAPI.broadcastCombat('oly_challenge', dadosDesafio);
+                        } else {
+                            clearInterval(this.challengeInterval);
+                        }
+                    }, 3000); // Reduzi para 3s para ser mais agressivo na busca
+                }, 500);
             });
         }
 
