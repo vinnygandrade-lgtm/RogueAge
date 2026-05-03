@@ -1814,6 +1814,16 @@ window.abrirOlympiad = function() {
     if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
     OlympiadEngine.initRanking(); // Inicializa ranking persistente e rotatividade
     OlympiadEngine.iniciarLobby();
+
+    // --- NOVO: AVISAR AO SERVIDOR NODE QUE ENTREI NO LOBBY ---
+    if (window.SupabaseAPI && window.SupabaseAPI.nodeSocket && window.SupabaseAPI.nodeSocket.connected) {
+        console.log("📡 [NodeServer] Enviando oly_join_lobby...");
+        window.SupabaseAPI.nodeSocket.emit('oly_join_lobby', {
+            nome: window.charName,
+            nivel: window.nivel,
+            classe: window.charClass
+        });
+    }
 };
 
 window.sairOlympiad = function(forcarSaida = false) {

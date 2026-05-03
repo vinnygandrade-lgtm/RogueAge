@@ -41,54 +41,53 @@ io.on('connection', (socket) => {
 
     // 1. ENTRAR NO LOBBY / PROCURAR LUTA
     socket.on('oly_join_lobby', (playerData) => {
-        const roomId = 'olympiad_global'; // Para simplificar, todos na mesma "sala" de espera
+        socket.charName = playerData.nome;
+        const roomId = 'olympiad_global'; 
         socket.join(roomId);
         playerToRoom.set(socket.id, roomId);
         
-        socket.charName = playerData.nome;
-        console.log(`⚔️ ${playerData.nome} entrou no lobby da Olympiada`);
+        console.log(`⚔️ ${playerData.nome} entrou no lobby global`);
 
-        // Notifica outros jogadores que alguém entrou (Broadcast)
-        socket.to(roomId).emit('oly_player_entered', playerData);
+        // Notifica TODOS que alguém entrou para forçar o pareamento visual
+        io.to(roomId).emit('oly_player_entered', playerData);
     });
 
-    // 2. ENVIAR DESAFIO DIRETO
+    // 2. ENVIAR DESAFIO DIRETO (Broadcast para todos no lobby)
     socket.on('oly_send_challenge', (data) => {
-        // No Node, enviamos apenas para quem interessa
-        console.log(`📣 Desafio de ${socket.charName} enviado.`);
-        socket.broadcast.emit('oly_challenge_received', data);
+        console.log(`📣 Desafio de ${socket.charName} enviado para todos.`);
+        // Usamos io.emit para garantir que chegue em todas as abas, inclusive mobile
+        io.emit('oly_challenge_received', data);
     });
 
-    // 3. CONFIRMAÇÃO DE LUTA (A BARREIRA DE OURO)
-    // Aqui é onde o Node.js brilha: ele guarda quem confirmou
+    // 3. CONFIRMAÇÃO DE LUTA
     socket.on('oly_confirm_ready', (data) => {
-        const roomId = playerToRoom.get(socket.id);
+        const roomId = 'olympiad_global';
         if (!rooms.has(roomId)) {
-            rooms.set(roomId, { readyPlayers: new Set() });
+            rooms.set(roomId, { readyPlayers: new Map() });
         }
         
         const room = rooms.get(roomId);
-        room.readyPlayers.add(socket.charName);
+        room.readyPlayers.set(socket.charName.toLowerCase(), true);
 
-        console.log(`✅ ${socket.charName} está pronto na sala ${roomId}`);
+        console.log(`✅ ${socket.charName} está pronto.`);
 
-        // O Servidor avisa a todos quem já confirmou
-        io.to(roomId).emit('oly_player_ready_sync', {
+        // Sincroniza o estado de pronto para todos
+        io.emit('oly_player_ready_sync', {
             nome: socket.charName,
-            allReady: room.readyPlayers.size >= 2
+            readyCount: room.readyPlayers.size
         });
 
-        // Se os dois estão prontos, o SERVIDOR manda começar
+        // Se houver 2 ou mais prontos, manda começar
         if (room.readyPlayers.size >= 2) {
-            console.log("🚀 BARREIRA VENCIDA: Iniciando duelo autoritativo!");
-            io.to(roomId).emit('oly_start_duel_now');
-            room.readyPlayers.clear(); // Limpa para a próxima
+            console.log("🚀 Iniciando duelo para todos os prontos!");
+            io.emit('oly_start_duel_now');
+            room.readyPlayers.clear(); 
         }
     });
 
-    // 4. COMBATE EM TEMPO REAL (RETRANSMISSÃO ULTRA-RÁPIDA)
+    // 4. COMBATE EM TEMPO REAL (Retransmissão Global)
     socket.on('oly_combat_event', (payload) => {
-        // Retransmite ataques e skills instantaneamente
+        // Envia para todos exceto o remetente
         socket.broadcast.emit('oly_combat_update', payload);
     });
 
