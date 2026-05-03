@@ -18,9 +18,6 @@ const SupabaseAPI = {
     
     async init() {
         if (typeof window.supabase !== 'undefined' && !this.client) {
-            // Detecta se estamos em localhost ou em um domínio real para ajustar a segurança
-            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-            
             this.client = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
                 auth: {
                     persistSession: true,
@@ -65,14 +62,8 @@ const SupabaseAPI = {
                     this.unsubscribeClanChat();
                 }
             });
-                    console.warn("⚠️ Sessão Cloud Encerrada.");
-                    this.currentUser = null;
-                    this.unsubscribeClanChat();
-                }
-            });
 
             // Aba em background: o WS pode cair; NÃO chamar .subscribe() de novo no mesmo canal
-            // (supabase-js não suporta bem subscribe repetido — corrompe broadcast).
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
                     console.log("☀️ Jogador voltou para a aba. Revalidando presença...");
@@ -114,7 +105,6 @@ const SupabaseAPI = {
 
         const user = this.getUser();
         if (!user) {
-            // Travas de segurança: se não há usuário, não gasta banda de rede
             console.log("ℹ️ Cloud Sync: Modo Offline (Sem usuário logado).");
             return;
         }
@@ -182,17 +172,13 @@ const SupabaseAPI = {
         if (!this.client || !charName) return;
         data = data || {};
 
-        // Se o personagem mudou, precisamos recriar o canal
-        // para que a 'key' da presença (que é o charName) seja atualizada.
+        // Se o canal já existe mas o personagem mudou, precisamos recriar o canal
         if (this.presenceChannel) {
             const currentKey = this.presenceChannel.options?.config?.presence?.key;
             if (currentKey && currentKey !== charName) {
                 console.log(`🔄 [Supabase] Personagem mudou de ${currentKey} para ${charName}. Reiniciando canal...`);
                 
-                // SEGURANÇA: Antes de mudar, avisa outras abas que o personagem antigo deve ser derrubado
-                // e também avisa pela CONTA (email) para garantir que nenhuma outra aba use a mesma conta
                 const targetAccount = this.currentUser?.email;
-                
                 this.broadcastGM('kick_other_sessions', currentKey, { 
                     sessionId: this.tabSessionId,
                     newChar: charName,
@@ -211,9 +197,8 @@ const SupabaseAPI = {
 
         if (!this.presenceChannel) {
             this._resetPresenceReadyPromise();
-            console.log("🔗 [Supabase] Conectando ao canal global de jogadores:", charName);
+            console.log("🔗 [Supabase] Conectando ao canal global:", charName);
             
-            // VOLTAMOS AO CANAL ÚNICO: Todos os jogadores DEVEM estar no mesmo canal para se verem!
             this.presenceChannel = this.client.channel('online-players', {
                 config: {
                     broadcast: { ack: false },
@@ -224,7 +209,7 @@ const SupabaseAPI = {
             this.presenceChannel
                 .on('presence', { event: 'sync' }, () => {
                     const state = this.presenceChannel.presenceState();
-                    console.log('📡 Presença Sincronizada:', state);
+                    console.log('📡 [Supabase] Presença Sincronizada:', state);
                     window.dispatchEvent(new CustomEvent('l2-presence-update', { detail: state }));
 
                     const dot = document.getElementById('multiplayer-dot');
@@ -237,63 +222,40 @@ const SupabaseAPI = {
                     this._resolvePresenceReady();
                 })
                 .on('presence', { event: 'join' }, ({ key, newPresences }) => {
-                    console.log('👤 Entrou:', key);
+                    console.log('👤 [Supabase] Entrou:', key);
                 })
                 .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
-                    console.log('🚪 Saiu:', key);
+                    console.log('🚪 [Supabase] Saiu:', key);
                 })
                 .on('broadcast', { event: 'chat' }, (envelope) => {
-                    console.log('💬 Chat recebido:', envelope);
+                    console.log('💬 [Supabase] Chat recebido:', envelope);
                     const inner = envelope.payload || envelope;
                     if (!inner || !inner.autor || !inner.mensagem) return;
-                    
                     if (typeof adicionarMensagemChat === 'function') {
                         adicionarMensagemChat(inner.autor, inner.mensagem, inner.tipo || 'papel', inner.canal || 'global', true, null, inner.ascensionTitle || '');
                     }
                 })
                 .on('broadcast', { event: 'combat' }, (payload) => {
+                    console.log('⚔️ [Supabase] Combate recebido:', payload);
                     const raw = payload.payload || payload;
                     if (!raw || typeof raw.evento !== 'string') return;
-                    
                     const sender = raw.dados?.sender || raw.dados?.nome || raw.dados?.attacker;
                     if (sender === window.charName) return;
-
                     if (raw.evento.startsWith('oly_') && window.OlympiadEngine) {
                         window.OlympiadEngine.handleMultiplayerEvent(raw.evento, raw.dados);
-                        return;
-                    }
-
-                    if (typeof window.processarEventoMultiplayer === 'function') {
-                        window.processarEventoMultiplayer(raw.evento, raw.dados);
                     }
                 })
                 .on('broadcast', { event: 'gm_command' }, async (payload) => {
-                    const raw = payload && payload.payload !== undefined ? payload.payload : payload;
+                    const raw = payload.payload || payload;
                     if (!raw) return;
                     const { action, target, data } = raw;
-                    
-                    // SEGURANÇA: Sistema de Kick para Multi-Login ou Troca de Personagem
-                    // O target pode ser o charName ou o Email da conta
                     const isTarget = (target && window.charName && target.toLowerCase() === window.charName.toLowerCase()) || 
                                    (data?.account && this.currentUser?.email && data.account.toLowerCase() === this.currentUser.email.toLowerCase());
-
                     if (isTarget) {
                         if (action === 'kick' || action === 'kick_other_sessions') {
-                            // Se for kick_other_sessions, ignora se for a própria aba que enviou
                             if (action === 'kick_other_sessions' && data?.sessionId === this.tabSessionId) return;
-
-                            console.log("🚫 [Sessão] Recebido comando de encerramento de sessão remota.");
-
-                            const msg = (action === 'kick_other_sessions') 
-                                ? (typeof window.t === 'function' ? window.t('game.cloud.sessionExpiredMulti') : "Sua conta foi conectada em outro local. Esta sessão foi encerrada.")
-                                : (typeof window.t === 'function' ? window.t('game.cloud.kickedByGm') : "You have been kicked by a GM.");
-                            
-                            window.l2Alert(msg);
-                            
-                            // Desloga e recarrega
-                            try {
-                                if (this.client) await this.client.auth.signOut();
-                            } catch(e) {}
+                            window.l2Alert(action === 'kick_other_sessions' ? "Sua conta foi conectada em outro local." : "You have been kicked by a GM.");
+                            if (this.client) await this.client.auth.signOut();
                             setTimeout(() => location.reload(), 3000);
                         } else if (action === 'force_update') {
                             if (data && data.msg) window.mostrarAviso(data.msg);
@@ -301,22 +263,26 @@ const SupabaseAPI = {
                             if (data && data.reloadSave === true && typeof window.carregarJogo === 'function') await window.carregarJogo(window.charName);
                         }
                     }
-                })
-                .subscribe(async (status) => {
-                    if (status === 'SUBSCRIBED') {
-                        await this.presenceChannel.track({
-                            charName: charName,
-                            level: window.nivel || data.level || 1,
-                            charClass: window.charClass || data.charClass || 'Fighter',
-                            online_at: new Date().toISOString()
-                        });
-                    }
                 });
+
+            // CRÍTICO: Chamar subscribe() e aguardar o status
+            this.presenceChannel.subscribe(async (status) => {
+                console.log("📡 [Supabase] Status da conexão:", status);
+                if (status === 'SUBSCRIBED') {
+                    this._presenceSubscribed = true;
+                    await this.presenceChannel.track({
+                        charName: charName,
+                        online_at: new Date().toISOString()
+                    });
+                } else if (status === 'CHANNEL_ERROR' || status === 'CLOSED') {
+                    this._presenceSubscribed = false;
+                    const dot = document.getElementById('multiplayer-dot');
+                    if (dot) dot.style.background = '#ef4444';
+                }
+            });
         } else {
             await this.presenceChannel.track({
                 charName: charName,
-                level: window.nivel || data.level || 1,
-                charClass: window.charClass || data.charClass || 'Fighter',
                 online_at: new Date().toISOString()
             });
         }
@@ -359,14 +325,12 @@ const SupabaseAPI = {
             return;
         }
 
-        // Adiciona o nome do remetente em todos os eventos de combate para validação
         if (dados && typeof dados === 'object') {
             dados.sender = window.charName;
         }
         
         console.log(`📤 [Supabase] Enviando combate [${evento}]:`, dados);
         
-        // SEGURANÇA: Garante que o envio seja feito com um pequeno retry se falhar
         try {
             const { error } = await this.presenceChannel.send({
                 type: 'broadcast',
