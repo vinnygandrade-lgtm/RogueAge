@@ -797,17 +797,17 @@ function renderizarSocial() {
     
     if (rankStatusEl) {
         if (viewedRankName === currentRank.nomeCompleto) {
-            rankStatusEl.innerText = "Current Rank";
+            rankStatusEl.innerText = (typeof window.t === 'function') ? window.t('olympiad.rankCurrent') : 'Current Rank';
             rankStatusEl.style.color = "#a78bfa";
         } else {
             // Verifica se já passou ou se é futuro
             const currentIndex = oly.allRanks.indexOf(currentRank.nomeCompleto);
             const viewedIndex = oly.viewedRankIndex;
             if (viewedIndex < currentIndex) {
-                rankStatusEl.innerText = "Rank Achieved";
+                rankStatusEl.innerText = (typeof window.t === 'function') ? window.t('olympiad.rankAchieved') : 'Rank Achieved';
                 rankStatusEl.style.color = "#22c55e";
             } else {
-                rankStatusEl.innerText = "Future Rank";
+                rankStatusEl.innerText = (typeof window.t === 'function') ? window.t('olympiad.rankFuture') : 'Future Rank';
                 rankStatusEl.style.color = "#facc15";
             }
         }
@@ -822,7 +822,7 @@ function renderizarSocial() {
         if (nextTierEl) nextTierEl.innerText = (typeof window.t === 'function') ? window.t('game.social.tierNone') : 'None';
     } else {
         if (tierProgressTextEl) tierProgressTextEl.innerText = `${String(currentRank.progressoAtual ?? 0)} / ${String(currentRank.maxDivisao ?? '')}`;
-        if (nextTierEl) nextTierEl.innerText = currentRank.nextTier || 'Next Rank';
+        if (nextTierEl) nextTierEl.innerText = currentRank.nextTier || ((typeof window.t === 'function') ? window.t('olympiad.nextRankLabel') : 'Next Rank');
     }
     
     if (winsEl) winsEl.innerText = String(window.olympiadWins || 0);
@@ -892,11 +892,11 @@ function renderizarSocial() {
             const reached = viewedIndex <= currentIndex;
 
             if (isClaimed) {
-                rewardButtonAreaEl.innerHTML = `<span style="color:#22c55e; font-size:0.7em; font-weight:bold;">REWARD CLAIMED ✓</span>`;
+                rewardButtonAreaEl.innerHTML = `<span style="color:#22c55e; font-size:0.7em; font-weight:bold;">${(typeof window.t === 'function') ? window.t('olympiad.rewardClaimedTag') : 'REWARD CLAIMED ✓'}</span>`;
             } else if (reached) {
-                rewardButtonAreaEl.innerHTML = `<button class="btn-l2 btn-claim-reward" style="padding:4px 20px; font-size:0.7em; color:#fff;" onclick="OlympiadEngine.recolherPremio('${viewedRankName}')">CLAIM NOW</button>`;
+                rewardButtonAreaEl.innerHTML = `<button class="btn-l2 btn-claim-reward" style="padding:4px 20px; font-size:0.7em; color:#fff;" onclick="OlympiadEngine.recolherPremio('${viewedRankName}')">${(typeof window.t === 'function') ? window.t('olympiad.claimNow') : 'CLAIM NOW'}</button>`;
             } else {
-                rewardButtonAreaEl.innerHTML = `<span style="color:#666; font-size:0.7em; font-weight:bold;">REACH THIS RANK TO CLAIM</span>`;
+                rewardButtonAreaEl.innerHTML = `<span style="color:#666; font-size:0.7em; font-weight:bold;">${(typeof window.t === 'function') ? window.t('olympiad.reachRankToClaim') : 'REACH THIS RANK TO CLAIM'}</span>`;
             }
         }
     }
@@ -917,7 +917,7 @@ function atualizarRelogioSeason() {
         if (nameEl) nameEl.innerText = seasonName;
         if (timerEl) {
             if (timeLeft.days === 0 && timeLeft.hours === 0) {
-                timerEl.innerText = "Ending soon!";
+                timerEl.innerText = (typeof window.t === 'function') ? window.t('olympiad.seasonEndingSoon') : 'Ending soon!';
             } else {
                 timerEl.innerText = `${timeLeft.days}d ${timeLeft.hours}h`;
             }
@@ -964,7 +964,7 @@ function renderizarPremiosRanking() {
     if (!listCont) return;
     
     if (typeof RankingSeasons === 'undefined' || !RankingSeasons.SEASON_REWARDS) {
-        listCont.innerHTML = '<div style="color:#aaa; text-align:center; padding:20px;">Loading season data...</div>';
+        listCont.innerHTML = `<div style="color:#aaa; text-align:center; padding:20px;">${(typeof window.t === 'function') ? window.t('olympiad.loadingSeasonData') : 'Loading season data...'}</div>`;
         return;
     }
 
@@ -980,8 +980,8 @@ function renderizarPremiosRanking() {
         html += `
             <div style="background: linear-gradient(135deg, #1e1b4b, #312e81); border: 2px solid #facc15; border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(250, 204, 21, 0.3); position: relative; overflow: hidden;">
                 <div style="position: absolute; top: -10px; right: -10px; font-size: 4em; opacity: 0.1; transform: rotate(15deg);">🎁</div>
-                <div style="color: #facc15; font-family: 'Cinzel'; font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">SEASON REWARD AVAILABLE!</div>
-                <div style="color: #fff; font-size: 0.8em; margin-bottom: 12px;">You finished season <b>${seasonData.seasonKey}</b> as <b>${seasonData.rankReached}</b>.</div>
+                <div style="color: #facc15; font-family: 'Cinzel'; font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">${(typeof window.t === 'function') ? window.t('olympiad.seasonRewardAvailable') : 'SEASON REWARD AVAILABLE!'}</div>
+                <div style="color: #fff; font-size: 0.8em; margin-bottom: 12px;">${(typeof window.t === 'function') ? window.t('olympiad.seasonFinishedAs', { season: seasonData.seasonKey, rank: seasonData.rankReached }) : `You finished season ${seasonData.seasonKey} as ${seasonData.rankReached}.`}</div>
                 
                 <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px;">
                     <div style="display: flex; align-items: center; gap: 5px;">
@@ -1000,14 +1000,14 @@ function renderizarPremiosRanking() {
                 </div>
 
                 <button class="btn-l2 btn-claim-reward" style="width: 100%; padding: 10px; font-weight: bold; color: #fff;" onclick="RankingSeasons.claimSeasonReward()">
-                    CLAIM SEASON REWARDS
+                    ${(typeof window.t === 'function') ? window.t('olympiad.claimSeasonRewards') : 'CLAIM SEASON REWARDS'}
                 </button>
             </div>
         `;
     }
 
     // --- SEÇÃO: LISTA DE RECOMPENSAS DA TEMPORADA ATUAL ---
-    html += `<div style="font-family: 'Cinzel'; color: #aaa; font-size: 0.75em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">Monthly Rewards by Rank</div>`;
+    html += `<div style="font-family: 'Cinzel'; color: #aaa; font-size: 0.75em; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;">${(typeof window.t === 'function') ? window.t('olympiad.monthlyRewardsByRank') : 'Monthly Rewards by Rank'}</div>`;
     
     const tiers = Object.keys(RankingSeasons.SEASON_REWARDS);
     

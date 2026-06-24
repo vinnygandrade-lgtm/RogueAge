@@ -58,6 +58,6 @@ body {
     max-width: min(var(--l2-modal-max-width), calc(var(--l2-shell-max-width) - 30px));
 }
 
-#modal-oly-rewards .l2-modal {
+#janela-oly-rewards.store-window {
     max-width: min(var(--l2-shell-max-width), 95vw);
 }

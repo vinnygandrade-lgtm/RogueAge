@@ -59,37 +59,29 @@
         </div>
     </div>
 
-        <!-- Modal de Recompensas de Patente -->
-    <div id="modal-oly-rewards" class="modal-overlay">
-        <div class="l2-modal">
-            <div class="oly-modal-head">
-                <h3>RANK REWARDS</h3>
-                <button type="button" class="btn-l2 btn-oly-close" onclick="OlympiadEngine.fecharModais()">X</button>
-            </div>
-            <div id="oly-rewards-list-container">
-                <!-- Injetado via JS -->
-            </div>
-            <div class="oly-modal-foot">
-                <p>Reach new ranks to unlock exclusive rewards!</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Lista de Patentes -->
-    <div id="modal-oly-tiers" class="modal-overlay">
-        <div class="l2-modal">
-            <div class="oly-modal-head--blue">
-                <h3>RANK LIST</h3>
-                <button type="button" class="btn-l2 btn-oly-close" onclick="OlympiadEngine.fecharModais()">X</button>
-            </div>
-            <div id="oly-tiers-list-container">
-                <!-- Injetado via JS -->
-            </div>
-        </div>
-    </div>
-
     <div id="modal-overlay" onclick="fecharTopModal()" aria-hidden="true"></div>
     <div id="modal-perfil-ranking"></div>
+
+    <div id="janela-oly-rewards" class="store-window store-window--oly-rewards" style="display: none;">
+        <div class="store-header"><span data-i18n="olympiad.rankRewardsTitle">RANK REWARDS</span></div>
+        <div class="store-body store-body--oly-rewards">
+            <div id="oly-rewards-list-container"></div>
+            <p class="oly-modal-foot-hint" data-i18n="olympiad.rankRewardsFoot">Reach new ranks to unlock exclusive rewards!</p>
+        </div>
+        <div class="store-footer">
+            <button type="button" class="btn-l2" data-i18n="olympiad.closeBtn" onclick="OlympiadEngine.fecharModais()">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="janela-oly-tiers" class="store-window store-window--oly-tiers" style="display: none;">
+        <div class="store-header"><span data-i18n="olympiad.rankListTitle">RANK LIST</span></div>
+        <div class="store-body store-body--oly-tiers">
+            <div id="oly-tiers-list-container"></div>
+        </div>
+        <div class="store-footer">
+            <button type="button" class="btn-l2" data-i18n="olympiad.closeBtn" onclick="OlympiadEngine.fecharModais()">CLOSE</button>
+        </div>
+    </div>
 
     <!-- Mercado + confirmação de item: fora de #screen-game para empilhar acima do #modal-overlay -->
     <div id="janela-market-registrar" class="store-window">
@@ -1478,41 +1470,41 @@
                 <div id="olympiad-lobby">
                     <!-- Header do Lobby -->
                     <div class="oly-lobby-top">
-                        <h3>GRAND OLYMPIAD</h3>
+                        <h3 data-i18n="olympiad.lobbyTitle">GRAND OLYMPIAD</h3>
                     </div>
 
                     <!-- Season Info Card (Sempre visível no Lobby) -->
                     <div class="oly-season-wrap">
                         <div class="oly-season-card">
                             <div class="oly-season-left">
-                                <span class="lbl">Current Season</span>
-                                <span id="oly-season-name-display">Loading...</span>
+                                <span class="lbl" data-i18n="olympiad.seasonCurrent">Current Season</span>
+                                <span id="oly-season-name-display" data-i18n="olympiad.seasonLoading">Loading…</span>
                             </div>
                             <div class="oly-season-right">
-                                <span class="lbl">Ends in</span>
+                                <span class="lbl" data-i18n="olympiad.seasonEndsIn">Ends in</span>
                                 <span id="oly-season-timer-display">--d --h</span>
                             </div>
                         </div>
                     </div>
 
                     <div class="oly-tab-strip">
-                        <button type="button" id="btn-oly-tab-battle" class="oly-tab-btn active" onclick="OlympiadEngine.mudarAbaLobby('battle')">BATTLE</button>
-                        <button type="button" id="btn-oly-tab-ranking" class="oly-tab-btn" onclick="OlympiadEngine.mudarAbaLobby('ranking')">RANKING</button>
-                        <button type="button" id="btn-oly-tab-rewards" class="oly-tab-btn" onclick="OlympiadEngine.mudarAbaLobby('rewards')">REWARDS</button>
-                        <button type="button" id="btn-oly-tab-history" class="oly-tab-btn" onclick="OlympiadEngine.mudarAbaLobby('history')">HISTORY</button>
-                        <button type="button" id="btn-oly-tab-rules" class="oly-tab-btn" onclick="OlympiadEngine.mudarAbaLobby('rules')">RULES</button>
+                        <button type="button" id="btn-oly-tab-battle" class="oly-tab-btn active" data-i18n="olympiad.tabBattle" onclick="OlympiadEngine.mudarAbaLobby('battle')">BATTLE</button>
+                        <button type="button" id="btn-oly-tab-ranking" class="oly-tab-btn" data-i18n="olympiad.tabRanking" onclick="OlympiadEngine.mudarAbaLobby('ranking')">RANKING</button>
+                        <button type="button" id="btn-oly-tab-rewards" class="oly-tab-btn" data-i18n="olympiad.tabRewards" onclick="OlympiadEngine.mudarAbaLobby('rewards')">REWARDS</button>
+                        <button type="button" id="btn-oly-tab-history" class="oly-tab-btn" data-i18n="olympiad.tabHistory" onclick="OlympiadEngine.mudarAbaLobby('history')">HISTORY</button>
+                        <button type="button" id="btn-oly-tab-rules" class="oly-tab-btn" data-i18n="olympiad.tabRules" onclick="OlympiadEngine.mudarAbaLobby('rules')">RULES</button>
                     </div>
 
                     <div class="oly-lobby-scroll">
                         <div id="oly-content-battle" class="oly-tab-content">
-                            <p>Challenge opponents above you to climb the ranks.</p>
+                            <p data-i18n="olympiad.battleHint">Challenge opponents above you to climb the ranks.</p>
                             <div id="oly-challenge-list"></div>
                         </div>
 
                         <div id="oly-content-ranking" class="oly-tab-content">
                             <div class="oly-rank-card-shell">
                                 <div class="oly-rank-glow" aria-hidden="true"></div>
-                                <span class="oly-rank-ribbon">Rank Progression</span>
+                                <span class="oly-rank-ribbon" data-i18n="olympiad.rankRibbon">Rank Progression</span>
                                 <div class="oly-rank-nav">
                                     <button type="button" class="btn-l2" onclick="OlympiadEngine.navegarRank(-1)">◀</button>
                                     <div id="oly-my-tier-icon">🏆</div>
@@ -1520,43 +1512,43 @@
                                 </div>
                                 <div class="oly-rank-center">
                                     <h3 id="social-tier-name">Unranked</h3>
-                                    <div id="viewed-rank-status">Current Rank</div>
+                                    <div id="viewed-rank-status" data-i18n="olympiad.rankCurrent">Current Rank</div>
                                     <div class="oly-mmr-pill">
                                         <span id="social-mmr-points">0</span>
-                                        <span class="lbl">MMR Points</span>
+                                        <span class="lbl" data-i18n="olympiad.mmrPoints">MMR Points</span>
                                     </div>
                                 </div>
                                 <div id="viewed-rank-reward-area">
-                                    <span class="lbl">Rank Reward</span>
+                                    <span class="lbl" data-i18n="olympiad.rankReward">Rank Reward</span>
                                     <div id="viewed-rank-reward-content"></div>
                                     <div id="viewed-rank-reward-button-area"></div>
                                 </div>
                                 <div class="oly-progress-block">
                                     <div class="oly-progress-labels">
-                                        <span>Progress</span>
+                                        <span data-i18n="olympiad.progress">Progress</span>
                                         <span id="social-tier-progress-text">0 / 100</span>
                                     </div>
                                     <div class="oly-progress-track">
                                         <div id="social-tier-progress"></div>
                                     </div>
                                     <div class="oly-next-rank">
-                                        Next Rank: <span id="social-next-tier">Paper 5</span>
+                                        <span data-i18n="olympiad.nextRankLabel">Next Rank:</span> <span id="social-next-tier">Paper 5</span>
                                     </div>
                                 </div>
                                 <div class="oly-wl-row">
                                     <div class="oly-wl-col">
-                                        <div class="lbl">Wins</div>
+                                        <div class="lbl" data-i18n="olympiad.wins">Wins</div>
                                         <div id="social-wins">0</div>
                                     </div>
                                     <div class="oly-wl-sep" aria-hidden="true"></div>
                                     <div class="oly-wl-col">
-                                        <div class="lbl">Losses</div>
+                                        <div class="lbl" data-i18n="olympiad.losses">Losses</div>
                                         <div id="social-losses">0</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="oly-world-ladder-wrap">
-                                <span class="badge">WORLD LADDER</span>
+                                <span class="badge" data-i18n="olympiad.worldLadder">WORLD LADDER</span>
                                 <div id="oly-global-ranking-list"></div>
                             </div>
                         </div>
@@ -1567,7 +1559,7 @@
 
                         <div id="oly-content-rewards" class="oly-tab-content">
                             <div class="oly-season-rewards-wrap">
-                                <span class="badge">SEASON REWARDS</span>
+                                <span class="badge" data-i18n="olympiad.seasonRewardsBadge">SEASON REWARDS</span>
                                 <div id="oly-season-rewards-list"></div>
                             </div>
                         </div>
@@ -1578,23 +1570,23 @@
                     </div>
 
                     <div class="oly-lobby-footer">
-                        <button type="button" class="btn-l2 btn-oly-exit" onclick="sairOlympiad(true)">EXIT ARENA</button>
+                        <button type="button" class="btn-l2 btn-oly-exit" data-i18n="olympiad.exitArena" onclick="sairOlympiad(true)">EXIT ARENA</button>
                     </div>
                 </div>
 
                 <div id="olympiad-resultado">
                     <div class="oly-result-card">
-                        <h3 id="oly-res-titulo">OLYMPIAD RESULT</h3>
-                        <div id="oly-res-subtitulo">You won the duel.</div>
+                        <h3 id="oly-res-titulo" data-i18n="olympiad.resultTitle">OLYMPIAD RESULT</h3>
+                        <div id="oly-res-subtitulo" data-i18n="game.olympiadUi.victorySubtitle">Well fought! You dominated the duel.</div>
 
                         <div class="oly-res-row">
-                            <span>Rival</span><b id="oly-res-rival">-</b>
+                            <span data-i18n="olympiad.rivalDefault">Rival</span><b id="oly-res-rival">-</b>
                         </div>
                         <div class="oly-res-row">
-                            <span>Damage dealt</span><b id="oly-res-dano-causado">0</b>
+                            <span data-i18n="olympiad.damageDealt">Damage dealt</span><b id="oly-res-dano-causado">0</b>
                         </div>
                         <div class="oly-res-row oly-res-row--last">
-                            <span>Damage taken</span><b id="oly-res-dano-recebido">0</b>
+                            <span data-i18n="olympiad.damageTaken">Damage taken</span><b id="oly-res-dano-recebido">0</b>
                         </div>
 
                         <div class="oly-res-panel">
@@ -1621,15 +1613,15 @@
                         </div>
 
                         <div class="oly-res-actions">
-                            <button type="button" class="btn-l2" onclick="OlympiadEngine.revanche()">CONTINUE</button>
+                            <button type="button" class="btn-l2" data-i18n="olympiad.continueBtn" onclick="OlympiadEngine.revanche()">CONTINUE</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="oly-combate-topo">
                     <div class="oly-combat-top-inner">
-                        <span class="oly-combat-title">GRAND OLYMPIAD - X1</span>
-                        <button type="button" class="btn-l2 btn-oly-leave" onclick="OlympiadEngine.fugir()">LEAVE</button>
+                        <span class="oly-combat-title" data-i18n="olympiad.combatTitle">GRAND OLYMPIAD — X1</span>
+                        <button type="button" class="btn-l2 btn-oly-leave" data-i18n="olympiad.leave" onclick="OlympiadEngine.fugir()">LEAVE</button>
                     </div>
                 </div>
 
@@ -1640,7 +1632,7 @@
 
                     <div class="oly-side">
                         <div class="oly-side__banner oly-side__banner--you">
-                            <span class="oly-side__banner-text">YOU <span class="oly-side__lvl">(Lv. <span id="oly-player-lvl">1</span>)</span></span>
+                            <span class="oly-side__banner-text"><span data-i18n="olympiad.youBanner">YOU</span> <span class="oly-side__lvl">(Lv. <span id="oly-player-lvl">1</span>)</span></span>
                         </div>
                         <div class="oly-sprite-wrap">
                             <div class="oly-pedestal-shadow" aria-hidden="true"></div>

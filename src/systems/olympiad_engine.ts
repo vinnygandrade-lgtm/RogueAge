@@ -268,12 +268,10 @@ const OlympiadEngine = {
     },
 
     abrirModalRecompensas() {
-        const modal = document.getElementById('modal-oly-rewards');
         const container = document.getElementById('oly-rewards-list-container');
-        if (!modal || !container) return;
+        if (!container) return;
 
         container.innerHTML = '';
-        modal.style.display = 'flex';
 
         const currentRank = this.getRank(window.olympiadPoints || 0);
         const tiers = ["Paper", "Wood", "Copper", "Silver", "Gold", "Platinum", "Diamond", "Legendary", "Mythic"];
@@ -319,7 +317,7 @@ const OlympiadEngine = {
             }
 
             let rewardHtml = `<div style="display:flex; flex-direction:column; gap:2px;">`;
-            rewardHtml += `<div style="color:#facc15; font-size:0.85em; font-weight:bold;">${reward.adena.toLocaleString()} Adena</div>`;
+            rewardHtml += `<div style="color:#facc15; font-size:0.85em; font-weight:bold;">${reward.adena.toLocaleString()} ${this.olyT('game.olympiadUi.adena')}</div>`;
             reward.items.forEach(it => {
                 rewardHtml += `<div style="color:#a78bfa; font-size:0.75em;">${it.qtd}x ${it.id}</div>`;
             });
@@ -327,11 +325,11 @@ const OlympiadEngine = {
 
             let btnHtml = '';
             if (isClaimed) {
-                btnHtml = `<span style="color:#22c55e; font-size:0.75em; font-weight:bold;">CLAIMED ✓</span>`;
+                btnHtml = `<span style="color:#22c55e; font-size:0.75em; font-weight:bold;">${this.olyT('olympiad.claimed')}</span>`;
             } else if (alcancou) {
-                btnHtml = `<button class="btn-l2 btn-claim-reward" style="padding:5px 15px; font-size:0.75em; color:#fff;" onclick="OlympiadEngine.recolherPremio('${rankId}')">CLAIM</button>`;
+                btnHtml = `<button class="btn-l2 btn-claim-reward" style="padding:5px 15px; font-size:0.75em; color:#fff;" onclick="OlympiadEngine.recolherPremio('${rankId}')">${this.olyT('olympiad.claimRankBtn')}</button>`;
             } else {
-                btnHtml = `<span style="color:#666; font-size:0.75em; font-weight:bold;">LOCKED</span>`;
+                btnHtml = `<span style="color:#666; font-size:0.75em; font-weight:bold;">${this.olyT('olympiad.locked')}</span>`;
             }
 
             card.innerHTML = `
@@ -347,6 +345,8 @@ const OlympiadEngine = {
 
             container.appendChild(card);
         });
+
+        if (typeof window.abrirModal === 'function') window.abrirModal('janela-oly-rewards');
     },
 
     getIconForTier(tier) {
@@ -366,12 +366,10 @@ const OlympiadEngine = {
     },
 
     abrirModalTiers() {
-        const modal = document.getElementById('modal-oly-tiers');
         const container = document.getElementById('oly-tiers-list-container');
-        if (!modal || !container) return;
+        if (!container) return;
 
         container.innerHTML = '';
-        modal.style.display = 'flex';
 
         const tiers = [
             {nome: "Paper", req: 0, color: "#e5e7eb"},
@@ -404,16 +402,20 @@ const OlympiadEngine = {
                 </div>
                 <div style="text-align:right;">
                     <div style="color:${t.color}; font-weight:bold; font-size:0.9em;">${t.req}+ MMR</div>
-                    <div style="color:#666; font-size:0.65em;">5 Divisions</div>
+                    <div style="color:#666; font-size:0.65em;">${this.olyT('olympiad.divisions')}</div>
                 </div>
             `;
             container.appendChild(card);
         });
+
+        if (typeof window.abrirModal === 'function') window.abrirModal('janela-oly-tiers');
     },
 
     fecharModais() {
-        document.getElementById('modal-oly-rewards').style.display = 'none';
-        document.getElementById('modal-oly-tiers').style.display = 'none';
+        if (typeof window.fecharModal === 'function') {
+            window.fecharModal('janela-oly-rewards');
+            window.fecharModal('janela-oly-tiers');
+        }
         this.fecharOlyPreview();
     },
 
@@ -564,17 +566,17 @@ const OlympiadEngine = {
                 recompensas.push({ id: it.id, nome: it.id, qtd: it.qtd });
             });
             
-            const texto = `Congratulations! You have reached the rank of ${rankId} in the Grand Olympiad. Here are your rewards.`;
+            const texto = this.olyT('olympiad.rankRewardMailBody', { rank: rankId });
             
             await window.enviarMail!(
                 window.charName,
                 "Olympiad Manager",
-                `Rank Reward: ${rankId}`,
+                this.olyT('olympiad.rankRewardMailSubject', { rank: rankId }),
                 "system",
                 { texto: texto, recompensas: recompensas }
             );
 
-            if (window.mostrarAviso) window.mostrarAviso(`Reward for ${rankId} sent to Mailbox!`);
+            if (window.mostrarAviso) window.mostrarAviso(this.olyT('olympiad.offlineRewardSent', { rank: rankId }));
         }
 
         // Atualiza o modal e o card
@@ -691,7 +693,7 @@ const OlympiadEngine = {
         const listCont = document.getElementById('oly-global-ranking-list');
         if (!listCont) return;
 
-        listCont.innerHTML = '<div style="color:#aaa; text-align:center; padding:20px;">Loading world ladder...</div>';
+        listCont.innerHTML = `<div style="color:#aaa; text-align:center; padding:20px;">${this.olyT('olympiad.loadingLadder')}</div>`;
         
         const ranking = await window.RankingManager.getMergedRanking();
         
@@ -708,13 +710,13 @@ const OlympiadEngine = {
             const isLocal = (jog.nome === window.charName);
             const corNome = isLocal ? "#22c55e" : (jog.isRealPlayer ? "#60a5fa" : "#e2e8f0");
             const glow = isLocal ? "box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.2); border: 1px solid #22c55e;" : "";
-            const heroBadge = isHero ? `<span class="hero-badge-ranking">HERO</span>` : "";
+            const heroBadge = isHero ? `<span class="hero-badge-ranking">${this.olyT('olympiad.heroBadge')}</span>` : "";
 
             // Subtítulo de Ascensão (se houver)
             let ascSub = '';
             if (!jog.isBot && (jog.ascensionTitle || typeof jog.renown === 'number')) {
                 const ren = typeof jog.renown === 'number' ? jog.renown : 0;
-                ascSub = `<div style="color:#a78bfa; font-size:0.65em; margin-top:2px;">${jog.ascensionTitle || ''} • Renown ${ren}</div>`;
+                ascSub = `<div style="color:#a78bfa; font-size:0.65em; margin-top:2px;">${this.olyT('olympiad.renownLine', { title: jog.ascensionTitle || '', renown: ren })}</div>`;
             }
 
             // Tier visual no ranking
@@ -922,6 +924,12 @@ const OlympiadEngine = {
         this.renderizarLobby();
         this.mudarAbaLobby('battle');
         if (typeof window.atualizarRelogioSeason === 'function') window.atualizarRelogioSeason();
+        if (window.I18n && typeof window.I18n.refreshDom === 'function') {
+            const lobby = document.getElementById('olympiad-lobby');
+            if (lobby) window.I18n.refreshDom(lobby);
+            const res = document.getElementById('olympiad-resultado');
+            if (res) window.I18n.refreshDom(res);
+        }
     },
 
     async renderizarLobby() {
@@ -937,7 +945,7 @@ const OlympiadEngine = {
         const listCont = document.getElementById('oly-challenge-list');
         if (!listCont) return;
 
-        listCont.innerHTML = '<div style="color:#aaa; text-align:center; padding:10px;">Syncing live ranking...</div>';
+        listCont.innerHTML = `<div style="color:#aaa; text-align:center; padding:10px;">${this.olyT('olympiad.syncingRanking')}</div>`;
 
         // Obtém o ranking atualizado
         const ranking = await window.RankingManager.getMergedRanking();
@@ -958,7 +966,7 @@ const OlympiadEngine = {
         }
 
         if (oponentesExibidos.length === 0) {
-            listCont.innerHTML = '<div style="color:#666; text-align:center; padding:10px;">Ranking is empty.</div>';
+            listCont.innerHTML = `<div style="color:#666; text-align:center; padding:10px;">${this.olyT('olympiad.rankingEmpty')}</div>`;
             return;
         }
 
@@ -1035,10 +1043,10 @@ const OlympiadEngine = {
         listCont.innerHTML = htmlLista;
 
         if (startIdx > 0) {
-            listCont.insertAdjacentHTML('afterbegin', `<div style="text-align:center; color:#444; font-size:0.6em; margin-bottom:10px; letter-spacing:2px;">▲ TOP ${startIdx} PLAYERS ABOVE ▲</div>`);
+            listCont.insertAdjacentHTML('afterbegin', `<div style="text-align:center; color:#444; font-size:0.6em; margin-bottom:10px; letter-spacing:2px;">${this.olyT('olympiad.playersAbove', { n: startIdx })}</div>`);
         }
         if (endIdx < ranking.length) {
-            listCont.insertAdjacentHTML('beforeend', `<div style="text-align:center; color:#444; font-size:0.6em; margin-top:10px; letter-spacing:2px;">▼ OTHERS CLIMBING BELOW ▼</div>`);
+            listCont.insertAdjacentHTML('beforeend', `<div style="text-align:center; color:#444; font-size:0.6em; margin-top:10px; letter-spacing:2px;">${this.olyT('olympiad.playersBelow')}</div>`);
         }
     },
 
@@ -1899,7 +1907,7 @@ const OlympiadEngine = {
         const rankingPosVitoria = await window.RankingManager.getMergedRanking();
         if ((olyCloudSync || !useCloudOly) && rankingPosVitoria.length && rankingPosVitoria[0].nome === window.charName && vitoria) {
             // Se o player acabou de assumir o #1, dispara um efeito visual de prestígio
-            this.escreverLog(`<span style="color:#facc15; font-weight:bold; font-size:1.2em; text-shadow:0 0 10px orange;">👑 ALL HAIL THE NEW HERO: ${window.charName.toUpperCase()}!</span>`);
+            this.escreverLog(`<span style="color:#facc15; font-weight:bold; font-size:1.2em; text-shadow:0 0 10px orange;">${this.olyT('olympiad.newHeroLog', { name: String(window.charName || '').toUpperCase() })}</span>`);
             if (typeof tocarSom === 'function') tocarSom('lvlup');
         }
 
@@ -1920,8 +1928,12 @@ const OlympiadEngine = {
         if (!res) return;
 
         res.style.display = 'flex';
-        document.getElementById('oly-res-titulo').innerText = vitoria ? "VICTORY" : "DEFEAT";
-        document.getElementById('oly-res-subtitulo').innerText = vitoria ? "You climbed the ranks!" : "You lost points this time.";
+        document.getElementById('oly-res-titulo')!.innerText = vitoria
+            ? this.olyT('game.olympiadUi.victoryTitle')
+            : this.olyT('game.olympiadUi.defeatTitle');
+        document.getElementById('oly-res-subtitulo')!.innerText = vitoria
+            ? this.olyT('olympiad.resultWinSubtitle')
+            : this.olyT('olympiad.resultLossSubtitle');
         document.getElementById('oly-res-rival').innerText = this.inimigo.nome;
         document.getElementById('oly-res-dano-causado')!.innerText = String(this.danoCausado);
         document.getElementById('oly-res-dano-recebido')!.innerText = String(this.danoRecebido);
@@ -1997,7 +2009,7 @@ const OlympiadEngine = {
         if (!cont) return;
 
         if (this.historicoBatalhas.length === 0) {
-            cont.innerHTML = '<div style="color:#555; text-align:center; padding:20px;">No recent battles.</div>';
+            cont.innerHTML = `<div style="color:#555; text-align:center; padding:20px;">${this.olyT('olympiad.historyEmpty')}</div>`;
             return;
         }
 
@@ -2005,8 +2017,8 @@ const OlympiadEngine = {
             const isDefensive = h.tipo === 'defensive';
             const vitoria = h.vitoria;
             const corStatus = vitoria ? '#22c55e' : '#ef4444';
-            const labelStatus = vitoria ? 'WIN' : 'LOSS';
-            const labelTipo = isDefensive ? '🛡️ DEFENSE' : '⚔️ ATTACK';
+            const labelStatus = vitoria ? this.olyT('olympiad.historyWin') : this.olyT('olympiad.historyLoss');
+            const labelTipo = isDefensive ? this.olyT('olympiad.historyDefense') : this.olyT('olympiad.historyAttack');
             
             const d = new Date(h.data);
             const dataStr = d.toLocaleDateString();
@@ -2019,7 +2031,7 @@ const OlympiadEngine = {
                             <span style="color:${corStatus}; font-weight:bold; font-size:0.8em;">${labelStatus}</span>
                             <span style="color:#666; font-size:0.6em;">${labelTipo}</span>
                         </div>
-                        <span style="color:#ddd; font-size:0.85em;">vs ${h.oponente}</span>
+                        <span style="color:#ddd; font-size:0.85em;">${this.olyT('olympiad.historyVs', { name: h.oponente })}</span>
                     </div>
                     <div style="text-align:right;">
                         <span style="color:${h.pontos >= 0 ? '#22c55e' : '#ef4444'}; font-weight:bold; font-size:0.9em;">${h.pontos >= 0 ? '+' : ''}${h.pontos} MMR</span>
