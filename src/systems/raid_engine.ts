@@ -13,6 +13,12 @@ import type {
   RaidLobbyState,
   RaidParticipant,
 } from '../types/game';
+import {
+  bossDisplayName,
+  bossShortName,
+  raidBossLogMsg,
+  raidDropDisplayName,
+} from '../combat/combat_i18n';
 import { registerGlobal } from '../runtime/register-global';
 
 function raidEl<T extends HTMLElement>(id: string): T | null {
@@ -103,13 +109,14 @@ const RaidEngine = {
             if (barraFallback) barraFallback.style.setProperty('display', 'grid', 'important');
         }
 
+        const bossNomeUi = bossDisplayName(this.bossData!.id, this.bossData!.nome);
         const bossNome = raidEl('raid-boss-nome');
-        if (bossNome) bossNome.innerText = this.bossData!.nome;
+        if (bossNome) bossNome.innerText = bossNomeUi;
         const bossImg = document.getElementById('raid-boss-img');
         if (bossImg instanceof HTMLImageElement) bossImg.src = this.bossData!.img;
         document.getElementById('raid-combat-log').innerHTML = ""; 
         
-        const enterMsg = (typeof window.t === 'function') ? window.t('game.raid.enterBattle', { boss: this.bossData.nome }) : ('You entered battle against ' + this.bossData.nome + '!');
+        const enterMsg = (typeof window.t === 'function') ? window.t('game.raid.enterBattle', { boss: bossNomeUi }) : ('You entered battle against ' + bossNomeUi + '!');
         this.escreverLogRaid(`<span style="color:#ef4444; font-weight:bold;">${enterMsg}</span>`);
     },
 
@@ -294,7 +301,13 @@ const RaidEngine = {
         const skills = this.bossData.skills;
         if (!skills.habilidade_area) return;
 
-        const msg = `<span style="color:#ef4444; font-weight:bold;">🔥 [AOE] ${skills.habilidade_area.nome}: ${skills.habilidade_area.msg}</span>`;
+        const bossId = this.bossData.id;
+        const aoeSkillName = raidBossLogMsg(bossId, 'aoeSkillName') || skills.habilidade_area.nome;
+        const aoeBody = raidBossLogMsg(bossId, 'aoe') || skills.habilidade_area.msg;
+        const aoePlain = (typeof window.t === 'function')
+            ? window.t('game.raid.bossAoeLog', { skill: aoeSkillName, msg: aoeBody })
+            : `🔥 [AOE] ${aoeSkillName}: ${aoeBody}`;
+        const msg = `<span style="color:#ef4444; font-weight:bold;">${aoePlain}</span>`;
         this.state.logs.unshift(`<span style="color:#aaa;">[${new Date().toLocaleTimeString()}]</span> ${msg}`);
         
         // Treme a tela forte no AOE
@@ -313,7 +326,10 @@ const RaidEngine = {
 
     bossAtaca: function(alvo) {
         let danoBase = this.bossData.pAtk;
-        let msg = `${this.bossData.nome} ataca ${alvo.nome}!`;
+        const bossLabel = bossDisplayName(this.bossData.id, this.bossData.nome);
+        let msg = (typeof window.t === 'function')
+            ? window.t('game.raid.bossAttackTarget', { boss: bossLabel, target: alvo.nome })
+            : `${bossLabel} attacks ${alvo.nome}!`;
         this.aplicarDanoNoAlvo(alvo, danoBase, 'físico');
 
         // Adiciona ao log global
@@ -334,7 +350,10 @@ const RaidEngine = {
             // --- LOG DE MORTE NO RAID CHAT ---
             const corMorte = alvo.isPlayer ? "#ef4444" : "#f87171";
             const iconeMorte = alvo.isPlayer ? "💀" : "☠️";
-            this.state.logs.unshift(`<span style="color:#aaa;">[${new Date().toLocaleTimeString()}]</span> <span style="color:${corMorte}; font-weight:bold;">${iconeMorte} ${alvo.nome} foi abatido pelo Boss!</span>`);
+            const slainMsg = (typeof window.t === 'function')
+                ? window.t('game.raid.participantSlain', { name: alvo.nome })
+                : `${alvo.nome} was slain by the boss!`;
+            this.state.logs.unshift(`<span style="color:#aaa;">[${new Date().toLocaleTimeString()}]</span> <span style="color:${corMorte}; font-weight:bold;">${iconeMorte} ${slainMsg}</span>`);
             if (this.state.logs.length > 8) this.state.logs.pop();
         }
 
@@ -424,7 +443,9 @@ const RaidEngine = {
         const dmgEl = document.createElement('div');
         dmgEl.className = 'floating-damage';
         
-        let prefixo = critico ? "CRITICAL! " : "";
+        let prefixo = critico
+            ? ((typeof window.t === 'function') ? window.t('game.raid.criticalFloat') + ' ' : 'CRITICAL! ')
+            : '';
         let textoFinal = prefixo + dano.toLocaleString();
         if (!isMe && autor) textoFinal = `<small style="font-size:10px; color:#aaa; display:block; text-align:center;">${autor}</small>` + textoFinal;
         
@@ -624,7 +645,7 @@ const RaidEngine = {
         if (this._vitoriaProcessada) return;
         this._vitoriaProcessada = true;
 
-        const bossNome = this.bossData.nome;
+        const bossNome = bossDisplayName(this.bossData.id, this.bossData.nome);
         const eraDiario = this.modoDiario;
         this.limparRaid();
         const tagDaily = document.getElementById('raid-daily-tag');
@@ -669,7 +690,7 @@ const RaidEngine = {
 
             dropsGanhos.forEach(d => {
                 let itemBanco = todosOsItens.find(i => i.id === d.id);
-                let nomeBonito = itemBanco ? itemBanco.nome : d.id;
+                let nomeBonito = raidDropDisplayName(d.id, itemBanco ? itemBanco.nome : undefined);
                 let corNome = d.epic ? '#c084fc' : '#fff'; 
                 
                 container.innerHTML += `
@@ -798,7 +819,7 @@ const RaidEngine = {
             let diasTexto = boss.spawn.dias.map(d => (wd[d] != null ? wd[d] : fallbackDias[d])).join(', ');
             const closedMsg = (typeof window.t === 'function')
                 ? window.t('game.raid.closedBoss', {
-                    name: boss.nome,
+                    name: bossDisplayName(boss.id, boss.nome),
                     days: diasTexto,
                     start: boss.spawn.horaInicio,
                     end: boss.spawn.horaFim
@@ -833,7 +854,7 @@ const RaidEngine = {
             ];
             boss.drops.forEach(drop => {
                 let item = items.find(i => i.id === drop.id);
-                let nomeBonito = item ? item.nome : drop.id;
+                let nomeBonito = raidDropDisplayName(drop.id, item ? item.nome : undefined);
                 let corNome = drop.epic ? '#c084fc' : (drop.id === 'Ancient Coin' ? '#60a5fa' : (drop.id.includes('sc_') ? '#facc15' : '#ccc'));
                 let icone = drop.epic ? '💎' : (drop.id === 'Ancient Coin' ? '🪙' : (drop.id.includes('sc_') ? '📜' : '📦'));
                 htmlInfo += `<div style="font-size: 0.85em; color: ${corNome}; border-left: 3px solid ${corNome}; padding-left: 8px; background: rgba(255,255,255,0.05); border-radius: 0 3px 3px 0;">${icone} ${nomeBonito} <span style="float:right; color:#888;">(${drop.chance}%)</span></div>`;
@@ -889,7 +910,9 @@ const RaidEngine = {
         document.getElementById('btn-inscrever-raid').style.display = 'none';
         document.getElementById('btn-entrar-raid').style.display = 'block';
         if (typeof window.escreverLog === 'function') {
-            var battleMsg = (typeof window.t === 'function') ? window.t('game.raid.logBattleBegins', { boss: 'Antharas' }) : '[Raid] The ground shakes... The battle against Antharas begins!';
+            var battleMsg = (typeof window.t === 'function')
+                ? window.t('game.raid.logBattleBegins', { boss: bossShortName('boss_antharas', 'Antharas') })
+                : '[Raid] The ground shakes... The battle against Antharas begins!';
             window.escreverLog(`<span style="color:#ef4444; font-weight:bold;">${battleMsg}</span>`);
         }
     },

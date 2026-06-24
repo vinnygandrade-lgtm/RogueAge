@@ -3,6 +3,8 @@
  * Migrado: js/skills_engine.js
  */
 
+import { petDisplayName, writeSkillLog } from './combat_i18n';
+
 interface ForestMob {
   hp?: number;
   maxHp?: number;
@@ -104,15 +106,15 @@ function usarSkill(nomeSkill: string) {
                 if ((Math.random() * 100) < chanceCrit) { 
                     danoFinal = Math.floor(danoFinal * window.motorBuffsEspeciais.critMult); 
                     foiCriticoSkill = true;
-                    window.escreverLog(`<span style="color:#ff3333; font-weight:bold;">🗡️ CRITICAL BLOW!</span>`); 
+                    writeSkillLog('criticalBlow', undefined, 'color:#ff3333; font-weight:bold;');
                 }
             }
             if (nomeSkill === "Backstab") {
-                if ((Math.random() * 100) < 35) { window.escreverLog(`<span style="color:#aaa; font-weight:bold;">The monster turned! (Backstab failed)</span>`); return; }
+                if ((Math.random() * 100) < 35) { writeSkillLog('backstabFailed', undefined, 'color:#aaa; font-weight:bold;'); return; }
                 else { 
                     danoFinal = Math.floor(danoFinal * window.motorBuffsEspeciais.critMult); 
                     foiCriticoSkill = true;
-                    window.escreverLog(`<span style="color:#ef4444; font-weight:bold; font-size:1.1em;">🩸 FATAL! Perfect strike from behind!</span>`); 
+                    writeSkillLog('backstabFatal', undefined, 'color:#ef4444; font-weight:bold; font-size:1.1em;'); 
                 }
             }
             if (nomeSkill === "Lethal Blow" && Math.random() * 100 <= 15) { 
@@ -122,56 +124,56 @@ function usarSkill(nomeSkill: string) {
                 if (typeof renderizarMonstros === 'function') renderizarMonstros();
                 else if (typeof window.refreshMobHpUI === 'function') window.refreshMobHpUI(monstro);
                 foiCriticoSkill = true;
-                window.escreverLog(`<span style="color:#000; background:#10b981; font-weight:bold; padding:2px 5px; border-radius:3px;">⚡ LETHAL STRIKE! The monster lost half its HP!</span>`);
+                writeSkillLog('lethalStrikeHalfHp', undefined, 'color:#000; background:#10b981; font-weight:bold; padding:2px 5px; border-radius:3px;');
                 if (typeof window.tryProcessForestMobDeath === 'function') window.tryProcessForestMobDeath(monstro);
             }
             if ((nomeSkill === "Stun Shot" || nomeSkill === "Shield Stun" || nomeSkill === "Hammer Crush") && Math.random() * 100 <= 60) {
                 if (window.monstrosAtivos.includes(monstro)) {
                     if (!monstro.debuffs) monstro.debuffs = {};
                     monstro.debuffs.stun = true;
-                    window.escreverLog(`<span style="color:#facc15; font-weight:bold;">💫 The monster is STUNNED!</span>`);
+                    writeSkillLog('monsterStunned', undefined, 'color:#facc15; font-weight:bold;');
                     let stunIdx = window.monstrosAtivos.indexOf(monstro);
                     if (stunIdx >= 0) atualizarIconesDebuffMonstro(stunIdx, "Stun", 5000, "💫");
                     let velOriginal = monstro.atkSpd;
                     monstro.atkSpd = 999999;
-                    setTimeout(() => { if (window.monstrosAtivos.includes(monstro)) { monstro.debuffs.stun = false; monstro.atkSpd = velOriginal; window.escreverLog(`<span style="color:#aaa;">The stun wore off.</span>`); } }, 5000);
+                    setTimeout(() => { if (window.monstrosAtivos.includes(monstro)) { monstro.debuffs.stun = false; monstro.atkSpd = velOriginal; writeSkillLog('stunWoreOff', undefined, 'color:#aaa;'); } }, 5000);
                 }
             }
             if (nomeSkill === "Sting" && window.monstrosAtivos.includes(monstro) && (!monstro.debuffs || !monstro.debuffs.sangrando)) {
                 if (!monstro.debuffs) monstro.debuffs = {}; monstro.debuffs.sangrando = true;
-                window.escreverLog(`<span style="color:#b91c1c; font-weight:bold;">🩸 The strike opened a deep wound! The monster is bleeding.</span>`);
+                writeSkillLog('bleedStarted', undefined, 'color:#b91c1c; font-weight:bold;');
                 let ticks = 0;
                 let sangramentoTimer = setInterval(() => {
                     let indexMonstro = window.monstrosAtivos.indexOf(monstro);
                     if (indexMonstro === -1 || ticks >= 5) { clearInterval(sangramentoTimer); if (monstro.debuffs) monstro.debuffs.sangrando = false; return; }
                     let danoBleed = Math.floor(window.playerStats.pAtk * 0.15); 
-                    window.escreverLog(`<span style="color:#b91c1c;">🩸 Bleed: the monster lost ${danoBleed} HP!</span>`);
+                    writeSkillLog('bleedTick', { damage: danoBleed }, 'color:#b91c1c;');
                     window.aplicarDanoNoMonstro?.(indexMonstro, danoBleed); ticks++;
                 }, 3000);
             }
             if (skill.tipo === "ataque_area") {
-                window.escreverLog(`🌪️ <b style='color:${skill.cor}'>${nomeSkill}</b> hits EVERYONE for <b style='color:#ef4444'>${danoFinal}</b>!`);
+                writeSkillLog('aoeHit', { skill: nomeSkill, damage: danoFinal });
                 for (let i = window.monstrosAtivos.length - 1; i >= 0; i--) { window.aplicarDanoNoMonstro?.(i, danoFinal, foiCriticoSkill); }
             } else if (skill.tipo === "ataque_ultimate") {
-                window.escreverLog(`☠️ <b style='color:${skill.cor}; font-size: 1.2em;'>ULTIMATE: ${nomeSkill}</b> obliterated the target for <b style='color:#ef4444'>${danoFinal}</b> damage!`);
+                writeSkillLog('ultimateHit', { skill: nomeSkill, damage: danoFinal });
                 let idxUlt = window.monstrosAtivos.indexOf(monstro);
                 if (idxUlt >= 0) window.aplicarDanoNoMonstro?.(idxUlt, danoFinal, true);
             } else {
-                window.escreverLog(`Spell <b style='color:${skill.cor}'>${nomeSkill}</b> dealt <b style='color:#ef4444'>${danoFinal}</b>!`);
+                writeSkillLog('spellDealt', { skill: nomeSkill, damage: danoFinal });
                 let idxSpell = window.monstrosAtivos.indexOf(monstro);
                 if (idxSpell >= 0) window.aplicarDanoNoMonstro?.(idxSpell, danoFinal, foiCriticoSkill);
                 if (skill.tipo === "ataque_cura" || skill.tipo === "ataque_dreno") {
                     let porcentagemCura = (skill.tipo === "ataque_dreno") ? 0.5 : 0.4;
                     let cura = Math.floor(danoFinal * porcentagemCura);
                     window.playerHP = Math.min(window.playerStats.maxHp, window.playerHP + cura);
-                    window.escreverLog(`<span style="color:#e11d48; font-weight:bold;">🩸 Blood Drain: +${cura} HP!</span>`);
+                    writeSkillLog('bloodDrainHeal', { amount: cura }, 'color:#e11d48; font-weight:bold;');
                     window.atualizar();
                 }
             }
             break;
 
         case "buff_spd":
-            window.escreverLog(`<span style='color:${skill.cor}; font-weight:bold;'>${nomeSkill} ACTIVE! Speed increased.</span>`);
+            writeSkillLog('buffSpeedActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
             window.playerStats.atkSpeed = Math.floor(window.playerStats.atkSpeed / skill.poder);
             window.atualizar();
@@ -179,7 +181,7 @@ function usarSkill(nomeSkill: string) {
             break;
 
         case "utilidade": 
-            window.escreverLog(`<span style='color:${skill.cor}; font-weight:bold;'>${nomeSkill} activated!</span>`);
+            writeSkillLog('utilityActivated', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 20000, skill.icone);
             pararAtaqueMonstro(); 
             setTimeout(() => { 
@@ -187,7 +189,7 @@ function usarSkill(nomeSkill: string) {
                     const telaFloresta = document.getElementById('tela-floresta');
                     if (telaFloresta && telaFloresta.style.display === 'flex') {
                         window.iniciarAtaqueMonstro?.();
-                        window.escreverLog(`<span style='color:#ef4444;'>Effect ended! The monsters attack again!</span>`);
+                        writeSkillLog('effectEndedMonstersAttack', undefined, 'color:#ef4444;');
                     }
                 }
             }, 20000);
@@ -209,7 +211,8 @@ function usarSkill(nomeSkill: string) {
             else if (nomeSkill === "Summon Big Boom") { nomePet = "BIG BOOM"; iconePet = "💣"; corFundoPet = "#991b1b"; baseAtaquePet = window.playerStats.pAtk; corTextoAtk = "#fca5a5"; multDano = 3.0; }
             else if (nomeSkill === "Summon Siege Golem") { nomePet = "SIEGE GOLEM"; iconePet = "🏰"; corFundoPet = "#1e293b"; baseAtaquePet = window.playerStats.pAtk; corTextoAtk = "#cbd5e1"; multDano = 5.0; }
             else { nomePet = "PANTERA"; iconePet = "🐆"; corFundoPet = "#111827"; baseAtaquePet = window.playerStats.pAtk; corTextoAtk = "#52525b"; multDano = 1.5; }
-            window.escreverLog(`<span style="color:#fff; background:${corFundoPet}; font-weight:bold; padding:2px;">${iconePet} ${nomePet} SUMMONED!</span>`);
+            const petLabel = petDisplayName(nomeSkill, nomePet);
+            writeSkillLog('petSummoned', { icon: iconePet, pet: petLabel }, `color:#fff; background:${corFundoPet}; font-weight:bold; padding:2px;`);
             atualizarIconesBuffPlayer(nomeSkill, 120000, skill.icone);
             window.motorPet = setInterval(() => {
                 if (window.monstrosAtivos.length > 0) {
@@ -220,49 +223,50 @@ function usarSkill(nomeSkill: string) {
                     const defMultPet = monstroPet.debuffs?.defMult;
                     if (typeof defMultPet === 'number') defAlvoPet = Math.floor(defAlvoPet * defMultPet);
                     let danoP = Math.floor((baseAtaquePet * multDano * 70) / (defAlvoPet || 1));
-                    if (danoP < 1) danoP = 1; window.escreverLog(`<span style="color:${corTextoAtk}; font-weight:bold;">${nomePet} attacks: ${danoP}!</span>`);
+                    if (danoP < 1) danoP = 1;
+                    writeSkillLog('petAttack', { pet: petLabel, damage: danoP }, `color:${corTextoAtk}; font-weight:bold;`);
                     window.aplicarDanoNoMonstro?.(idxPet, danoP);
                 }
             }, 2000);
-            setTimeout(() => { if (window.motorPet) { clearInterval(window.motorPet); window.motorPet = null; window.escreverLog(`<span style="color:#aaa;">${nomePet} returned to its realm.</span>`); } }, 120000);
+            setTimeout(() => { if (window.motorPet) { clearInterval(window.motorPet); window.motorPet = null; writeSkillLog('petReturned', { pet: petLabel }, 'color:#aaa;'); } }, 120000);
             break;
 
         case "debuff_spoil":
             if (!monstro.debuffs) monstro.debuffs = {}; monstro.debuffs.spoil = true;
-            window.escreverLog(`<span style="color:#3b82f6; font-weight:bold;">✨ The monster was swallowed by Spoil's blue light!</span>`);
+            writeSkillLog('spoilSwallowed', undefined, 'color:#3b82f6; font-weight:bold;');
             { let _ix = window.monstrosAtivos.indexOf(monstro); if (_ix >= 0) atualizarIconesDebuffMonstro(_ix, nomeSkill, 20000, skill.icone); }
-            if (nomeSkill === "Spoil Festival") { monstro.debuffs.defMult = 0.85; window.escreverLog(`<span style='color:${skill.cor};'>The monster's defense fell.</span>`); }
+            if (nomeSkill === "Spoil Festival") { monstro.debuffs.defMult = 0.85; writeSkillLog('defenseFell', undefined, `color:${skill.cor};`); }
             break;
 
        case "debuff":
-            if (!monstro.debuffs) monstro.debuffs = {}; window.escreverLog(`<span style="color:${skill.cor}; font-weight:bold;">Monster cursed: ${nomeSkill}!</span>`);
-            if (["Hex", "Curse Weakness", "Curse Gloom", "Surrender To Fire", "Poison Arrow", "Poison Dance", "Surrender To Water", "Crippling Blow"].includes(nomeSkill)) { monstro.debuffs.defMult = 0.7; window.escreverLog(`<span style='color:${skill.cor}; font-weight:bold;'>The enemy's defense shattered!</span>`); }
-            if (["Howl", "Freezing Strike", "Sand Bomb", "Wind Shackle"].includes(nomeSkill)) { monstro.debuffs.atkMult = 0.7; window.escreverLog(`<span style='color:${skill.cor}; font-weight:bold;'>The enemy is slowed and weakened.</span>`); }
-            if (["Hamstring", "Dryad Root", "Arrest", "Stun Shot"].includes(nomeSkill)) { monstro.debuffs.preso = true; window.escreverLog(`<span style='color:${skill.cor}; font-weight:bold;'>The monster is pinned in place!</span>`); }
+            if (!monstro.debuffs) monstro.debuffs = {}; writeSkillLog('monsterCursed', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
+            if (["Hex", "Curse Weakness", "Curse Gloom", "Surrender To Fire", "Poison Arrow", "Poison Dance", "Surrender To Water", "Crippling Blow"].includes(nomeSkill)) { monstro.debuffs.defMult = 0.7; writeSkillLog('defenseShattered', undefined, `color:${skill.cor}; font-weight:bold;`); }
+            if (["Howl", "Freezing Strike", "Sand Bomb", "Wind Shackle"].includes(nomeSkill)) { monstro.debuffs.atkMult = 0.7; writeSkillLog('enemySlowed', undefined, `color:${skill.cor}; font-weight:bold;`); }
+            if (["Hamstring", "Dryad Root", "Arrest", "Stun Shot"].includes(nomeSkill)) { monstro.debuffs.preso = true; writeSkillLog('monsterPinned', undefined, `color:${skill.cor}; font-weight:bold;`); }
             if ((nomeSkill === "Poison Arrow" || nomeSkill === "Poison Dance") && !monstro.debuffs.envenenado) {
-                monstro.debuffs.envenenado = true; window.escreverLog(`<span style="color:#10b981; font-weight:bold;">🐍 The monster was poisoned and started losing HP!</span>`);
+                monstro.debuffs.envenenado = true; writeSkillLog('poisonStarted', undefined, 'color:#10b981; font-weight:bold;');
                 let ticksVeneno = 0;
                 let venenoTimer = setInterval(() => {
                     let indexMonstro = window.monstrosAtivos.indexOf(monstro);
                     if (indexMonstro === -1 || ticksVeneno >= 5) { clearInterval(venenoTimer); if (monstro.debuffs) monstro.debuffs.envenenado = false; return; }
                     let danoVeneno = Math.max(5, Math.floor((isMagico ? window.playerStats.mAtk : window.playerStats.pAtk) * 0.10));
-                    window.escreverLog(`<span style="color:#10b981;">🧪 Poison: the monster took ${danoVeneno} toxic damage!</span>`);
+                    writeSkillLog('poisonTick', { damage: danoVeneno }, 'color:#10b981;');
                     window.aplicarDanoNoMonstro?.(indexMonstro, danoVeneno); ticksVeneno++;
                 }, 3000); 
             }
             if (nomeSkill === "Entangle") {
                 if (!monstro.debuffs) monstro.debuffs = {}; monstro.debuffs.defMult = 0.8;
                 let velOriginal = monstro.atkSpd; monstro.atkSpd *= 1.5;
-                window.escreverLog(`<span style='color:${skill.cor}; font-weight:bold;'>🌱 The monster is entangled! Slow and vulnerable.</span>`);
+                writeSkillLog('entangled', undefined, `color:${skill.cor}; font-weight:bold;`);
                 { let _ix = window.monstrosAtivos.indexOf(monstro); if (_ix >= 0) atualizarIconesDebuffMonstro(_ix, "Entangle", 15000, "🌱"); }
-                setTimeout(() => { if (window.monstrosAtivos.includes(monstro)) { monstro.debuffs.defMult = 1.0; if (monstro.atkSpd > velOriginal) monstro.atkSpd = velOriginal; window.escreverLog(`<span style='color:#aaa;'>The vines snapped away.</span>`); } }, 15000);
+                setTimeout(() => { if (window.monstrosAtivos.includes(monstro)) { monstro.debuffs.defMult = 1.0; if (monstro.atkSpd > velOriginal) monstro.atkSpd = velOriginal; writeSkillLog('vinesSnapped', undefined, 'color:#aaa;'); } }, 15000);
             }
             { let _ix = window.monstrosAtivos.indexOf(monstro); if (_ix >= 0) atualizarIconesDebuffMonstro(_ix, nomeSkill, 15000, skill.icone); }
-            setTimeout(() => { if (window.monstrosAtivos.includes(monstro)) { monstro.debuffs = {}; window.escreverLog(`<span style="color:#aaa;">Curse faded.</span>`); } }, 15000);
+            setTimeout(() => { if (window.monstrosAtivos.includes(monstro)) { monstro.debuffs = {}; writeSkillLog('curseFaded', undefined, 'color:#aaa;'); } }, 15000);
             break;
             
         case "buff_def":
-            window.escreverLog(`<span style='color:${skill.cor}; font-weight:bold;'>${nomeSkill} ACTIVE!</span>`);
+            writeSkillLog('buffActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
             if (nomeSkill === "Ultimate Evasion") { window.motorBuffsEspeciais.esquiva = 40; setTimeout(() => { window.motorBuffsEspeciais.esquiva = 0; }, 30000); }
             window.playerStats.pDef = Math.floor(window.playerStats.pDef * skill.poder); window.atualizar();
@@ -272,9 +276,9 @@ function usarSkill(nomeSkill: string) {
         case "buff_atk":
             let poderFinal = skill.poder;
             if ((nomeSkill === "Frenzy" || nomeSkill === "Bison Spirit Totem") && (window.playerHP / window.playerStats.maxHp) * 100 <= 30) {
-                poderFinal = 5.0; window.escreverLog(`<span style="color:#ff0000; font-weight:bold; font-size:1.2em; text-shadow: 1px 1px 0 #000;">🩸 LIMIT BREAK! MAX FURY!</span>`);
+                poderFinal = 5.0; writeSkillLog('limitBreak', undefined, 'color:#ff0000; font-weight:bold; font-size:1.2em; text-shadow: 1px 1px 0 #000;');
             }
-            window.escreverLog(`<span style='color:${skill.cor}; font-weight:bold;'>${nomeSkill} ACTIVE!</span>`);
+            writeSkillLog('buffActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
             if (nomeSkill === "Vicious Stance") { let oldMult = window.motorBuffsEspeciais.critMult; window.motorBuffsEspeciais.critMult = 2.5; setTimeout(() => { window.motorBuffsEspeciais.critMult = oldMult; }, 30000); }
             else { if (isMagico) window.playerStats.mAtk = Math.floor(window.playerStats.mAtk * poderFinal); else window.playerStats.pAtk = Math.floor(window.playerStats.pAtk * poderFinal); if (nomeSkill === "Focus Attack") window.playerStats.atkSpeed = Math.floor(window.playerStats.atkSpeed * 0.85); }
@@ -283,13 +287,19 @@ function usarSkill(nomeSkill: string) {
 
        case "cura":
             let hpC = Math.floor(window.playerStats.maxHp * skill.poder);
-            window.playerHP = Math.min(window.playerStats.maxHp, window.playerHP + hpC); window.escreverLog(`<span style="color:${skill.cor}; font-weight:bold;">Recovered ${hpC} HP!</span>`);
+            window.playerHP = Math.min(window.playerStats.maxHp, window.playerHP + hpC); writeSkillLog('recoveredHp', { amount: hpC }, `color:${skill.cor}; font-weight:bold;`);
             window.atualizar();
             break;
 
         case "cura_mp":
             let curaMana = Math.floor(window.playerStats.maxMp * skill.poder);
-            window.playerMP = Math.min(window.playerStats.maxMp, window.playerMP + curaMana); window.escreverLog(`<span style="color:${skill.cor}; font-weight:bold;">${skill.icone} Eva's light restored ${curaMana} MP!</span>`);
+            window.playerMP = Math.min(window.playerStats.maxMp, window.playerMP + curaMana);
+            if (typeof window.t === 'function' && typeof window.escreverLog === 'function') {
+                const mpMsg = window.t('game.skills.log.restoredMp', { amount: curaMana });
+                if (mpMsg && mpMsg !== 'game.skills.log.restoredMp') {
+                    window.escreverLog(`<span style="color:${skill.cor}; font-weight:bold;">${skill.icone}${mpMsg}</span>`);
+                }
+            }
             window.atualizar();
             break;
     }   

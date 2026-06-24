@@ -3,6 +3,8 @@
 /* Migrado: js/combat_math.js → TypeScript    */
 /* ========================================== */
 
+import { consumableDisplayName } from './combat_i18n';
+
 interface ForestMob {
   idUnico?: string;
   hp?: number;
@@ -365,23 +367,24 @@ function realizarGolpeAutoAtaque() {
     foiCritico = true;
   }
   danoFinal = Math.max(1, Math.floor(danoFinal));
-  const shot = isMage ? 'B. Spiritshot (NG)' : 'Soulshot (NG)';
+  const shotKey = isMage ? 'B. Spiritshot (NG)' : 'Soulshot (NG)';
+  const shotLabel = consumableDisplayName(shotKey);
 
   const olyEl = document.getElementById('tela-olympiad-arena');
   const naOlympiad = olyEl && olyEl.style.display === 'flex';
 
   if (typeof window.autoShotAtivo !== 'undefined' && window.autoShotAtivo && !naOlympiad) {
-    if (window.inventario[shot] && window.inventario[shot] > 0) {
-      window.inventario[shot]--;
+    if (window.inventario[shotKey] && window.inventario[shotKey] > 0) {
+      window.inventario[shotKey]--;
       danoFinal = Math.floor(danoFinal * 1.2);
       if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
-      if (window.inventario[shot] <= 0) {
+      if (window.inventario[shotKey] <= 0) {
         window.autoShotAtivo = false;
         escreverLog(
           `<span style="color:#ef4444; font-weight:bold;">${
             typeof window.t === 'function'
-              ? window.t('game.combatMath.shotsDepleted', { item: shot })
-              : `${shot} depleted!`
+              ? window.t('game.combatMath.shotsDepleted', { item: shotLabel })
+              : `${shotLabel} depleted!`
           }</span>`,
         );
       }

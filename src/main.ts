@@ -73,9 +73,9 @@ async function bootGame(): Promise<void> {
   await import('./systems/ranking_seasons');
   tickBoot(78, bootMsg('loading.phaseOnline', 'Loading online services...'));
 
-  await import('./systems/raid_engine');
-  await import('./core/core');
   await import('./combat/combat_i18n');
+  await import('./core/core');
+  await import('./systems/raid_engine');
   await import('./combat/combat_math');
   await import('./ui/ui_main');
   await import('./combat/combat');

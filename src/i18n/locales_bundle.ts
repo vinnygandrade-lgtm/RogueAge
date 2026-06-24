@@ -924,7 +924,57 @@
                     }
                 },
                 skills: {
-                    insufficientMana: 'Not enough MP!'
+                    insufficientMana: 'Not enough MP!',
+                    pets: {
+                        panther: 'Panther',
+                        zombie: 'Zombie',
+                        kaiTheCat: 'Kai the Cat',
+                        felineKing: 'Feline King',
+                        silhouette: 'Silhouette',
+                        spectralLord: 'Spectral Lord',
+                        stormCubic: 'Storm Cubic',
+                        mirageUnicorn: 'Mirage Unicorn',
+                        aquaCubic: 'Aqua Cubic',
+                        magnus: 'Magnus',
+                        mechanicGolem: 'Mechanic Golem',
+                        bigBoom: 'Big Boom',
+                        siegeGolem: 'Siege Golem'
+                    },
+                    log: {
+                        criticalBlow: '🗡️ CRITICAL BLOW!',
+                        backstabFailed: 'The monster turned! (Backstab failed)',
+                        backstabFatal: '🩸 FATAL! Perfect strike from behind!',
+                        lethalStrikeHalfHp: '⚡ LETHAL STRIKE! The monster lost half its HP!',
+                        monsterStunned: '💫 The monster is STUNNED!',
+                        stunWoreOff: 'The stun wore off.',
+                        bleedStarted: '🩸 The strike opened a deep wound! The monster is bleeding.',
+                        bleedTick: '🩸 Bleed: the monster lost {damage} HP!',
+                        aoeHit: '🌪️ {skill} hits EVERYONE for {damage}!',
+                        ultimateHit: '☠️ ULTIMATE: {skill} obliterated the target for {damage} damage!',
+                        spellDealt: 'Spell {skill} dealt {damage}!',
+                        bloodDrainHeal: '🩸 Blood Drain: +{amount} HP!',
+                        buffSpeedActive: '{skill} ACTIVE! Speed increased.',
+                        utilityActivated: '{skill} activated!',
+                        effectEndedMonstersAttack: 'Effect ended! The monsters attack again!',
+                        petSummoned: '{icon} {pet} SUMMONED!',
+                        petAttack: '{pet} attacks: {damage}!',
+                        petReturned: '{pet} returned to its realm.',
+                        spoilSwallowed: '✨ The monster was swallowed by Spoil\'s blue light!',
+                        defenseFell: 'The monster\'s defense fell.',
+                        monsterCursed: 'Monster cursed: {skill}!',
+                        defenseShattered: 'The enemy\'s defense shattered!',
+                        enemySlowed: 'The enemy is slowed and weakened.',
+                        monsterPinned: 'The monster is pinned in place!',
+                        poisonStarted: '🐍 The monster was poisoned and started losing HP!',
+                        poisonTick: '🧪 Poison: the monster took {damage} toxic damage!',
+                        entangled: '🌱 The monster is entangled! Slow and vulnerable.',
+                        vinesSnapped: 'The vines snapped away.',
+                        curseFaded: 'Curse faded.',
+                        buffActive: '{skill} ACTIVE!',
+                        limitBreak: '🩸 LIMIT BREAK! MAX FURY!',
+                        recoveredHp: 'Recovered {amount} HP!',
+                        restoredMp: 'Eva\'s light restored {amount} MP!'
+                    }
                 },
                 daily: {
                     modalTitle: 'DAILY MISSIONS',
@@ -1053,12 +1103,17 @@
                 },
                 items: {
                     drop: {
+                        adena: 'Adena',
                         ancientCoin: 'Ancient Coin',
                         animalSkin: 'Animal Skin',
                         animalBone: 'Animal Bone',
                         coal: 'Coal',
                         charcoal: 'Charcoal',
                         ironOre: 'Iron Ore'
+                    },
+                    consumables: {
+                        soulshotNg: 'Soulshot (NG)',
+                        blessedSpiritshotNg: 'Blessed Spiritshot (NG)'
                     }
                 },
                 combatMath: {
@@ -1093,7 +1148,26 @@
                     mailBodyRewards: 'Congratulations! You participated in the defeat of {boss}.\n\nItems found: {items}.',
                     mailNoItems: 'No physical items',
                     rewardsMailboxTitle: 'Rewards sent to Mailbox',
-                    rewardsMailboxHint: 'Check your inbox to collect your items.'
+                    rewardsMailboxHint: 'Check your inbox to collect your items.',
+                    criticalFloat: 'CRITICAL!',
+                    bossAttackTarget: '{boss} attacks {target}!',
+                    participantSlain: '{name} was slain by the boss!',
+                    bossAoeLog: '🔥 [AOE] {skill}: {msg}'
+                },
+                bosses: {
+                    antharas: {
+                        name: 'Antharas, the Earth Dragon',
+                        shortName: 'Antharas',
+                        log: {
+                            enrage: '[ENRAGE] Antharas\'s heart ruptures — the Earth Dragon is done playing!',
+                            basicAttack: 'Antharas crushes a warrior with its claws!',
+                            aoeSkillName: 'Earthquake & Dragon Breath',
+                            aoe: 'Antharas takes flight and breathes fire on the whole raid! CATACLYSM!',
+                            special: 'The ground collapses under Antharas — telluric energy erupts in a cone!',
+                            aoePlayerDamage: 'Dragon breath sears you for {damage} magic damage!',
+                            specialPlayerDamage: 'Telluric implosion shatters your defenses: {damage} HP!'
+                        }
+                    }
                 },
                 smartbar: {
                     itemOptions: 'ITEM OPTIONS',
@@ -2633,7 +2707,57 @@
                     }
                 },
                 skills: {
-                    insufficientMana: 'Mana insuficiente!'
+                    insufficientMana: 'Mana insuficiente!',
+                    pets: {
+                        panther: 'Pantera',
+                        zombie: 'Zumbi',
+                        kaiTheCat: 'Kai, o Gato',
+                        felineKing: 'Rei Felino',
+                        silhouette: 'Silhueta',
+                        spectralLord: 'Senhor Espectral',
+                        stormCubic: 'Cúbico da Tempestade',
+                        mirageUnicorn: 'Miragem, o Unicórnio',
+                        aquaCubic: 'Cúbico Aquático',
+                        magnus: 'Magnus',
+                        mechanicGolem: 'Golem Mecânico',
+                        bigBoom: 'Grande Explosão',
+                        siegeGolem: 'Golem de Cerco'
+                    },
+                    log: {
+                        criticalBlow: '🗡️ GOLPE CRÍTICO!',
+                        backstabFailed: 'O monstro se virou! (Backstab falhou)',
+                        backstabFatal: '🩸 FATAL! Golpe perfeito pelas costas!',
+                        lethalStrikeHalfHp: '⚡ GOLPE LETAL! O monstro perdeu metade do HP!',
+                        monsterStunned: '💫 O monstro foi ATORDOADO!',
+                        stunWoreOff: 'O atordoamento acabou.',
+                        bleedStarted: '🩸 O golpe abriu um ferimento profundo! O monstro está sangrando.',
+                        bleedTick: '🩸 Sangramento: o monstro perdeu {damage} HP!',
+                        aoeHit: '🌪️ {skill} atinge TODOS por {damage}!',
+                        ultimateHit: '☠️ ULTIMATE: {skill} obliterou o alvo por {damage} de dano!',
+                        spellDealt: 'Feitiço {skill} causou {damage}!',
+                        bloodDrainHeal: '🩸 Dreno de sangue: +{amount} HP!',
+                        buffSpeedActive: '{skill} ATIVO! Velocidade aumentada.',
+                        utilityActivated: '{skill} ativado!',
+                        effectEndedMonstersAttack: 'Efeito acabou! Os monstros atacam de novo!',
+                        petSummoned: '{icon} {pet} INVOCADO!',
+                        petAttack: '{pet} ataca: {damage}!',
+                        petReturned: '{pet} voltou ao seu reino.',
+                        spoilSwallowed: '✨ O monstro foi engolido pela luz azul do Spoil!',
+                        defenseFell: 'A defesa do monstro caiu.',
+                        monsterCursed: 'Monstro amaldiçoado: {skill}!',
+                        defenseShattered: 'A defesa inimiga foi destruída!',
+                        enemySlowed: 'O inimigo está lento e enfraquecido.',
+                        monsterPinned: 'O monstro está preso no lugar!',
+                        poisonStarted: '🐍 O monstro foi envenenado e começou a perder HP!',
+                        poisonTick: '🧪 Veneno: o monstro sofreu {damage} de dano tóxico!',
+                        entangled: '🌱 O monstro está enredado! Lento e vulnerável.',
+                        vinesSnapped: 'As vinhas se soltaram.',
+                        curseFaded: 'A maldição dissipou.',
+                        buffActive: '{skill} ATIVO!',
+                        limitBreak: '🩸 LIMIT BREAK! FÚRIA MÁXIMA!',
+                        recoveredHp: 'Recuperou {amount} HP!',
+                        restoredMp: 'A luz de Eva restaurou {amount} MP!'
+                    }
                 },
                 daily: {
                     modalTitle: 'MISSÕES DIÁRIAS',
@@ -2762,12 +2886,17 @@
                 },
                 items: {
                     drop: {
+                        adena: 'Adena',
                         ancientCoin: 'Moeda ancestral',
                         animalSkin: 'Pele de animal',
                         animalBone: 'Osso de animal',
                         coal: 'Carvão',
                         charcoal: 'Carvão vegetal',
                         ironOre: 'Minério de ferro'
+                    },
+                    consumables: {
+                        soulshotNg: 'Soulshot (NG)',
+                        blessedSpiritshotNg: 'Blessed Spiritshot (NG)'
                     }
                 },
                 combatMath: {
@@ -2802,7 +2931,26 @@
                     mailBodyRewards: 'Parabéns! Você participou da derrota de {boss}.\n\nItens encontrados: {items}.',
                     mailNoItems: 'Nenhum item físico',
                     rewardsMailboxTitle: 'Recompensas enviadas ao correio',
-                    rewardsMailboxHint: 'Confira a caixa de entrada para resgatar.'
+                    rewardsMailboxHint: 'Confira a caixa de entrada para resgatar.',
+                    criticalFloat: 'CRÍTICO!',
+                    bossAttackTarget: '{boss} ataca {target}!',
+                    participantSlain: '{name} foi abatido pelo boss!',
+                    bossAoeLog: '🔥 [AOE] {skill}: {msg}'
+                },
+                bosses: {
+                    antharas: {
+                        name: 'Antharas, o Dragão da Terra',
+                        shortName: 'Antharas',
+                        log: {
+                            enrage: '[FÚRIA] O coração de Antharas estoura — o Dragão da Terra parou de brincar!',
+                            basicAttack: 'Antharas esmaga um guerreiro com suas garras!',
+                            aoeSkillName: 'Terremoto e Sopro do Dragão',
+                            aoe: 'Antharas levanta voo e cospe fogo em toda a raid! CATACLISMO!',
+                            special: 'O chão desaba sob Antharas — energia telúrica explode em cone!',
+                            aoePlayerDamage: 'O sopro do dragão queima você por {damage} de dano mágico!',
+                            specialPlayerDamage: 'A implosão telúrica quebra suas defesas: {damage} HP!'
+                        }
+                    }
                 },
                 smartbar: {
                     itemOptions: 'OPÇÕES DO ITEM',

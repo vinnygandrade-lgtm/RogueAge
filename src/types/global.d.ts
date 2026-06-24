@@ -86,6 +86,13 @@ declare global {
     mobDisplayName?: (idImg: string | undefined, fallback?: string) => string;
     formatMobCardName?: (mob: { idImg?: string; nome?: string; isChampion?: boolean }) => string;
     itemDropDisplayName?: (itemKey: string) => string;
+    consumableDisplayName?: (itemKey: string) => string;
+    bossDisplayName?: (bossId: string | undefined, fallback?: string) => string;
+    bossShortName?: (bossId: string | undefined, fallback?: string) => string;
+    raidBossLogMsg?: (bossId: string | undefined, logKey: string, params?: Record<string, string | number>) => string;
+    raidDropDisplayName?: (dropId: string, catalogNome?: string) => string;
+    petDisplayName?: (nomeSkill: string, legacyFallback: string) => string;
+    writeSkillLog?: (key: string, params?: Record<string, string | number>, style?: string) => void;
     recolherLootRaid?: () => void;
     abrirPerfilJogadorRanking?: (nome: string, isBot?: boolean) => void;
     renderizarSocial?: () => void;
@@ -520,6 +527,13 @@ declare global {
   function mobDisplayName(idImg: string | undefined, fallback?: string): string;
   function formatMobCardName(mob: { idImg?: string; nome?: string; isChampion?: boolean }): string;
   function itemDropDisplayName(itemKey: string): string;
+  function consumableDisplayName(itemKey: string): string;
+  function bossDisplayName(bossId: string | undefined, fallback?: string): string;
+  function bossShortName(bossId: string | undefined, fallback?: string): string;
+  function raidBossLogMsg(bossId: string | undefined, logKey: string, params?: Record<string, string | number>): string;
+  function raidDropDisplayName(dropId: string, catalogNome?: string): string;
+  function petDisplayName(nomeSkill: string, legacyFallback: string): string;
+  function writeSkillLog(key: string, params?: Record<string, string | number>, style?: string): void;
   function zoneDisplayName(grade: string | null | undefined): string;
   function zoneCanonicalName(grade: string): string;
   function fecharJanelaAcao(): void;
