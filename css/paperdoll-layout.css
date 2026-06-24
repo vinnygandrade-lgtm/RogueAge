@@ -1,0 +1,440 @@
+/* ============================================
+   PAPERDOLL LAYOUT — 3 colunas: equip | personagem | joias
+   Arte mestre 1080×984 (ratio 360∶328) — docs/paperdoll-art-spec.md
+   ============================================ */
+
+.l2-paperdoll {
+    box-sizing: border-box;
+    position: relative;
+    /* Chão do cenário (stageBottom no canvas 984px) — stack ancora os pés aqui */
+    --pd-stack-bottom: 2.439%;
+    display: grid;
+    grid-template-columns: minmax(52px, 22%) minmax(0, 1fr) minmax(44px, 20%);
+    grid-template-rows: 1fr;
+    align-items: stretch;
+    width: 100%;
+    padding: 10px 8px;
+    min-height: 300px;
+    overflow: visible;
+    isolation: isolate;
+
+    /* Valores canónicos — espelhados em js/paperdoll_config.js (applyPaperdollConfig) */
+    --pd-col-gap: 8px;
+    --pd-gear-close-y: 10px;
+    --pd-char-scale: 1;
+    --pd-char-drop: 0%;
+    --pd-figure-w: 96%;
+    --pd-scenery-pos-y: 22%;
+    --pd-scenery-shift-y: 0%;
+    --pd-layer-clip: 2.5% 2.5% 0 2.5%;
+    --pd-base-clip: 3.5% 3.5% 0 3.5%;
+    --pd-char-layer-h: 98%;
+    --pd-char-layer-max-w: min(96%, 320px);
+}
+
+.l2-paperdoll--profile {
+    aspect-ratio: 360 / 328;
+    width: min(100%, 440px);
+    max-height: min(72vh, 420px);
+    margin-inline: auto;
+    margin-block: 8px 4px;
+}
+
+.l2-paperdoll:not(.l2-paperdoll--profile) {
+    aspect-ratio: 360 / 248;
+    min-height: 248px;
+}
+
+/* Cenário (não ocupa célula da grelha) */
+.l2-paperdoll .paperdoll-scenery {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-color: #14100c;
+    background-image: var(--pd-scenery-url, url('../assets/ui/paperdoll_scenery_profile.png'));
+    background-repeat: no-repeat;
+    background-position: center var(--pd-scenery-pos-y);
+    background-size: cover;
+    filter: brightness(1.06) contrast(1.04) saturate(1.05);
+    transform: translateY(var(--pd-scenery-shift-y));
+    border-radius: inherit;
+}
+
+.l2-paperdoll .paperdoll-frame-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+        radial-gradient(ellipse 85% 70% at 50% 42%, transparent 35%, rgba(0, 0, 0, 0.55) 100%),
+        linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, transparent 28%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* Colunas laterais */
+.l2-paperdoll .paperdoll-col {
+    z-index: 4;
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--pd-col-gap);
+}
+
+/* Colunas laterais — grelha 5 linhas; topo e base alinhados entre esquerda e direita */
+.l2-paperdoll .paperdoll-col--gear,
+.l2-paperdoll .paperdoll-col--jewels {
+    display: grid;
+    grid-template-rows: repeat(5, minmax(0, 1fr));
+    gap: var(--pd-col-gap, 8px);
+    align-content: stretch;
+    padding: 0;
+}
+
+.l2-paperdoll .paperdoll-col--gear {
+    grid-column: 1;
+    grid-row: 1;
+    justify-content: unset;
+}
+
+/* Linha 1: colar (D) — topo; arma (E) — topo + ligeiro fecho para baixo */
+.l2-paperdoll .paperdoll-col--jewels .paperdoll-slot[data-slot='neck'],
+.l2-paperdoll #slot-neck-perfil {
+    grid-row: 1;
+    align-self: start;
+    justify-self: center;
+    margin: 0;
+    transform: none;
+}
+
+.l2-paperdoll .paperdoll-col--gear .paperdoll-slot[data-slot='weapon'],
+.l2-paperdoll #profile-slot-weapon {
+    grid-row: 1;
+    align-self: start;
+    justify-self: center;
+    margin: 0;
+    transform: translateY(var(--pd-gear-close-y, 10px));
+}
+
+/* Linha 5: anel inferior (D) — fundo; armadura (E) — fundo + ligeiro fecho para cima */
+.l2-paperdoll .paperdoll-col--jewels .paperdoll-slot[data-slot='ring2'],
+.l2-paperdoll #slot-ring2-perfil {
+    grid-row: 5;
+    align-self: end;
+    justify-self: center;
+    margin: 0;
+    transform: none;
+}
+
+.l2-paperdoll .paperdoll-col--gear .paperdoll-slot[data-slot='armor'],
+.l2-paperdoll #slot-armor-perfil {
+    grid-row: 5;
+    align-self: end;
+    justify-self: center;
+    margin: 0;
+    transform: translateY(calc(-1 * var(--pd-gear-close-y, 10px)));
+}
+
+.l2-paperdoll .paperdoll-col--jewels {
+    grid-column: 3;
+    grid-row: 1;
+}
+
+/* Slots */
+.l2-paperdoll .paperdoll-slot {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    aspect-ratio: 1;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.l2-paperdoll .paperdoll-col--gear .paperdoll-slot {
+    max-width: 72px;
+    margin-inline: auto;
+}
+
+.l2-paperdoll .paperdoll-col--jewels .paperdoll-slot {
+    max-width: 52px;
+    margin-inline: auto;
+    align-self: center;
+    justify-self: center;
+    width: 100%;
+    max-height: 56px;
+    flex: none;
+}
+
+.l2-paperdoll .paperdoll-slot__img {
+    width: 82%;
+    height: 82%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
+}
+
+.l2-paperdoll .paperdoll-slot__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+    padding: 3px;
+    box-sizing: border-box;
+    text-align: center;
+    pointer-events: none;
+}
+
+.l2-paperdoll .paperdoll-slot__glyph {
+    font-size: clamp(13px, 3.5vw, 20px);
+    line-height: 1;
+    opacity: 0.88;
+    filter: drop-shadow(0 1px 3px #000);
+}
+
+.l2-paperdoll .paperdoll-slot__label {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(6px, 2vw, 9px);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: rgba(230, 194, 138, 0.85);
+    text-shadow: 0 1px 2px #000;
+    line-height: 1.1;
+}
+
+.l2-paperdoll .paperdoll-slot__enchant {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    z-index: 3;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 900;
+    font-family: 'Cinzel', serif;
+    color: #fef3c7;
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(250, 204, 21, 0.45);
+    line-height: 1.2;
+    pointer-events: none;
+}
+
+/* Palco central (célula da grelha — personagem está em .paperdoll-character-stack) */
+.l2-paperdoll .paperdoll-stage {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Sombra nos pés — padrão v1 (PAPERDOLL_CONFIG / docs/paperdoll-art-spec.md § Sombra)
+   DOM: primeiro filho do stack; z-index 0 = atrás das char-layers (1+). */
+.l2-paperdoll .paperdoll-character-stack .paperdoll-foot-shadow {
+    position: absolute;
+    left: 50%;
+    bottom: 2.44%;
+    width: var(--pd-foot-shadow-fallback-w, 30%);
+    height: var(--pd-foot-shadow-fallback-h, 2.439%);
+    min-height: 0;
+    max-height: none;
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    display: none;
+    opacity: 0;
+    transform: translateX(-50%);
+    mix-blend-mode: normal;
+    background: radial-gradient(
+        ellipse 100% 68% at 50% 52%,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.52) 38%,
+        rgba(0, 0, 0, 0.18) 58%,
+        transparent 76%
+    );
+    filter: blur(0.8px);
+    transition: opacity 0.15s ease, width 0.12s ease, bottom 0.12s ease;
+}
+
+/* Fallback: sombra visível assim que o corpo está no palco (JS só afina posição) */
+.l2-paperdoll .paperdoll-character-stack:has(#char-base-layer:not([hidden])) .paperdoll-foot-shadow,
+.l2-paperdoll .paperdoll-character-stack:has([data-pd-layer="base"]:not([hidden])) .paperdoll-foot-shadow {
+    display: block;
+    opacity: 0.92;
+    visibility: visible;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-foot-shadow.paperdoll-foot-shadow--live {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%);
+}
+
+.l2-paperdoll .paperdoll-aura {
+    display: none;
+}
+
+/* Stack 1080×984 — mesma proporção do canvas de arte; camadas com contain sobrepõem 1:1 */
+.l2-paperdoll .paperdoll-character-stack {
+    position: absolute;
+    left: 50%;
+    bottom: var(--pd-stack-bottom, 2.439%);
+    width: var(--pd-figure-w, 96%);
+    max-width: 100%;
+    aspect-ratio: 1080 / 984;
+    height: auto;
+    max-height: 96%;
+    transform: translateX(-50%);
+    transform-origin: 50% 100%;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.l2-paperdoll .paperdoll-character-stack .char-layer:not([hidden]) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    object-fit: fill;
+    object-position: bottom center;
+    clip-path: none;
+    transform: translate(var(--pd-layer-tx, 0px), var(--pd-layer-ty, 0px))
+        scale(var(--pd-char-scale, 1));
+    transform-origin: 50% 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    pointer-events: none;
+}
+
+.l2-paperdoll .paperdoll-character-stack .char-layer:not([hidden]):not(#char-weapon-layer):not([data-pd-layer="weapon"]) {
+    filter: none !important;
+    animation: none !important;
+}
+
+.l2-paperdoll .paperdoll-character-stack #char-base-layer.char-layer:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="base"].char-layer:not([hidden]) {
+    z-index: 1;
+    --pd-layer-tx: var(--pd-off-base-x, 0px);
+    --pd-layer-ty: var(--pd-off-base-y, 0px);
+}
+
+.l2-paperdoll .paperdoll-character-stack #char-armor-layer.char-layer:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="armor"].char-layer:not([hidden]) {
+    z-index: 2;
+    --pd-layer-tx: var(--pd-off-armor-x, 0px);
+    --pd-layer-ty: var(--pd-off-armor-y, 0px);
+}
+
+.l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer:not([hidden]) {
+    z-index: 3;
+    --pd-layer-tx: var(--pd-off-weapon-x, 0px);
+    --pd-layer-ty: var(--pd-off-weapon-y, 0px);
+}
+
+.l2-paperdoll .paperdoll-character-stack #char-weapon-grip-layer.char-layer:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGrip"].char-layer:not([hidden]) {
+    z-index: 4;
+    --pd-layer-tx: var(--pd-off-weapon-grip-x, 0px);
+    --pd-layer-ty: var(--pd-off-weapon-grip-y, 0px);
+}
+
+.l2-paperdoll .paperdoll-character-stack #char-hands-layer.char-layer:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="hands"].char-layer:not([hidden]) {
+    z-index: 5;
+    --pd-layer-tx: var(--pd-off-hands-x, 0px);
+    --pd-layer-ty: var(--pd-off-hands-y, 0px);
+}
+
+/* Fist (punho): arma por cima de mãos e grip — tipo Fist no catálogo */
+.l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer.char-layer--fist:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer.char-layer--fist:not([hidden]) {
+    z-index: 6;
+}
+
+.l2-paperdoll .paperdoll-character-stack .char-layer[hidden],
+.l2-paperdoll .paperdoll-character-stack #char-weapon-glow,
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGlow"] {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+
+/* Brilho de arma — sem drop-shadow cinza retangular (qualquer .l2-paperdoll) */
+@keyframes pulse-weapon-aura-paperdoll {
+    0% {
+        filter:
+            drop-shadow(0 0 calc(2px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(6px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.5)))
+            brightness(var(--paperdoll-pulse-lo, 0.88)) saturate(var(--paperdoll-sat-lo, 1.08));
+    }
+    100% {
+        filter:
+            drop-shadow(0 0 calc(4px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(12px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.55)))
+            brightness(var(--paperdoll-pulse-hi, 1.05)) saturate(var(--paperdoll-sat-hi, 1.18));
+    }
+}
+
+@keyframes weapon-divino-paperdoll-global {
+    0% {
+        filter:
+            drop-shadow(0 0 calc(2px * var(--paperdoll-divino-strength, 1)) var(--l2-accent-gold-light, #f5e6c8))
+            drop-shadow(0 0 calc(8px * var(--paperdoll-divino-strength, 1)) rgba(179, 138, 77, 0.5))
+            brightness(0.92) saturate(1.1) hue-rotate(0deg);
+    }
+    100% {
+        filter:
+            drop-shadow(0 0 calc(4px * var(--paperdoll-divino-strength, 1)) var(--l2-accent-gold-light, #fff8e7))
+            drop-shadow(0 0 calc(14px * var(--paperdoll-divino-strength, 1)) rgba(230, 194, 138, 0.45))
+            brightness(1.06) saturate(1.18) hue-rotate(360deg);
+    }
+}
+
+.l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer.weapon-glow-divino,
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer.weapon-glow-divino {
+    animation: pulse-opacity-weapon 1.5s infinite alternate ease-in-out,
+        weapon-divino-paperdoll-global 7s infinite linear !important;
+}
+
+/* Legado: colunas antigas sem modificador */
+.l2-paperdoll .paperdoll-col:not(.paperdoll-col--gear):not(.paperdoll-col--jewels) {
+    grid-column: 1;
+}
+
+.l2-paperdoll .paperdoll-right {
+    grid-column: 3;
+    grid-row: 1;
+}

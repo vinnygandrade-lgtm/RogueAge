@@ -2,11 +2,72 @@
 /* VISUAL EFFECTS, GLOWS & COMBAT            */
 /* ========================================= */
 
-/* Enchant Glows */
-.glow-blue { box-shadow: 0 0 10px #3b82f6 inset, 0 0 10px #3b82f6; border-color: #3b82f6 !important; }
-.glow-red { box-shadow: 0 0 12px #ef4444 inset, 0 0 15px #ef4444; border-color: #ef4444 !important; }
-.glow-green { box-shadow: 0 0 15px #10b981 inset, 0 0 20px #10b981; border-color: #10b981 !important; }
-.glow-yellow { box-shadow: 0 0 18px #eab308 inset, 0 0 25px #eab308; border-color: #eab308 !important; }
+/* Enchant Glows (Refined) */
+.glow-blue { box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.4), 0 0 12px rgba(59, 130, 246, 0.3); border-color: #3b82f6 !important; }
+.glow-red { box-shadow: inset 0 0 15px rgba(239, 68, 68, 0.4), 0 0 15px rgba(239, 68, 68, 0.3); border-color: #ef4444 !important; }
+.glow-green { box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.4), 0 0 20px rgba(16, 185, 129, 0.3); border-color: #10b981 !important; }
+.glow-yellow { box-shadow: inset 0 0 15px rgba(234, 179, 8, 0.4), 0 0 25px rgba(234, 179, 8, 0.3); border-color: #eab308 !important; }
+
+/* Item Slots & Inventory */
+.inv-slot, .shortcut-slot, .hud-weapon-slot {
+    background: linear-gradient(145deg, #1a1612 0%, #0d0b09 100%);
+    border: 1px solid var(--l2-border-soft);
+    border-radius: 6px;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--l2-shadow-inset);
+    overflow: hidden;
+}
+
+.enchant-box .inv-slot:hover,
+.store-items-grid .inv-slot:hover,
+.store-item-slot:hover,
+.shortcut-slot:hover,
+.hud-weapon-slot:hover {
+    border-color: var(--l2-accent-gold);
+    background: linear-gradient(145deg, #241d18 0%, #120e0a 100%);
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5), 0 0 10px rgba(179, 138, 77, 0.2);
+}
+
+@media (hover: none), (pointer: coarse) {
+    .enchant-box .inv-slot:hover,
+    .store-items-grid .inv-slot:hover,
+    .store-item-slot:hover,
+    .shortcut-slot:hover,
+    .hud-weapon-slot:hover {
+        transform: none;
+        z-index: auto;
+    }
+}
+
+/* Bolsa (.inventory-grid): layout de ícones em components.css — não duplicar aqui */
+.enchant-box .inv-slot img,
+.store-item-slot img,
+.shortcut-slot img,
+.hud-weapon-slot img {
+    width: 85%;
+    height: 85%;
+    max-width: 100%;
+    max-height: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    transition: transform 0.2s ease;
+}
+
+.enchant-box .inv-slot:hover img,
+.store-item-slot:hover img,
+.shortcut-slot:hover img {
+    transform: scale(1.1);
+}
+
+/* Rarity Borders */
+.rarity-s { border-color: #ef4444 !important; box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.2); }
+.rarity-a { border-color: #facc15 !important; box-shadow: inset 0 0 10px rgba(250, 204, 21, 0.2); }
+.rarity-b { border-color: #3b82f6 !important; box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2); }
+.rarity-c { border-color: #10b981 !important; box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.2); }
 .glow-20 { box-shadow: 0 0 20px #d946ef inset, 0 0 30px #d946ef; border-color: #d946ef !important; } 
 .glow-21 { box-shadow: 0 0 22px #f97316 inset, 0 0 35px #f97316; border-color: #f97316 !important; } 
 .glow-22 { box-shadow: 0 0 25px #06b6d4 inset, 0 0 40px #06b6d4; border-color: #06b6d4 !important; } 
@@ -42,10 +103,160 @@
 }
 .mob-desintegrando { animation: desintegrarMob 0.7s forwards ease-in !important; }
 
-/* Weapon Glows */
+/* Combat Countdown & Visuals */
+.combat-countdown-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.4);
+    pointer-events: none;
+}
+
+.countdown-number {
+    font-family: 'Cinzel', serif;
+    font-size: 8em;
+    font-weight: 900;
+    color: var(--l2-accent-gold-light);
+    text-shadow: 0 0 20px rgba(202, 138, 4, 0.6), 0 0 40px rgba(0,0,0,0.8);
+    animation: countdownPulse 1s ease-out forwards;
+}
+
+@keyframes countdownPulse {
+    0% { transform: scale(2); opacity: 0; filter: blur(10px); }
+    30% { transform: scale(1); opacity: 1; filter: blur(0); }
+    100% { transform: scale(0.8); opacity: 0; filter: blur(5px); }
+}
+
+.fight-text {
+    font-family: 'Cinzel', serif;
+    font-size: 6em;
+    font-weight: 900;
+    color: #ef4444;
+    text-shadow: 0 0 30px rgba(239, 68, 68, 0.6), 0 0 60px rgba(0,0,0,0.9);
+    animation: fightAppear 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes fightAppear {
+    0% { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); opacity: 0; }
+}
+
+/* Refined Damage Numbers */
+.damage-number {
+    position: absolute;
+    font-weight: 900;
+    font-family: 'Cinzel', serif;
+    pointer-events: none;
+    z-index: 200;
+    text-shadow: 2px 2px 0 #000, 0 0 10px rgba(0,0,0,0.5);
+    animation: damageFloat 1s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
+
+.damage-number.critical {
+    font-size: 1.8em !important;
+    color: #facc15 !important;
+    text-shadow: 0 0 15px rgba(250, 204, 21, 0.6), 2px 2px 0 #000;
+    z-index: 201;
+}
+
+.damage-number.player { color: #fff; }
+.damage-number.rival { color: #f87171; }
+.damage-number.heal { color: #22c55e; }
+
+@keyframes damageFloat {
+    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
+    20% { transform: translate(-50%, -20px) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -80px) scale(1); opacity: 0; }
+}
+
+/* Screen Shake */
+.screen-shake {
+    animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* Hero Aura & Prestige */
+.hero-aura {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 40px;
+    background: radial-gradient(ellipse, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+    z-index: 0;
+    animation: heroAuraPulse 2s infinite ease-in-out;
+}
+
+@keyframes heroAuraPulse {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.4; filter: brightness(1); }
+    50% { transform: translateX(-50%) scale(1.2); opacity: 0.7; filter: brightness(1.5); }
+}
+
+.hero-glow-body {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 10;
+    animation: heroGlowBody 3s infinite alternate ease-in-out;
+}
+
+@keyframes heroGlowBody {
+    from { opacity: 0.3; }
+    to { opacity: 0.6; }
+}
+
+.hero-badge-ranking {
+    background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%);
+    color: #000;
+    font-size: 0.6em;
+    font-weight: 900;
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+    margin-left: 5px;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 1px;
+}
 .weapon-glow-active { filter: drop-shadow(0 0 4px var(--g-color)) drop-shadow(0 0 15px var(--g-color)) brightness(1.8) contrast(1.2); animation: pulse-opacity var(--g-speed) infinite alternate ease-in-out; }
-.weapon-glow-divino { animation: pulse-opacity 1.5s infinite alternate ease-in-out, gira-cor-divina 6s infinite linear; }
-@keyframes gira-cor-divina { 0% { filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 20px #ff0000) brightness(1.8) hue-rotate(0deg); } 100% { filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 20px #ff0000) brightness(1.8) hue-rotate(360deg); } }
+.weapon-glow-divino { animation: pulse-opacity-weapon 1.5s infinite alternate ease-in-out, weapon-divino-paperdoll 7s infinite linear; }
+/* Paperdoll +25: compact halo using --l2-accent-* (craft UI still uses gira-cor-divina) */
+@keyframes weapon-divino-paperdoll {
+    0% {
+        filter:
+            drop-shadow(0 0 calc(2px * var(--paperdoll-divino-strength, 1)) rgba(10, 9, 8, 0.68))
+            drop-shadow(0 0 calc(1px * var(--paperdoll-divino-strength, 1)) var(--l2-accent-gold-light))
+            drop-shadow(0 0 calc(2px * var(--paperdoll-divino-strength, 1)) var(--l2-accent-gold-light))
+            drop-shadow(0 0 calc(4px * var(--paperdoll-divino-strength, 1)) var(--l2-accent-gold-light))
+            drop-shadow(0 0 calc(8px * var(--paperdoll-divino-strength, 1)) rgba(179, 138, 77, 0.46))
+            brightness(0.8) contrast(1.08) saturate(1.08) hue-rotate(0deg);
+    }
+    100% {
+        filter:
+            drop-shadow(0 0 calc(1px * var(--paperdoll-divino-strength, 1)) rgba(10, 9, 8, 0.45))
+            drop-shadow(0 0 calc(2px * var(--paperdoll-divino-strength, 1)) var(--l2-accent-gold-light))
+            drop-shadow(0 0 calc(5px * var(--paperdoll-divino-strength, 1)) var(--l2-accent-gold-light))
+            drop-shadow(0 0 calc(9px * var(--paperdoll-divino-strength, 1)) var(--l2-accent-gold-light))
+            drop-shadow(0 0 calc(16px * var(--paperdoll-divino-strength, 1)) rgba(230, 194, 138, 0.38))
+            brightness(1.04) contrast(1.06) saturate(1.16) hue-rotate(360deg);
+    }
+}
+@keyframes gira-cor-divina {
+    0% { filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 20px #ff0000) brightness(1.15) hue-rotate(0deg); }
+    100% { filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 20px #ff0000) brightness(1.15) hue-rotate(360deg); }
+}
 
 /* Reward Hub HUD — ícone com prêmios pendentes */
 .reward-hub-hud-inner {

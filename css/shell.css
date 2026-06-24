@@ -1,0 +1,63 @@
+/* ========================================= */
+/* SHELL — moldura oficial (todos os telemóveis) */
+/* docs/ui-shell-spec.md                      */
+/* ========================================= */
+
+body {
+    padding: var(--l2-safe-top) var(--l2-safe-right) var(--l2-safe-bottom) var(--l2-safe-left);
+}
+
+.game-container {
+    /* contain = proporção fixa (desktop / preview); fill = ocupa ecrã útil (mobile portrait) */
+    --l2-shell-mode: contain;
+    --l2-viewport-h: calc(100dvh - var(--l2-safe-top) - var(--l2-safe-bottom));
+    --l2-viewport-w: calc(100dvw - var(--l2-safe-left) - var(--l2-safe-right));
+    --l2-shell-w: min(
+        var(--l2-shell-max-width),
+        var(--l2-viewport-w),
+        calc(var(--l2-viewport-h) * var(--l2-aspect-w) / var(--l2-aspect-h))
+    );
+    --l2-shell-h: min(
+        var(--l2-viewport-h),
+        calc(var(--l2-shell-w) * var(--l2-aspect-h) / var(--l2-aspect-w))
+    );
+
+    width: var(--l2-shell-w);
+    height: var(--l2-shell-h);
+    max-width: var(--l2-shell-max-width);
+    margin: 0 auto;
+    flex-shrink: 0;
+}
+
+/* Mobile portrait: preenche largura e altura úteis — sem letterbox por proporção fixa */
+@media (orientation: portrait) and (max-width: 768px),
+       (hover: none) and (pointer: coarse) and (orientation: portrait) and (max-width: 900px) {
+    body {
+        align-items: stretch;
+        justify-content: flex-start;
+    }
+
+    .game-container {
+        --l2-shell-mode: fill;
+        --l2-shell-w: 100%;
+        --l2-shell-h: 100%;
+        flex: 1 1 auto;
+        align-self: stretch;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+        max-width: none;
+        margin: 0;
+    }
+}
+
+/* Modais / overlays fora do .game-container alinhados à mesma largura máxima */
+#loading-overlay .loading-content,
+.store-window,
+.l2-modal-overlay .l2-modal {
+    max-width: min(var(--l2-modal-max-width), calc(var(--l2-shell-max-width) - 30px));
+}
+
+#modal-oly-rewards .l2-modal {
+    max-width: min(var(--l2-shell-max-width), 95vw);
+}

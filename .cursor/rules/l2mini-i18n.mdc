@@ -16,8 +16,8 @@ alwaysApply: true
 - `window.I18n.applyFromSave(data.uiLocale)` — ao `carregarJogo`, após aplicar dados do personagem.
 - `window.I18n.getArray('auth.tips')` — listas por locale (ex.: dicas no loading).
 - Botões dos modais `l2Alert` / `l2Confirm` usam chaves `modal.ok`, `modal.cancel`, `modal.confirm`, `modal.titleMessage`, `modal.titleConfirmation`.
-- Strings estáticas no HTML: `data-i18n="login.enter"`, placeholders `data-i18n-placeholder="login.passwordPlaceholder"`, `data-i18n-title="hud.mailboxTitle"`.
-- Sem novo texto visível só em um idioma: **sempre** adicionar a chave em `js/i18n/locales_bundle.js` em **en** e **pt-BR** (fallback usa `en` se faltar tradução).
+- Strings estáticas no HTML: `data-i18n="login.enter"`, placeholders `data-i18n-placeholder="login.passwordPlaceholder"`, `data-i18n-title="hud.mailboxTitle"`. Fluxo **Auth** (registo, confirmação de e-mail, reset de senha, nova senha após link): também `login.setPasswordHint`, `login.saveNewPassword`, etc., e mensagens dinâmicas em **`auth.*`** (`registerConfirmEmail`, `resetEmailSent`, `passwordUpdatedRecoveryDone`, …) via `t('…')` em **`AuthEngine`** — sempre **en** + **pt-BR** no bundle.
+- Sem novo texto visível só em um idioma: **sempre** adicionar a chave em `src/i18n/locales_bundle.ts` em **en** e **pt-BR** (fallback usa `en` se faltar tradução).
 
 ## Catálogos grandes (skills, items, classes)
 - Preferir `descKey` no dado + entrada em `locales_bundle` (ou ficheiros por domínio) em vez de duplicar lógica.
@@ -25,17 +25,30 @@ alwaysApply: true
 
 ## GM / servidor
 - Mensagens vindas do Supabase: idealmente campo único por idioma (`message_en` / `message_pt`) ou payload estruturado; o cliente escolhe com `I18n.getLocale()`.
-- **Sessão / multi-login / kick:** Textos mostrados ao jogador (sessão encerrada noutro dispositivo, expiração, troca de personagem) devem usar **`t('…')`** + chaves em **`locales_bundle.js`** (**en** + **pt-BR** na mesma alteração). Ver **§7 — Multiplayer Realtime** em `l2mini-project-rules.mdc`.
+- **Sessão / multi-login / kick:** Textos mostrados ao jogador (sessão encerrada noutro dispositivo, expiração, troca de personagem) devem usar **`t('…')`** + chaves em **`src/i18n/locales_bundle.ts`** (**en** + **pt-BR** na mesma alteração). Ver **§7 — Multiplayer Realtime** em `l2mini-project-rules.mdc`.
 
 ## Ordem de scripts
-- `js/i18n/i18n.js` **depois** `js/core_globals.js`, em seguida `js/i18n/locales_bundle.js` (define `window.I18N_LOCALES`).
+- `src/i18n/i18n.ts` **depois** `src/core/core_globals.ts`, em seguida `src/i18n/locales_bundle.ts` (define `window.I18N_LOCALES`).
 - Inline ou script final que chama **`I18n.init()`** só **depois** dos dois ficheiros acima (carrega packs + `refreshDom`).
 
 ## Inicialização
-- `I18n.init()` em `index.html` após `i18n.js` **e** `locales_bundle.js`.
+- `I18n.init()` via boot (`src/main.ts`) após `i18n.ts` **e** `locales_bundle.ts`.
 
 ## Resiliência
 - **`t()`**, **`refreshDom`** e aplicação por elemento são **defensivos** (`try/catch`, chave inválida → fallback seguro): um bundle corrupto, nó DOM estranho ou chave em falha **não** deve derrubar o jogo inteiro.
 
+## Integridade sintática de `locales_bundle.ts` (crítico)
+- O ficheiro é um **único objeto literal** (`window.I18N_LOCALES = { en: { … }, 'pt-BR': { … } };`) dentro de um IIFE. **Cada grupo de chaves** (ex.: `game.castle.*`, `game.clan.rpc.*`) deve estar dentro do **bloco pai explícito** (`castle: { … }`, `rpc: { … }`). **Proibido** deixar propriedades “soltas” ao mesmo nível de indentação que parecem continuar um ramo mas **não** têm `pai: {` — isso fecha o `game` ou o `en` no sítio errado, **parte o JavaScript** (erro perto de `'pt-BR'` no parse) e o browser **não carrega o bundle**: sintoma = **toda a UI mostra chaves literais** (`login.subtitle`, `game.multiplayer.offline`, …) porque `I18n.init()` corre com `I18N_LOCALES` vazio/incompleto.
+- **Validação obrigatória** após editar o bundle: `node --check src/i18n/locales_bundle.ts` (exit code 0). Preferir correr antes de commit quando se toca neste ficheiro.
+- Ao adicionar strings num sub-ramo grande (`game.*`), **espelhar a mesma árvore** em **en** e **pt-BR**; um dos dois com `castle:` e o outro sem é convite a regressão estrutural — comparar secções lado a lado.
+
 ## Alinhamento com o GDD
 - Checklist evolutivo (persistência, economia, contratos, texto servidor, **Realtime / anti-fantasma**): **§7** e **§12** em `l2mini-project-rules.mdc`.
+
+## Ascensão / endgame (texto de UI)
+- Erros e sync da caça semanal: chaves `game.endgame.error_*` (códigos estáveis devolvidos pelas RPCs, ex. `error_insufficient_kills`, `error_weekly_cap`, `error_invalid_week`) e **`game.endgame.championKillNotSynced`** (falha de rede / resposta não tratada após retries). **Sempre** `en` + `pt-BR` em `locales_bundle.ts` na mesma alteração.
+- Se uma RPC nova ou alterada passar a devolver um `error` textual novo, acrescentar **`game.endgame.error_<codigo>`** nos dois idiomas para o `l2Alert` não cair em fallback bruto.
+
+## Inventário / Character stats (breakdown)
+- Modal de totais e secções passo a passo: chaves **`game.inventoryUi.detail.*`** (título, fechar, ofensa/defesa, joias, hints). Pré-visualização da aba perfil: **`game.inventoryUi.profilePreview.*`**. Sempre **en** + **pt-BR** na mesma alteração.
+- Ao acrescentar uma linha nova no breakdown, manter **paridade** com `window.playerStatBreakdown` / **`src/core/core_stats.ts`** e ver **§5 — Character stats** em `l2mini-project-rules.mdc`.

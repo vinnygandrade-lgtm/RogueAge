@@ -1,0 +1,173 @@
+/* ============================================
+   PROFILE PAPERDOLL — moldura da aba PERFIL
+   Arte 1080×984 + runtime: docs/paperdoll-art-spec.md, paperdoll-layout.css, paperdoll_config.js
+   ============================================ */
+
+#tela-perfil .l2-paperdoll--profile .paperdoll-scenery {
+    background-image: url('../assets/ui/paperdoll_scenery_profile.png');
+    background-color: #14100c;
+}
+
+#tela-perfil .l2-paperdoll--profile {
+    --pd-char-scale: 1;
+    background: #0a0806;
+    border-radius: 12px;
+    border: 2px solid #735939;
+    box-shadow:
+        0 14px 36px rgba(0, 0, 0, 0.85),
+        inset 0 0 48px rgba(0, 0, 0, 0.92),
+        inset 0 1px 0 rgba(230, 194, 138, 0.08);
+    /* Não cortar sombra nos pés */
+    overflow: visible;
+}
+
+#tela-perfil .l2-paperdoll--profile .paperdoll-scenery,
+#tela-perfil .l2-paperdoll--profile .paperdoll-frame-vignette {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#tela-perfil .l2-paperdoll--profile .paperdoll-character-stack {
+    max-height: 94%;
+}
+
+#tela-perfil .l2-paperdoll--profile .paperdoll-character-stack .paperdoll-foot-shadow {
+    height: var(--pd-foot-shadow-fallback-h, 2.439%);
+    min-height: 0;
+    max-height: none;
+    mix-blend-mode: normal;
+    opacity: 1;
+}
+
+/* Slots — moldura ornamental (só perfil) */
+#tela-perfil .l2-paperdoll .paperdoll-slot {
+    background:
+        linear-gradient(145deg, rgba(42, 32, 22, 0.95) 0%, rgba(12, 9, 6, 0.98) 55%, rgba(24, 18, 12, 0.95) 100%);
+    border: 2px solid #5a4634;
+    border-radius: 8px;
+    box-shadow:
+        inset 0 2px 10px rgba(0, 0, 0, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 3px 10px rgba(0, 0, 0, 0.65);
+    cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+#tela-perfil .l2-paperdoll .paperdoll-slot::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 5px;
+    border: 1px solid rgba(115, 89, 57, 0.35);
+    pointer-events: none;
+    z-index: 0;
+}
+
+#tela-perfil .l2-paperdoll .paperdoll-slot:not(:has(.paperdoll-slot__img))::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 35%, rgba(115, 89, 57, 0.12) 0%, transparent 68%);
+    pointer-events: none;
+    animation: pd-empty-slot-pulse 4s infinite alternate ease-in-out;
+}
+
+@keyframes pd-empty-slot-pulse {
+    from { opacity: 0.25; }
+    to { opacity: 0.55; }
+}
+
+#tela-perfil .l2-paperdoll .paperdoll-slot:focus-visible {
+    outline: 2px solid var(--l2-focus-ring, #facc15);
+    outline-offset: 2px;
+}
+
+@media (hover: hover) {
+    #tela-perfil .l2-paperdoll .paperdoll-slot:hover {
+        border-color: #ca8a04;
+        box-shadow:
+            inset 0 2px 10px rgba(0, 0, 0, 0.75),
+            0 0 18px rgba(250, 204, 21, 0.35);
+        transform: translateY(-2px);
+    }
+}
+
+#tela-perfil .l2-paperdoll .paperdoll-slot:active {
+    transform: scale(0.96);
+}
+
+/* Brilho de encantamento nos slots */
+#tela-perfil .paperdoll-slot.profile-slot-enchant-glow {
+    animation: pulse-profile-slot-aura 2s infinite alternate ease-in-out;
+}
+
+#tela-perfil .paperdoll-slot.profile-slot-enchant-divino {
+    animation: pulse-profile-slot-divino 1.4s infinite alternate ease-in-out;
+}
+
+@keyframes pulse-profile-slot-aura {
+    0% {
+        box-shadow:
+            inset 0 2px 10px rgba(0, 0, 0, 0.85),
+            0 0 6px var(--profile-slot-soft, rgba(250, 204, 21, 0.35)),
+            0 0 12px var(--profile-slot-glow, #facc15);
+        border-color: var(--profile-slot-glow, #ca8a04);
+    }
+    100% {
+        box-shadow:
+            inset 0 2px 10px rgba(0, 0, 0, 0.75),
+            0 0 14px var(--profile-slot-soft, rgba(250, 204, 21, 0.5)),
+            0 0 22px var(--profile-slot-glow, #fde68a);
+        border-color: color-mix(in srgb, var(--profile-slot-glow, #facc15) 70%, #fff 30%);
+    }
+}
+
+@keyframes pulse-profile-slot-divino {
+    0% {
+        box-shadow:
+            inset 0 2px 10px rgba(0, 0, 0, 0.8),
+            0 0 10px rgba(255, 255, 255, 0.35),
+            0 0 18px rgba(250, 204, 21, 0.45);
+        border-color: #fde68a;
+    }
+    100% {
+        box-shadow:
+            inset 0 2px 10px rgba(0, 0, 0, 0.65),
+            0 0 18px rgba(255, 255, 255, 0.65),
+            0 0 28px rgba(250, 204, 21, 0.75);
+        border-color: #fff;
+    }
+}
+
+#tela-perfil .profile-stats-preview {
+    max-width: 440px;
+    margin-inline: auto;
+}
+
+#tela-perfil .paperdoll-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 440px;
+    margin-inline: auto;
+    box-sizing: border-box;
+}
+
+#tela-perfil .paperdoll-actions .btn-profile-spellbook {
+    background: linear-gradient(180deg, #3b1d4e 0%, #1d0e26 100%);
+    border-color: #613080;
+    min-height: 48px;
+}
+
+#tela-perfil .paperdoll-actions .btn-profile-status {
+    background: linear-gradient(180deg, #162b4d 0%, #0b1526 100%);
+    border-color: #2b5292;
+    min-height: 48px;
+}
+
+#tela-perfil .paperdoll-actions .btn-profile-save {
+    background: linear-gradient(180deg, #12331f 0%, #091a10 100%);
+    border-color: #205c38;
+    min-height: 48px;
+}

@@ -1,0 +1,178 @@
+/* ========================================= */
+/* Hotbar / shortcut bar                      */
+/* In-game: docked in #hotbar-home-anchor     */
+/* (above chat — never position:fixed on body) */
+/* Raid/Daily Boss: #raid-atalhos-hook; Olympiad: #olympiad-atalhos-hook */
+/* ========================================= */
+
+.hotbar-shell {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    z-index: auto;
+}
+
+#barra-de-atalhos-dinamica,
+#raid-atalhos-hook #barra-de-atalhos-dinamica,
+#olympiad-atalhos-hook #barra-de-atalhos-dinamica {
+    display: none;
+    grid-template-columns: repeat(10, 1fr) !important;
+    grid-template-rows: repeat(2, 1fr) !important;
+    gap: 4px !important;
+    padding: 7px 5px calc(7px + var(--l2-safe-bottom, 0px)) !important;
+    background: linear-gradient(180deg, #181411 0%, #100d0a 100%) !important;
+    border-top: 2px solid var(--l2-border-strong, #5a4634) !important;
+    border-bottom: 1px solid var(--l2-border-soft, #2a241e) !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-radius: 0 !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4) !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    z-index: auto !important;
+    flex-shrink: 0 !important;
+}
+
+#hotbar-home-anchor #barra-de-atalhos-dinamica {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+#raid-atalhos-hook #barra-de-atalhos-dinamica {
+    margin-bottom: 6px !important;
+    border-radius: 6px !important;
+    border: 1px solid #5a4634 !important;
+    box-shadow:
+        0 0 16px rgba(0, 0, 0, 0.75),
+        inset 0 0 8px rgba(245, 158, 11, 0.12) !important;
+}
+
+#olympiad-atalhos-hook #barra-de-atalhos-dinamica {
+    margin-bottom: 10px !important;
+    border-radius: 6px !important;
+    border: 1px solid #4a3623 !important;
+    box-shadow:
+        0 0 20px rgba(0, 0, 0, 0.8),
+        inset 0 0 10px rgba(126, 34, 206, 0.2) !important;
+}
+
+.shortcut-slot {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    background: linear-gradient(135deg, #1a1410 0%, #0a0806 100%) !important;
+    border: 1px solid #3d2b1f !important;
+    border-radius: 3px !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    transition: background 0.1s ease, transform 0.1s ease !important;
+}
+
+.shortcut-slot:active {
+    transform: scale(0.95) !important;
+    background: #241710 !important;
+}
+
+.shortcut-slot.auto-attack-active {
+    border-color: #f59e0b !important;
+    background: linear-gradient(145deg, #2a1a0a 0%, #1a1208 100%) !important;
+    box-shadow:
+        0 0 10px rgba(245, 158, 11, 0.75),
+        0 0 22px rgba(234, 88, 12, 0.4),
+        inset 0 0 14px rgba(251, 191, 36, 0.35) !important;
+    animation: auto-attack-aura 1.15s ease-in-out infinite !important;
+}
+
+@keyframes auto-attack-aura {
+    0%, 100% {
+        box-shadow:
+            0 0 8px rgba(245, 158, 11, 0.65),
+            0 0 18px rgba(234, 88, 12, 0.35),
+            inset 0 0 12px rgba(251, 191, 36, 0.28);
+    }
+    50% {
+        box-shadow:
+            0 0 14px rgba(251, 191, 36, 0.95),
+            0 0 26px rgba(245, 158, 11, 0.5),
+            inset 0 0 18px rgba(254, 243, 199, 0.42);
+    }
+}
+
+.cd-overlay {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    z-index: 5 !important;
+    pointer-events: none !important;
+    transition: height 0.05s linear !important;
+}
+
+.shortcut-key {
+    position: absolute !important;
+    top: 1px !important;
+    left: 2px !important;
+    font-size: 7px !important;
+    color: #88745c !important;
+    font-weight: bold !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+}
+
+.shortcut-count {
+    position: absolute !important;
+    bottom: 1px !important;
+    right: 2px !important;
+    font-size: 8px !important;
+    color: #fff !important;
+    text-shadow: 1px 1px 1px #000 !important;
+    z-index: 6 !important;
+    pointer-events: none !important;
+}
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(167, 139, 250, 0.4)); }
+    50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(167, 139, 250, 0.8)); }
+    100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(167, 139, 250, 0.4)); }
+}
+
+@keyframes hotbarShimmers {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.btn-claim-reward {
+    background: linear-gradient(90deg, #7e22ce, #c084fc, #7e22ce);
+    background-size: 200% 100%;
+    animation: hotbarShimmers 2s infinite linear;
+    border: 1px solid #fff;
+    box-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-claim-reward {
+        animation: none;
+        background: linear-gradient(90deg, #7e22ce, #c084fc);
+    }
+    .shortcut-slot.auto-attack-active {
+        animation: none;
+    }
+}

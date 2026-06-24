@@ -1,6 +1,6 @@
 ---
 description: Regras globais e arquitetura oficial do projeto L2 MINI (Browser MMORPG)
-globs: **/*.js, **/*.html, **/*.css
+globs: **/*.{js,ts,html,css}
 alwaysApply: true
 ---
 
@@ -12,9 +12,12 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 - **Conceito:** MMORPG 2D focado em progressão de status, farm, craft e PvP, com vibe de **MMORPGs clássicos** (cerco, clã, enchant). **Identidade e nomes próprios do mundo são originais** — inspirar-se no género, não copiar IPs de terceiros — ver **§11**.
 - **Motor Atual:** Híbrido (Client-Side com Autoridade Server-Side em sistemas críticos). A economia e progressão competitiva (Loot, Enchant, Ascensão) são validadas via Postgres RPC no Supabase.
 - **Arquitetura Modular:** O projeto segue uma arquitetura altamente modular para facilitar edições rápidas e manutenção.
-- **Tecnologias Básicas:** Vanilla JavaScript (ES6+), HTML5, CSS3.
-- **Persistência de Dados (Fase 1/1.5):** `localStorage` em formato JSON com a chave `l2mini_save_<nome>`. O save ocorre em `js/core_persistence.js`. **Nota:** Alterações em arrays globais (ex: `barraAtalhos`) devem incluir lógica de migração para expandir dados de saves antigos sem corrompê-los.
+- **Tecnologias Básicas:** **TypeScript** (cliente), **Vite** (bundler/dev), HTML5, CSS3. Runtime **100% em `src/**/*.ts`** — Fases 0–4 da migração concluídas; **zero `@ts-nocheck` em `src/`**. Boot via **`src/main.ts`** (imports dinâmicos); **`index.html` directo no browser já não funciona** — usar `npm run dev` ou publicar `dist/` após `npm run build`. Detalhe: **§14**.
+- **Persistência de Dados (Fase 1/1.5):** `localStorage` em formato JSON com a chave `l2mini_save_<nome>`. O save ocorre em **`src/core/core_persistence.ts`**. **Nota:** Alterações em arrays globais (ex: `barraAtalhos`) devem incluir lógica de migração para expandir dados de saves antigos sem corrompê-los.
 - **Roadmap de produto (MMO sério):** O projeto assume evolução contínua em direção a **autoridade no servidor** e economia auditável — ver **§9 Visão séria e caminho para o futuro**.
+- **Modelo de rede (decisão de produto — caminho oficial):** O L2 Mini assume, por desenho, um **multiplayer maioritariamente assíncrono / semi-online**: contas e economia com **autoridade na nuvem** (Supabase/RPC onde crítico); **PvP e desafios** (ex.: Grand Olympiad, snapshots de defesa, guerra de clãs como simulação) com **combate resolvido no cliente** e **resultados / MMR / recompensas** persistidos ou validados no servidor conforme os fluxos existentes — em **espírito de produto** próximo a jogos de base/estratégia com **defesas gravadas e confrontos não simultâneos** (referência de **género**, não de IP). Não tratar **PvP em tempo real tick-a-tick** como requisito padrão de todo o MMO.
+- **Combate “ao vivo” (exceção planejada — escopo):** O **foco principal** de produto para **muitos jogadores no mesmo combate ao mesmo tempo** é o **boss mundial** (evento/raid global). **Chat, presença e broadcast** são infraestrutura em tempo real e **não** entram neste critério — servem UX e social, não definem que todo o PvP seja tick-a-tick. **Novas** experiências de combate **live** (além desta linha) exigem decisão explícita no GDD e **§9** (onde autoridade no servidor faz sentido).
+- **Iteração:** Enquanto este modelo der resultado no jogo, **priorizar aprimorar** fairness (ex.: IA de arena), robustez de RPC, RLS, Realtime e anti-abuso — sem reverter para “tudo MMORPG síncrono” como premissa única.
 
 ## 2. Estrutura de Diretórios e Arquivos
 - `assets/`: Ícones de UI, sprites, sons, background de zonas.
@@ -25,42 +28,60 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
   - `screens.css`: Estilos específicos de cada aba do jogo.
   - `modals.css`: Janelas flutuantes (`store-window`) e mercado.
   - `effects.css`: Glows de enchant, efeitos de dano e flashes de combate.
-- `js/`: Lógica dividida por responsabilidades:
-  - `i18n/i18n.js`, `i18n/locales_bundle.js`: locale runtime (`t()`, `I18n`), catálogos **en** + **pt-BR** — ver regra `l2mini-i18n.mdc`.
-  - `core_globals.js`: Variáveis globais, auxiliares de nível e travas de grade.
-  - `core_stats.js`: O motor de cálculo de status dinâmicos (`calcularStatusGlobais`).
-  - `core_persistence.js`: Funções de `salvarJogo` e `carregarJogo`.
-  - `core.js`: Inicialização e loop principal de atualização da UI (`atualizar`).
-  - **`ui_main.js`:** Navegação do jogo (`irPara`, `mudarTela`), **modais** (`abrirModal`, `fecharModal`, `fecharTopModal`, **`fecharTodosModaisBackdropStack`**) e pilha do `#modal-overlay` — ver §5.
-  - `skills_engine.js`: Motor de execução de todas as skills do jogador.
-  - `combat_math.js`: Cálculos de dano (Asintótico) e auto-ataque.
-  - `combat.js`: Spawning de monstros, IA básica e loot.
-  - `endgame_pursuits.js`: Metas contínuas pós–S-Grade (Renome, caça semanal a campeões elite, painel Ascensão, título derivado thresholds); persistência em `window.endgameData` / `data.endgame` no save — ver §7 e §12.3.
-  - `ui_chat.js`: Chat global/clã, histórico local, inspeção de jogadores (`inspectionCache`) e payloads estruturados (ex.: `ascensionTitle`) — alinhado a §7 e §12.5.
-- `db/`: Bancos de dados estáticos (ex: `db_items.js`, `db_mobs.js`, `db_bosses.js`, `db_bots.js`, `db_castles.js`).
-- `systems/`: Motores complexos (ex.: `raid_engine.js`, `clan_war_engine.js`, `castle_engine.js`, `mailbox_engine.js`, `ranking_seasons.js`, `reward_engine.js`, `gm_engine.js`, `market_cloud.js`, `ranking_manager.js` — merge do Top mundial (bots + `characters`); `multiplayer_visuals.js` — tooltip / UX de presença Realtime.
-- **`js/olympiad_engine.js`** (na raiz de `js/`, não em `systems/`): lobby, pareamento e combate da **Olympiada X1**; com sessão Supabase usa broadcast via `SupabaseAPI` — ver §7 (Multiplayer Realtime).
-- **SQL Supabase (raiz do repo):** `supabase_security_rules.sql`, `supabase_market_listings.sql`, `supabase_market_01_create_table.sql` / `02` / `03` ou `supabase_market_full_setup.sql`, `supabase_market_authority.sql` — mercado: ver §7; **chat de clã:** `supabase_clan_chat.sql`, `supabase_clan_chat_ascension_title.sql` (coluna opcional `ascension_title` nas mensagens).
+  - **`paperdoll-layout.css`**, **`paperdoll-profile.css`:** Layout global do paperdoll (`.l2-paperdoll`) e moldura da aba perfil — ver **§5 — Paperdoll**.
+  - **`index-extras.css`:** Shell do jogo e modais extra carregado no `<head>` (inclui **Character stats** `#janela-status-detalhado`, hero de stats no perfil, scroll dos `<details>` de breakdown).
+- **`src/` (autoridade do cliente — TypeScript):** Lógica dividida por responsabilidades. **Ordem de boot canónica:** `src/main.ts` (imports dinâmicos) — espelhada em **§14.3**; não reintroduzir lista paralela de `<script>` no HTML.
+  - **`src/main.ts` + `src/bootstrap/`:** Entrada Vite, overlay de loading, `initI18nAndLanguageBar`.
+  - **`src/types/`:** `game.ts` (domínio: save, equip, stats, APIs), `global.d.ts` (`Window` + funções globais legadas). Ao migrar/tipar módulo novo, expandir tipos aqui no mesmo PR — ver **§14.5**.
+  - **`src/runtime/register-global.ts`:** Ponte `registerGlobal` / `window.*` — **Fase 5:** reduzir novos exports directos para `window`; preferir import ES module.
+  - **`src/core/`:** `core_globals.ts`, `core_stats.ts` (`calcularStatusGlobais`, `playerStatBreakdown`), `core_persistence.ts` (`salvarJogo` / `carregarJogo`), `core.ts` (loop `atualizar`), `inventory_manager.ts`, `item_security.ts`.
+  - **`src/combat/`:** `combat_math.ts`, `combat.ts`, `skills_engine.ts`.
+  - **`src/game/`:** `classes.ts`, `skills.ts` (catálogo `bancoDeSkills` — chaves duplicadas via `Object.assign`, última vence).
+  - **`src/db/`:** Catálogos estáticos (`db_items.ts`, `db_mobs.ts`, `db_bosses.ts`, `db_bots.ts`, `db_castles.ts`, `db_zones.ts`).
+  - **`src/data/database.ts`:** Sons (`GameSoundKey`) e stats iniciais por raça.
+  - **`src/i18n/`:** `i18n.ts`, `locales_bundle.ts` — locale runtime (`t()`, `I18n`), catálogos **en** + **pt-BR** — ver `l2mini-i18n.mdc`.
+  - **`src/ui/`:** `ui_main.ts` (navegação, modais §5), `ui_inventory.ts` (bolsa, breakdown §5), `ui_chat.ts`, `ui_market.ts`, `ui_clans.ts`, restantes ecrãs NPC/loja/enchant/craft.
+  - **`src/paperdoll/`:** `paperdoll_config.ts`, `ui_paperdoll.ts` — ver **§5 — Paperdoll**.
+  - **`src/systems/`:** Motores online e meta — `auth_engine.ts`, `supabase_api.ts`, `cloud_sync.ts`, `castle_engine.ts`, `clan_war_engine.ts`, `market_cloud.ts`, `mailbox_engine.ts`, `reward_engine.ts`, `gm_engine.ts`, `ranking_manager.ts`, `ranking_seasons.ts`, `multiplayer_visuals.ts`, `raid_engine.ts`, `endgame_pursuits.ts`, **`olympiad_engine.ts`** (PvP semi-online; inspeção cloud §7), `olympiad_bots.ts`, `tutorial_engine.ts`.
+  - **`tests/smoke/`:** Playwright — boot, APIs core, save, navegação, ItemSecurity.
+  - **Mapeamento legado (docs/commits antigos):** `js/foo.js` ou `db/foo.js` → equivalente em `src/<área>/foo.ts`. Não recriar pasta `js/` para runtime novo.
+- **Raiz do repo (toolchain):** `index.html` (shell + entry Vite), `vite.config.ts`, `tsconfig.json`, `package.json` — scripts **`dev`**, **`build`**, **`typecheck`**, **`test:ci`** (**§14.2**).
+  - **SQL Supabase (raiz do repo):** `supabase_MASTER_SETUP.sql` (Script mestre resiliente e idempotente que configura todo o banco, tabelas, RLS e RPCs). Scripts individuais como `supabase_market_listings.sql`, `supabase_olympiad_mmr.sql`, `supabase_ascension_ledger.sql`, `supabase_ascension_weekly_claim.sql`, `supabase_champion_kill_register.sql`, **`supabase_auth_profile_trigger.sql`** (trigger `auth.users` → `public.profiles`; necessário quando confirmação de e-mail deixa `signUp` sem sessão), **`supabase_craft_item_secure.sql`** (craft Vesper/épico no JSONB; espelhado no MASTER como secção **5E**) servem como referência modular, mas o master é a autoridade de deploy.
+- **`docs/` (documentação operacional — não substitui este GDD):** Fluxos críticos **ponta-a-ponta** (SQL + cliente + correio + contratos) que são fáceis de regressar se só se ler um ficheiro. **O Agente deve ler** o `.md` correspondente **antes** de alterar esse domínio. **O Agente deve manter:** ao estabilizar ou mudar contratos de um fluxo sensível, **atualizar ou criar** nota em `docs/` e **acrescentar ou corrigir a linha de referência nesta secção**.  
+  - **Índice atual:** `docs/clan-application-cloud-flow.md` — candidatura a clã na nuvem (RPC `apply_to_clan_secure`, correio ao líder com `application_id`, `mailbox_engine` + `ui_clans`, globais `var clans` / `playerClanId`, inspeção com `charGender` / `modal-perfil-ranking`).
+  - `docs/ui-shell-spec.md` — moldura oficial do cliente (**450px** máx., proporção **9∶19.5**, safe areas, tokens `--l2-shell-*` em `css/base.css` + `css/shell.css`; modais alinhados a `--l2-modal-max-width`).
+  - `docs/inventory-grid-layout.md` — grelhas **`.inventory-grid`** (bolsa `#grid-inventario` + leilão `#market-seletor-grid`): wrapper **`.inv-grid-cell`** + **`css/inventory-grid.css`**; helpers **`_l2AppendInvGridSlot`** / **`_l2InvIconFrameHtml`** em **`src/ui/ui_inventory.ts`**; leilão em **`abrirSeletorItemMarket`** (`src/ui/ui_market.ts`) + shell modal em **`index-extras.css`**; **não** append `.inv-slot` directo à grelha nem usar `store-items-grid` no seletor de venda.
+  - `docs/paperdoll-art-spec.md` — paperdoll **1080×984**, presets em `assets/paperdolls/<id>/`, `resolvePaperdollPresetId`, **`src/paperdoll/paperdoll_config.ts`**, **`src/paperdoll/ui_paperdoll.ts`**. Índice de pastas: `assets/paperdolls/README.md`.
+  - `docs/paperdoll-armor-art-brief.md` — brief visual dos **sets de armadura por grade** (Heavy/Light/Robe, IDs `a1`…`arm_s_vesper_*`, pares `_hands`) para arte em `equips/`.
+  - `docs/paperdoll-armor-image-prompts.md` — mesmos sets em **prompts longos** para geradores de imagem (Midjourney, SD, etc.).
+  - `docs/paperdoll-weapon-image-prompts.md` — **todas as armas** do catálogo (`wpn_ng_*` … `wpn_s_vesper_*`) em características detalhadas para prompts de imagem.
+  - `docs/new-feature-checklist.md` — checklist operacional para **nova feature** (módulos TS em `src/`, inventário/save/i18n/RPC, **`npm run typecheck`** + bundle i18n + smoke); não substitui o GDD.
+  - `docs/typescript-migration-phase0.md` — histórico Fases 0–4, smoke Playwright, checklist manual, **Fase 5** (tipos estritos); **§14** deste GDD é a referência operacional pós-migração.
 
 ## 3. Regras de Edição (Golden Rules)
 1. **Protocolo de Início (LEITURA E ESPERA):** Ao iniciar uma nova sessão ou ler estas regras, o Agente deve apenas ler as diretrizes e situar-se no estado atual do projeto. **AGUARDE** o comando inicial do usuário.
-2. **Autoridade de Modularização:** O Agente (Cursor) tem **total liberdade e autorização** para criar novos arquivos `.js` ou `.css` sempre que implementar uma funcionalidade complexa ou sentir que um arquivo existente está ficando grande demais. O objetivo é manter cada arquivo com uma responsabilidade única e clara. **Sempre atualize o `index.html`** ao criar novos arquivos.
+2. **Autoridade de Modularização:** O Agente (Cursor) tem **total liberdade e autorização** para criar novos ficheiros **`.ts`** (ou `.css`) sempre que implementar uma funcionalidade complexa ou sentir que um arquivo existente está ficando grande demais. Colocar código novo em **`src/<área>/`**, registar import em **`src/main.ts`** na fase de boot correcta (ver **§14.3**), e expandir tipos em **`src/types/`** quando expuser API global. **Não** recriar runtime em `js/`. O objetivo é manter cada arquivo com uma responsabilidade única e clara. Novos estilos: actualizar imports em `index.html` / Vite conforme padrão existente.
 3. **Gerenciamento de Itens e Segurança (CRÍTICO):**
     - **RG de Equipamentos (UID):** TODO equipamento (arma, armadura, joia) DEVE ser uma instância única criada via `ItemSecurity.createInstance()`. 
     - **Identidade Única:** Nunca use `JSON.parse(JSON.stringify(item))` para mover itens entre inventário e slots. Mova a **REFERÊNCIA** original do objeto para preservar le `uid` e o estado (enchant). **Exceção permitida:** serializar uma **cópia** para anexo de correio (`enviarMail` / mercado); ao **resgatar** no mailbox, validar com `ItemSecurity` e entregar só via `InventoryManager`.
-    - **InventoryManager:** Toda adição, remoção, equipe ou desequipe deve obrigatoriamente passar pelo `window.InventoryManager` (`js/core_inventory_logic.js`). Ele é a única barreira contra duplicação de itens.
+    - **InventoryManager:** Toda adição, remoção, equipe ou desequipe deve obrigatoriamente passar pelo `window.InventoryManager` (**`src/core/inventory_manager.ts`**). Ele é a única barreira contra duplicação de itens.
     - **Propriedade Padronizada:** Use `.enchant` (0-25) como propriedade universal para nível de refinamento.
     - **Restrição de Loja (Elite/Epic):** Itens do tier **Vesper** ou **Joias Épicas** devem ter `preco: 0` no banco de dados para serem obtidos apenas por Craft ou Marketplace.
 4. **NÃO reinventar a roda:** Melhore os motores existentes em vez de reescrevê-los do zero.
-5. **Status Dinâmicos (`playerStats`):** Calculados em tempo real em `js/core_stats.js`. Deve incluir bônus de Clã e bônus de **Dominação de Castelo** (via `CastleEngine.getCastleBuffs()`).
+5. **Status Dinâmicos (`playerStats`):** Calculados em tempo real em **`src/core/core_stats.ts`**. Deve incluir bônus de Clã e bônus de **Dominação de Castelo** (via `CastleEngine.getCastleBuffs()`).
 6. **Fórmulas de Dano:** Use sempre a fórmula Asintótica `(Atk * 1100) / (350 + Def)`. Implemente sempre uma trava de **Dano Mínimo (Floor)** de 8% do Atk base para o jogador e 3% para monstros para evitar o efeito "zero dano" com itens de elite.
-7. **Recompensas Complexas (Mailbox First):** Prêmios de sistemas massivos (Guerra, Siege, Raids) devem ser entregues via `enviarMail()`. **Concessões diretas de GM** (moedas/itens) usam a tabela **`public.rewards`** e o **`RewardEngine`** (`js/systems/reward_engine.js`), não o mailbox, para rastreio explícito e resgate pelo jogador.
+7. **Recompensas Complexas (Mailbox First):** Prêmios de sistemas massivos (Guerra, Siege, Raids) devem ser entregues via `enviarMail()`. **Concessões diretas de GM** (moedas/itens) usam a tabela **`public.rewards`** e o **`RewardEngine`** (**`src/systems/reward_engine.ts`**), não o mailbox, para rastreio explícito e resgate pelo jogador.
 8. **Prioridade de Autoridade:** Sempre que o jogador estiver autenticado no Supabase, funções que alteram saldo (Adena/Coins) ou estado de itens (Enchant/Augment) **devem** obrigatoriamente passar por uma RPC. O código client-side deve atuar apenas como ponte (bridge) e feedback visual imediato.
 
 ## 4. Sistemas de Território e Guerra (Novas Regras)
-- **Castle Engine (`js/systems/castle_engine.js`):** Gerencia a posse dos 9 castelos de Aden. 
+- **Castle Engine (`src/systems/castle_engine.ts`):** Gerencia a posse dos 9 castelos de Aden. 
     - **Tesouro (Treasury):** Cada castelo gera Adena passiva (`baseIncome`) por ciclo. Apenas o líder do clã dono pode sacar no menu de gerenciamento.
     - **Bônus de Dominação:** Clãs com castelos recebem buffs globais (1% cumulativo por castelo em Atk/Def).
+- **Clan War Tournament (`src/systems/clan_war_engine.ts`):** Novo sistema de torneio 11v11 semi-online.
+    - **Acesso:** Exclusivo para o **Líder do Clã** através de um card estilizado na aba **WORLD**. O botão é oculto para membros comuns.
+    - **Formato:** 11 duelos individuais (Rank 1 ao 11). O primeiro clã a atingir 6 vitórias vence a guerra.
+    - **Inscrição:** O líder é obrigatório no Rank 1. Ele deve selecionar outros 10 membros para completar o roster.
+    - **Matchmaking:** Sistema de fila que busca clãs com nível/ranking mais próximo. Se não houver rivais reais, o sistema gera uma legião "fantasma" (bots) para permitir o desafio.
 - **Siege Engine (Contexto de Guerra):**
     - **Objetivo Principal:** Se `contextoSiege` estiver ativo, a vitória do atacante é garantida pela destruição do **Holy Artifact (Crystal)**, independentemente de haver defensores vivos.
     - **Sistema de Mercenários:** O motor deve preencher slots vazios com bots mercenários (`[M] Nome`) apenas se o clã tiver menos de 12 membros. No lobby, diferencie claramente via labels: `[YOU]`, `[CLAN]` e `[MERC]`.
@@ -71,27 +92,59 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
     - **Live Battle Info:** O painel `#clan-war-battle-info` deve exibir os 5 eventos mais recentes de forma minimalista.
 
 ## 5. UI/UX e Modais (Mobile-First)
-- **Idioma da UI (i18n):** Texto visível ao jogador deve passar por **`window.t('…')`** e chaves em `locales_bundle.js` (**sempre** `en` **e** `pt-BR` na mesma alteração). O jogador escolhe EN ou PT no cliente; **§11** define tom, inglês como referência de redação e identidade própria — ver `l2mini-i18n.mdc`.
+- **Idioma da UI (i18n):** Texto visível ao jogador deve passar por **`window.t('…')`** e chaves em **`src/i18n/locales_bundle.ts`** (**sempre** `en` **e** `pt-BR` na mesma alteração). O jogador escolhe EN ou PT no cliente; **§11** define tom, inglês como referência de redação e identidade própria — ver `l2mini-i18n.mdc`.
 - **Modais de Sistema:** NUNCA use `alert()` ou `confirm()`. Use `window.l2Alert` e `window.l2Confirm`.
 - **Scroll Mobile:** Use sempre `flex: 1`, `min-height: 0` e `overflow-y: auto` em listas longas.
 - **Navegação Segura:** A função `irPara(lugar)` deve limpar estados de menus e NPCs (incl., quando aplicável, modais ligados ao backdrop — ver bullets seguintes).
-- **Backdrop partilhado (`#modal-overlay` + `modaisAtivos`):** Em `js/ui_main.js`, `abrirModal` / `fecharModal` / `fecharTopModal` mantêm **pilha + véu**. **Evitar:** esconder um `.store-window` só com `style.display = 'none'` ou manipular só o véu sem `fecharModal` — isso pode deixar **véu escuro órfão** ou inconsistência ao navegar entre abas/telas.
+- **Backdrop partilhado (`#modal-overlay` + `modaisAtivos`):** Em **`src/ui/ui_main.ts`**, `abrirModal` / `fecharModal` / `fecharTopModal` mantêm **pilha + véu**. **Evitar:** esconder um `.store-window` só com `style.display = 'none'` ou manipular só o véu sem `fecharModal` — isso pode deixar **véu escuro órfão** ou inconsistência ao navegar entre abas/telas.
 - **Onde colocar `.store-window` ligados ao `abrirModal`:** Preferir elementos no **`body`** como **irmãos** de `#modal-overlay`, **fora** de `#screen-game`. A `.screen` / `#screen-game` usa **`overflow: hidden`**; descendente `position: fixed` pode ficar **recortado/invisível** enquanto o véu cobre o ecrã (sintoma típico: “painel não aparece só o escuro”). **Referências no repo:** mercado (`janela-market-*`, `janela-item-acao`), **detalhe de zona de caça** (`janela-detalhes-zona`). Novos modais com o mesmo padrão devem seguir este **layout**, não inventar outro overlay por ecrã sem necessidade.
 - **Reset em navegação:** `irPara` e `mudarTela` (quando `id !== 'screen-game'`) devem invocar **`window.fecharTodosModaisBackdropStack()`** para esvaziar a pilha e garantir que o véu some. Novas funções de “mudar painel/tela” equivalentes devem **reutilizar** isto (ou chamar `irPara`/`mudarTela`) em vez de duplicar reset frágil.
 - **Legibilidade (tema escuro):** Priorizar contraste e painéis **ligeiramente elevados** sobre preto puro; usar variáveis CSS em `css/base.css` (`:root` `--l2-text-*`, `--l2-border-*`) em novos estilos; `min-height` ~**44px** em botões/tab principais quando possível; `:focus-visible` visível para teclado/leitores — ver comentário “Legibilidade” em `base.css`.
+- **Community Hub (`#tela-social`):** O ecrã **SOCIAL** é só o hub **Community**: **Marketplace** (`abrirMenuSocial('market')`) e **Clan Hall** (`abrirMenuSocial('clans')`). **Não** duplicar aqui painel de MMR, ladder mundial, recompensas de temporada ou duelos — isso é **Grand Olympiad** (`abrirOlympiad` / `#tela-olympiad-arena`, **`src/systems/olympiad_engine.ts`**) e, onde fizer sentido, o hub **World**. Entrar em `irPara('social')` deve mostrar o hub (praca), não reabrir um submenu “ranking” legado; `l2mini_last_social_menu` com valor obsoleto **`ranking`** é ignorado/limpo no cliente (**`src/core/core.ts`**, `abrirMenuSocial`).
+- **Layout do Social:** Em `executarTrocaSubScreen`, `#tela-social` usa **`display: flex`** (como as outras `screen-content` do `#game-viewport`), **não** `block`, para `.npc-menu` filhos receberem `flex: 1` / `min-height: 0` e listas longas scrollarem. Em `css/layout.css`, manter regras **`:has(#menu-social-market)`** e **`:has(#menu-social-clans)`**; ao acrescentar um terceiro submenu social, **replicar o mesmo padrão** de altura/flex.
+- **Código:** Ao testar se o jogador “está no Social” (ex.: refrescar Clan Hall após guerra), aceitar `#tela-social` visível com `style.display === 'flex'` **ou** `'block'` — não assumir só um dos dois.
+- **Character stats (breakdown detalhado):**
+  - **HTML:** `#janela-status-detalhado` no `index.html` (irmã do `#modal-overlay`, padrão §5). Estrutura: `.store-header`, `.store-body.store-body--status-detail-scroll` (sem scroll duplo com `.store-body` global), conteúdo em `#stat-detail-root`, **footer** fixo com `fecharStatusDetalhado()` (botão não fica dentro da zona a rolar).
+  - **JS/TS:** `calcularStatusGlobais()` em **`src/core/core_stats.ts`** preenche **`window.playerStatBreakdown`**; `renderPainelStatsDetalhado()` em **`src/ui/ui_inventory.ts`** deve listar **todas** as parcelas **aditivas** que o motor usa antes dos multiplicadores de classe/bênção/clã/castelo — em especial **P.Atk / M.Atk da ficha da arma** (`weaponBase` / `weaponBaseM`), encantamento de arma, augment, níveis, etc. Omitir uma linha faz parecer “bónus escondido”.
+  - **Accordions:** `<details class="status-detail-acc">`; **todas fechadas ao abrir** o modal (o jogador expande o que quiser). Conteúdo de cada bloco dentro de **`.status-detail-acc__scroll`** + CSS em `index-extras.css` para **scroll** fiável (evitar só `overflow: hidden` em `<details>` sem rotação ou wrapper).
+  - **Flex scroll:** `#stat-detail-root` usa **`min-height: 0`** no filho flex para o `overflow-y: auto` não ser cortado pelo pai.
+  - **i18n:** textos do modal e pré-visualização do perfil em `game.inventoryUi.detail.*` e `game.inventoryUi.profilePreview.*` dentro de **`src/i18n/locales_bundle.ts`** (**en** + **pt-BR**).
+- **Paperdoll (perfil e qualquer `.l2-paperdoll`):** **`docs/paperdoll-art-spec.md`** + **`docs/paperdoll-armor-art-brief.md`** (sets por grade) + **`assets/paperdolls/README.md`** (ler antes de arte/layout/motor). **Autoridade:** **`src/paperdoll/paperdoll_config.ts`** (`resolvePaperdollPresetId`, `getPaperdoll*SrcList`) + **`src/paperdoll/ui_paperdoll.ts`** + `css/paperdoll-layout.css`.
+  - **Universal (todas as classes):** **cenário** `assets/ui/paperdoll_scenery_profile.png` (1080×984); **ícones de joias** nos slots (neck/ear/ring) = **256×256** em `assets/joias/<jewelId>.png` (`catalogJewelIconPath`) — **não** por pasta de preset; **sem** layer no corpo.
+  - **Pastas por arquétipo:** `assets/paperdolls/<preset_id>/` — **`body.png`**, **`equips/<id>.png`** + **`equips/<id>_hands.png`** (par por armadura), **`hands.png`** só **`human_fighter`** / **`human_fighter_female`** (mãos nuas sem armadura + arma), **`equips/<id>.png`** armas — 1080×984. Slots **256×256** universais.
+  - **Preset ativo:** `resolvePaperdollPresetId()` — **raça + género + fighter|mage** (`isClasseMagica(charClass)`). **4 pastas** por raça (fighter/mage × M/F), **exceto Dwarf** (só `dwarf_male` / `dwarf_female`, fighter). Nomenclatura: `{raça}_fighter`, `{raça}_mage`, sufixo `_female` se Female. Matriz completa: **`assets/paperdolls/README.md`**. Atributo `data-paperdoll-preset` no `.l2-paperdoll`.
+  - **Stack:** `.paperdoll-character-stack`, `object-fit: fill`, `charScale: 1`. Código: slots, sombra, brilho, vignette; **não** reposicionar equip por ID no JS (`layerScreenOffset` só ajuste fino global).
+  - **Sombra nos pés (padrão v1 — aprovado):** **`PAPERDOLL_FOOT_SHADOW_STANDARD === 'v1'`** em `paperdoll_config.js` + **`docs/paperdoll-art-spec.md` § Sombra nos pés**. Elipse **atrás** do personagem (`.paperdoll-foot-shadow` **primeiro** no stack, **`z-index: 0`**); largura/posição via scan do `body.png` + **`PAPERDOLL_CONFIG`** (`footShadowHeightPx: 24`, `footShadowWidthBoost: 1.22`, `footShadowWidthPadPx: 28`, clamps 18–52%). Stack ancorado ao chão com **`--pd-stack-bottom`** (derivado de `artAnchors.stageBottom: 960`); **sem** realinhamento por zoom (`getBoundingClientRect`). **Não regredir** para sombra por cima dos pés, px fixos no zoom, ou `--pd-feet-align-y` nas camadas.
+  - **Novo preset:** criar pasta em `assets/paperdolls/`, registar em `PAPERDOLL_PRESET_META` + `resolvePaperdollPresetId()` / `PAPERDOLL_LEGACY_BODY` se precisar fallback.
+  - **Scripts:** `paperdoll_config.ts` **antes** de `ui_paperdoll.ts` no boot **`src/main.ts`**.
+  - **Validação:** `ui_paperdoll.js` avisa na consola se camada visual ≠ 1080×984. Ao mudar escala global, alterar só `PAPERDOLL_CONFIG` (não valores duplicados espalhados).
 
 ## 6. Lógica de Combate e Bots
-- **Balanceamento PvP:** Multiplicador global de dano ~0.35 para guerras estratégicas.
+- **Balanceamento PvP (escopo):** Multiplicador global de dano ~0.35 para **Guerra de Clãs / torneio §4** (`src/systems/clan_war_engine.ts`). **Grand Olympiad** e outros duelos **semi-online** têm pacing e multiplicadores **no respectivo motor** (`src/systems/olympiad_engine.ts`) — não substituir por este valor sem rever §1.
 - **Inteligência de Bots:** Devem priorizar alvos com vida baixa e gerenciar skills de cura estrategicamente.
 - **Auto-Ataque:** Desliga automaticamente na troca de target ou morte do alvo.
 
 ## 7. Fase 2: Arquitetura Cloud (Supabase Era)
-- **Sincronização:** Via `js/systems/cloud_sync.js` e `js/systems/supabase_api.js`.
+- **Sincronização:** Via **`src/systems/cloud_sync.ts`** e **`src/systems/supabase_api.ts`**.
 - **Autoridade de Dados:** Se houver uma sessão Supabase ativa, o jogo ignora dados locais do `localStorage` para evitar conflitos de cache. A Nuvem é a autoridade máxima de persistência.
+- **Auth (contas — Supabase Auth):**
+  - **Cliente:** `AuthEngine` (**`src/systems/auth_engine.ts`**) + `SupabaseAPI` (`getAuthRedirectUrl()`, `resolveLoginEmail()`, PKCE/`detectSessionInUrl` no cliente). **Ordem de boot:** `supabase_api.ts` antes de `auth_engine.ts` em **`src/main.ts`**.
+  - **Registo:** `signUp` com `emailRedirectTo: getAuthRedirectUrl()` (URL sem hash/query, alinhada ao origin do jogo). Com **confirmação de e-mail** ativa, a resposta pode trazer `user` mas **sem** `session` — **não** depender de `upsert` em `public.profiles` só no browser; usar o script **`supabase_auth_profile_trigger.sql`** (trigger em `auth.users`) para criar/atualizar `profiles` com `username` em `raw_user_meta_data`.
+  - **Login:** e-mail direto ou resolução de **username** → e-mail via `profiles` (`ilike` em `username`). Sem linha em `profiles`, login por nome falha até o trigger (ou política RLS) estar correto.
+  - **Recuperação de senha:** `resetPasswordForEmail` com o mesmo redirect base; evento **`PASSWORD_RECOVERY`** em `onAuthStateChange` chama `AuthEngine.onPasswordRecoverySession` e mostra o formulário **`#password-recovery-form`** (no `index.html`, ecrã de login — não confundir com pilha de modais §5); submissão usa `auth.updateUser({ password })` e depois `signOut` para voltar ao login.
+  - **`SIGNED_IN` na tela de login:** evitar chamada duplicada a `onLoginSuccess` após `signInWithPassword` — trava `AuthEngine._manualPasswordLoginInProgress`; em modo recuperação, respeitar `AuthEngine._passwordRecoveryMode`.
+  - **Operação:** no Dashboard Supabase → **Authentication → URL Configuration**: **Site URL** e **Redirect URLs** devem incluir todo o origin público do jogo (ex.: GitHub Pages, domínio próprio) e, em desenvolvimento, localhost se aplicável; caso contrário links de confirmação/redefinição quebram.
+  - **Offline:** mantém-se fallback `l2mini_accounts` em `localStorage` quando `SUPABASE_CONFIG.enabled` falha ou está desligado (registo/recuperação limitados ao protótipo local).
 - **Sessão Profissional:** Gerenciada via `SupabaseAPI.onAuthStateChange` e `SupabaseAPI.currentUser`. Sempre verifique `SupabaseAPI.getUser()` antes de operações cloud.
 - **Criação de Personagem (Atômica):** O vínculo de personagem (`linkCharacterToAccount`) deve ser assíncrono e usar `upsert` com `onConflict` no campo `char_name`.
 - **Validação de Nomes:** A função `isNameTaken` deve obrigatoriamente checar o banco de dados remoto de forma assíncrona antes de permitir a criação.
-- **Performance (Inspection Cache):** Consultas de inspeção de outros jogadores devem obrigatoriamente usar o sistema de `inspectionCache` (js/ui_chat.js) para evitar latência de rede em cliques repetidos.
+- **Performance (Inspection Cache):** Consultas de inspeção de outros jogadores devem obrigatoriamente usar o sistema de `inspectionCache` (**`src/ui/ui_chat.ts`**) para evitar latência de rede em cliques repetidos.
+- **Inspeção cloud (equipamento + combat stats — não regredir):**
+    - **Prioridade de fonte (membros do clã / lista):** Com sessão Supabase ativa, `abrirPerfilMembroClan` deve pedir **`abrirPerfilChat` / nuvem primeiro**. Não abrir antes o save local `l2mini_save_<nome>` do **browser do observador** — pode ser outro personagem / dados vazios e bloqueava o JSONB correto.
+    - **Equipamento no JSONB:** Hidratação com `unwrapCloudCharacterJsonb`, `pickInspectSaveEquip`, `coerceInspectEquipItem`, `enrichEquipBaseFromCatalogIfNeeded` (**`src/core/core_persistence.ts`**). No `salvarJogo`, `armaduraEquipada` / `armaEquipadaBase` com `undefined` → gravar como `null` para a chave existir no JSON.
+    - **Combat stats no modal de inspeção:** O save **não** persiste `playerStats` de forma fiável; a RPC `get_player_stats_autoritativo` no SQL (MASTER) está como **stub** (devolve só o `data` JSONB). **Não** usar `data.playerStats` ou essa RPC para o modal. Os números corretos vêm de **`window.calcularStatusGlobaisFromData(saveLike)`** em **`src/core/core_stats.ts`**: aplica temporariamente raça/classe/nível/equip/buffs/`playerClanId` do alvo, chama `calcularStatusGlobais()`, copia totais, repõe o jogador local e recalcula. Em **`src/ui/ui_chat.ts`**, montar `saveForCalc` com **`char_class` e `level` da linha `characters`** + JSONB.
+    - **Olimpíada (VERSUS PREVIEW + duelo vs humano):** `OlympiadBots.gerarBotCompleto` aproxima equip por **grade/MMR** quando não há snapshot; para jogador real na nuvem usar a mesma fonte de verdade — **`fetchOlympiadCharacterRow` + `buildBotDataFromCharacterRow` + `applyRealPlayerStatsFromCloudRow`** em **`src/systems/olympiad_engine.ts`** (chama `calcularStatusGlobaisFromData`). O **lado do jogador** no preview: chamar **`calcularStatusGlobais()`** antes de ler `window.playerStats`. Bots do ranking mantêm só `gerarBotCompleto`.
+    - **Cache:** `inspectionCache` guarda perfil já com stats recalculados; abrir modal com `profileData.nome` canónico para bater com `botAtualVisualizado`. TTL ~2 min.
 - **Segurança RLS:** Tabelas públicas (characters) devem possuir políticas de `SELECT` abertas para usuários autenticados para permitir inspeção em tempo real.
 - **Blindagem de Variáveis Globais:** Variáveis de estado social (clans, playerClanId) devem ser inicializadas no `core_globals.js` usando `var` para garantir visibilidade global imediata em todos os contextos de execução.
 - **Estrutura do Banco (Remoto):**
@@ -104,12 +157,19 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
     - O motor de Ranking deve mesclar `db_bots.js` com os dados do Supabase, priorizando players reais nos slots do Top 50.
     - Se um player real está online, ele substitui o bot correspondente no lobby da Olympiad/Guerra.
 - **Ascensão, ladder social e presença (ponte cloud):**
-    - **`data.endgame`** no JSONB de `characters` espelha o save local (`weeklyChampionKills`, `lastClaimedWeekKey`, `lifetimeChampionKills`, `renown`, etc.) após **`salvarJogo` / sync**; inspeção, ladder mundial e rótulos sociais leem esse espelho — **exibição**, não prova anti-cheat, até existir RPC/ledger (§9, §12.3).
+    - **`data.endgame`** no JSONB: com **sessão Supabase**, **contagem semanal de campeões** (`weeklyChampionKills`, `weeklyWeekKey`, `lifetimeChampionKills`) e **resgate semanal** (Adena, Ancient Coins, `renown`, `lastClaimedWeekKey`) são atualizados por RPC — `register_elite_champion_kill_secure` e `claim_weekly_ascension_secure` (secções 5C/5D em `supabase_MASTER_SETUP.sql`); o cliente faz merge em `endgame_pursuits.js` e **`salvarJogo` / sync** mantém o espelho local alinhado. **Modo sem nuvem:** mesmo fluxo continua como bridge só no cliente para esses contadores/resgate.
+    - **Limitação honesta:** a RPC **não** comprova no servidor que o alvo morto era “campeão elite” (spawn/combate seguem no cliente); protege **persistência e consistência** dos contadores e do claim por semana ISO, não prova completa de farm. **`public.ascension_events`:** cada kill elite (RPC) e cada **claim** semanal bem-sucedidos geram uma linha **append-only** (payload mínimo: contadores, nível, recompensas no claim) — trilho para staff / relatórios; leitura própria via RLS (`SELECT` só `user_id = auth.uid()`). **Inspecção / ladder / títulos** de terceiros leem o JSONB como **UX**; prova forte de competição → evolução para validação de combate ou ledger mais rico (§9).
     - **Ladder mundial:** `SupabaseAPI.getGlobalRanking()` + `RankingManager.getMergedRanking()` — query por nível; merge com bots; Renome/título de Ascensão derivados do `endgame.renown` no JSONB (cliente usa `EndgamePursuits.getAscensionTitleForRenown` para texto localizado).
     - **Chat global (broadcast Realtime):** payload com campos estruturados (`autor`, `mensagem`, `tipo`, `canal`, **`ascensionTitle`**) — §12.5.
     - **Chat de clã:** tabela `clan_chat_messages`; coluna opcional **`ascension_title`** — script `supabase_clan_chat_ascension_title.sql` (reaplicar no Supabase se a feature estiver ativa).
     - **Presença (`presence.track`):** metadados opcionais **`ascensionTitle`** / **`renown`** para UX (tooltip, futuras UIs); mesma ressalva de confiança que o JSONB até haver autoridade no servidor.
-- **Multiplayer Realtime (Presence + Broadcast)** — `js/systems/supabase_api.js` + consumidores (`ui_chat.js`, `js/olympiad_engine.js`, etc.):
+- **Olympiada e Guerra de Clãs (Semi-Online):**
+    - **Snapshots:** Desafios contra versões offline de jogadores reais ou bots, preservando equipamentos e skills.
+    - **MMR e Matchmaking:** Sistemas de pontos e filas que priorizam proximidade de força.
+    - **Histórico de Batalhas:** Registro persistente de duelos na tabela correspondente (`olympiad_history` ou similar), permitindo ver o movimento de vitórias/derrotas offline.
+    - **Sincronização Realtime:** Uso de `broadcastGM('force_update', ...)` para notificar o oponente (se online) sobre mudanças de MMR e novas entradas no histórico.
+    - **Realtime como infraestrutura:** Presença, broadcast e correlacionadores (`tabSessionId`) evitam fantasmas e sustentam notificações/MMR; **reutilizar** esta base quando fizer sentido. **Desenho de produto (§1):** confronto PvP **competitivo** permanece **semi-online** (snapshots + simulação local) salvo evolução explícita no GDD; **não** ler este bullet como obrigação de “todo o PvP virar combate 100% sincronizado”.
+- **Multiplayer Realtime (Presence + Broadcast)** — **`src/systems/supabase_api.ts`** + consumidores (`src/ui/ui_chat.ts`, **`src/systems/olympiad_engine.ts`**, **`src/systems/clan_war_engine.ts`**, etc.):
     - **Canal único partilhado:** Chat global e eventos de combate/Olympiada devem usar **o mesmo** `client.channel(<nome>)` que está subscrito na sessão ativa. Evitar criar canais paralelos com nomes diferentes para o “mesmo” propósito sem documentar — divide a audiência e parece “multiplayer morto”.
     - **Versão do nome do canal (“bump” controlado):** Quando houver **mudança breaking** de payload, bug grave de cache/CDN ou migração coordenada de clientes, pode-se incrementar o nome estável (ex.: `online-players-v2`). **Documentar no commit** o motivo e avisar deploy; todos os clientes em produção devem estar na mesma versão ou ficam em ilhas.
     - **Presença (`presence.key`):** Usar **`charName`** (ou identificador explícito acordado) como chave de presença. Ao **mudar de personagem** ou refazer login na mesma aba, é obrigatório **desmontar e recriar** o canal de presença (ou fluxo equivalente em `updatePresence`) para não deixar **fantasma** do nome antigo no servidor.
@@ -128,14 +188,14 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 - **Mercado global (player-to-player) — Iron Gate / Mailbox:**
     - **Tabela:** `public.market_listings` (scripts em `supabase_market_listings.sql` + RPCs em `supabase_market_03_functions.sql` ou `supabase_market_authority.sql`).
     - **INSERT na tabela:** não usar policy de `INSERT` para `authenticated` — novas listagens **só** via RPC **`market_publish_listing`** (`supabase_market_publish_listing.sql`); o cliente usa `MarketCloud.publishListing` (sem `.insert()` em `market_listings`).
-    - **RPC `market_purchase_listing`:** debita Adena/Ancient Coin no JSONB do **comprador** em `characters`, marca listagem `sold` (uma transação). Chamada via `MarketCloud.completePurchase` / `js/ui_market.js`.
+    - **RPC `market_purchase_listing`:** debita Adena/Ancient Coin no JSONB do **comprador** em `characters`, marca listagem `sold` (uma transação). Chamada via `MarketCloud.completePurchase` / **`src/ui/ui_market.ts`**.
     - **RPC `market_publish_listing`:** em **`supabase_market_publish_listing.sql`** — debita **taxa fixa de registro** (Adena) no JSONB do **vendedor** e insere a listagem na mesma transação; chamada via `MarketCloud.publishListing` (nuvem). Taxa alinhada com `MarketCloud.LISTING_FEE_ADENA` no cliente.
-    - **RPC `market_claim_payouts`:** apenas valida o vendedor, marca `payout_claimed = true` nas linhas vendidas e devolve o array `payouts` (líquido após **taxa de venda ~5%**). **Moeda inteira:** o imposto usa `ceiling(5% × preço)` mas é **capado** para **nunca igualar o preço inteiro** (`least(tax, gross-1)`), evitando venda por **1** Adena/AC com líquido **0**. O cliente replica a mesma lógica em **`mercadoCalcularTaxaVenda`** (`js/ui_market.js`) para preview e mercado **local**. **Não** creditar o vendedor em `characters.data` nesta RPC — o ouro é entregue no jogo via **`enviarMail`** (tipo `market`, `marketKind: 'sale_proceeds'`) em `aplicarPayoutsMercadoNuvem`; creditar no JSON do vendedor na RPC **e** no mail quebra economia (duplicidade).
+    - **RPC `market_claim_payouts`:** apenas valida o vendedor, marca `payout_claimed = true` nas linhas vendidas e devolve o array `payouts` (líquido após **taxa de venda ~5%**). **Moeda inteira:** o imposto usa `ceiling(5% × preço)` mas é **capado** para **nunca igualar o preço inteiro** (`least(tax, gross-1)`), evitando venda por **1** Adena/AC com líquido **0**. O cliente replica a mesma lógica em **`mercadoCalcularTaxaVenda`** (**`src/ui/ui_market.ts`**) para preview e mercado **local**. **Não** creditar o vendedor em `characters.data` nesta RPC — o ouro é entregue no jogo via **`enviarMail`** (tipo `market`, `marketKind: 'sale_proceeds'`) em `aplicarPayoutsMercadoNuvem`; creditar no JSON do vendedor na RPC **e** no mail quebra economia (duplicidade).
     - **Entrega de itens ao comprador:** após compra bem-sucedida, **não** creditar inventário direto na nuvem; enviar correio (`marketKind: 'purchase_delivery'`) e o jogador resgata no **`mailbox_engine.js`** (`collect_market_delivery`), usando `ItemSecurity` + `InventoryManager`.
     - **UI:** modais de registro/seleção + `janela-item-acao` e **todo** `.store-window` que use **`abrirModal`** com `#modal-overlay` devem ficar no **nível do `body`** (irmãos do `#modal-overlay`), não dentro de `#screen-game` — ver **§5** (backdrop, overflow, reset em `fecharTodosModaisBackdropStack`).
-    - **Cliente:** `js/systems/market_cloud.js` + `js/ui_market.js` + `js/systems/mailbox_engine.js` — sem bots; sessão Supabase + linha em `characters`. **Equipamentos na bolsa** são instâncias (`tipo`, `base`, `uid`): no seletor e em **`formatarTooltipEquipamento`**, usar **`item.base` (ou `item.base || item`)** para nome/img/stats — não assumir `item.nome` no topo da instância; alinhado a `ui_inventory.js`.
+    - **Cliente:** **`src/systems/market_cloud.ts`** + **`src/ui/ui_market.ts`** + **`src/systems/mailbox_engine.ts`** — sem bots; sessão Supabase + linha em `characters`. **Equipamentos na bolsa** são instâncias (`tipo`, `base`, `uid`): no seletor e em **`formatarTooltipEquipamento`**, usar **`item.base` (ou `item.base || item`)** para nome/img/stats — não assumir `item.nome` no topo da instância; alinhado a **`src/ui/ui_inventory.ts`**.
     - **Realtime:** manter listagens atualizadas quando `market_listings` mudar.
-    - **Deploy:** mudanças a funções no repo (ex.: `supabase_market_03_functions.sql`) devem ser reaplicadas no projeto Supabase via SQL Editor (`CREATE OR REPLACE` ou script completo); o remoto **não** segue o Git automaticamente. **Taxa de venda / payout:** manter **paridade** entre `market_claim_payouts` (SQL) e **`mercadoCalcularTaxaVenda`** (`ui_market.js`).
+    - **Deploy:** mudanças a funções no repo (ex.: `supabase_market_03_functions.sql`) devem ser reaplicadas no projeto Supabase via SQL Editor (`CREATE OR REPLACE` ou script completo); o remoto **não** segue o Git automaticamente. **Taxa de venda / payout:** manter **paridade** entre `market_claim_payouts` (SQL) e **`mercadoCalcularTaxaVenda`** (**`src/ui/ui_market.ts`**).
 
 ## 8. Confiabilidade e Resiliência (padrão MMORPG)
 - **Diretriz geral:** Evoluir o jogo na direção de sistemas **o mais à prova de falhas possível**, inspirados em práticas de **MMORPGs de grande porte**: consistência de dados, recuperação após erro de rede, idempotência onde fizer sentido, e feedback claro ao jogador.
@@ -150,25 +210,29 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 ## 9. Visão séria e caminho para o futuro (produto / backend)
 - **Diretriz de produto:** O L2 Mini **evolui propositalmente** em direção a um MMORPG **sério e sustentável**: mesma base de código pode começar client-heavy, mas **novas features críticas** (economia, troca, progressão competitiva) devem ser pensadas **já considerando autoridade no servidor** e auditoria — não como protégico eterno.
 - **Estado atual (honesto):** Grande parte do gameplay e da moeda ainda é **client-authoritative**; a nuvem já centraliza saves, ranking, recompensas GM, mercado (listagens e disputa de compra). Isso é **ponte**, não destino final.
-- **Exemplo explícito de dívida (Ascensão):** o **resgate semanal** da caça a campeões (Adena, Ancient Coins, Renome) e progresso associado são ainda **decididos no cliente**; o destino alinhado a §12.3 é **RPC idempotente** no Postgres (validar personagem, nível mínimo, semana ISO, progresso/`lastClaimedWeekKey`, uma aplicação por semana) e só então atualizar `characters.data` ou ledger.
+- **Ascensão (estado atual):** com **sessão Supabase ativa**, **registo de abates** de campeão elite e **resgate semanal** (moedas + Renome) já passam por **RPC** (`register_elite_champion_kill_secure`, `claim_weekly_ascension_secure`), com rollover de semana ISO alinhado no SQL e no cliente. **Modo só local** segue bridge no **`src/systems/endgame_pursuits.ts`** sem RPC.
+- **Dívida residual (Ascensão):** provar no servidor que o kill foi de campeão elite (combate autoritativo ou validação de evento); enriquecer auditoria além de `ascension_events` + JSONB se o produto exigir prova externa — ver §7 “Limitação honesta” e §12.3.
+- **Dívida residual (Olympiada):** combate e cálculo de `finalPts` / recompensas em **`src/systems/olympiad_engine.ts`**; RPC aplica deltas e marcou histórico, mas **não prova** o duelo. Endurecimento: §7 **Autoridade alvo (Olympiada)** e §12.3.
+- **Cliente TypeScript (estado actual):** migração **Fases 0–4 concluída** — runtime em **`src/**/*.ts`**, boot Vite, smoke Playwright. **Fase 5** (tipos estritos, partir `game.ts`, menos `window.*`): **§14.5**.
 - **Direção oficial (“deixar sério”):**
     - **Validação no servidor:** Operações que criam ou movem valor (compra de mercado, craft pago, taxas, itens raros) devem **migrar** para **Postgres RPC** (`SECURITY DEFINER`), **Edge Functions** com service role, ou triggers auditáveis — o cliente passa a ser **view + intents**, não árbitro.
     - **Ledger e rastreabilidade:** Para economia, preferir modelo de **livro-razão** (eventos imutáveis) onde fizer sentido, em vez de só sobrescrever JSONB sem histórico.
     - **Anti-cheat proporcional:** Regras RLS + chaves únicas + transações atômicas hoje; amanhã, validação de inventário e saldo **no servidor** antes de commit.
     - **Sem regressão descuidada:** Não reintroduzir “economia de mentirinha” (ex.: bots de mercado fingindo players) em rotas **globais** quando a sessão cloud estiver ativa.
-- **Papel do Agente (Cursor):** Ao implementar sistemas sociais ou econômicos, **preferir** extensões que **aproximem** esse roadmap (contratos de API claros, idempotência, erros tratados, SQL versionado no repo) e **sinalizar** no código quando um fluxo ainda for confiável só no cliente — sem bloquear entregas, mas sem esconder dívida técnica. **Checklist concreto:** ver **§12**.
+- **Papel do Agente (Cursor):** Ao implementar sistemas sociais ou econômicos, **preferir** extensões que **aproximem** esse roadmap (contratos de API claros, idempotência, erros tratados, SQL versionado no repo) e **sinalizar** no código quando um fluxo ainda for confiável só no cliente — sem bloquear entregas, mas sem esconder dívida técnica. **Checklist concreto:** ver **§12** e **§14**. **Explicações ao utilizador:** quando for leigo ou pedir simples, seguir **§11.6** (efeito prático → analogia → técnico sob pedido).
 
 ## 10. Manutenção de Código e Refatoração
 - **Blindagem de Atributos:** Nunca acesse atributos de itens diretamente (ex: `item.pAtk`). Use sempre o helper `getStat(item, 'stat')` ou verifique se existe `.base` para evitar erros de `NaN`.
 - **Escalabilidade de Nível:** O ganho de status por nível deve ser idêntico para Bots e Jogadores (`Atk +2`, `MAtk +3`, `Def +1`, `MDef +1.5`) para garantir o equilíbrio do motor de PvP.
-- **Documentação de Mudanças:** Sempre que alterar uma fórmula base em `combat_math.js`, verifique o impacto no `clan_war_engine.js` e `olympiad_engine.js`.
+- **Documentação de Mudanças:** Sempre que alterar uma fórmula base em **`src/combat/combat_math.ts`**, verifique o impacto em **`src/systems/clan_war_engine.ts`** e **`src/systems/olympiad_engine.ts`**.
+- **Paridade HUD ↔ breakdown:** Ao mudar fórmulas ou campos em **`playerStatBreakdown`** (**`src/core/core_stats.ts`**), atualizar **`renderPainelStatsDetalhado`** (**`src/ui/ui_inventory.ts`**) e, se necessário, chaves **`game.inventoryUi.detail.*`**, para a soma explicada coincidir com `playerStats` / retrato.
 
 ## 11. Idioma do produto e identidade (English + IP própria)
 
 **Objetivo:** uma cara **nossa**, texto **profissional** para audiência global, e **menos risco** de conflito com marcas/jogos comerciais concretos — sem deixar de honrar o **feel** dos MMORPGs clássicos. Isto não substitui parecer jurídico para lançamentos comerciais.
 
 ### 11.1 Idioma player-facing (inglês + i18n)
-- **Padrão:** Toda **string nova** visível ao jogador usa **`t('chave…')`** e entradas em **`locales_bundle.js`**: árvore **`en`** como referência de redação (inglês neutro claro, estilo MMO) e **`pt-BR`** em paralelo na mesma mudança. HTML estático: `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` (ver `l2mini-i18n.mdc`).
+- **Padrão:** Toda **string nova** visível ao jogador usa **`t('chave…')`** e entradas em **`src/i18n/locales_bundle.ts`**: árvore **`en`** como referência de redação (inglês neutro claro, estilo MMO) e **`pt-BR`** em paralelo na mesma mudança. HTML estático: `data-i18n` / `data-i18n-placeholder` / `data-i18n-title` (ver `l2mini-i18n.mdc`).
 - **Legado PT sem chave:** Ao **tocar** um ficheiro ou fluxo, **migrar** strings visíveis para o bundle (EN+pt-BR), não deixar PT hardcoded novo.
 - **GDD / regras:** Este documento pode permanecer em **português** para o time; o **texto do jogo** segue o catálogo i18n.
 
@@ -181,38 +245,74 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 - **UI e ícones:** Evitar composições que **imitem** de forma reconhecível logos, layouts promocionais ou personagens de IPs protegidos. Preferir arte/ícones **originais** ou licenciadas.
 - **Comunicação externa:** Posicionar o projeto como **fantasy / siege MMO** ou “**inspired by classic MMORPGs**”. **Evitar** alegar ser, substituir ou ser o jogo oficial de qualquer franquia registada.
 
-#### Ícones de loot / inventário (`assets/itens`, campo `img` em catalogos / `db_items.js`)
+#### Ícones de loot / inventário (`assets/itens`, campo `img` em catálogos / **`src/db/db_items.ts`**)
 - **Formato:** **sempre quadrado** (proporção **1:1**), alinhado à grelha da bolsa (`.inv-slot`); export canónico **`256×256` px** em **PNG** (suficiente para exibição até ~2× em ecrãs Retina com slots ~56–64 px; **não** entregar para o jogo versões 512+ exceto como ficheiro-mestre separado — gravar no repo o que o cliente carrega já em **256×256** para peso e CDN). Evitar barras/brancuras “tipo adesivo” fora da moldura.
 - **Moldura / rebordo:** Seguir o **conjunto já estabelecido** pela referência atual do projeto (ex.: ícones de moeda como `adena_coin.png` / `ancient_coin.png`): painel ocupando todo o quadrante, moldura ornamental **metal/bronze** envelhecida coerente com o HUD (**castanho `#241710` / bronze `#735939`**); novos ícones do mesmo “set” devem **casar visualmente** com essa língua de borda iluminada/separador interno — não reinventar formato por ícone quando forem série (materiais, consumíveis, moedas).
 - **Cor de fundo dentro do PNG:** Variável conforme direção visual; **não fixar uma única cor global** aqui — o utilizador/fornecedor de arte **indica a paleta quando necessário** (ex.: vinho/rosa‑acastanhado, outro tema de drop). Na ausência de brief explícito, alinhar ao **conjunto já existente** na mesma categoria ou pedir esclarecimento antes de improvisar novo fundo‑marca‑visível divergente dos irmãos de série.
 - **Estilo:** Pintura **fantasy MMO semi‑realista** (legível a ~56–64 px na bolsa); metais com hierarquia de raridade (comum mais “quente/simples”, raros/refinados mais **frios/luminosos** quando fizer parte do storytelling do item).
 
-#### Ícones de habilidades (`assets/skills`, campo `icone` em `skills.js`)
+#### Paperdoll — pastas por preset (`assets/paperdolls/<preset_id>/`)
+- **Universal:** cenário **`assets/ui/paperdoll_scenery_profile.png`** (1080×984); ícones de **joias** em **`assets/joias/`** (256×256, catálogo) — **iguais para todas as classes**, fora das pastas de preset; não desenhar joias no corpo.
+- **Por preset (1080×984):** `body.png`, `equips/<id>.png` + `equips/<id>_hands.png` (cada armadura), opcional `hands.png` fallback — ver **`assets/paperdolls/README.md`**. **Sem** `scenery.png` nem joias nas pastas de preset.
+- **Presets (18):** fighter/mage × M/F por raça; **Dwarf só 2** (fighter M/F). Ver matriz em **`assets/paperdolls/README.md`** + `PAPERDOLL_PRESET_META` em **`src/paperdoll/paperdoll_config.ts`**.
+- **Equip no palco:** overlay em `equips/` do preset; fallback `assets/equips/<id>.png`.
+- **Alinhamento:** mesmos pés (**540, 984**) em todas as camadas **do mesmo preset**; ver **`docs/paperdoll-art-spec.md`**.
+
+#### Ícones de habilidades (`assets/skills`, campo `icone` em **`src/game/skills.ts`**)
 - **Formato / resolução:** **1:1 quadrado**, **`256×256` px** PNG no repositório que o cliente serve (ícones na barra ~35 px; esta resolução cobre nitidez sem ficheiros MB a MB). **Proibido** acrescentar PNGs de skills em 512² ou superiores ao fluxo habitual do jogo sem redimensionar — evita peso inútil em rede e erro de “arte em alta só para export”.
 - **Moldura:** **Moldura ornamental idêntica** em todo um arco de classe quando o conjunto for desenhado como série (referência atual: prefixo `dem_` = *dark elf mage* vento/trevas — `dem_attack.png`, `dem_wind_strike.png`, …). **Cor de fundo** do painel interno segue **brief** do utilizador por lote; mantém-se coerência dentro do set.
 - **Inspiração:** Mecânicas clássicas de MMORPG aceitáveis; **identidade visual** e nomes **próprios** do L2 Mini — não copiar ícones reconhecíveis de IPs de terceiros (ver **§11** geral).
 
 ### 11.4 Código, `db/` e saves
-- **Chaves técnicas:** `id` de item, nomes de variáveis e campos internos podem **manter-se estáveis** para não quebrar saves ou JSONB em produção; a migração **de ID** exige plano em `core_persistence.js` (mapa legado → novo).
+- **Chaves técnicas:** `id` de item, nomes de variáveis e campos internos podem **manter-se estáveis** para não quebrar saves ou JSONB em produção; a migração **de ID** exige plano em **`src/core/core_persistence.ts`** (mapa legado → novo).
 - **O que muda primeiro na migração:** Propriedades de **exibição** (`nome`, `descricao`, textos de UI) e cópia de mundo — não alterar IDs sem migração explícita.
 - **Título da aplicação / marca final:** O nome técnico do repositório pode diferir da **marca pública**; quando definirem marca final, alinhar `<title>`, splash e stores.
 
 ### 11.5 Protocolo do Agente (checklist rápido)
-1. Novo texto de jogador → chave em **`locales_bundle.js`** com **`en`** e **`pt-BR`**; uso de **`t()`** ou `data-i18n`.
+1. Novo texto de jogador → chave em **`src/i18n/locales_bundle.ts`** com **`en`** e **`pt-BR`**; uso de **`t()`** ou `data-i18n`.
 2. Novo nome próprio de mundo/item/mob → **original** ou genérico; não copiar listas oficiais de terceiros.
 3. Editou ficheiro com texto fixo → **migrar trecho tocado** para o bundle (não acrescentar PT/EN solto na UI).
 4. Renomeou conteúdo persistido → **migração** ou alias documentado.
 5. Novo ícone de item em **`assets/itens`** → **quadrado 1:1**, **`256×256` px** PNG (ver **§11.3 Ícones de loot**) e moldura compatível com o set de referência — **cor de fundo** conforme **brief** do utilizador/fornecedor quando houver; sem brief, igualar aos irmãos da série ou perguntar antes de fugir à paleta.
 6. Nova arte de skill em **`assets/skills`** → **PNG `256×256` px**, moldura/set coerentes (**§11.3 Ícones de habilidades**).
 7. Tocar em **Realtime / Olympiada / chat global** → alinhar a **§7 — Multiplayer Realtime** (canal único, bump de nome só documentado, `tabSessionId` nos broadcasts quando aplicável, teardown de presença ao trocar personagem).
+8. Editou **`src/i18n/locales_bundle.ts`** → correr **`node --check src/i18n/locales_bundle.ts`** (exit 0); garantir que ramos aninhados (`game.castle`, etc.) têm **`pai: { … }`** explícito — ver `l2mini-i18n.mdc` (sintoma de erro: UI só com chaves literais).
+9. Mudou breakdown de stats em **`src/core/core_stats.ts`** → verificar **`src/ui/ui_inventory.ts`** (`game.inventoryUi.detail.*`) e **§5 — Character stats** (sem linhas omitidas). Se tocar em **`calcularStatusGlobaisFromData`** (inspeção cloud), ver **§7 — Inspeção cloud**.
+10. Inspeção de **outro** jogador (chat / clã / ranking com nuvem) ou **preview/duelo Olimpíada vs humano** → **§7 — Inspeção cloud** + bullet **Olimpíada**: ordem **nuvem antes de** `localStorage` do observador onde aplicável; combat stats via **`calcularStatusGlobaisFromData`** / **`applyRealPlayerStatsFromCloudRow`**, não `data.playerStats` nem aproximação só `gerarBotCompleto` para humanos.
+11. Domínio com doc em **`docs/`** (ver **§2** — índice em `docs/`) → **ler** o markdown antes de editar; ao fechar alteração relevante, **atualizar** o doc e, se for fluxo novo, **atualizar o índice na §2**.
+12. Perguntam **“como faço X?”** (GM, SQL, dashboard, conta) → **§11.6 regra de ouro:** passos curtos primeiro; técnica depois.
+13. Nova arte **paperdoll** → PNG **1080×984** na pasta do preset certo (`assets/paperdolls/<id>/`); equip visual em `equips/<id>.png` + `equips/<id>_hands.png`; seguir **`docs/paperdoll-armor-art-brief.md`**; slots **256×256** — **§11.3** + **`docs/paperdoll-art-spec.md`**.
+14. Alterou **paperdoll** (preset, paths, layout) → **`docs/paperdoll-art-spec.md`** + **`src/paperdoll/paperdoll_config.ts`** (`resolvePaperdollPresetId`, listas de src) + **`src/paperdoll/ui_paperdoll.ts`** — **§5 — Paperdoll**.
+15. Alterou **sombra nos pés** ou stack do paperdoll → manter **`PAPERDOLL_FOOT_SHADOW_STANDARD`** + secção **§ Sombra nos pés** em **`docs/paperdoll-art-spec.md`**; não reintroduzir sombra acima dos pés (`z-index` > camadas) nem medição de ecrã no zoom — **§5 — Paperdoll**.
+16. Novo **arquétipo** (raça/classe) no paperdoll → criar pasta `assets/paperdolls/<novo_id>/` + atualizar `PAPERDOLL_PRESET_META` e `resolvePaperdollPresetId()`.
+17. Alterou **bolsa / `#grid-inventario`** → ler **`docs/inventory-grid-layout.md`**; slots só via **`_l2AppendInvGridSlot`** (`.inv-grid-cell` > `.inv-slot`); layout só em **`css/inventory-grid.css`** (carregado após `index-extras.css` no `index.html`).
+18. Alterou **seletor de item do leilão / `#market-seletor-grid`** → mesmo doc; classe **`inventory-grid`** (não `store-items-grid`); **`abrirSeletorItemMarket`** + shell **`#janela-market-seletor`** em **`index-extras.css`**; reutilizar helpers da bolsa, não recriar append directo de `.inv-slot`.
+19. Antes de merge / entrega de feature → correr sequência mínima **§14.2** (`typecheck` + `node --check` bundle i18n + `build`); PRs com risco de regressão: **`npm run test:ci`** ou smoke manual **§14.2**.
+20. Novo módulo TS → **`src/<área>/`**, import em **`src/main.ts`**, tipos em **`src/types/`** — **§14.5**; não recriar `js/`.
+
+### 11.6 Explicações ao humano (iniciante / “modo simples”) — **regra de ouro**
+- **Obrigação:** Respostas sobre **como fazer algo** (Supabase, GM, deploy de SQL, contas, passos no dashboard) **não podem** começar por parede técnica. **Primeiro** o utilizador tem de conseguir seguir **sem** precisar de saber o que é RLS, JSONB ou RPC.
+- **Formato obrigatório para “como faço X?”:**
+    1. **Uma frase** do que é o resultado (ex.: “À conta passa a ter acesso ao painel GM.”).
+    2. **Passos numerados curtos** (máx. **1–2 linhas** cada): onde clicar → o que colar → o que fazer a seguir (ex.: sair e entrar no jogo).
+    3. **Só no fim** (ou num bloco “Detalhe técnico”) — nomes de tabelas, campos, snippets longos, alternativas.
+- **Proibido** como abertura: vários parágrafos; misturar “perfil / access_level / `profiles`” sem dizer antes “no site do Supabase, em SQL, colas isto e mudas o email”.
+- **Exemplo canónico (virar GM):** “Cria a conta normal. Abre o projeto no Supabase → SQL → colas `UPDATE public.profiles SET access_level = 10 WHERE email = 'o-teu-email';` e Run. Sair e voltar a entrar no jogo.” — Depois, se quiserem, explicas que `access_level > 0` lê o `GMEngine`.
+- **Objetivo (igual ao anterior):** quando pedem explicação ou dizem que é leigo, **linguagem do dia a dia primeiro**.
+- **Formato sugerido alargado (quando não for só “como fazer”):**
+    1. **Efeito prático:** o que muda para o jogador / para quem opera o projeto;
+    2. **Analogia curta** (opcional);
+    3. **Detalhe técnico opcional** — só sob pedido ou segundo bloco.
+- **Evitar** na primeira camada: siglas sem definição, listas longas de paths.
+- **Tom:** direto, amigável; **“Queres o modo técnico?”** em vez de forçar densidade técnica em toda a resposta.
 
 ## 12. Checklist evolutivo (anti-retrabalho / caminho para lançamento sério)
 
 **Objetivo:** mudanças futuras serem **incrementais** (migrações, novas RPCs, novas chaves i18n) em vez de **refatorações que rasgam** save, economia ou contratos. Nenhum item substitui planeamento de produto, QA ou parecer jurídico.
 
 ### 12.1 Persistência e save
-- Campo **`saveVersion`** no JSON do personagem (`js/core_persistence.js`, constante **`L2MINI_SAVE_VERSION`**) + função **`migrarDadosSave`**: saves antigos entram como versão **0** (ausência do campo); ao **carregar**, aplicar migrações em cadeia até a versão atual; ao **gravar**, persistir sempre a versão atual.
-- Manter **versão explícita do save** (ou equivalente canónico no JSON) e **migrar no load** (`js/core_persistence.js` e, na nuvem, ao aplicar `characters.data`).
+- Campo **`saveVersion`** no JSON do personagem (**`src/core/core_persistence.ts`**, constante **`L2MINI_SAVE_VERSION`**) + função **`migrarDadosSave`**: saves antigos entram como versão **0** (ausência do campo); ao **carregar**, aplicar migrações em cadeia até a versão atual; ao **gravar**, persistir sempre a versão atual.
+- Manter **versão explícita do save** (ou equivalente canónico no JSON) e **migrar no load** (**`src/core/core_persistence.ts`** e, na nuvem, ao aplicar `characters.data`).
 - Qualquer alteração em estrutura persistida (arrays globais, novos campos obrigatórios, rename) → passo novo em **`migrarDadosSave`** que leia o formato antigo e escreva o novo; não assumir que todos os jogadores já têm o último formato.
 - Bloco **`endgame`** (Renome, caça semanal, chaves ISO de semana, etc.) segue o mesmo protocolo: introduzido com **`L2MINI_SAVE_VERSION`** e migração em **`migrarDadosSave`**; novos campos em `endgame` exigem novo passo de versão se forem obrigatórios para lógica ou economia.
 - JSONB / saves antigos: **tolerar campos extra**; **normalizar** antes de efeitos económicos ou de inventário.
@@ -231,17 +331,21 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 - **Não** usar `JSON.parse(JSON.stringify(item))` para **mover** instância entre slots; usar **referência** ou fluxos já previstos (correio, mercado). Cópias serializadas só onde o GDD já permite, com validação na entrada.
 
 ### 12.3 Economia e valor (novas features)
-- **Sistemas Protegidos:** Loot Crítico, Resgate de Ascensão e Encantamento de Itens já operam sob autoridade do servidor via RPC. Novas features de valor (ex: Augment, Craft Pago) devem seguir este mesmo padrão de RPC idempotente.
-- Tudo o que **cria ou move valor** (moedas raras, craft pago, taxas, trocas globais): desenhar desde já como **intent no cliente** + **validação/transação no servidor** (Postgres RPC, Edge Function ou evolução equivalente), mesmo que a primeira implementação seja mínima — evitar novo “só no `*.js`” como **destino final**.
-- **Ascensão / resgate semanal:** creditar Adena, Ancient Coins e Renome no claim semanal deve, **em destino**, passar por **RPC** com regras de semana, nível e progresso; até lá o fluxo no cliente deve estar **comentado ou documentado** como bridge (§9).
+- **Sistemas Protegidos:** Loot Crítico, Resgate de Ascensão (**claim** semanal na nuvem), **registo de abates** de campeão elite na nuvem e Encantamento de Itens já operam sob autoridade do servidor via RPC onde aplicável. **Craft especial (Vesper / épico) na nuvem:** RPC **`craft_item_secure`** (`supabase_craft_item_secure.sql` / MASTER **5E**); cliente **`SupabaseAPI.craftItem`** + **`src/ui/ui_craft.ts`** aplica **só** o estado devolvido (`inventario`, `inventarioEquips`, moedas), **sem** `consumirIngrediente` / `InventoryManager.adicionar` em duplicado. Receitas e ids **alinhados** a `catalogoReceitas.special` em **`src/db/db_items.ts`**. Novas features de valor (ex: Augment pago) devem seguir o mesmo padrão de RPC idempotente.
+- **Olympiada e Guerra de Clãs:** `update_olympiad_mmr` e `claim_olympiad_reward` persistem estado mas ainda confiam em inputs de pontos/prémio vindos do cliente até existir **ledger de partida** + MMR calculado só no SQL + `auth.uid()` por personagem. O novo sistema de **Guerra de Clãs (11v11)** segue o mesmo modelo de ponte semi-online, utilizando snapshots e matchmaking por proximidade.
+- Tudo o que **cria ou move valor** (moedas raras, craft pago, taxas, trocas globais): desenhar desde já como **intent no cliente** + **validação/transação no servidor** (Postgres RPC, Edge Function ou evolução equivalente), mesmo que a primeira implementação seja mínima — evitar novo “só no cliente `.ts`” como **destino final**.
+- **Ascensão (nuvem):** constantes de recompensa e alvos (nível S, abates semanais, teto `weekly` no SQL) devem permanecer **alinhadas** entre **`src/systems/endgame_pursuits.ts`** e os scripts SQL (`supabase_ascension_weekly_claim.sql`, `supabase_champion_kill_register.sql` / MASTER 5C–5D). **Ledger:** tabela `ascension_events` (`supabase_ascension_ledger.sql` ou MASTER secção 2); deploy do ledger **antes** das RPCs que inserem linhas. Cliente: `SupabaseAPI.recordEliteChampionKillWithRetry` (backoff), feedback e i18n (`game.endgame.championKillNotSynced`, `error_*`). **Offline / sem login:** bridge local no **`src/systems/endgame_pursuits.ts`** sem RPC.
 - Onde houver retry de rede ou duplo clique: **idempotência** (ex.: identificador de compra, resgate ou claim) para não duplicar efeito.
-- **Reutilizar** motores e tabelas existentes (`market_cloud.js`, Reward Hub, mailbox, SQL versionado na raiz do repo) em vez de criar terceiro pipeline paralelo.
+- **Reutilizar** motores e tabelas existentes (**`src/systems/market_cloud.ts`**, Reward Hub, mailbox, SQL versionado na raiz do repo) em vez de criar terceiro pipeline paralelo.
 
 ### 12.4 i18n e texto
-- Novas strings: chave estável em **`locales_bundle.js`** com **`en`** e **`pt-BR`** na **mesma** alteração; UI via **`t()`** / `data-i18n` (detalhe: `l2mini-i18n.mdc`).
+- Novas strings: chave estável em **`src/i18n/locales_bundle.ts`** com **`en`** e **`pt-BR`** na **mesma** alteração; UI via **`t()`** / `data-i18n` (detalhe: `l2mini-i18n.mdc`).
+- **Breakdown de Character stats:** novas linhas em `game.inventoryUi.detail.*` / `profilePreview.*` seguem a mesma regra; ver **§5 — Character stats** e paridade com **`playerStatBreakdown`**.
+- **Integridade do bundle:** após alterar `locales_bundle.ts`, correr **`node --check src/i18n/locales_bundle.ts`**. Um erro de chavetas/objeto mal fechado derruba o parse de **todo** o ficheiro → UI mostra **só chaves** — ver secção dedicada em `l2mini-i18n.mdc`.
 - Conteúdo **vindo do servidor** e visível ao jogador: preferir **payload estruturado** ou **campos por locale**, não uma única string num idioma só (salvo mensagens puramente técnicas de staff).
 
 ### 12.5 Contratos internos, Realtime e erros
+- **Community Hub:** Novos destinos na aba SOCIAL seguem **§5** (só Marketplace + Clan Hall; Olympiad não duplicado). Não reintroduzir `menu-social-ranking` ou IDs duplicados de lobby Olympiad neste ecrã.
 - **Modal / overlay único (`abrirModal`):** Ao adicionar janelas flutuantes “de jogo” com véu escuro partilhado, alinhar a **estrutura HTML** e o **lifecycle** ao que está documentado na **§5** (pilha `#modal-overlay`, evitar orphans, reset ao `irPara`/`mudarTela`).
 - **Poucos pontos de entrada** por domínio (mercado, recompensa, mail); evitar espalhar a mesma regra em dezenas de ficheiros.
 - Respostas/erros com **códigos ou mensagens estáveis** consumíveis pela UI (evitar depender de `substring` em texto livre).
@@ -249,6 +353,7 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 
 ### 12.6 SQL, RLS e operação
 - Scripts SQL relevantes **versionados no repositório**; mudanças aplicadas no projeto Supabase **manualmente** quando necessário (o remoto não segue Git automaticamente).
+- **PL/pgSQL em ficheiros colados no MASTER:** o corpo de `CREATE FUNCTION …` deve usar **citação em dólar completa** — **`AS $$`** … **`$$;`**. **`AS $`** / **`$;`** (um só `$`) é **inválido** em Postgres e quebra o deploy; ao copiar blocos para `supabase_MASTER_SETUP.sql`, validar que bate certo com o script modular (ex.: `supabase_craft_item_secure.sql`).
 - Políticas RLS e publicações Realtime em fluxos críticos: **documentadas ou comentadas** no código/SQL correspondente.
 - Falhas em rede, RLS ou payload inválido: **não silenciar** perdas de recompensa ou crédito — log útil e, quando possível, feedback ao jogador (§8).
 
@@ -258,6 +363,95 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 ## 13. Protocolo para Novas Features Online
 1. **Script SQL:** Criar script da RPC na raiz do projeto (`supabase_*.sql`).
 2. **Segurança:** Implementar validação de `auth.uid()` e posse de recursos no SQL.
-3. **API:** Adicionar o método correspondente em `js/systems/supabase_api.js`.
+3. **API:** Adicionar o método correspondente em **`src/systems/supabase_api.ts`**.
 4. **UX:** No frontend, tratar o estado `loading` (bloquear botões) e sincronizar o resultado do servidor com o estado local.
 5. **Realtime (quando aplicável):** Se a feature usar **Presence** ou **broadcast** no mesmo canal global, seguir **§7 — Multiplayer Realtime** (canal partilhado, payloads com correlacionadores, anti-fantasma); preferir evolução para **RPC autoritativa** quando o fluxo for competitivo ou económico (§9).
+
+### 13.1 Checklist de deploy — Ascensão (elite hunt + claim)
+Usar **SQL Editor** do projeto Supabase; o remoto não segue o Git automaticamente (**§12.6**).
+
+1. **Criar ledger `ascension_events`** — `supabase_ascension_ledger.sql` **ou** MASTER já inclui a tabela + RLS (**obrigatório antes** das RPCs 5C/5D atuais: cada sucesso faz `INSERT` no ledger; sem tabela, a RPC falha e **reverte** o `UPDATE` do personagem).
+2. **Aplicar `claim_weekly_ascension_secure`** com rollover de `weeklyWeekKey` — `supabase_ascension_weekly_claim.sql` **ou** secção **5C** do MASTER.
+3. **Aplicar `register_elite_champion_kill_secure`** — `supabase_champion_kill_register.sql` **ou** secção **5D** do MASTER (ordem entre passos 2 e 3 é indiferente após o passo 1).
+4. **Confirmar** `GRANT EXECUTE ON FUNCTION … TO authenticated` nas **duas** funções.
+5. **Paridade de constantes:** `c_sgrade`, `c_champ_target`, recompensas de claim e `c_weekly_cap` no SQL alinhados a **`src/systems/endgame_pursuits.ts`**.
+6. **Smoke test:** kill → JSONB + linha `elite_champion_kill` em `ascension_events`; claim → JSONB + linha `weekly_claim`; `SELECT` na tabela como utilizador autenticado só vê as próprias linhas.
+7. **Regressão offline:** sem sessão Supabase, bridge local em **`src/systems/endgame_pursuits.ts`**.
+
+### 13.2 Checklist de deploy — Auth (contas / e-mail)
+1. **`supabase_auth_profile_trigger.sql`:** aplicar no SQL Editor se o registo com **confirmação de e-mail** não criar sessão no cliente (garante `public.profiles` e login por username).
+2. **Dashboard → Authentication → URL Configuration:** **Site URL** e **Redirect URLs** com o(s) origin(s) reais do jogo (produção + localhost se necessário).
+3. **i18n:** novas mensagens de registo/recuperação em **`src/i18n/locales_bundle.ts`** (**en** + **pt-BR**); UI de login/recuperação com `data-i18n` / `t()` conforme **`l2mini-i18n.mdc`**.
+
+## 14. Cliente TypeScript, toolchain e fluxo de trabalho
+
+**Estado actual (pós-migração):** Fases **0–4 concluídas**. Todo o runtime do jogo vive em **`src/**/*.ts`**. **Zero `@ts-nocheck` em `src/`**. Arranque via **Vite** + **`src/main.ts`**; publicar **`dist/`** em produção (GitHub Pages, etc.) — não a raiz do repo.
+
+### 14.1 Infraestrutura de build
+
+| Ficheiro / pasta | Função |
+|------------------|--------|
+| `src/main.ts` | Boot canónico — imports dinâmicos por fase (§14.3) |
+| `src/bootstrap/` | Overlay de loading, progresso, init i18n pós-bundle |
+| `src/types/game.ts` | Tipos de domínio (save, equip, stats, APIs de motores) |
+| `src/types/global.d.ts` | Extensão `Window` + funções globais legadas (`onclick` HTML, motores expostos) |
+| `src/runtime/register-global.ts` | Helper `registerGlobal` — ponte para `window.*` |
+| `vite.config.ts` | Dev server, build, copy de `css/`, `assets/`, `index.html` → `dist/` |
+| `tsconfig.json` | `strict: false` (Fase 5 endurece gradualmente) |
+| `tests/smoke/` | Playwright E2E (sem login nuvem — inject save mínimo) |
+| `package.json` scripts | Ver §14.2 |
+
+**Legado morto (remover quando confirmado):** `src/legacy/ordered-scripts.ts`, `src/legacy/load-scripts.ts` — eram ponte da migração; **não** usar para boot novo.
+
+### 14.2 Comandos — rotina antes de merge
+
+```bash
+npm install                  # primeira vez + após pull de deps
+npm run dev                  # http://localhost:5173 — desenvolvimento
+npm run typecheck            # tsc --noEmit (obrigatório)
+node --check src/i18n/locales_bundle.ts   # se tocou em i18n (obrigatório nesse caso)
+npm run build                # gera dist/ (obrigatório)
+npm run test:smoke           # Playwright — regressão automatizada (recomendado)
+npm run test:ci              # typecheck + build + smoke — alvo de CI
+```
+
+**Sequência mínima (qualquer PR):** `typecheck` → `build`. **Com strings i18n:** acrescentar `node --check src/i18n/locales_bundle.ts`. **Com risco de regressão UX/core:** `npm run test:smoke` ou checklist manual em **`docs/typescript-migration-phase0.md`**.
+
+**Script unificado alvo (opcional no `package.json`):** `validate` = typecheck + `node --check` bundle + build — ver **`docs/new-feature-checklist.md`**.
+
+### 14.3 Ordem de boot (`src/main.ts`)
+
+A ordem abaixo é **contrato** — respeitar dependências (ex.: `core_globals` antes de `i18n`; `locales_bundle` antes de `I18n.init()`; `supabase_api` antes de `auth_engine`; `core_stats` / `core_persistence` antes de motores que leem save).
+
+1. **Dados base:** `database` → inventário (`item_security`, stacks, `inventory_manager`) → catálogos `db_*` parciais → economia/mobs/bosses/zonas  
+2. **Core + i18n:** `core_globals` → `grade_ui` → `i18n` → `locales_bundle` → **`initI18nAndLanguageBar()`**  
+3. **Save/stats:** `core_stats` → `tutorial_engine` → `core_persistence`  
+4. **Online:** olympiad, `supabase_api`, auth, castelo, guerra, mercado, GM, rewards, mailbox, sync, presença, ranking  
+5. **Combate + UI:** raid, `core`, combat, skills, classes, skills catalog, UI modules, paperdoll, craft, daily boss  
+
+**Novo módulo:** escolher fase correcta, `await import('./…')` em `main.ts`, side-effects no top-level do módulo ou export explícito chamado após import — **não** adicionar `<script src="js/…">` ao HTML.
+
+### 14.4 Git, CI e documentação de repo
+
+- **Git (recomendado):** branches curtas por feature/fix; commits atómicos. Histórico detalhado da migração: **`docs/typescript-migration-phase0.md`**.
+- **CI (alvo):** workflow GitHub Actions a correr **`npm run test:ci`** em push/PR — ainda **opcional** até existir `.github/workflows/ci.yml`.
+- **README raiz (alvo):** install, `dev`, `build`, `test:ci`, links para GDD (`§14`) e `docs/new-feature-checklist.md`.
+- **SQL:** scripts na **raiz** do repo (`supabase_*.sql`, `supabase_MASTER_SETUP.sql`); evolução opcional: pasta `supabase/` espelhando módulos — deploy manual no Supabase (**§12.6**).
+
+### 14.5 Fase 5 — endurecimento de tipos (roadmap)
+
+Prioridade **incremental** — não activar `strict: true` de uma vez:
+
+1. **Partir `src/types/`** — domínios (`inventory.ts`, `combat.ts`, `cloud.ts`, …) em vez de um único `game.ts` monolítico.
+2. **`strict` gradual** — `noImplicitAny`, `strictNullChecks`, etc., módulo a módulo ou via `paths`/`references`.
+3. **Reduzir `window.*` novo** — preferir imports ES; reservar `registerGlobal` / `global.d.ts` para HTML inline e APIs estáveis já consumidas em dezenas de sítios.
+4. **Catálogos grandes** — `skills.ts` / `db_items.ts`: tipos de entrada (`SkillTreeEntry`, `ItemCatalogBase`) já existentes; evitar `any` em helpers partilhados.
+
+### 14.6 Checklist rápido — novo código TS
+
+1. Ficheiro em **`src/<área>/nome.ts`** — uma responsabilidade clara.  
+2. Tipos novos em **`src/types/`** (ou colocalizados se só usados no módulo).  
+3. Registar **`import()`** em **`src/main.ts`** na fase correcta (**§14.3**).  
+4. Texto de jogador → **`src/i18n/locales_bundle.ts`** (**en** + **pt-BR**) + **`t()`**.  
+5. Persistência / inventário / economia → regras **§3**, **§12.1–12.3** (InventoryManager, RPC, saveVersion).  
+6. Validar **§14.2** antes de considerar PR pronta.

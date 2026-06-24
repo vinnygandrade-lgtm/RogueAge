@@ -1,0 +1,29 @@
+{
+  "name": "iron-gate-mini",
+  "version": "1.5.0",
+  "private": true,
+  "description": "Iron Gate Mini — browser MMORPG",
+  "scripts": {
+    "dev": "vite",
+    "dev:lan": "vite --host",
+    "dev:stable": "npm run build && vite preview --port 5173 --strictPort",
+    "dev:e2e": "vite --port 4173 --strictPort --host localhost",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test:smoke": "playwright test",
+    "test:smoke:ui": "playwright test --ui",
+    "test:smoke:headed": "playwright test --headed",
+    "test:ci": "npm run typecheck && npm run build && playwright test",
+    "serve:legacy": "serve . -l 4173"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^26.0.0",
+    "serve": "^14.2.4",
+    "sirv": "^3.0.2",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-static-copy": "^2.3.2"
+  }
+}

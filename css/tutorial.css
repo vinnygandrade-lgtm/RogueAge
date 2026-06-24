@@ -1,0 +1,229 @@
+/* Visual + interaction off when tutorial is dismissed (without this class the panel stays on screen). */
+.tutorial-coach.tutorial-coach--hidden {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.tutorial-coach.tutorial-coach--hidden .tutorial-coach__card,
+.tutorial-coach.tutorial-coach--hidden .tutorial-arrow {
+    pointer-events: none !important;
+}
+
+/* Onboarding coach — floating panel that follows the target */
+.tutorial-coach {
+    position: fixed;
+    width: 280px; /* Reduced width for floating style */
+    z-index: 2200; /* Above highlights and arrows */
+    pointer-events: none;
+    animation: tutorial-fade-in 0.4s ease-out;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tutorial-coach__card {
+    position: relative;
+    padding: 12px;
+    border-radius: 12px;
+    background: linear-gradient(165deg, rgba(42, 34, 26, 0.98) 0%, rgba(18, 14, 12, 0.99) 100%);
+    border: 2px solid #facc15; /* Stronger border for floating card */
+    box-shadow: 
+        0 0 20px rgba(0, 0, 0, 0.8),
+        0 0 15px rgba(250, 204, 21, 0.2);
+    pointer-events: auto;
+    overflow: visible; /* Allow pointer to show */
+}
+
+/* Speech bubble pointer */
+.tutorial-coach__card::after {
+    content: '';
+    display: var(--pointer-display, block);
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #facc15;
+}
+
+.tutorial-coach--bottom .tutorial-coach__card::after {
+    bottom: auto;
+    top: -10px;
+    border-top: none;
+    border-bottom: 10px solid #facc15;
+}
+
+.tutorial-coach__content {
+    display: flex;
+    flex-direction: column; /* Stacked for narrower card */
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.tutorial-coach__avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 50%; /* Circular avatar for floating look */
+    background: #1a1510;
+    border: 2px solid #facc15;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    animation: avatar-pulse 2s infinite ease-in-out;
+}
+
+.tutorial-coach__text {
+    flex: 1;
+    position: relative;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border-left: none;
+    border-top: 2px solid rgba(250, 204, 21, 0.3);
+}
+
+.tutorial-coach__title {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #facc15;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tutorial-coach__body {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #f5f0e6;
+}
+
+.tutorial-coach__actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.tutorial-coach__btn-main {
+    min-height: 34px;
+    padding: 0 15px;
+    font-size: 0.8rem;
+}
+
+.tutorial-coach__btn-back, .tutorial-coach__btn-skip {
+    min-height: 34px;
+    padding: 0 8px;
+    font-size: 0.75rem;
+}
+
+/* Highlights */
+@keyframes tutorial-highlight-pulse {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.8), 0 0 20px rgba(250, 204, 21, 0.4);
+        border-color: rgba(250, 204, 21, 1);
+    }
+    50% { 
+        box-shadow: 0 0 0 10px rgba(250, 204, 21, 0.3), 0 0 40px rgba(250, 204, 21, 0.6);
+        border-color: rgba(250, 204, 21, 1);
+    }
+}
+
+.tutorial-highlight {
+    position: relative !important;
+    z-index: 2000 !important;
+    animation: tutorial-highlight-pulse 1.2s ease-in-out infinite !important;
+    pointer-events: auto !important;
+    box-shadow: 0 0 30px rgba(250, 204, 21, 0.8) !important;
+    border: 2px solid #facc15 !important;
+}
+
+/* Seta Indicadora */
+.tutorial-arrow {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    z-index: 2100;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.tutorial-arrow::after {
+    content: '▼';
+    font-size: 40px;
+    color: #facc15;
+    text-shadow: 0 0 15px rgba(250, 204, 21, 0.8);
+    animation: arrow-bounce 0.6s infinite alternate;
+}
+
+.tutorial-arrow--top::after {
+    content: '▲';
+    animation: arrow-bounce-top 0.6s infinite alternate;
+}
+
+.tutorial-arrow--hidden {
+    display: none !important;
+}
+
+@keyframes arrow-bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-15px); }
+}
+
+@keyframes arrow-bounce-top {
+    from { transform: translateY(0); }
+    to { transform: translateY(15px); }
+}
+
+@keyframes tutorial-celebrate {
+    0% { opacity: 0; transform: scale(0.8); }
+    30% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0; transform: scale(1.2); }
+}
+
+/* Lock effect for buttons during tutorial */
+.tutorial-lock {
+    filter: grayscale(0.8) brightness(0.4) !important;
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transition: all 0.3s ease !important;
+}
+
+/* Specific highlights for better visibility */
+#barra-de-atalhos-dinamica.tutorial-highlight {
+    outline: 4px solid rgba(250, 204, 21, 0.8);
+    outline-offset: 6px;
+    background: rgba(250, 204, 21, 0.1) !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .tutorial-coach {
+        padding: 6px 8px;
+    }
+    .tutorial-coach__card {
+        padding: 12px;
+    }
+    .tutorial-coach__avatar {
+        width: 44px;
+        height: 44px;
+    }
+    .tutorial-coach__content {
+        gap: 12px;
+    }
+    .tutorial-coach__title {
+        font-size: 1rem;
+    }
+    .tutorial-coach__body {
+        font-size: 0.85rem;
+    }
+}

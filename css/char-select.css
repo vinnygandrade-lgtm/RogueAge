@@ -1,0 +1,425 @@
+/* ========================================== */
+/* EPIC CHARACTER SELECT — post-login hero   */
+/* ========================================== */
+
+#screen-char-select.char-select-screen {
+    position: relative;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 0;
+    min-height: 100%;
+    background: #050403;
+}
+
+#screen-char-select.char-select-screen.active-screen {
+    display: flex !important;
+}
+
+.char-select-atmosphere {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 90% 55% at 50% 88%, rgba(202, 138, 4, 0.22) 0%, transparent 58%),
+        radial-gradient(circle at 50% 35%, rgba(30, 22, 14, 0.95) 0%, #050403 72%);
+}
+
+.char-select-scenery {
+    display: none !important;
+}
+
+.char-select-vignette {
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.85);
+    pointer-events: none;
+}
+
+.char-select-embers {
+    position: absolute;
+    inset: 0;
+    opacity: 0.45;
+    background-image:
+        radial-gradient(1px 1px at 12% 72%, rgba(250, 204, 21, 0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 28% 84%, rgba(250, 180, 60, 0.7) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 44% 78%, rgba(255, 220, 120, 0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 62% 88%, rgba(250, 204, 21, 0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 78% 74%, rgba(255, 190, 80, 0.75) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 88% 82%, rgba(250, 204, 21, 0.65) 0%, transparent 100%);
+    animation: charSelectEmbersDrift 14s ease-in-out infinite alternate;
+}
+
+@keyframes charSelectEmbersDrift {
+    0% { transform: translateY(0); opacity: 0.35; }
+    100% { transform: translateY(-12px); opacity: 0.55; }
+}
+
+.char-select-top {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    flex-shrink: 0;
+    padding:
+        calc(var(--l2-safe-top, env(safe-area-inset-top, 0px)) + 12px)
+        max(var(--l2-screen-padding-x, 14px), 16px)
+        6px;
+}
+
+.char-select-brand {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.35rem, 6.5vw, 1.75rem);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 18px rgba(250, 204, 21, 0.35), 2px 2px 4px #000;
+}
+
+.char-select-brand span {
+    color: #ffcc00;
+}
+
+.char-select-subtitle {
+    margin: 6px 0 0;
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--l2-text-muted, #7a6a58);
+}
+
+.char-select-account {
+    margin: 10px 0 0;
+    font-size: 0.72rem;
+    color: var(--l2-text-secondary, #c4b5a0);
+    letter-spacing: 0.04em;
+}
+
+.char-select-stage {
+    position: relative;
+    z-index: 1;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px max(var(--l2-screen-padding-x, 14px), 16px) 8px;
+}
+
+.char-select-hero-root {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+
+/* —— Hero showcase (has character) —— */
+
+.char-hero-paperdoll-host {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.l2-paperdoll--char-select {
+    display: block;
+    position: relative;
+    width: min(100%, 340px);
+    aspect-ratio: 360 / 328;
+    min-height: 260px;
+    max-height: min(52vh, 360px);
+    margin-inline: auto;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    overflow: visible;
+    isolation: isolate;
+}
+
+.l2-paperdoll--char-select .paperdoll-scenery,
+.l2-paperdoll--char-select .paperdoll-frame-vignette {
+    display: none !important;
+}
+
+.l2-paperdoll--char-select .paperdoll-character-stack {
+    max-height: 100%;
+    width: 94%;
+}
+
+.char-hero-pedestal {
+    display: none;
+}
+
+.char-hero-glow,
+.char-hero-portrait-wrap,
+.char-hero-platform,
+.char-hero-portrait {
+    display: none;
+}
+
+.char-hero-showcase {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: charHeroFadeIn 0.55s ease-out both;
+}
+
+@keyframes charHeroFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.char-hero-pedestal {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 8px;
+}
+
+.char-hero-glow {
+    position: absolute;
+    bottom: 18%;
+    left: 50%;
+    width: 72%;
+    height: 28%;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at center, rgba(250, 204, 21, 0.35) 0%, transparent 70%);
+    filter: blur(8px);
+    animation: charHeroGlowPulse 3.2s ease-in-out infinite;
+}
+
+@keyframes charHeroGlowPulse {
+    0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
+    50% { opacity: 1; transform: translateX(-50%) scale(1.06); }
+}
+
+.char-hero-portrait-wrap {
+    position: relative;
+    width: min(78vw, 280px);
+    height: min(52vh, 320px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1;
+}
+
+.char-hero-portrait {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.75));
+    animation: charHeroFloat 4.5s ease-in-out infinite;
+}
+
+@keyframes charHeroFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+.char-hero-platform {
+    position: relative;
+    width: 68%;
+    height: 14px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(90, 70, 52, 0.95) 0%, rgba(20, 14, 8, 0.4) 72%);
+    box-shadow:
+        0 0 0 2px rgba(202, 138, 4, 0.45),
+        0 0 22px rgba(250, 204, 21, 0.18),
+        inset 0 2px 6px rgba(255, 220, 140, 0.15);
+    z-index: 2;
+}
+
+.char-hero-plaque {
+    width: 100%;
+    text-align: center;
+    padding: 14px 16px 10px;
+    background: linear-gradient(180deg, rgba(24, 18, 12, 0.92) 0%, rgba(10, 8, 6, 0.88) 100%);
+    border: 1px solid rgba(90, 74, 58, 0.85);
+    border-radius: 6px;
+    box-shadow: var(--l2-shadow-deep, 0 10px 30px rgba(0, 0, 0, 0.8));
+}
+
+.char-hero-plaque::before {
+    content: '';
+    display: block;
+    width: 48px;
+    height: 2px;
+    margin: 0 auto 10px;
+    background: linear-gradient(90deg, transparent, #ca8a04, transparent);
+}
+
+.char-hero-name {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #facc15;
+    text-shadow: 0 0 12px rgba(250, 204, 21, 0.25), 1px 1px 3px #000;
+    word-break: break-word;
+}
+
+.char-hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.char-hero-level {
+    background: linear-gradient(180deg, #ca8a04 0%, #854d0e 100%);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid #facc15;
+}
+
+.char-hero-class {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.char-hero-meta {
+    margin: 8px 0 0;
+    font-size: 0.72rem;
+    color: var(--l2-text-muted, #7a6a58);
+    letter-spacing: 0.06em;
+}
+
+.char-hero-showcase.selected .char-hero-plaque {
+    border-color: #facc15;
+    box-shadow: 0 0 24px rgba(250, 204, 21, 0.22), var(--l2-shadow-deep, 0 10px 30px rgba(0, 0, 0, 0.8));
+}
+
+.btn-char-enter {
+    width: 100%;
+    margin-top: 4px;
+    min-height: 48px;
+    padding: 12px 18px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #1a1208;
+    border: 1px solid #fde68a;
+    border-radius: 4px;
+    cursor: pointer;
+    background: linear-gradient(180deg, #fde68a 0%, #ca8a04 45%, #854d0e 100%);
+    box-shadow: 0 4px 16px rgba(202, 138, 4, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.btn-char-enter:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+    box-shadow: 0 6px 22px rgba(250, 204, 21, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.btn-char-enter:active {
+    transform: translateY(1px);
+}
+
+.btn-char-delete-wrap {
+    margin-top: 4px;
+}
+
+.btn-char-delete-text {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    cursor: pointer;
+    padding: 6px 10px;
+    transition: opacity 0.18s ease;
+}
+
+.btn-char-delete-text:hover {
+    opacity: 1;
+}
+
+/* —— Empty slot (no character) —— */
+
+.char-hero-empty {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: charHeroFadeIn 0.55s ease-out both;
+}
+
+.char-hero-pedestal--empty {
+    opacity: 0.75;
+}
+
+.char-hero-silhouette {
+    width: min(50vw, 160px);
+    height: min(36vh, 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4.5rem;
+    font-weight: 200;
+    color: rgba(202, 138, 4, 0.35);
+    text-shadow: 0 0 30px rgba(250, 204, 21, 0.15);
+    border: 1px dashed rgba(90, 74, 58, 0.7);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.char-hero-empty-title {
+    margin: 16px 0 6px;
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    color: #facc15;
+}
+
+.char-hero-empty-hint {
+    margin: 0 0 14px;
+    font-size: 0.75rem;
+    color: var(--l2-text-secondary, #c4b5a0);
+    line-height: 1.45;
+    max-width: 280px;
+}
+
+/* —— Footer dock (see auth-flow.css) —— */
+
+#btn-new-hero {
+    display: none !important;
+}
+
+@media (max-height: 680px) {
+    .char-hero-portrait-wrap {
+        height: min(44vh, 240px);
+    }
+
+    .char-select-brand {
+        font-size: 1.35rem;
+    }
+}

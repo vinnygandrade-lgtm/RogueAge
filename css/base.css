@@ -8,16 +8,88 @@
 
 /* --- Legibilidade & tom “dark confortável” (multiplayer / mobile) --- */
 :root {
-    --l2-bg-deep: #0c0b09;
-    --l2-bg-shell: linear-gradient(180deg, #262018 0%, #12100d 52%, #0c0b09 100%);
-    --l2-text-primary: #e9dcc8;
+    /* Cores de Fundo (Eye-care & Depth) */
+    --l2-bg-deep: #0a0908;
+    --l2-bg-shell: radial-gradient(circle at 50% 0%, #1c1814 0%, #0a0908 100%);
+    --l2-panel-overlay: rgba(13, 11, 9, 0.92);
+    
+    /* Tipografia (High Readability) */
+    --l2-text-primary: #f2e6d5;
     --l2-text-secondary: #c4b5a0;
-    --l2-text-muted: #9a8c78;
-    --l2-border-strong: #7a664f;
-    --l2-border-soft: #4f4032;
-    --l2-panel-overlay: rgba(26, 22, 18, 0.82);
-    --l2-accent-gold: #f5d942;
-    --l2-focus-ring: #fbbf24;
+    --l2-text-muted: #7a6a58;
+    
+    /* Ícones de inventário / loot — arte fonte sempre 256×256 px (1:1) */
+    --l2-item-icon-src-px: 256;
+
+    /* Acentos & Metais */
+    --l2-accent-gold: #b38a4d;
+    --l2-accent-gold-light: #e6c28a;
+    --l2-border-strong: #5a4a3a;
+    --l2-border-soft: #2a241e;
+    
+    /* Status & Feedback */
+    --l2-hp-color: #b33a3a;
+    --l2-mp-color: #3a6ab3;
+    --l2-cp-color: #b38a3a;
+    --l2-exp-color: #3ab36a;
+    
+    /* Sombras & Efeitos */
+    --l2-shadow-deep: 0 10px 30px rgba(0,0,0,0.8);
+    --l2-shadow-inset: inset 0 2px 10px rgba(0,0,0,0.6);
+    --l2-glow-gold: 0 0 15px rgba(179, 138, 77, 0.2);
+    --l2-focus-ring: #facc15;
+
+    /* Shell (moldura oficial — ver css/shell.css e docs/ui-shell-spec.md) */
+    --l2-shell-max-width: 450px;
+    --l2-design-canvas-width: 390px;
+    --l2-design-canvas-height: 844px;
+    --l2-aspect-w: 9;
+    --l2-aspect-h: 19.5;
+    --l2-safe-top: env(safe-area-inset-top, 0px);
+    --l2-safe-right: env(safe-area-inset-right, 0px);
+    --l2-safe-bottom: env(safe-area-inset-bottom, 0px);
+    --l2-safe-left: env(safe-area-inset-left, 0px);
+    --l2-screen-padding-x: 14px;
+    --l2-screen-padding-y: 12px;
+    --l2-modal-max-width: 420px;
+    --l2-modal-narrow-max-width: 380px;
+    --l2-panel-narrow-max-width: 320px;
+
+    /* Item grade — NG cinza fixo; D→S matizes distintos (progressão legível no UI escuro) */
+    --l2-grade-ng-color: #b5b3ae;
+    --l2-grade-ng-border: #6a6864;
+    --l2-grade-ng-glow: rgba(181, 179, 174, 0.2);
+    --l2-grade-ng-bg: rgba(46, 46, 44, 0.52);
+
+    /* D — aço forjado (azul-aço frio) */
+    --l2-grade-d-color: #6eb5d4;
+    --l2-grade-d-border: #3a6d88;
+    --l2-grade-d-glow: rgba(90, 170, 205, 0.34);
+    --l2-grade-d-bg: rgba(26, 50, 66, 0.52);
+
+    /* C — veterano (jade / prata esmeralda — longe do cinza e do azul D) */
+    --l2-grade-c-color: #7fd4a8;
+    --l2-grade-c-border: #3d8a62;
+    --l2-grade-c-glow: rgba(100, 205, 155, 0.34);
+    --l2-grade-c-bg: rgba(28, 58, 44, 0.5);
+
+    /* B — raid (âmbar brasas) */
+    --l2-grade-b-color: #f0a060;
+    --l2-grade-b-border: #b85c28;
+    --l2-grade-b-glow: rgba(235, 148, 80, 0.36);
+    --l2-grade-b-bg: rgba(72, 40, 22, 0.52);
+
+    /* A — nobre (ouro imperial) */
+    --l2-grade-a-color: #f5d76e;
+    --l2-grade-a-border: #c9a227;
+    --l2-grade-a-glow: rgba(245, 205, 90, 0.38);
+    --l2-grade-a-bg: rgba(82, 62, 18, 0.5);
+
+    /* S — lendário (rosa-luz / arcano claro) */
+    --l2-grade-s-color: #ffc8e8;
+    --l2-grade-s-border: #d85aa8;
+    --l2-grade-s-glow: rgba(255, 168, 220, 0.42);
+    --l2-grade-s-bg: rgba(68, 28, 52, 0.52);
 }
 
 input[type=number]::-webkit-inner-spin-button, 
@@ -31,6 +103,9 @@ body {
     margin: 0; 
     padding: 0;
     overflow: hidden; 
+    box-sizing: border-box;
+    min-height: 100dvh;
+    min-height: 100svh;
     height: 100dvh;
     display: flex;
     justify-content: center;
@@ -73,6 +148,26 @@ a:focus-visible,
 
 /* Animations */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+@keyframes screenSlideIn {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes screenSlideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-20px); opacity: 0; }
+}
+
+.screen-transition-enter {
+    animation: screenSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.screen-transition-exit {
+    animation: screenSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 @keyframes modalAppear { 
     from { transform: scale(0.95); opacity: 0; } 
     to { transform: scale(1); opacity: 1; } 
@@ -84,6 +179,28 @@ a:focus-visible,
 @keyframes slideDownToast { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 @keyframes fadeOutToast { from { opacity: 1; } to { opacity: 0; } }
 @keyframes pulse-opacity { 0% { opacity: 0.2; } 100% { opacity: 0.95; } }
+@keyframes pulse-opacity-weapon { 0% { opacity: 0.84; } 100% { opacity: 1; } }
+/* Paperdoll enchant: força do halo/brilho escala com --paperdoll-aura-mul-* e nível (via JS) */
+@keyframes pulse-weapon-aura {
+    0% {
+        filter:
+            drop-shadow(0 0 calc(1px * var(--paperdoll-aura-mul-a, 1)) rgba(10, 9, 8, 0.82))
+            drop-shadow(0 0 calc(1px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(2px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(3px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(7px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.45)))
+            brightness(var(--paperdoll-pulse-lo, 0.74)) contrast(1.1) saturate(var(--paperdoll-sat-lo, 1.04));
+    }
+    100% {
+        filter:
+            drop-shadow(0 0 calc(1px * var(--paperdoll-aura-mul-b, 1)) rgba(10, 9, 8, 0.42))
+            drop-shadow(0 0 calc(2px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(4px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(8px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(15px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.4)))
+            brightness(var(--paperdoll-pulse-hi, 1.03)) contrast(1.06) saturate(var(--paperdoll-sat-hi, 1.18));
+    }
+}
 @keyframes notif-flash {
     0% { filter: brightness(1) drop-shadow(0 0 2px #4338ca); transform: scale(1); }
     50% { filter: brightness(1.5) drop-shadow(0 0 10px #6366f1); transform: scale(1.1); }
@@ -99,3 +216,4 @@ a:focus-visible,
 /* Toast Notifications */
 #toast-container { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
 .toast-msg { background: rgba(32, 27, 22, 0.97); border: 1px solid var(--l2-accent-gold); color: #fffaf0; padding: 11px 16px; border-radius: 4px; font-size: 0.88em; font-weight: bold; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.75); animation: slideDownToast 0.3s ease-out forwards, fadeOutToast 0.5s ease-in 2.5s forwards; line-height: 1.35; }
+.toast-msg--mission { border-color: #34d399; color: #ecfdf5; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35); }
