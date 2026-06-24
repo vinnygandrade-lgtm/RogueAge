@@ -10,15 +10,6 @@ import type {
   RaidBossData,
 } from '../types/game';
 
-const DAILY_BOSS_LORE: Record<DailyBossId, string> = {
-  daily_boss_ng: 'On Talking Island’s shores, a corrupted arachnid queen tainted the crystal soil. End her before the whole island becomes a hive.',
-  daily_boss_d: 'In the Ruins of Despair, the dead follow a faceless headsman. Defeat Barion or the catacombs will never fall silent.',
-  daily_boss_c: 'In Death Pass, a shadow echoes Zaken’s cursed name. The strait narrows — you or it.',
-  daily_boss_b: 'Dragon Valley burns under Matriarch Flameheart’s wake. Scale the vale before the sky turns to ash.',
-  daily_boss_a: 'In the Tower of Insolence, the Sentinel watches Baium’s empty throne. Climb the carpet of light or be judged.',
-  daily_boss_s: 'In the Imperial Tomb, Harik raises legions without souls. Only S-Grade heroes hear the Emperor’s last echo.',
-};
-
 const LISTA_DAILY_BOSS_IDS: readonly DailyBossId[] = [
   'daily_boss_ng',
   'daily_boss_d',
@@ -45,6 +36,12 @@ const DAILY_BOSS_SKIP_DAILY_LIMIT = true;
 
 function dailyBossT(key: string, params?: Record<string, string | number>): string {
   return typeof window.t === 'function' ? window.t(key, params) : key;
+}
+
+function dailyBossLore(bossId: DailyBossId): string {
+  const text = dailyBossT(`game.dailyBoss.lore.${bossId}`);
+  if (text && text !== `game.dailyBoss.lore.${bossId}`) return text;
+  return dailyBossT('game.dailyBoss.loreFallback');
 }
 
 function getDailyBossCatalog(id: string | null | undefined): DailyBossCatalogEntry | null {
@@ -184,7 +181,7 @@ function atualizarPainelBossDiario(): void {
     });
   }
   if (loreEl) {
-    loreEl.innerText = DAILY_BOSS_LORE[bossId] || dailyBossT('game.dailyBoss.loreFallback');
+    loreEl.innerText = dailyBossLore(bossId);
   }
 
   if (contador) contador.innerText = `${indiceDailyBossSelecionado + 1} / ${lista.length}`;

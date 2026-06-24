@@ -129,7 +129,7 @@ const ClanWarEngine = {
                     <div class="roster-member-name">${nome || window.t('game.war.rosterEmptySlot')}</div>
                     <div class="roster-member-details">${memberDetails}</div>
                 </div>
-                ${!isLeader ? `<button class="btn-l2" style="width:auto; padding:5px 10px; font-size:0.7em;" onclick="ClanWarEngine.abrirSelecaoMembro(${i})">${nome ? 'CHANGE' : 'SELECT'}</button>` : ''}
+                ${!isLeader ? `<button class="btn-l2" style="width:auto; padding:5px 10px; font-size:0.7em;" onclick="ClanWarEngine.abrirSelecaoMembro(${i})">${nome ? window.t('game.war.rosterChange') : window.t('game.war.rosterSelect')}</button>` : ''}
             `;
             container.appendChild(slot);
         }
@@ -143,7 +143,7 @@ const ClanWarEngine = {
         const membrosDisponiveis = this.meuClan.membros.filter(m => !this.inscritosAliados.includes(m));
         
         if (membrosDisponiveis.length === 0) {
-            window.l2Alert("No more members available!");
+            window.l2Alert(window.t('game.war.noMembersAvailable'));
             return;
         }
 
@@ -154,7 +154,7 @@ const ClanWarEngine = {
         html += `</div>`;
 
         window.l2Confirm(html, (confirmado) => {}, {
-            title: "SELECT MEMBER FOR RANK " + (index + 1),
+            title: window.t('game.war.selectMemberTitle', { n: index + 1 }),
             hideCancel: true
         });
     },
@@ -221,13 +221,14 @@ const ClanWarEngine = {
     },
 
     gerarOponenteBot() {
+        const ghostKing = window.t('game.war.ghostKing');
         this.clanInimigo = {
             id: 'bot_clan_' + Date.now(),
-            nome: 'Ghost Legion',
-            sigla: 'GHOST',
+            nome: window.t('game.war.ghostClanName'),
+            sigla: window.t('game.war.ghostClanTag'),
             level: this.meuClan.level || 1,
-            lider: 'Ghost King',
-            membros: ['Ghost King']
+            lider: ghostKing,
+            membros: [ghostKing]
         };
         this.inscritosInimigos = this.gerarInscritosInimigos(this.clanInimigo);
         this.matchEncontrado();

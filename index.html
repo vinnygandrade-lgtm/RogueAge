@@ -631,15 +631,15 @@
     </div>
 
     <div id="janela-daily-boss" class="store-window">
-        <div class="store-header"><span>DAILY BOSS</span></div>
-        <div class="daily-boss-hint">Use the arrows to <b>pick a boss</b>. One attempt per day—same arena and UI as the raid.</div>
+        <div class="store-header"><span data-i18n="game.dailyBoss.modalTitle">DAILY BOSS</span></div>
+        <div class="daily-boss-hint" data-i18n-html="game.dailyBoss.modalHint">Use the arrows to <b>pick a boss</b>. One attempt per day — same arena and UI as the raid.</div>
         <div class="daily-boss-nav">
-            <button type="button" class="btn-l2 btn-db-nav" onclick="dailyBossSelecionarAnterior()" title="Previous boss">◀</button>
+            <button type="button" class="btn-l2 btn-db-nav" onclick="dailyBossSelecionarAnterior()" data-i18n-title="game.dailyBoss.navPrevTitle" title="Previous boss">◀</button>
             <div class="daily-boss-counter-wrap">
                 <span id="daily-boss-contador">1 / 6</span>
                 <div id="daily-boss-grade-badge">—</div>
             </div>
-            <button type="button" class="btn-l2 btn-db-nav" onclick="dailyBossSelecionarProximo()" title="Next boss">▶</button>
+            <button type="button" class="btn-l2 btn-db-nav" onclick="dailyBossSelecionarProximo()" data-i18n-title="game.dailyBoss.navNextTitle" title="Next boss">▶</button>
         </div>
         <div class="daily-boss-preview-row">
             <img id="daily-boss-preview-img" src="" alt="">
@@ -651,8 +651,8 @@
         </div>
         <div id="daily-boss-preview-lore"></div>
         <div id="daily-boss-status-msg">—</div>
-        <button id="btn-iniciar-daily-boss" type="button" class="btn-l2" onclick="confirmarInicioDailyBoss()">ENTER ARENA</button>
-        <button type="button" class="btn-l2 btn-daily-close" onclick="fecharJanelaDailyBoss()">CLOSE</button>
+        <button id="btn-iniciar-daily-boss" type="button" class="btn-l2" data-i18n="game.dailyBoss.btnEnterArena" onclick="confirmarInicioDailyBoss()">ENTER ARENA</button>
+        <button type="button" class="btn-l2 btn-daily-close" data-i18n="game.dailyBoss.closeBtn" onclick="fecharJanelaDailyBoss()">CLOSE</button>
     </div>
 
     <div id="janela-missoes-diarias" class="store-window">
@@ -1187,7 +1187,7 @@
                         <i>👹</i>
                         <div class="adv-info">
                             <h3 data-i18n="game.world.cardDailyTitle">Daily Boss</h3>
-                            <p id="daily-boss-card-resumo">Loading...</p>
+                            <p id="daily-boss-card-resumo" data-i18n="game.world.loadingCard">Loading…</p>
                         </div>
                     </div>
 

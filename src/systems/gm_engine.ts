@@ -220,55 +220,74 @@ const GMEngine: GmEngineApi = {
     },
 
     renderResourcesTab(container) {
+        const esc = (s: string) => this.escapeHtml(s);
+        const lbl = (k: string) => esc(this.gmT(k));
         container.innerHTML = `
             <div style="display:flex; flex-direction:column; gap:15px;">
-                <h4 style="color:#ef4444; margin-bottom:5px; font-size:0.8em;">GIVE RESOURCES TO PLAYER</h4>
+                <h4 style="color:#ef4444; margin-bottom:5px; font-size:0.8em;">${lbl('giveResourcesTitle')}</h4>
                 
                 <div class="gm-input-group">
-                    <label style="color:#888; font-size:0.7em;">TARGET PLAYER NAME</label>
-                    <input id="gm-give-target" class="gm-input" type="text" placeholder="Character Name">
+                    <label style="color:#888; font-size:0.7em;">${lbl('targetPlayerLabel')}</label>
+                    <input id="gm-give-target" class="gm-input" type="text" placeholder="${lbl('targetPlayerPlaceholder')}">
                 </div>
 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                     <div class="gm-input-group">
-                        <label style="color:#888; font-size:0.7em;">ADENA AMOUNT</label>
+                        <label style="color:#888; font-size:0.7em;">${lbl('adenaAmountLabel')}</label>
                         <input id="gm-give-adena" class="gm-input" type="number" placeholder="0">
-                        <button class="gm-btn-action gm-btn-edit" style="margin-top:5px; background:#ca8a04;" onclick="GMEngine.giveCurrency('adena')">GIVE ADENA</button>
+                        <button class="gm-btn-action gm-btn-edit" style="margin-top:5px; background:#ca8a04;" onclick="GMEngine.giveCurrency('adena')">${lbl('giveAdenaBtn')}</button>
                     </div>
                     <div class="gm-input-group">
-                        <label style="color:#888; font-size:0.7em;">ANCIENT COINS</label>
+                        <label style="color:#888; font-size:0.7em;">${lbl('ancientCoinsLabel')}</label>
                         <input id="gm-give-coins" class="gm-input" type="number" placeholder="0">
-                        <button class="gm-btn-action gm-btn-edit" style="margin-top:5px; background:#1e40af;" onclick="GMEngine.giveCurrency('ancient')">GIVE COINS</button>
+                        <button class="gm-btn-action gm-btn-edit" style="margin-top:5px; background:#1e40af;" onclick="GMEngine.giveCurrency('ancient')">${lbl('giveCoinsBtn')}</button>
                     </div>
                 </div>
 
                 <div class="divider"></div>
 
-                <h4 style="color:#ef4444; margin-bottom:5px; font-size:0.8em;">GIVE SPECIAL ITEMS</h4>
+                <h4 style="color:#ef4444; margin-bottom:5px; font-size:0.8em;">${lbl('giveSpecialItemsTitle')}</h4>
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <select id="gm-give-item-select" class="gm-input">
-                        <option value="">-- SELECT ITEM --</option>
-                        <optgroup label="Materials">
+                        <option value="">${lbl('selectItemOptionDefault')}</option>
+                        <optgroup label="${lbl('optgroupMaterials')}">
                             <option value="Animal Skin">Animal Skin</option>
                             <option value="Steel">Steel</option>
                             <option value="Ancient Coin">Ancient Coin (Item)</option>
                         </optgroup>
-                        <optgroup label="S-Grade Weapons">
+                        <optgroup label="${lbl('optgroupSWeapons')}">
                             <option value="wpn_s_vesper_cutter">Vesper Cutter</option>
                             <option value="wpn_s_vesper_shaper">Vesper Shaper</option>
                             <option value="wpn_s_vesper_thrower">Vesper Thrower</option>
                         </optgroup>
-                        <optgroup label="S-Grade Armor">
+                        <optgroup label="${lbl('optgroupSArmor')}">
                             <option value="arm_s_vesper_heavy">Vesper Noble Heavy</option>
                             <option value="arm_s_vesper_light">Vesper Noble Light</option>
                             <option value="arm_s_vesper_robe">Vesper Noble Robe</option>
                         </optgroup>
                     </select>
-                    <input id="gm-give-item-qty" class="gm-input" type="number" value="1" placeholder="Quantity">
-                    <button class="btn-l2" style="background:linear-gradient(180deg, #15803d, #14532d); height:40px;" onclick="GMEngine.giveItem()">GIVE ITEM</button>
+                    <input id="gm-give-item-qty" class="gm-input" type="number" value="1" placeholder="${lbl('quantityPlaceholder')}">
+                    <button class="btn-l2" style="background:linear-gradient(180deg, #15803d, #14532d); height:40px;" onclick="GMEngine.giveItem()">${lbl('giveItemBtn')}</button>
                 </div>
             </div>
         `;
+    },
+
+    async _gmConfirm(message: string, title: string): Promise<boolean> {
+        if (typeof window.l2Confirm === 'function') {
+            return !!(await window.l2Confirm(message, title));
+        }
+        return window.confirm(message);
+    },
+
+    _gmNotify(message: string) {
+        if (typeof window.l2Alert === 'function') {
+            void window.l2Alert(message);
+        } else if (typeof window.mostrarAviso === 'function') {
+            window.mostrarAviso(message);
+        } else {
+            alert(message);
+        }
     },
 
     async giveCurrency(type: 'adena' | 'ancient') {
@@ -277,11 +296,25 @@ const GMEngine: GmEngineApi = {
         const targetInput = targetEl?.value.trim() ?? '';
         const amount = parseInt(amountInput?.value ?? '', 10);
 
-        if (!targetInput || isNaN(amount) || amount <= 0) return alert('Enter a valid target and amount.');
-        if (!window.SupabaseAPI?.client) return alert('Supabase offline.');
+        if (!targetInput || isNaN(amount) || amount <= 0) {
+            this._gmNotify(this.gmT('invalidTargetAmount') || 'Enter a valid target and amount.');
+            return;
+        }
+        if (!window.SupabaseAPI?.client) {
+            this._gmNotify(this.gmT('supabaseOffline') || 'Supabase offline.');
+            return;
+        }
 
-        if (confirm(`Send ${amount.toLocaleString()} ${type.toUpperCase()} to ${targetInput}?`)) {
-            try {
+        const coinName = type === 'adena' ? 'Adena' : 'Ancient Coin';
+        const prettyAmount = amount.toLocaleString();
+        const ok = await this._gmConfirm(
+            this.gmT('confirmGiveCurrency', { amount: prettyAmount, currency: coinName, name: targetInput }) ||
+                `Send ${prettyAmount} ${coinName} to ${targetInput}?`,
+            this.gmT('giveResourcesTitle') || 'Give resources',
+        );
+        if (!ok) return;
+
+        try {
                 const { data: char } = await window.SupabaseAPI.client
                     .from('characters')
                     .select('char_name')
@@ -289,9 +322,7 @@ const GMEngine: GmEngineApi = {
                     .maybeSingle();
 
                 const targetName = (char as { char_name?: string } | null)?.char_name ?? targetInput;
-                const coinName = type === 'adena' ? 'Adena' : 'Ancient Coin';
 
-                const prettyAmount = amount.toLocaleString();
                 const { error } = await gmRewardsInsert(window.SupabaseAPI.client!).insert([{
                     char_name: targetName,
                     sender: 'Game Master',
@@ -308,7 +339,10 @@ GM Team`,
 
                 if (error) throw error;
                 
-                alert(`✅ ${amount.toLocaleString()} ${coinName} sent to ${targetName}!`);
+                this._gmNotify(
+                    this.gmT('giveSuccessCurrency', { amount: prettyAmount, currency: coinName, name: targetName }) ||
+                        `${prettyAmount} ${coinName} sent to ${targetName}!`,
+                );
                 if (amountInput) amountInput.value = '';
 
                 await window.SupabaseAPI.broadcastChat?.(
@@ -322,9 +356,10 @@ GM Team`,
                     msg: `✨ A GM gift is waiting for you! Open the 🎁 in the corner — ${prettyAmount} ${coinName} from the team.`,
                 });
             } catch (err) {
-                alert('Send failed: ' + gmErrMessage(err));
+                this._gmNotify(
+                    this.gmT('giveFailed', { detail: gmErrMessage(err) }) || 'Send failed: ' + gmErrMessage(err),
+                );
             }
-        }
     },
 
     async giveItem() {
@@ -335,11 +370,23 @@ GM Team`,
         const itemKey = itemSelect?.value ?? '';
         const qty = parseInt(qtyInput?.value ?? '', 10);
 
-        if (!targetInput || !itemKey || isNaN(qty) || qty <= 0) return alert('Select player, item, and quantity.');
-        if (!window.SupabaseAPI?.client) return alert('Supabase offline.');
+        if (!targetInput || !itemKey || isNaN(qty) || qty <= 0) {
+            this._gmNotify(this.gmT('invalidTargetAmount') || 'Select player, item, and quantity.');
+            return;
+        }
+        if (!window.SupabaseAPI?.client) {
+            this._gmNotify(this.gmT('supabaseOffline') || 'Supabase offline.');
+            return;
+        }
 
-        if (confirm(`Send ${qty}x ${itemKey} to ${targetInput}?`)) {
-            try {
+        const ok = await this._gmConfirm(
+            this.gmT('confirmGiveItem', { qty, item: itemKey, name: targetInput }) ||
+                `Send ${qty}x ${itemKey} to ${targetInput}?`,
+            this.gmT('giveSpecialItemsTitle') || 'Give special items',
+        );
+        if (!ok) return;
+
+        try {
                 const { data: char } = await window.SupabaseAPI.client
                     .from('characters')
                     .select('char_name')
@@ -370,7 +417,10 @@ GM Team`,
 
                 if (error) throw error;
                 
-                alert(`✅ ${qty}x ${itemKey} sent to ${targetName}!`);
+                this._gmNotify(
+                    this.gmT('giveSuccessItem', { qty, item: itemKey, name: targetName }) ||
+                        `${qty}x ${itemKey} sent to ${targetName}!`,
+                );
                 if (qtyInput) qtyInput.value = '1';
 
                 await window.SupabaseAPI.broadcastChat?.(
@@ -384,9 +434,10 @@ GM Team`,
                     msg: `✨ The GM left a gift in the Reward Hub: ${qty}x ${itemKey}. Open the 🎁 — it was prepared for you.`,
                 });
             } catch (err) {
-                alert('Send failed: ' + gmErrMessage(err));
+                this._gmNotify(
+                    this.gmT('giveFailed', { detail: gmErrMessage(err) }) || 'Send failed: ' + gmErrMessage(err),
+                );
             }
-        }
     },
 
     _attachGmPlayerListHandlers(container) {
@@ -510,7 +561,7 @@ GM Team`,
                 return;
             }
 
-            let html = `<h4 style="color:#ef4444; margin-bottom:15px; font-size:0.8em;">REGISTERED PLAYERS (${chars.length})</h4>`;
+            let html = `<h4 style="color:#ef4444; margin-bottom:15px; font-size:0.8em;">${this.escapeHtml(this.gmT('registeredPlayers', { count: chars.length }))}</h4>`;
 
             chars.forEach((char) => {
                 const isOnline = this.checkIfOnline(char.char_name);
@@ -519,6 +570,7 @@ GM Team`,
                 const uid = char.user_id ? String(char.user_id) : '';
                 const uidShort = uid ? uid.substring(0, 8) : '—';
                 const lvl = char.level != null ? char.level : '—';
+                const statusLabel = isOnline ? this.gmT('statusOnline') : this.gmT('statusOffline');
 
                 html += `
                     <div class="gm-player-card">
@@ -528,7 +580,7 @@ GM Team`,
                                 <span style="font-size:0.7em; color:#666; margin-left:10px;">ID: ${this.escapeHtml(uidShort)}...</span>
                             </div>
                             <span style="font-size:0.7em; color:${isOnline ? '#22c55e' : '#666'}; font-weight:bold;">
-                                ${isOnline ? '● ONLINE' : '○ OFFLINE'}
+                                ${this.escapeHtml(statusLabel)}
                             </span>
                         </div>
                         <div style="display:flex; gap:15px; font-size:0.75em; color:#aaa;">
@@ -536,9 +588,9 @@ GM Team`,
                             <span>CLASS: <b style="color:#fff;">${this.escapeHtml(char.char_class || '—')}</b></span>
                         </div>
                         <div class="gm-player-actions">
-                            <button type="button" class="gm-btn-action gm-btn-edit" data-gm-player="${enc}">${this.gmT('btnSetLevel') || 'SET LEVEL'}</button>
-                            <button type="button" class="gm-btn-action gm-btn-kick" data-gm-player="${enc}">KICK</button>
-                            <button type="button" class="gm-btn-action gm-btn-ban" data-gm-player="${enc}">BAN</button>
+                            <button type="button" class="gm-btn-action gm-btn-edit" data-gm-player="${enc}">${this.escapeHtml(this.gmT('btnSetLevel'))}</button>
+                            <button type="button" class="gm-btn-action gm-btn-kick" data-gm-player="${enc}">${this.escapeHtml(this.gmT('btnKick'))}</button>
+                            <button type="button" class="gm-btn-action gm-btn-ban" data-gm-player="${enc}">${this.escapeHtml(this.gmT('btnBan'))}</button>
                         </div>
                     </div>
                 `;
@@ -557,27 +609,31 @@ GM Team`,
     },
 
     renderBroadcastTab(container) {
+        const esc = (s: string) => this.escapeHtml(s);
+        const lbl = (k: string) => esc(this.gmT(k));
         container.innerHTML = `
             <div style="display:flex; flex-direction:column; gap:15px;">
-                <h4 style="color:#ef4444; margin-bottom:5px; font-size:0.8em;">GLOBAL ANNOUNCEMENT</h4>
-                <p style="color:#888; font-size:0.75em;">This message will be sent to all online players in real-time.</p>
-                <textarea id="gm-broadcast-msg" class="gm-input" style="height:100px; resize:none;" placeholder="Type your announcement here..."></textarea>
-                <button class="btn-l2" style="background:linear-gradient(180deg, #991b1b, #450a0a); height:45px;" onclick="GMEngine.sendBroadcast()">SEND ANNOUNCEMENT</button>
+                <h4 style="color:#ef4444; margin-bottom:5px; font-size:0.8em;">${lbl('broadcastTitle')}</h4>
+                <p style="color:#888; font-size:0.75em;">${lbl('broadcastHint')}</p>
+                <textarea id="gm-broadcast-msg" class="gm-input" style="height:100px; resize:none;" placeholder="${lbl('broadcastPlaceholder')}"></textarea>
+                <button class="btn-l2" style="background:linear-gradient(180deg, #991b1b, #450a0a); height:45px;" onclick="GMEngine.sendBroadcast()">${lbl('sendBroadcastBtn')}</button>
             </div>
         `;
     },
 
     renderServerTab(container) {
+        const esc = (s: string) => this.escapeHtml(s);
+        const lbl = (k: string) => esc(this.gmT(k));
         container.innerHTML = `
             <div style="display:flex; flex-direction:column; gap:15px; font-size:0.85em; color:#aaa;">
-                <h4 style="color:#ef4444; margin-bottom:5px; font-size:0.8em;">SERVER INFORMATION</h4>
+                <h4 style="color:#ef4444; margin-bottom:5px; font-size:0.8em;">${lbl('serverInfoTitle')}</h4>
                 <div style="background:#111; padding:15px; border-radius:6px; border:1px solid #333; display:flex; flex-direction:column; gap:10px;">
-                    <div>Project ID: <b style="color:#fff;">kgjcbujkzsrgcjcowxts</b></div>
-                    <div>Database Status: <b style="color:#22c55e;">CONNECTED</b></div>
-                    <div>Realtime Engine: <b style="color:#22c55e;">ACTIVE</b></div>
-                    <div>Session Persistence: <b style="color:#fff;">ENABLED</b></div>
+                    <div>${lbl('serverProjectId')}: <b style="color:#fff;">kgjcbujkzsrgcjcowxts</b></div>
+                    <div>${lbl('serverDbStatus')}: <b style="color:#22c55e;">${lbl('dbConnected')}</b></div>
+                    <div>${lbl('serverRealtime')}: <b style="color:#22c55e;">${lbl('serverRealtimeActive')}</b></div>
+                    <div>${lbl('serverPersistence')}: <b style="color:#fff;">${lbl('serverPersistenceEnabled')}</b></div>
                 </div>
-                <button class="btn-l2" style="background:#333; height:40px; margin-top:10px;" onclick="location.reload()">RELOAD SERVER</button>
+                <button class="btn-l2" style="background:#333; height:40px; margin-top:10px;" onclick="location.reload()">${lbl('reloadServerBtn')}</button>
             </div>
         `;
     },
@@ -593,13 +649,17 @@ GM Team`,
         const msg = msgEl?.value.trim() ?? '';
         if (!msg) return;
 
-        if (confirm(`Send this global message?\n\n"${msg}"`)) {
-            if (window.SupabaseAPI?.broadcastChat) {
-                await window.SupabaseAPI.broadcastChat('SYSTEM', msg, 'GM_ANNOUNCEMENT', 'global');
-                if (msgEl) msgEl.value = '';
-                if (typeof window.mostrarAviso === 'function') {
-                    window.mostrarAviso(typeof window.t === 'function' ? window.t('game.gm.announcementSent') : 'Announcement sent!');
-                }
+        const ok = await this._gmConfirm(
+            `${this.gmT('broadcastConfirm')}\n\n"${msg}"`,
+            this.gmT('broadcastTitle') || 'Global broadcast',
+        );
+        if (!ok) return;
+
+        if (window.SupabaseAPI?.broadcastChat) {
+            await window.SupabaseAPI.broadcastChat('SYSTEM', msg, 'GM_ANNOUNCEMENT', 'global');
+            if (msgEl) msgEl.value = '';
+            if (typeof window.mostrarAviso === 'function') {
+                window.mostrarAviso(typeof window.t === 'function' ? window.t('game.gm.announcementSent') : 'Announcement sent!');
             }
         }
     },
