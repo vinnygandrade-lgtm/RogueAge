@@ -1,0 +1,718 @@
+{
+  "advanced_recharge": {
+    "name": "Recarga Avançada",
+    "desc": "Restaura instantaneamente 70% da sua barra de mana."
+  },
+  "aegis_stance": {
+    "name": "Postura Égide",
+    "desc": "Erguer o escudo por todos os lados, dobrando a defesa por um instante."
+  },
+  "agility": {
+    "name": "Agilidade",
+    "desc": "Abençoa suas pernas, aumentando velocidade de conjuração e de ataque."
+  },
+  "aqua_swirl": {
+    "name": "Redemoinho Aquático",
+    "desc": "Cria um vórtice de água que atinge o inimigo."
+  },
+  "armor_crush": {
+    "name": "Esmagamento de Armadura",
+    "desc": "Destrói a armadura do inimigo, reduzindo drasticamente a defesa."
+  },
+  "arrest": {
+    "name": "Prisão",
+    "desc": "Magia sagrada prende o monstro no chão (mesmo efeito de Raiz de Dríade)."
+  },
+  "attack": {
+    "name": "Ataque",
+    "desc": "Ataque básico. Essencial para caçar."
+  },
+  "aura_burn": {
+    "name": "Aura Flamejante",
+    "desc": "Queima o alvo com uma explosão de energia."
+  },
+  "backstab": {
+    "name": "Apunhalada",
+    "desc": "Ataque furtivo com dano extremamente alto."
+  },
+  "battle_roar": {
+    "name": "Rugido de Batalha",
+    "desc": "Aumenta o Ataque em 30%."
+  },
+  "bison_spirit_totem": {
+    "name": "Totem do Espírito Bisão",
+    "desc": "Fúria do bisão! Aumenta absurdamente o ataque quando o HP cai abaixo de 30%."
+  },
+  "blazing_circle": {
+    "name": "Círculo Flamejante",
+    "desc": "Um anel de fogo se expande, queimando TODOS os monstros."
+  },
+  "blinding_blow": {
+    "name": "Golpe Cegante",
+    "desc": "Golpe rápido que desorienta o inimigo."
+  },
+  "bounty_luck": {
+    "name": "Sorte do Caçador",
+    "desc": "Aumenta ataque e precisão, guiado pela ganância."
+  },
+  "burst_shot": {
+    "name": "Tiro Explosivo",
+    "desc": "Dispara uma flecha explosiva que atinge vários inimigos na área."
+  },
+  "chant_of_battle": {
+    "name": "Canto de Batalha",
+    "desc": "Canto xamânico que aumenta o poder de combate."
+  },
+  "chant_of_fire": {
+    "name": "Canto do Fogo",
+    "desc": "Aumenta muito a Def. M. e a Def. F."
+  },
+  "chant_of_fury": {
+    "name": "Canto da Fúria",
+    "desc": "Aumenta absurdamente a velocidade de ataque e de conjuração."
+  },
+  "chant_of_vampire": {
+    "name": "Canto do Vampiro",
+    "desc": "Dreno de vida avançado. Dano destrutivo que restaura muito HP."
+  },
+  "colossal_smash": {
+    "name": "Esmagamento Colossal",
+    "desc": "Golpe bruto. Dano ×2,5."
+  },
+  "concentration": {
+    "name": "Concentração",
+    "desc": "Aumenta a resistência para evitar interrupção de conjuração."
+  },
+  "corpse_burst": {
+    "name": "Explosão de Cadáver",
+    "desc": "Magia profana: explosão de energia sombria atinge todos os inimigos."
+  },
+  "crippling_blow": {
+    "name": "Golpe Paralisante",
+    "desc": "Golpe nas articulações que quebra a defesa do inimigo."
+  },
+  "crush_of_doom": {
+    "name": "Esmagamento da Perdição",
+    "desc": "Golpe apocalíptico de cima. Dano massivo."
+  },
+  "curse_gloom": {
+    "name": "Maldição Sombria",
+    "desc": "Maldição sombria que corrói 30% da defesa do inimigo."
+  },
+  "curse_weakness": {
+    "name": "Maldição da Fraqueza",
+    "desc": "Enfraquece a estrutura do inimigo."
+  },
+  "dance_of_fire": {
+    "name": "Dança do Fogo",
+    "desc": "Dança que multiplica força e dano crítico."
+  },
+  "dance_of_warrior": {
+    "name": "Dança do Guerreiro",
+    "desc": "Dança que aumenta muito o Ataque F."
+  },
+  "dark_strike": {
+    "name": "Golpe Sombrio",
+    "desc": "Golpe pesado imbuído de magia sombria."
+  },
+  "dash": {
+    "name": "Investida",
+    "desc": "Aumenta muito a velocidade de movimento."
+  },
+  "dead_eye": {
+    "name": "Olho Mortífero",
+    "desc": "Foco total que multiplica absurdamente o dano do arco."
+  },
+  "deadly_blow": {
+    "name": "Golpe Mortal",
+    "desc": "Golpe letal que encontra o ponto fraco do inimigo."
+  },
+  "death_shot": {
+    "name": "Tiro da Morte",
+    "desc": "A flecha da aniquilação. Dano devastador."
+  },
+  "death_spike": {
+    "name": "Espinho da Morte",
+    "desc": "Arremessa um osso perfurante amaldiçoado no alvo."
+  },
+  "deflect_arrow": {
+    "name": "Desviar Flecha",
+    "desc": "Aumenta a Def. F. contra ataques à distância e corpo a corpo."
+  },
+  "demon_wind": {
+    "name": "Vento Demoníaco",
+    "desc": "Vento do abismo. Destruição total."
+  },
+  "despair": {
+    "name": "Desespero",
+    "desc": "Magia sombria de alto impacto."
+  },
+  "divine_flash": {
+    "name": "Clarão Divino",
+    "desc": "Dispara energia pura de luz contra o inimigo."
+  },
+  "double_shot": {
+    "name": "Tiro Duplo",
+    "desc": "Dispara duas flechas seguidas com precisão letal."
+  },
+  "double_strike": {
+    "name": "Golpe Duplo",
+    "desc": "Golpe duplo rápido. Dano ×2,0."
+  },
+  "drain_health": {
+    "name": "Drenar Vida",
+    "desc": "Dano sombrio que cura você."
+  },
+  "dreaming_spirit": {
+    "name": "Espírito Onírico",
+    "desc": "Coloca o inimigo em transe profundo, prendendo-o no lugar."
+  },
+  "dryad_root": {
+    "name": "Raiz de Dríade",
+    "desc": "Prende o monstro com raízes mágicas, reduzindo a velocidade de ataque."
+  },
+  "duelist_spirit": {
+    "name": "Espírito do Duelista",
+    "desc": "+45% de Ataque F."
+  },
+  "earthquake": {
+    "name": "Terremoto",
+    "desc": "Golpeia o chão com a arma, causando um terremoto que atinge vários inimigos."
+  },
+  "elemental_heal": {
+    "name": "Cura Elemental",
+    "desc": "Cura ferimentos rapidamente com magia da natureza (30% HP)."
+  },
+  "empower": {
+    "name": "Empoderar",
+    "desc": "Aumenta muito o Ataque M. por 30s."
+  },
+  "entangle": {
+    "name": "Enredar",
+    "desc": "Enreda os pés do inimigo em vinhas, reduzindo defesa e velocidade."
+  },
+  "fake_death": {
+    "name": "Fingir de Morto",
+    "desc": "Finge morte para perder o aggro dos monstros."
+  },
+  "fatal_counter": {
+    "name": "Contra-ataque Fatal",
+    "desc": "Ataque desesperado de poder físico extremo."
+  },
+  "fatal_strike": {
+    "name": "Golpe Fatal",
+    "desc": "Golpe letal que fende a armadura do alvo."
+  },
+  "flame_strike": {
+    "name": "Golpe Flamejante",
+    "desc": "Chuva de fogo sobre todos os monstros."
+  },
+  "focus_attack": {
+    "name": "Foco de Ataque",
+    "desc": "Aumenta a velocidade de ataque em 15%."
+  },
+  "focus_death": {
+    "name": "Foco da Morte",
+    "desc": "Foco letal. Aumenta massivamente todo o seu poder de ataque."
+  },
+  "focused_force": {
+    "name": "Força Concentrada",
+    "desc": "Canaliza Ki (energia vital) para potencializar o dano dos próximos golpes."
+  },
+  "force_buster": {
+    "name": "Explosão de Força",
+    "desc": "Libera uma explosão de Ki que atinge todos os inimigos ao redor."
+  },
+  "force_of_destruction": {
+    "name": "Força da Destruição",
+    "desc": "Golpe final das artes marciais orcs. Dano massivo em alvo único."
+  },
+  "freezing_flame": {
+    "name": "Chama Gelada",
+    "desc": "Fogo místico que queima o espírito do alvo."
+  },
+  "freezing_strike": {
+    "name": "Golpe Congelante",
+    "desc": "Congela o inimigo, reduzindo drasticamente o poder de ataque."
+  },
+  "frenzy": {
+    "name": "Frenesi",
+    "desc": "Fúria cega! Multiplica o ataque (dano colossal se o HP estiver abaixo de 30%)."
+  },
+  "frost_flame": {
+    "name": "Chama de Gelo",
+    "desc": "Fogo congelante que corrói e quebra defesa física e mágica."
+  },
+  "frost_wall": {
+    "name": "Muralha de Gelo",
+    "desc": "Erguer uma parede de gelo que explode, atingindo vários inimigos."
+  },
+  "gehenna": {
+    "name": "Gehenna",
+    "desc": "Invoca o abismo. Dano catastrófico."
+  },
+  "greater_heal": {
+    "name": "Cura Maior",
+    "desc": "Cura divina poderosa que restaura 60% do seu HP."
+  },
+  "guts": {
+    "name": "Coragem",
+    "desc": "Instinto de sobrevivência. Multiplica a Def. F. a níveis absurdos."
+  },
+  "hammer_crush": {
+    "name": "Esmagamento do Martelo",
+    "desc": "Golpe pesado de machado ou martelo. Alta chance de atordoar o inimigo."
+  },
+  "hamstring": {
+    "name": "Cortar Tendão",
+    "desc": "Ferimenta as pernas do inimigo, reduzindo mobilidade."
+  },
+  "hex": {
+    "name": "Feitiço",
+    "desc": "Maldição que destrói a armadura do inimigo."
+  },
+  "holy_armor": {
+    "name": "Armadura Sagrada",
+    "desc": "Abençoa sua armadura, aumentando a defesa física."
+  },
+  "holy_blessing": {
+    "name": "Bênção Sagrada",
+    "desc": "Luz divina restaura 30% de HP."
+  },
+  "holy_strike": {
+    "name": "Golpe Sagrado",
+    "desc": "Esmaga o inimigo com poder sagrado."
+  },
+  "howl": {
+    "name": "Uivo",
+    "desc": "Reduz o ataque dos monstros próximos."
+  },
+  "hurricane": {
+    "name": "Furacão",
+    "desc": "Invoca um furacão devastador."
+  },
+  "hurricane_assault": {
+    "name": "Assalto Furacão",
+    "desc": "Rajada devastadora de socos em velocidade de furacão."
+  },
+  "hydro_blast": {
+    "name": "Jato Hidráulico",
+    "desc": "Dispara um jato de água em altíssima pressão."
+  },
+  "ice_strike": {
+    "name": "Golpe de Gelo",
+    "desc": "Golpe cortante imbuído de magia de gelo."
+  },
+  "ice_vortex": {
+    "name": "Vórtice de Gelo",
+    "desc": "Vórtice no zero absoluto que congela e aniquila o alvo."
+  },
+  "iron_punch": {
+    "name": "Soco de Ferro",
+    "desc": "Soco concentrado com força de ferro."
+  },
+  "iron_skin": {
+    "name": "Pele de Ferro",
+    "desc": "Aumenta a Defesa em 40%."
+  },
+  "iron_will": {
+    "name": "Vontade de Ferro",
+    "desc": "Aumenta muito a Def. M."
+  },
+  "lethal_blow": {
+    "name": "Golpe Letal",
+    "desc": "Golpe supremo dos ventos. Dano físico catastrófico."
+  },
+  "lethal_shot": {
+    "name": "Tiro Letal",
+    "desc": "Tiro letal nas partes vitais do alvo."
+  },
+  "light_heal": {
+    "name": "Cura Leve",
+    "desc": "Usa magia divina para curar 30% do seu HP."
+  },
+  "lightning_strike": {
+    "name": "Golpe de Relâmpago",
+    "desc": "Invoca relâmpago negro devastador para punir o inimigo."
+  },
+  "lion_heart": {
+    "name": "Coração de Leão",
+    "desc": "Aumenta a Def. F. em 30%."
+  },
+  "lionheart": {
+    "name": "Coração de Leão",
+    "desc": "Coração de leão. Ignora o medo e aumenta resistência e Def. F."
+  },
+  "magnus_chant": {
+    "name": "Canto de Magnus",
+    "desc": "[Doomcryer Nv. 76] Canto final. Multiplica todos os atributos ao extremo."
+  },
+  "majesty": {
+    "name": "Majestade",
+    "desc": "Aumenta muito a Def. F."
+  },
+  "major_heal": {
+    "name": "Cura Superior",
+    "desc": "Cura sagrada avançada. Restaura 80% do HP máx."
+  },
+  "max_sonic_slash": {
+    "name": "Corte Sônico Máximo",
+    "desc": "Dano supremo em alvo único. Obliteração total."
+  },
+  "might": {
+    "name": "Força",
+    "desc": "Abençoa o alvo, aumentando o Ataque F."
+  },
+  "might_of_heaven": {
+    "name": "Poder do Céu",
+    "desc": "Invoca um pilar de luz divina causando dano severo."
+  },
+  "miracle": {
+    "name": "Milagre",
+    "desc": "O milagre supremo. Restaura 100% de HP instantaneamente."
+  },
+  "mortal_blow": {
+    "name": "Golpe Mortal",
+    "desc": "Golpe fatal de adaga causando dano pesado."
+  },
+  "mortal_strike": {
+    "name": "Golpe Mortífero",
+    "desc": "Golpe rápido mirando nos pontos vitais."
+  },
+  "ogre_spirit_totem": {
+    "name": "Totem do Espírito Ogro",
+    "desc": "Encarna o ogro, ganhando defesa física esmagadora."
+  },
+  "pa_agrian_gift": {
+    "name": "Dom de Pa'agrio",
+    "desc": "Abençoa sua armadura com resistência ao fogo de Pa'agrio."
+  },
+  "phoenix_strike": {
+    "name": "Golpe da Fênix",
+    "desc": "Invoca o fogo da Fênix."
+  },
+  "poison_arrow": {
+    "name": "Flecha Envenenada",
+    "desc": "Dispara flecha tóxica que envenena o alvo, drenando HP com o tempo."
+  },
+  "poison_dance": {
+    "name": "Dança Venenosa",
+    "desc": "Dança tóxica que enfraquece a defesa do alvo."
+  },
+  "power_shot": {
+    "name": "Tiro Poderoso",
+    "desc": "Um tiro rápido e poderoso."
+  },
+  "power_smash": {
+    "name": "Esmagamento Poderoso",
+    "desc": "Golpe esmagador focado em força física bruta."
+  },
+  "power_strike": {
+    "name": "Golpe Poderoso",
+    "desc": "Golpe físico pesado. Dano ×1,5."
+  },
+  "prominence": {
+    "name": "Proeminência",
+    "desc": "Arremessa uma esfera de fogo concentrada. Dano mágico massivo."
+  },
+  "prophecy_of_water": {
+    "name": "Profecia da Água",
+    "desc": "Bênção final de Eva. Multiplica poder mágico e físico a níveis colossais."
+  },
+  "prophecy_of_wind": {
+    "name": "Profecia do Vento",
+    "desc": "Buff supremo: aumenta massivamente a velocidade de ataque físico/mágico."
+  },
+  "puma_spirit_totem": {
+    "name": "Totem do Espírito Puma",
+    "desc": "Encarna o espírito puma, aumentando muito a velocidade de ataque."
+  },
+  "rapid_shot": {
+    "name": "Tiro Rápido",
+    "desc": "Aumenta muito a velocidade de disparo do arco."
+  },
+  "recharge": {
+    "name": "Recarga",
+    "desc": "A famosa bateria de mana. Restaura 40% do MP máx. (Sem custo de MP!)"
+  },
+  "sand_bomb": {
+    "name": "Bomba de Areia",
+    "desc": "Joga areia nos olhos do monstro, reduzindo precisão e poder de ataque."
+  },
+  "seal_of_binding": {
+    "name": "Selo do Aprisionamento",
+    "desc": "Selo tribal que prende o inimigo ao chão."
+  },
+  "seal_of_disease": {
+    "name": "Selo da Doença",
+    "desc": "[Dominator Nv. 76] Selo supremo. Dano massivo e fraqueza em todos os inimigos."
+  },
+  "seal_of_winter": {
+    "name": "Selo do Inverno",
+    "desc": "Selo que reduz drasticamente velocidade e força."
+  },
+  "seed_of_water": {
+    "name": "Semente da Água",
+    "desc": "Infunde seu corpo com poder da água, aumentando massivamente o dano mágico."
+  },
+  "servitor_empowerment": {
+    "name": "Empoderamento do Servitor",
+    "desc": "Canaliza energia elemental pura, aumentando massivamente o Ataque M."
+  },
+  "servitor_heal": {
+    "name": "Cura do Servitor",
+    "desc": "Canaliza magia para curar você e seu servitor rapidamente."
+  },
+  "servitor_physical_buff": {
+    "name": "Buff Físico do Servitor",
+    "desc": "Aumenta muito o dano do servitor e a Fúria (e o seu)."
+  },
+  "seven_arrow": {
+    "name": "Seta dos Sete",
+    "desc": "Técnica lendária: chuva de sete flechas de luz. Dano devastador."
+  },
+  "seven_arrows": {
+    "name": "Sete Flechas",
+    "desc": "Técnica suprema: dispara 7 flechas simultâneas de puro ódio."
+  },
+  "shadow_flare": {
+    "name": "Clarão Sombrio",
+    "desc": "Explosão de sombra sob os pés do inimigo."
+  },
+  "shadow_spark": {
+    "name": "Faísca Sombria",
+    "desc": "Dispara uma esfera de escuridão pura."
+  },
+  "shield_of_faith": {
+    "name": "Escudo da Fé",
+    "desc": "Poder supremo: torna o cavaleiro quase imune a dano físico por 30s."
+  },
+  "shield_stun": {
+    "name": "Atordoamento de Escudo",
+    "desc": "Golpe brutal de escudo que atordoa o alvo."
+  },
+  "silence": {
+    "name": "Silenciar",
+    "desc": "Sela completamente as habilidades do monstro."
+  },
+  "silent_move": {
+    "name": "Movimento Silencioso",
+    "desc": "Camuflagem perfeita. Monstros perdem seu rastro."
+  },
+  "sleeping_cloud": {
+    "name": "Nuvem do Sono",
+    "desc": "Névoa mágica que adormece monstros — eles perdem sua presença."
+  },
+  "snipe": {
+    "name": "Franco-atirador",
+    "desc": "Postura de elite. +40% de Ataque F."
+  },
+  "solar_flare": {
+    "name": "Clarão Solar",
+    "desc": "Dispara um clarão de luz divina que cega o alvo brevemente."
+  },
+  "song_of_champion": {
+    "name": "Canção do Campeão",
+    "desc": "Sinfonia suprema: aumento massivo de todos os atributos ofensivos."
+  },
+  "song_of_earth": {
+    "name": "Canção da Terra",
+    "desc": "Canta a canção da terra, aumentando muito a Def. F. por 30s."
+  },
+  "song_of_hunter": {
+    "name": "Canção do Caçador",
+    "desc": "Canção do caçador aumenta poder de ataque e precisão letal."
+  },
+  "song_of_wind": {
+    "name": "Canção do Vento",
+    "desc": "Canção dos ventos aumenta muito a velocidade de ataque."
+  },
+  "sonic_barrier": {
+    "name": "Barreira Sônica",
+    "desc": "Escudo sônico. +60% de defesa."
+  },
+  "sonic_blaster": {
+    "name": "Disparo Sônico",
+    "desc": "Dispara energia de lâmina."
+  },
+  "spoil": {
+    "name": "Spoil",
+    "desc": "Magia secreta da ganância. Marca o monstro para tentar materiais extras na morte."
+  },
+  "spoil_crush": {
+    "name": "Esmagamento Spoil",
+    "desc": "[Fortune Seeker Nv. 76] Golpe esmagador que aplica Spoil e causa dano massivo."
+  },
+  "spoil_festival": {
+    "name": "Festival Spoil",
+    "desc": "[Bounty Hunter Nv. 40] Spoil avançado. Marca o inimigo e enfraquece levemente a defesa."
+  },
+  "sprint": {
+    "name": "Arrancada",
+    "desc": "Aumenta muito a velocidade de ataque e movimento."
+  },
+  "steal_essence": {
+    "name": "Roubar Essência",
+    "desc": "Magia de sangue. Causa dano mágico e cura 50% do dano causado."
+  },
+  "stealth": {
+    "name": "Furtividade",
+    "desc": "Fica invisível para monstros não agressivos."
+  },
+  "sting": {
+    "name": "Ferrão",
+    "desc": "Corte profundo que causa sangramento."
+  },
+  "stun_shot": {
+    "name": "Tiro Atordoante",
+    "desc": "Tiro pesado que atordoa o alvo, impedindo ações."
+  },
+  "summon_aqua_cubic": {
+    "name": "Invocar Cúbico Aquático",
+    "desc": "Invoca um cúbico de água autônomo que dispara gelo nos inimigos."
+  },
+  "summon_big_boom": {
+    "name": "Invocar Grande Explosão",
+    "desc": "[Warsmith Nv. 40] Invoca um golem de pólvola volátil com golpes devastadores."
+  },
+  "summon_feline_king": {
+    "name": "Invocar Rei Felino",
+    "desc": "Invoca o Rei Felino — uma fera gigante com garras devastadoras."
+  },
+  "summon_kai_the_cat": {
+    "name": "Invocar Kai, o Gato",
+    "desc": "Invoca Kai, o Gato — um felino mágico rápido e letal que luta por você."
+  },
+  "summon_magnus_the_unicorn": {
+    "name": "Invocar Magnus, o Unicórnio",
+    "desc": "Invoca Magnus, Rei dos Unicórnios — ataques mágicos devastadores."
+  },
+  "summon_mechanic_golem": {
+    "name": "Invocar Golem Mecânico",
+    "desc": "Invoca um golem de engrenagens focado em ataque físico e alta defesa."
+  },
+  "summon_mirage_the_unicorn": {
+    "name": "Invocar Miragem, o Unicórnio",
+    "desc": "Invoca Miragem, o Unicórnio, para atacar com rajadas mágicas."
+  },
+  "summon_panther": {
+    "name": "Invocar Pantera",
+    "desc": "Invoca a Pantera Negra para lutar por você."
+  },
+  "summon_siege_golem": {
+    "name": "Invocar Golem de Cerco",
+    "desc": "[Maestro Nv. 76] Criação suprema. Invoca um golem colossal de cerco."
+  },
+  "summon_silhouette": {
+    "name": "Invocar Silhueta",
+    "desc": "Invoca uma sombra letal de lâminas gêmeas ao seu lado por 2 minutos."
+  },
+  "summon_spectral_lord": {
+    "name": "Invocar Senhor Espectral",
+    "desc": "Invoca o supremo Senhor Espectral — demônio de dano devastador."
+  },
+  "summon_storm_cubic": {
+    "name": "Invocar Cúbico da Tempestade",
+    "desc": "Invoca um Cúbico da Tempestade que dispara relâmpagos automaticamente no alvo."
+  },
+  "summon_zombie": {
+    "name": "Invocar Zumbi",
+    "desc": "Erguer um morto-vivo para lutar ao seu lado."
+  },
+  "surrender_to_fire": {
+    "name": "Rendição ao Fogo",
+    "desc": "Quebra a resistência ao fogo do alvo, reduzindo a Def. M."
+  },
+  "surrender_to_water": {
+    "name": "Rendição à Água",
+    "desc": "Quebra a resistência do monstro à magia de água (reduz defesa)."
+  },
+  "sweeper": {
+    "name": "Coletor",
+    "desc": "Coleta instantaneamente loot bônus de um inimigo morto com Spoil."
+  },
+  "sword_symphony": {
+    "name": "Sinfonia da Espada",
+    "desc": "Canaliza energia da lâmina em onda sônica que atinge todos os inimigos."
+  },
+  "symphony_of_blades": {
+    "name": "Sinfonia das Lâminas",
+    "desc": "Técnica suprema: tornado de lâminas que dilacera o inimigo."
+  },
+  "thrill_fight": {
+    "name": "Combate Intenso",
+    "desc": "+55% de defesa para segurar a linha."
+  },
+  "thunder_storm": {
+    "name": "Tempestade de Trovão",
+    "desc": "Explosão de relâmpagos em área."
+  },
+  "touch_of_death": {
+    "name": "Toque da Morte",
+    "desc": "Técnica suprema: maldição letal causando dano sombrio massivo."
+  },
+  "trance": {
+    "name": "Transe",
+    "desc": "Coloca o monstro em sono profundo breve, interrompendo ataques."
+  },
+  "tribunal": {
+    "name": "Tribunal",
+    "desc": "Golpe sagrado causando alto dano físico e mágico juntos."
+  },
+  "triple_sonic_slash": {
+    "name": "Triplo Corte Sônico",
+    "desc": "Três cortes sônicos simultâneos."
+  },
+  "twister": {
+    "name": "Tornado",
+    "desc": "Arremessa um vórtice de vento cortante."
+  },
+  "ultimate_defense": {
+    "name": "Defesa Suprema",
+    "desc": "Postura de muralha: aumenta massivamente a Def. F. por 30s."
+  },
+  "ultimate_evasion": {
+    "name": "Esquiva Suprema",
+    "desc": "Esquiva suprema. Quase intocável — dobra a defesa por um instante."
+  },
+  "vampiric_touch": {
+    "name": "Toque Vampírico",
+    "desc": "Magia sombria que drena a vida do inimigo para curar você."
+  },
+  "vicious_stance": {
+    "name": "Postura Cruel",
+    "desc": "Aumenta poder de ataque e chance de crítico."
+  },
+  "volcano": {
+    "name": "Vulcão",
+    "desc": "Invoca um vulcão sob o inimigo. Obliteração flamejante total."
+  },
+  "war_cry": {
+    "name": "Grito de Guerra",
+    "desc": "Grito de batalha intimidador que aumenta o poder de ataque."
+  },
+  "whirlwind": {
+    "name": "Redemoinho",
+    "desc": "Gira a arma como um tornado, atingindo todos os inimigos próximos."
+  },
+  "whirlwind_k": {
+    "name": "Redemoinho",
+    "desc": "Gira a arma, atingindo TODOS os monstros."
+  },
+  "wind_shackle": {
+    "name": "Grilhão do Vento",
+    "desc": "Correntes de vento reduzem movimento e força do inimigo."
+  },
+  "wind_strike": {
+    "name": "Golpe de Vento",
+    "desc": "Feitiço básico de dano elemental de vento."
+  },
+  "wind_walk": {
+    "name": "Caminhada do Vento",
+    "desc": "Invoca os ventos para aumentar sua velocidade."
+  },
+  "wrath": {
+    "name": "Ira",
+    "desc": "[Warsmith Nv. 40] Gira violentamente lança ou machado, atingindo todos os monstros."
+  }
+}

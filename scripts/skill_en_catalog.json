@@ -1,0 +1,718 @@
+{
+  "advanced_recharge": {
+    "name": "Advanced Recharge",
+    "desc": "Instantly restores 70% of your mana bar."
+  },
+  "aegis_stance": {
+    "name": "Aegis Stance",
+    "desc": "Raises the shield on all sides, doubling defense briefly."
+  },
+  "agility": {
+    "name": "Agility",
+    "desc": "Blesses your legs, increasing cast and attack speed."
+  },
+  "aqua_swirl": {
+    "name": "Aqua Swirl",
+    "desc": "Creates a water vortex that strikes the enemy."
+  },
+  "armor_crush": {
+    "name": "Armor Crush",
+    "desc": "Shatters the enemy’s armor, drastically lowering defense."
+  },
+  "arrest": {
+    "name": "Arrest",
+    "desc": "Holy magic pins the monster to the ground (same idea as Dryad Root)."
+  },
+  "attack": {
+    "name": "Attack",
+    "desc": "Basic attack. Essential for hunting."
+  },
+  "aura_burn": {
+    "name": "Aura Burn",
+    "desc": "Burn the target with an energy blast."
+  },
+  "backstab": {
+    "name": "Backstab",
+    "desc": "Sneak attack with extremely high damage."
+  },
+  "battle_roar": {
+    "name": "Battle Roar",
+    "desc": "Increases Attack by 30%."
+  },
+  "bison_spirit_totem": {
+    "name": "Bison Spirit Totem",
+    "desc": "Bison fury! Absurdly raises attack when HP drops below 30%."
+  },
+  "blazing_circle": {
+    "name": "Blazing Circle",
+    "desc": "A ring of fire expands, burning ALL monsters."
+  },
+  "blinding_blow": {
+    "name": "Blinding Blow",
+    "desc": "Fast strike that disorients the enemy."
+  },
+  "bounty_luck": {
+    "name": "Bounty Luck",
+    "desc": "Raises attack and accuracy, guided by greed."
+  },
+  "burst_shot": {
+    "name": "Burst Shot",
+    "desc": "Fires an explosive arrow hitting multiple enemies in the area."
+  },
+  "chant_of_battle": {
+    "name": "Chant of Battle",
+    "desc": "Shamanic chant that raises combat power."
+  },
+  "chant_of_fire": {
+    "name": "Chant of Fire",
+    "desc": "Greatly raises M. Def. and P. Def."
+  },
+  "chant_of_fury": {
+    "name": "Chant of Fury",
+    "desc": "Absurdly raises attack and cast speed."
+  },
+  "chant_of_vampire": {
+    "name": "Chant of Vampire",
+    "desc": "Advanced life drain. Destructive damage that restores lots of HP."
+  },
+  "colossal_smash": {
+    "name": "Colossal Smash",
+    "desc": "Brute-force blow. Damage x2.5"
+  },
+  "concentration": {
+    "name": "Concentration",
+    "desc": "Raises resistance to stop cast interruption."
+  },
+  "corpse_burst": {
+    "name": "Corpse Burst",
+    "desc": "Profane magic: dark energy explosion hitting all enemies."
+  },
+  "crippling_blow": {
+    "name": "Crippling Blow",
+    "desc": "Strike to the joints that shatters the enemy’s defense."
+  },
+  "crush_of_doom": {
+    "name": "Crush of Doom",
+    "desc": "Apocalyptic overhead smash. Massive damage."
+  },
+  "curse_gloom": {
+    "name": "Curse Gloom",
+    "desc": "Shadow curse that corrodes 30% of the enemy’s defense."
+  },
+  "curse_weakness": {
+    "name": "Curse Weakness",
+    "desc": "Weakens the enemy’s structure."
+  },
+  "dance_of_fire": {
+    "name": "Dance of Fire",
+    "desc": "Dance that multiplies strength and crit damage."
+  },
+  "dance_of_warrior": {
+    "name": "Dance of Warrior",
+    "desc": "Dance that massively increases P. Atk."
+  },
+  "dark_strike": {
+    "name": "Dark Strike",
+    "desc": "A heavy blow imbued with dark magic."
+  },
+  "dash": {
+    "name": "Dash",
+    "desc": "Greatly increases move speed."
+  },
+  "dead_eye": {
+    "name": "Dead Eye",
+    "desc": "Total focus that absurdly multiplies bow damage."
+  },
+  "deadly_blow": {
+    "name": "Deadly Blow",
+    "desc": "Deadly strike that finds the enemy’s weak point."
+  },
+  "death_shot": {
+    "name": "Death Shot",
+    "desc": "The arrow of annihilation. Devastating damage."
+  },
+  "death_spike": {
+    "name": "Death Spike",
+    "desc": "Hurls a cursed piercing bone at the target."
+  },
+  "deflect_arrow": {
+    "name": "Deflect Arrow",
+    "desc": "Raises P. Def. against ranged and melee attacks."
+  },
+  "demon_wind": {
+    "name": "Demon Wind",
+    "desc": "Abyss wind. Total destruction."
+  },
+  "despair": {
+    "name": "Despair",
+    "desc": "High-impact shadow magic."
+  },
+  "divine_flash": {
+    "name": "Divine Flash",
+    "desc": "Fires pure light energy at the enemy."
+  },
+  "double_shot": {
+    "name": "Double Shot",
+    "desc": "Fires two arrows in a row with lethal precision."
+  },
+  "double_strike": {
+    "name": "Double Strike",
+    "desc": "Fast double hit. Damage x2.0"
+  },
+  "drain_health": {
+    "name": "Drain Health",
+    "desc": "Shadow damage that heals you."
+  },
+  "dreaming_spirit": {
+    "name": "Dreaming Spirit",
+    "desc": "Puts the enemy in a deep trance, rooting them in place."
+  },
+  "dryad_root": {
+    "name": "Dryad Root",
+    "desc": "Pins the monster with magic roots, slowing attacks."
+  },
+  "duelist_spirit": {
+    "name": "Duelist Spirit",
+    "desc": "+45% P. Atk."
+  },
+  "earthquake": {
+    "name": "Earthquake",
+    "desc": "Slams the weapon into the ground, causing an earthquake that wipes multiple enemies."
+  },
+  "elemental_heal": {
+    "name": "Elemental Heal",
+    "desc": "Quickly heals wounds with nature magic (30% HP)."
+  },
+  "empower": {
+    "name": "Empower",
+    "desc": "Greatly increases M. Atk. for 30s."
+  },
+  "entangle": {
+    "name": "Entangle",
+    "desc": "Tangles the enemy’s feet in vines, lowering defense and speed."
+  },
+  "fake_death": {
+    "name": "Fake Death",
+    "desc": "Play dead to drop monsters’ aggro."
+  },
+  "fatal_counter": {
+    "name": "Fatal Counter",
+    "desc": "Desperate attack of extreme physical power."
+  },
+  "fatal_strike": {
+    "name": "Fatal Strike",
+    "desc": "Lethal strike that cleaves the target’s armor."
+  },
+  "flame_strike": {
+    "name": "Flame Strike",
+    "desc": "Rain of fire on all monsters."
+  },
+  "focus_attack": {
+    "name": "Focus Attack",
+    "desc": "Increases attack speed by 15%."
+  },
+  "focus_death": {
+    "name": "Focus Death",
+    "desc": "Lethal focus. Massively increases all your attack power."
+  },
+  "focused_force": {
+    "name": "Focused Force",
+    "desc": "Channels Ki (life energy) to boost the next strikes’ damage."
+  },
+  "force_buster": {
+    "name": "Force Buster",
+    "desc": "Releases a Ki blast hitting all enemies around you."
+  },
+  "force_of_destruction": {
+    "name": "Force of Destruction",
+    "desc": "Final strike of orc martial arts. Massive single-target damage."
+  },
+  "freezing_flame": {
+    "name": "Freezing Flame",
+    "desc": "Mystic fire that burns the target’s spirit."
+  },
+  "freezing_strike": {
+    "name": "Freezing Strike",
+    "desc": "Freezes the enemy, drastically lowering attack power."
+  },
+  "frenzy": {
+    "name": "Frenzy",
+    "desc": "Blind rage! Multiplies attack (colossal damage if HP is below 30%)."
+  },
+  "frost_flame": {
+    "name": "Frost Flame",
+    "desc": "Freezing fire that corrodes and breaks physical and magic defense."
+  },
+  "frost_wall": {
+    "name": "Frost Wall",
+    "desc": "Raises an ice wall that explodes, hitting multiple enemies."
+  },
+  "gehenna": {
+    "name": "Gehenna",
+    "desc": "Calls the abyss. Catastrophic damage."
+  },
+  "greater_heal": {
+    "name": "Greater Heal",
+    "desc": "Powerful divine heal that restores 60% of your HP."
+  },
+  "guts": {
+    "name": "Guts",
+    "desc": "Survival instinct. Multiplies P. Def. to absurd levels."
+  },
+  "hammer_crush": {
+    "name": "Hammer Crush",
+    "desc": "Heavy axe or hammer swing. High chance to stun the enemy."
+  },
+  "hamstring": {
+    "name": "Hamstring",
+    "desc": "Hobbles the enemy’s legs."
+  },
+  "hex": {
+    "name": "Hex",
+    "desc": "Curse that shatters the enemy’s armor."
+  },
+  "holy_armor": {
+    "name": "Holy Armor",
+    "desc": "Blesses your armor, raising physical defense."
+  },
+  "holy_blessing": {
+    "name": "Holy Blessing",
+    "desc": "Divine light restores 30% HP."
+  },
+  "holy_strike": {
+    "name": "Holy Strike",
+    "desc": "Smash the foe with holy power."
+  },
+  "howl": {
+    "name": "Howl",
+    "desc": "Lowers attack of nearby monsters."
+  },
+  "hurricane": {
+    "name": "Hurricane",
+    "desc": "Summons a devastating hurricane."
+  },
+  "hurricane_assault": {
+    "name": "Hurricane Assault",
+    "desc": "Devastating flurry of punches at hurricane speed."
+  },
+  "hydro_blast": {
+    "name": "Hydro Blast",
+    "desc": "Fires a jet of extremely high-pressure water."
+  },
+  "ice_strike": {
+    "name": "Ice Strike",
+    "desc": "Cutting attack imbued with ice magic."
+  },
+  "ice_vortex": {
+    "name": "Ice Vortex",
+    "desc": "Absolute-zero vortex that freezes and annihilates the target."
+  },
+  "iron_punch": {
+    "name": "Iron Punch",
+    "desc": "Focused punch with iron-like force."
+  },
+  "iron_skin": {
+    "name": "Iron Skin",
+    "desc": "Increases Defense by 40%."
+  },
+  "iron_will": {
+    "name": "Iron Will",
+    "desc": "Greatly increases M. Def."
+  },
+  "lethal_blow": {
+    "name": "Lethal Blow",
+    "desc": "The winds’ ultimate strike. Catastrophic physical damage."
+  },
+  "lethal_shot": {
+    "name": "Lethal Shot",
+    "desc": "A lethal shot to the target’s vitals."
+  },
+  "light_heal": {
+    "name": "Light Heal",
+    "desc": "Uses divine magic to heal 30% of your HP."
+  },
+  "lightning_strike": {
+    "name": "Lightning Strike",
+    "desc": "Summons devastating black lightning to punish the enemy."
+  },
+  "lion_heart": {
+    "name": "Lion Heart",
+    "desc": "Increases P. Def. by 30%."
+  },
+  "lionheart": {
+    "name": "Lionheart",
+    "desc": "Lion heart. Ignores fear and raises resist and P. Def."
+  },
+  "magnus_chant": {
+    "name": "Magnus' Chant",
+    "desc": "[Doomcryer Lvl 76] Final chant. Multiplies all stats to the extreme."
+  },
+  "majesty": {
+    "name": "Majesty",
+    "desc": "Greatly increases P. Def."
+  },
+  "major_heal": {
+    "name": "Major Heal",
+    "desc": "Advanced sacred heal. Restores 80% of max HP."
+  },
+  "max_sonic_slash": {
+    "name": "Max Sonic Slash",
+    "desc": "Supreme single-target damage. Total obliteration."
+  },
+  "might": {
+    "name": "Might",
+    "desc": "Blesses the target, increasing P. Atk."
+  },
+  "might_of_heaven": {
+    "name": "Might of Heaven",
+    "desc": "Calls down a pillar of divine light dealing severe damage."
+  },
+  "miracle": {
+    "name": "Miracle",
+    "desc": "The ultimate miracle. Restores 100% HP instantly."
+  },
+  "mortal_blow": {
+    "name": "Mortal Blow",
+    "desc": "Fatal dagger strike dealing heavy damage."
+  },
+  "mortal_strike": {
+    "name": "Mortal Strike",
+    "desc": "Fast strike aimed at vitals."
+  },
+  "ogre_spirit_totem": {
+    "name": "Ogre Spirit Totem",
+    "desc": "Embodies the ogre, gaining crushing physical defense."
+  },
+  "pa_agrian_gift": {
+    "name": "Pa'agrian Gift",
+    "desc": "Blesses your armor with Pa’agrio’s fire resistance."
+  },
+  "phoenix_strike": {
+    "name": "Phoenix Strike",
+    "desc": "Calls the Phoenix’s fire."
+  },
+  "poison_arrow": {
+    "name": "Poison Arrow",
+    "desc": "Fires a toxic arrow that poisons the target, draining HP over time."
+  },
+  "poison_dance": {
+    "name": "Poison Dance",
+    "desc": "Toxic dance that weakens the target’s defense."
+  },
+  "power_shot": {
+    "name": "Power Shot",
+    "desc": "A fast, powerful shot."
+  },
+  "power_smash": {
+    "name": "Power Smash",
+    "desc": "Crushing weapon strike focused on raw physical force."
+  },
+  "power_strike": {
+    "name": "Power Strike",
+    "desc": "Heavy physical strike. Damage x1.5"
+  },
+  "prominence": {
+    "name": "Prominence",
+    "desc": "Hurls a concentrated fire sphere. Massive magic damage."
+  },
+  "prophecy_of_water": {
+    "name": "Prophecy of Water",
+    "desc": "Eva’s final blessing. Multiplies magic and physical power to colossal levels."
+  },
+  "prophecy_of_wind": {
+    "name": "Prophecy of Wind",
+    "desc": "Supreme buff: massively increases physical/magic attack speed."
+  },
+  "puma_spirit_totem": {
+    "name": "Puma Spirit Totem",
+    "desc": "Embodies the puma spirit, greatly increasing attack speed."
+  },
+  "rapid_shot": {
+    "name": "Rapid Shot",
+    "desc": "Greatly increases bow firing speed."
+  },
+  "recharge": {
+    "name": "Recharge",
+    "desc": "The famous mana battery. Restores 40% of max MP. (No MP cost!)"
+  },
+  "sand_bomb": {
+    "name": "Sand Bomb",
+    "desc": "Throws sand in the monster’s eyes, lowering accuracy and attack power."
+  },
+  "seal_of_binding": {
+    "name": "Seal of Binding",
+    "desc": "Tribal seal that chains the enemy to the ground."
+  },
+  "seal_of_disease": {
+    "name": "Seal of Disease",
+    "desc": "[Dominator Lvl 76] Supreme seal. Massive damage and weakness on all enemies."
+  },
+  "seal_of_winter": {
+    "name": "Seal of Winter",
+    "desc": "Seal that drastically lowers speed and strength."
+  },
+  "seed_of_water": {
+    "name": "Seed of Water",
+    "desc": "Infuses your body with water power, massively increasing magic damage."
+  },
+  "servitor_empowerment": {
+    "name": "Servitor Empowerment",
+    "desc": "Channels pure elemental energy, massively raising M. Atk."
+  },
+  "servitor_heal": {
+    "name": "Servitor Heal",
+    "desc": "Channels magic to heal you and your servitor quickly."
+  },
+  "servitor_physical_buff": {
+    "name": "Servitor Physical Buff",
+    "desc": "Greatly boosts your servitor’s damage and Fury (and yours)."
+  },
+  "seven_arrow": {
+    "name": "Seven Arrow",
+    "desc": "Legendary technique: a hail of seven light arrows. Devastating damage."
+  },
+  "seven_arrows": {
+    "name": "Seven Arrows",
+    "desc": "Supreme technique: fires 7 simultaneous arrows of pure hate."
+  },
+  "shadow_flare": {
+    "name": "Shadow Flare",
+    "desc": "A blast of shadow under the enemy’s feet."
+  },
+  "shadow_spark": {
+    "name": "Shadow Spark",
+    "desc": "Fires a sphere of pure darkness."
+  },
+  "shield_of_faith": {
+    "name": "Shield of Faith",
+    "desc": "Supreme power: makes the knight nearly immune to physical damage for 30s."
+  },
+  "shield_stun": {
+    "name": "Shield Stun",
+    "desc": "Brutal shield bash that stuns the target."
+  },
+  "silence": {
+    "name": "Silence",
+    "desc": "Fully seals the monster’s skills."
+  },
+  "silent_move": {
+    "name": "Silent Move",
+    "desc": "Perfect camouflage. Monsters lose track of you."
+  },
+  "sleeping_cloud": {
+    "name": "Sleeping Cloud",
+    "desc": "Magical mist that puts monsters to sleep — they lose sight of you."
+  },
+  "snipe": {
+    "name": "Snipe",
+    "desc": "Elite marksman stance. +40% P. Atk."
+  },
+  "solar_flare": {
+    "name": "Solar Flare",
+    "desc": "Fires a burst of divine light that briefly blinds the target."
+  },
+  "song_of_champion": {
+    "name": "Song of Champion",
+    "desc": "Supreme symphony: massive boost to all offensive stats."
+  },
+  "song_of_earth": {
+    "name": "Song of Earth",
+    "desc": "Sings the song of earth, greatly raising P. Def. for 30s."
+  },
+  "song_of_hunter": {
+    "name": "Song of Hunter",
+    "desc": "Hunter’s song increases attack power and lethal precision."
+  },
+  "song_of_wind": {
+    "name": "Song of Wind",
+    "desc": "Song of winds greatly increases attack speed."
+  },
+  "sonic_barrier": {
+    "name": "Sonic Barrier",
+    "desc": "Sonic shield. +60% defense."
+  },
+  "sonic_blaster": {
+    "name": "Sonic Blaster",
+    "desc": "Fires blade energy."
+  },
+  "spoil": {
+    "name": "Spoil",
+    "desc": "Secret greed magic. Marks the monster to try for extra materials on death."
+  },
+  "spoil_crush": {
+    "name": "Spoil Crush",
+    "desc": "[Fortune Seeker Lvl 76] A crushing strike that applies Spoil and deals massive damage."
+  },
+  "spoil_festival": {
+    "name": "Spoil Festival",
+    "desc": "[Bounty Hunter Lvl 40] Advanced Spoil. Marks the enemy and slightly weakens defense."
+  },
+  "sprint": {
+    "name": "Sprint",
+    "desc": "Greatly increases attack and movement speed."
+  },
+  "steal_essence": {
+    "name": "Steal Essence",
+    "desc": "Blood magic. Deals magic damage and heals 50% of damage dealt."
+  },
+  "stealth": {
+    "name": "Stealth",
+    "desc": "Turn invisible to non-aggressive monsters."
+  },
+  "sting": {
+    "name": "Sting",
+    "desc": "Deep cut that causes bleeding."
+  },
+  "stun_shot": {
+    "name": "Stun Shot",
+    "desc": "A heavy shot that stuns the target, stopping it from acting."
+  },
+  "summon_aqua_cubic": {
+    "name": "Summon Aqua Cubic",
+    "desc": "Summons an autonomous water cubic that shoots ice at enemies."
+  },
+  "summon_big_boom": {
+    "name": "Summon Big Boom",
+    "desc": "[Warsmith Lvl 40] Summons a volatile powder golem that hits incredibly hard."
+  },
+  "summon_feline_king": {
+    "name": "Summon Feline King",
+    "desc": "Summons the Feline King — a giant beast with devastating claws."
+  },
+  "summon_kai_the_cat": {
+    "name": "Summon Kai the Cat",
+    "desc": "Summons Kai the Cat — a swift, lethal magical feline that fights for you."
+  },
+  "summon_magnus_the_unicorn": {
+    "name": "Summon Magnus the Unicorn",
+    "desc": "Summons Magnus, King of Unicorns — magic attacks are devastating."
+  },
+  "summon_mechanic_golem": {
+    "name": "Summon Mechanic Golem",
+    "desc": "Summons an iron-gear golem focused on physical attack and high defense."
+  },
+  "summon_mirage_the_unicorn": {
+    "name": "Summon Mirage the Unicorn",
+    "desc": "Summons the Mirage Unicorn to attack with magic bursts."
+  },
+  "summon_panther": {
+    "name": "Summon Panther",
+    "desc": "Summons the Black Panther to fight for you."
+  },
+  "summon_siege_golem": {
+    "name": "Summon Siege Golem",
+    "desc": "[Maestro Lvl 76] Ultimate creation. Summons a colossal siege golem."
+  },
+  "summon_silhouette": {
+    "name": "Summon Silhouette",
+    "desc": "Summons a lethal twin-blade shadow to fight beside you for 2 minutes."
+  },
+  "summon_spectral_lord": {
+    "name": "Summon Spectral Lord",
+    "desc": "Summons the supreme Spectral Lord — devastating damage demon."
+  },
+  "summon_storm_cubic": {
+    "name": "Summon Storm Cubic",
+    "desc": "Summons a Storm Cubic that auto-fires lightning at the target."
+  },
+  "summon_zombie": {
+    "name": "Summon Zombie",
+    "desc": "Raises an undead to fight beside you."
+  },
+  "surrender_to_fire": {
+    "name": "Surrender To Fire",
+    "desc": "Shatters the target’s fire resistance, lowering M. Def."
+  },
+  "surrender_to_water": {
+    "name": "Surrender To Water",
+    "desc": "Shatters the monster’s resistance to water magic (breaks defense)."
+  },
+  "sweeper": {
+    "name": "Sweeper",
+    "desc": "Instantly collects bonus loot from a foe killed under Spoil."
+  },
+  "sword_symphony": {
+    "name": "Sword Symphony",
+    "desc": "Channels blade energy into a sonic wave hitting all enemies."
+  },
+  "symphony_of_blades": {
+    "name": "Symphony of Blades",
+    "desc": "Supreme technique: a blade tornado that shreds the enemy."
+  },
+  "thrill_fight": {
+    "name": "Thrill Fight",
+    "desc": "+55% defense to hold the line."
+  },
+  "thunder_storm": {
+    "name": "Thunder Storm",
+    "desc": "Area lightning burst."
+  },
+  "touch_of_death": {
+    "name": "Touch of Death",
+    "desc": "Supreme technique: lethal curse dealing massive dark damage."
+  },
+  "trance": {
+    "name": "Trance",
+    "desc": "Puts the monster in a brief deep sleep, stopping attacks."
+  },
+  "tribunal": {
+    "name": "Tribunal",
+    "desc": "Holy strike dealing high physical and magic damage together."
+  },
+  "triple_sonic_slash": {
+    "name": "Triple Sonic Slash",
+    "desc": "Three simultaneous sonic cuts."
+  },
+  "twister": {
+    "name": "Twister",
+    "desc": "Hurls a cutting wind vortex."
+  },
+  "ultimate_defense": {
+    "name": "Ultimate Defense",
+    "desc": "Wall stance: massively raises P. Def. for 30s."
+  },
+  "ultimate_evasion": {
+    "name": "Ultimate Evasion",
+    "desc": "Supreme evasion. Nearly untouchable — doubles defense briefly."
+  },
+  "vampiric_touch": {
+    "name": "Vampiric Touch",
+    "desc": "Dark magic that drains the enemy’s life to heal you."
+  },
+  "vicious_stance": {
+    "name": "Vicious Stance",
+    "desc": "Increases attack power and crit chance."
+  },
+  "volcano": {
+    "name": "Volcano",
+    "desc": "Summons a volcano under the enemy. Total fiery obliteration."
+  },
+  "war_cry": {
+    "name": "War Cry",
+    "desc": "Intimidating battle cry that raises attack power."
+  },
+  "whirlwind": {
+    "name": "Whirlwind",
+    "desc": "Spins your weapon like a tornado, hitting all nearby enemies."
+  },
+  "whirlwind_k": {
+    "name": "Whirlwind_K",
+    "desc": "Spin your weapon, hitting ALL monsters."
+  },
+  "wind_shackle": {
+    "name": "Wind Shackle",
+    "desc": "Wind chains slow movement and reduce the enemy’s strength."
+  },
+  "wind_strike": {
+    "name": "Wind Strike",
+    "desc": "Basic wind-element damage spell."
+  },
+  "wind_walk": {
+    "name": "Wind Walk",
+    "desc": "Call the winds to increase your speed."
+  },
+  "wrath": {
+    "name": "Wrath",
+    "desc": "[Warsmith Lvl 40] Violently spins spear or axe, hitting all monsters."
+  }
+}
