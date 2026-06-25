@@ -25,10 +25,11 @@ export default defineConfig({
   ],
   webServer: process.env.CI
     ? {
-        command: 'npm run build && npm run preview -- --port 4173 --strictPort',
+        // test:ci already runs build; preview only avoids a duplicate build in CI.
+        command: 'npm run preview -- --port 4173 --strictPort',
         url: BASE_URL,
         reuseExistingServer: false,
-        timeout: 180_000,
+        timeout: 120_000,
       }
     : {
         command: 'npm run dev:e2e',

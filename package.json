@@ -17,7 +17,7 @@
     "test:smoke": "playwright test",
     "test:smoke:ui": "playwright test --ui",
     "test:smoke:headed": "playwright test --headed",
-    "test:ci": "npm run typecheck && npm run build && playwright test",
+    "test:ci": "npm run typecheck && npm run check:i18n && npm run build && playwright test",
     "serve:legacy": "serve . -l 4173"
   },
   "devDependencies": {

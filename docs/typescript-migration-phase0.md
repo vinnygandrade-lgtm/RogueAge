@@ -91,7 +91,7 @@ Infraestrutura de tipos **sem alterar** o runtime (`index.html` intacto).
 
 ```bash
 npm run typecheck          # só valida .ts / .d.ts
-npm run test:ci            # typecheck + smoke Playwright
+npm run test:ci            # typecheck + check:i18n + build + smoke Playwright
 ```
 
 | Ficheiro | Função |
@@ -166,7 +166,7 @@ Publicar o conteúdo de **`dist/`** (não a raiz do repo).
 
 ```bash
 npm run test:smoke   # Playwright + Vite (porta 4173)
-npm run test:ci      # typecheck + build + smoke (modo CI)
+npm run test:ci      # typecheck + check:i18n + build + smoke (modo CI)
 ```
 
 ## Fase 3 — Runtime 100% TypeScript (concluída)
