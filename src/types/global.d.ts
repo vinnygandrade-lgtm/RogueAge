@@ -90,6 +90,9 @@ declare global {
     consumableDescText?: (itemKey: string) => string;
     dailyBossRegionDisplay?: (bossId: string | undefined, fallback?: string) => string;
     hotbarDisplayName?: (slotKey: string) => string;
+    skillDisplayName?: (skillKey: string, fallback?: string) => string;
+    skillDescText?: (skillKey: string, fallback?: string) => string;
+    refreshSpellbookI18n?: () => void;
     bossDisplayName?: (bossId: string | undefined, fallback?: string) => string;
     bossShortName?: (bossId: string | undefined, fallback?: string) => string;
     raidBossLogMsg?: (bossId: string | undefined, logKey: string, params?: Record<string, string | number>) => string;
@@ -534,6 +537,9 @@ declare global {
   function consumableDescText(itemKey: string): string;
   function dailyBossRegionDisplay(bossId: string | undefined, fallback?: string): string;
   function hotbarDisplayName(slotKey: string): string;
+  function skillDisplayName(skillKey: string, fallback?: string): string;
+  function skillDescText(skillKey: string, fallback?: string): string;
+  function refreshSpellbookI18n(): void;
   function bossDisplayName(bossId: string | undefined, fallback?: string): string;
   function bossShortName(bossId: string | undefined, fallback?: string): string;
   function raidBossLogMsg(bossId: string | undefined, logKey: string, params?: Record<string, string | number>): string;

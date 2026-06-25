@@ -510,6 +510,21 @@ const linhagemClasses: Record<string, string[]> = {
 // -----------------------------------------------------------------------------
 // Spellbook (lista + painel de detalhe)
 // -----------------------------------------------------------------------------
+function spellbookSkillName(skillKey: string): string {
+    if (typeof window.skillDisplayName === 'function') {
+        return window.skillDisplayName(skillKey, skillKey);
+    }
+    return skillKey;
+}
+
+function spellbookSkillDesc(skillKey: string, rawDesc?: string): string {
+    const fallback = rawDesc ? String(rawDesc).replace(/<[^>]+>/g, '') : '';
+    if (typeof window.skillDescText === 'function') {
+        return window.skillDescText(skillKey, fallback);
+    }
+    return fallback;
+}
+
 window.spellbookTipoLabel = function (tipo: string): string {
     const key = 'game.spellbook.type.' + (tipo || 'basico');
     if (typeof window.t === 'function') {
@@ -621,7 +636,7 @@ window.abrirSpellbook = function() {
             const nameEl = document.createElement('div');
             nameEl.className = 'spellbook-row__name';
             if (skill.cor) nameEl.style.color = skill.cor;
-            nameEl.textContent = skill.idNome;
+            nameEl.textContent = spellbookSkillName(skill.idNome);
 
             const meta = document.createElement('div');
             meta.className = 'spellbook-row__meta';
@@ -634,7 +649,7 @@ window.abrirSpellbook = function() {
 
             const descEl = document.createElement('div');
             descEl.className = 'spellbook-row__desc';
-            descEl.textContent = skill.desc ? String(skill.desc).replace(/<[^>]+>/g, '') : '';
+            descEl.textContent = spellbookSkillDesc(skill.idNome, skill.desc ? String(skill.desc) : '');
 
             body.appendChild(nameEl);
             body.appendChild(meta);
@@ -699,7 +714,7 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
     iconHost.innerHTML = window.spellbookIconInnerHtml(raw.icone, 42);
 
     const title = document.getElementById('spellbook-detail-name')!;
-    title.textContent = nomeSkill;
+    title.textContent = spellbookSkillName(nomeSkill);
     title.style.color = raw.cor || '';
 
     document.getElementById('spellbook-stat-mp')!.textContent = String(raw.mp != null ? raw.mp : 0);
@@ -709,7 +724,7 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
     document.getElementById('spellbook-stat-power')!.textContent = window.spellbookFormatPowerCell(raw);
     document.getElementById('spellbook-stat-type')!.textContent = window.spellbookTipoLabel(raw.tipo);
 
-    document.getElementById('spellbook-detail-desc')!.textContent = raw.desc ? String(raw.desc).replace(/<[^>]+>/g, '') : '';
+    document.getElementById('spellbook-detail-desc')!.textContent = spellbookSkillDesc(nomeSkill, raw.desc ? String(raw.desc) : '');
 
     document.getElementById('btn-spellbook-assign')!.classList.add('spellbook-assign--visible');
 
@@ -723,12 +738,13 @@ window.mostrarSeletorSlot = function() {
 
     abrirSeletorAtalhoGlobal(skillSelecionadaSpellbook.idNome, (index) => {
         barraAtalhos[index] = skillSelecionadaSpellbook!.idNome;
+        const skillLabel = spellbookSkillName(skillSelecionadaSpellbook!.idNome);
         const logLine = (typeof window.t === 'function')
             ? window.t('game.spellbook.skillAssignedToSlot', {
-                skill: skillSelecionadaSpellbook!.idNome,
+                skill: skillLabel,
                 slot: index + 1,
             })
-            : `Skill [${skillSelecionadaSpellbook!.idNome}] assigned to slot ${index + 1}!`;
+            : `Skill [${skillLabel}] assigned to slot ${index + 1}!`;
         escreverLog(`<span style="color:#10b981;">${logLine}</span>`);
         renderizarBarraAtalhos();
         if(typeof salvarJogo === 'function') salvarJogo();
@@ -747,12 +763,13 @@ window.equiparSkillNaBarra = function(indexSlot: number) {
     barraAtalhos[indexSlot] = skillSelecionadaSpellbook.idNome;
     
     if(typeof tocarSom === 'function') tocarSom('enchant');
+    const skillLabel = spellbookSkillName(skillSelecionadaSpellbook.idNome);
     const logLine = (typeof window.t === 'function')
         ? window.t('game.spellbook.skillAssignedToSlot', {
-            skill: skillSelecionadaSpellbook.idNome,
+            skill: skillLabel,
             slot: indexSlot + 1,
         })
-        : `Skill [${skillSelecionadaSpellbook.idNome}] assigned to slot ${indexSlot + 1}!`;
+        : `Skill [${skillLabel}] assigned to slot ${indexSlot + 1}!`;
     escreverLog(`<span style="color:#10b981;">${logLine}</span>`);
     
     if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
@@ -764,6 +781,24 @@ window.equiparSkillNaBarra = function(indexSlot: number) {
             window.TutorialEngine.notifySkillAssignedFromSpellbook();
         }
     } catch { /* noop */ }
+};
+
+window.refreshSpellbookI18n = function (): void {
+    document.querySelectorAll('.spellbook-row').forEach((rowEl) => {
+        const row = rowEl as HTMLElement;
+        const skillKey = row.dataset.skillName;
+        if (!skillKey) return;
+        const raw = bancoDeSkills[skillKey];
+        const nameEl = row.querySelector('.spellbook-row__name');
+        const descEl = row.querySelector('.spellbook-row__desc');
+        if (nameEl) nameEl.textContent = spellbookSkillName(skillKey);
+        if (descEl) {
+            descEl.textContent = spellbookSkillDesc(skillKey, raw?.desc ? String(raw.desc) : '');
+        }
+    });
+    if (skillSelecionadaSpellbook?.idNome) {
+        window.selecionarSkillSpellbook(skillSelecionadaSpellbook.idNome);
+    }
 };
 
 /** Bridge para módulos TS e scripts legados */

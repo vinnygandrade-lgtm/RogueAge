@@ -511,7 +511,7 @@ function soltarToqueAtalho(index: number): void {
             const telaOly = document.getElementById('tela-olympiad-arena');
             if (telaOly && telaOly.style.display === 'flex') {
               if (typeof window.escreverLog === 'function') {
-                window.escreverLog('<span style="color:#facc15;">Soulshots/Spiritshots are disabled in the Olympiad Arena!</span>');
+                window.escreverLog(`<span style="color:#facc15;">${smartbarT('game.smartbar.olympiadShotsDisabled')}</span>`);
               }
               window.autoShotAtivo = false;
               renderizarBarraAtalhos();

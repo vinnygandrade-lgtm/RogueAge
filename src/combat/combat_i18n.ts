@@ -2,6 +2,8 @@
  * Player-facing combat strings — mob names, drop labels, locale refresh.
  */
 
+import { skillSlugFromKey } from '../i18n/skill_catalog_i18n';
+
 const ITEM_DROP_KEYS: Record<string, string> = {
   Adena: 'game.items.drop.adena',
   'Ancient Coin': 'game.items.drop.ancientCoin',
@@ -120,20 +122,28 @@ export function dailyBossRegionDisplay(bossId: string | undefined, fallback?: st
   return fallback || '';
 }
 
+export function skillDisplayName(skillKey: string, fallback?: string): string {
+  if (!skillKey) return fallback || '';
+  const slug = skillSlugFromKey(skillKey);
+  const text = translateIfPresent(`game.skills.names.${slug}`);
+  if (text) return text;
+  return fallback || skillKey;
+}
+
+export function skillDescText(skillKey: string, fallback?: string): string {
+  if (!skillKey) return fallback || '';
+  const slug = skillSlugFromKey(skillKey);
+  const text = translateIfPresent(`game.skills.desc.${slug}`);
+  if (text) return text;
+  if (fallback) return String(fallback).replace(/<[^>]+>/g, '');
+  return '';
+}
+
 export function hotbarDisplayName(slotKey: string): string {
   if (!slotKey) return '';
-  if (slotKey === 'Attack') {
-    const attackKey = 'game.skills.names.attack';
-    const attackLabel = translateIfPresent(attackKey);
-    if (attackLabel) return attackLabel;
-    return 'Attack';
-  }
   const consumable = consumableDisplayName(slotKey);
   if (consumable !== slotKey) return consumable;
-  const slug = slotKey.replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '').toLowerCase();
-  const skillLabel = translateIfPresent(`game.skills.names.${slug}`);
-  if (skillLabel) return skillLabel;
-  return slotKey;
+  return skillDisplayName(slotKey, slotKey);
 }
 
 export function bossDisplayName(bossId: string | undefined, fallback?: string): string {
@@ -221,6 +231,8 @@ export function refreshForestMobNames(): void {
 window.mobDisplayName = mobDisplayName;
 window.formatMobCardName = formatMobCardName;
 window.itemDropDisplayName = itemDropDisplayName;
+window.skillDisplayName = skillDisplayName;
+window.skillDescText = skillDescText;
 window.consumableDisplayName = consumableDisplayName;
 window.consumableDescText = consumableDescText;
 window.dailyBossRegionDisplay = dailyBossRegionDisplay;

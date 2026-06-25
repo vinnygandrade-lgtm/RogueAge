@@ -1,6 +1,8 @@
 /* ========================================== */
 /* Locale trees: add keys in BOTH en + pt-BR   */
 /* ========================================== */
+import { mergeSkillCatalogIntoLocales } from './skill_catalog_i18n';
+
 (function () {
     'use strict';
 
@@ -1278,6 +1280,7 @@
                     quantity: 'Quantity:',
                     currencyNoShortcut: 'Currency cannot be assigned to shortcuts.',
                     closeDetails: 'CLOSE',
+                    olympiadShotsDisabled: 'Soulshots and Spiritshots are disabled in the Olympiad Arena!',
                     itemDesc: {
                         hpPotion: 'Magic potion. Use to restore HP in combat.',
                         manaPotion: 'Magic potion. Use to restore MP in combat.',
@@ -3167,6 +3170,7 @@
                     quantity: 'Quantidade:',
                     currencyNoShortcut: 'Moeda não pode ser colocada em atalhos.',
                     closeDetails: 'FECHAR',
+                    olympiadShotsDisabled: 'Soulshots e Spiritshots estão desativados na Arena da Olimpíada!',
                     itemDesc: {
                         hpPotion: 'Poção mágica. Use para recuperar HP em combate.',
                         manaPotion: 'Poção mágica. Use para recuperar MP em combate.',
@@ -3783,6 +3787,8 @@
             }
         }
     };
+
+    mergeSkillCatalogIntoLocales(window.I18N_LOCALES as Record<string, Record<string, unknown>>);
 })();
 
 export {};

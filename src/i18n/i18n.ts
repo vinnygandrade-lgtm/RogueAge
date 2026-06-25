@@ -220,6 +220,23 @@ import type { I18nLocaleTree, I18nParams, I18nSetLocaleOptions, UiLocale } from 
         /* ignore */
       }
     }
+    if (typeof window.refreshSpellbookI18n === 'function') {
+      try {
+        const spellbookWin = document.getElementById('janela-spellbook');
+        if (spellbookWin && spellbookWin.style.display === 'flex') {
+          window.refreshSpellbookI18n();
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    if (typeof window.renderizarBarraAtalhos === 'function') {
+      try {
+        window.renderizarBarraAtalhos();
+      } catch {
+        /* ignore */
+      }
+    }
   }
 
   function cycleLocale(): void {
