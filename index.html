@@ -39,6 +39,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Socket.io Client -->
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script type="module" src="/src/main.ts"></script>
 </head>
 <body class="l2-boot-pending">
     <div id="loading-overlay" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-busy="true" aria-live="polite">
@@ -1951,11 +1952,6 @@
       showFileProtocolHelp();
     }
   })();
-  </script>
-  <script type="module">
-    if (location.protocol !== 'file:') {
-      import('/src/main.ts');
-    }
   </script>
 
 <svg width="0" height="0" style="position: absolute;">

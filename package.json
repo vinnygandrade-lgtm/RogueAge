@@ -19,6 +19,8 @@
     "test:smoke:ui": "playwright test --ui",
     "test:smoke:headed": "playwright test --headed",
     "test:ci": "npm run typecheck && npm run check:i18n && npm run build && playwright test",
+    "test:smoke:preview": "npm run build && playwright test --config=playwright.preview.config.ts",
+    "verify:preview": "node scripts/verify-preview-assets.mjs",
     "serve:legacy": "serve . -l 4173"
   },
   "devDependencies": {

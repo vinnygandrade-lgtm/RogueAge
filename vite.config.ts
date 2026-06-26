@@ -32,26 +32,48 @@ function legacyStaticDirsPlugin() {
 
 /**
  * Cópia física para dist/ (sem symlinks — OneDrive partia dist/js e o login morria no preview).
+ * IMPORTANT: dist/assets também recebe chunks do Vite — nunca apagar essa pasta inteira.
  */
 function copyLegacyDirsPlugin() {
-  const copies = [
-    ['assets', 'assets'],
+  const wipeAndCopy = [
     ['css', 'css'],
     ['js', 'js'],
     ['db', 'db'],
   ] as const;
 
+  /** Mescla src dentro de dest sem remover ficheiros já gerados pelo Vite (ex.: index-*.js). */
+  function mergeCopyDir(src: string, dest: string): void {
+    fs.mkdirSync(dest, { recursive: true });
+    for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
+      const srcPath = path.join(src, entry.name);
+      const destPath = path.join(dest, entry.name);
+      if (entry.isDirectory()) {
+        mergeCopyDir(srcPath, destPath);
+      } else {
+        fs.copyFileSync(srcPath, destPath);
+      }
+    }
+  }
+
   return {
     name: 'l2mini-copy-legacy-dirs',
     closeBundle() {
       const outDir = path.resolve(repoRoot, 'dist');
-      for (const [srcRel, destRel] of copies) {
+
+      const gameAssetsSrc = path.resolve(repoRoot, 'assets');
+      const gameAssetsDest = path.resolve(outDir, 'assets');
+      if (fs.existsSync(gameAssetsSrc)) {
+        mergeCopyDir(gameAssetsSrc, gameAssetsDest);
+      }
+
+      for (const [srcRel, destRel] of wipeAndCopy) {
         const src = path.resolve(repoRoot, srcRel);
         const dest = path.resolve(outDir, destRel);
         if (!fs.existsSync(src)) continue;
         fs.rmSync(dest, { recursive: true, force: true });
         fs.cpSync(src, dest, { recursive: true, dereference: true });
       }
+
       const manifest = path.resolve(repoRoot, 'manifest.webmanifest');
       if (fs.existsSync(manifest)) {
         fs.copyFileSync(manifest, path.resolve(outDir, 'manifest.webmanifest'));
