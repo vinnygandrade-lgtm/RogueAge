@@ -70,6 +70,8 @@ BEGIN
         VALUES
             ('Enchant Weapon (NG)', 'weapon', 'No-Grade', false),
             ('Enchant Armor (NG)', 'armor', 'No-Grade', false),
+            ('Blessed Enchant Weapon (NG)', 'weapon', 'No-Grade', true),
+            ('Blessed Enchant Armor (NG)', 'armor', 'No-Grade', true),
             ('Enchant Weapon (D)', 'weapon', 'D', false),
             ('Blessed Enchant Weapon (D)', 'weapon', 'D', true),
             ('Enchant Armor (D)', 'armor', 'D', false),

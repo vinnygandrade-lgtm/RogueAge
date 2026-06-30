@@ -17,6 +17,8 @@ import { registerGlobal } from '../runtime/register-global';
 let mailboxAbaAtual: 'inbox' | 'history' = 'inbox';
 let mailboxDados: MailboxData = { inbox: [], history: [] };
 let mailboxCollecting = false;
+/** Evita duplicar item se o RPC falhar depois da entrega local da encomenda. */
+const marketParcelAppliedMailIds = new Set<string>();
 
 function mailboxCloudErrorMessage(err: unknown): string {
     if (typeof window.cloudRpcMessage === 'function') {
@@ -78,11 +80,32 @@ function normalizeMailboxDetails(raw: unknown): Record<string, unknown> {
     const base = fullItemObj && fullItemObj.base && typeof fullItemObj.base === 'object' && !Array.isArray(fullItemObj.base)
         ? (fullItemObj.base as Record<string, unknown>)
         : null;
-    if (!snapObj.nome && base && base.nome) snapObj.nome = base.nome;
-    if (!snapObj.img && base && base.img) snapObj.img = base.img;
-    if (!snapObj.icone && base && base.icone) snapObj.icone = base.icone;
-    if (!snapObj.tipo && fullItemObj && fullItemObj.tipo) snapObj.tipo = fullItemObj.tipo;
-    if (!snapObj.tipoItem && base && base.tipo) snapObj.tipoItem = base.tipo;
+    const mergeSnapField = (key: string, val: unknown): void => {
+        if (val == null || val === '') return;
+        if (snapObj[key] == null || String(snapObj[key]).trim() === '') snapObj[key] = val;
+    };
+    if (fullItemObj && !base) {
+        mergeSnapField('nome', fullItemObj.nome);
+        mergeSnapField('id', fullItemObj.id);
+        mergeSnapField('img', fullItemObj.img);
+        mergeSnapField('icone', fullItemObj.icone);
+        mergeSnapField('tipo', fullItemObj.tipo);
+        mergeSnapField('tipoItem', fullItemObj.tipoItem);
+        mergeSnapField('grade', fullItemObj.grade);
+    }
+    if (base) {
+        mergeSnapField('nome', base.nome);
+        mergeSnapField('id', base.id);
+        mergeSnapField('img', base.img);
+        mergeSnapField('icone', base.icone);
+        mergeSnapField('tipo', base.tipo);
+        mergeSnapField('tipoItem', base.tipoItem);
+        mergeSnapField('grade', base.grade);
+    }
+    const itemNameFallback = row.itemName != null ? row.itemName : row.item_name;
+    if (itemNameFallback != null && String(itemNameFallback).trim() !== '') {
+        mergeSnapField('nome', String(itemNameFallback).trim());
+    }
 
     const sellerName = (row.sellerName != null && String(row.sellerName).trim() !== '')
         ? String(row.sellerName).trim()
@@ -101,8 +124,74 @@ function normalizeMailboxDetails(raw: unknown): Record<string, unknown> {
         sellerName,
         marketKind,
         categoria,
+        itemName: itemNameFallback != null ? String(itemNameFallback).trim() : snapObj.nome,
         ...(applicationId ? { applicationId } : {})
     };
+}
+
+function findCatalogEntryForParcel(raw: unknown): ItemCatalogBase | null {
+    const key = String(raw || '').trim();
+    if (!key) return null;
+    if (window.RankingSeasons && typeof window.RankingSeasons.findItemData === 'function') {
+        const hit = window.RankingSeasons.findItemData(key);
+        if (hit) return hit;
+    }
+    if (
+        typeof window.InventoryStackKeys !== 'undefined' &&
+        typeof window.InventoryStackKeys.findStackCatalogEntry === 'function'
+    ) {
+        const stackHit = window.InventoryStackKeys.findStackCatalogEntry(key);
+        if (stackHit) return stackHit as unknown as ItemCatalogBase;
+    }
+    return null;
+}
+
+/** Preenche snapshot vazio a partir de itemName / id / catálogo local. */
+function enrichParcelSnapshotFromCatalog(
+    snap: Record<string, unknown>,
+    d: Record<string, unknown>,
+): void {
+    const candidates = [
+        snap.id,
+        snap.nome,
+        d.itemName,
+        d.item_name,
+        d.itemNome,
+        d.item_nome,
+    ];
+    const full = d.fullItem && typeof d.fullItem === 'object' && !Array.isArray(d.fullItem)
+        ? (d.fullItem as Record<string, unknown>)
+        : null;
+    const fullBase = full?.base && typeof full.base === 'object' ? (full.base as Record<string, unknown>) : null;
+    if (full) {
+        candidates.push(full.id, full.nome);
+    }
+    if (fullBase) {
+        candidates.push(fullBase.id, fullBase.nome);
+    }
+    for (const raw of candidates) {
+        const hit = findCatalogEntryForParcel(raw);
+        if (!hit) continue;
+        if (!snap.nome && hit.nome) snap.nome = hit.nome;
+        if (!snap.id && hit.id) snap.id = hit.id;
+        if (!snap.img && hit.img) snap.img = hit.img;
+        if (!snap.tipo && hit.tipo) snap.tipo = hit.tipo;
+        if (!snap.tipoItem && hit.tipoItem) snap.tipoItem = hit.tipoItem;
+        if (!snap.grade && hit.grade) snap.grade = hit.grade;
+        if (snap.nome || snap.id) return;
+    }
+}
+
+const PARCEL_EQUIP_TIPOS = new Set([
+    'weapon', 'armor', 'jewel',
+    'sword', 'dagger', 'bow', 'fist', 'mace', 'magic sword',
+    'heavy', 'light', 'robe',
+    'neck', 'ear', 'ring',
+]);
+
+function parcelTipoIsEquip(tipoRaw: unknown): boolean {
+    const t = String(tipoRaw || '').trim().toLowerCase();
+    return t !== '' && PARCEL_EQUIP_TIPOS.has(t);
 }
 
 function parcelMarketIsEquips(d: Record<string, unknown>): boolean {
@@ -113,65 +202,227 @@ function parcelMarketIsEquips(d: Record<string, unknown>): boolean {
     if (fi && typeof fi === 'object' && !Array.isArray(fi)) {
         const fiObj = fi as Record<string, unknown>;
         const fiBase = fiObj.base && typeof fiObj.base === 'object' ? (fiObj.base as Record<string, unknown>) : null;
-        const t = String(fiObj.tipo || (fiBase && fiBase.tipo) || '').toLowerCase();
-        if (t === 'weapon' || t === 'armor' || t === 'jewel') return true;
+        if (fiObj.uid && fiBase) return true;
+        if (parcelTipoIsEquip(fiObj.tipo) || parcelTipoIsEquip(fiBase && fiBase.tipo)) return true;
+        if (fiBase && (fiBase.pAtk || fiBase.pDef || fiBase.mDef || fiBase.atk)) return true;
+    }
+    const snap = (d.itemSnapshot || {}) as Record<string, unknown>;
+    if (parcelTipoIsEquip(snap.tipo) || parcelTipoIsEquip(snap.tipoItem)) return true;
+    if (snap.pAtk || snap.pDef || snap.mDef || snap.atk) return true;
+    const catalogHit = findCatalogEntryForParcel(snap.id || snap.nome || d.itemName || d.item_name);
+    if (catalogHit && (catalogHit.tipo === 'weapon' || catalogHit.tipo === 'armor' || catalogHit.tipo === 'jewel')) {
+        return true;
     }
     return false;
 }
 
-/**
- * Entrega conteúdo de purchase_delivery ao estado local (bolsa / equips).
- */
-function aplicarParcelaMarketCompradorDoCorreio(detailRaw: unknown): void {
-    const d = normalizeMailboxDetails(detailRaw);
-    const kind = d.marketKind || d.market_kind;
-    if (kind !== 'purchase_delivery') return;
-
-    const snap = (d.itemSnapshot || {}) as Record<string, unknown>;
-    const qtd = Math.max(1, Number(d.qtd) || 1);
-    const equips = parcelMarketIsEquips(d);
-
-    if (equips) {
-        let novoItem: Record<string, unknown> | null = d.fullItem && typeof d.fullItem === 'object'
-            ? (d.fullItem as Record<string, unknown>)
-            : null;
-        if (novoItem && typeof window.ItemSecurity !== 'undefined' && window.ItemSecurity.isValidInstance(novoItem)) {
-            if (typeof window.charName === 'string') novoItem.owner = window.charName;
-            novoItem.origin = 'IronGate';
-        } else if (typeof window.ItemSecurity !== 'undefined') {
-            const tipo = String((novoItem && novoItem.tipo) || snap.tipoItem || snap.tipo || 'armor');
-            const base = (novoItem && novoItem.base) ? novoItem.base : snap;
-            novoItem = window.ItemSecurity.createInstance(
-                tipo,
-                base as unknown as ItemCatalogBase,
-                {
-                    enchant: d.enchant != null ? Number(d.enchant) : 0,
-                    origin: 'IronGate',
-                },
-            ) as unknown as Record<string, unknown>;
-        } else {
-            novoItem = {
-                tipo: String(snap.tipoItem || snap.tipo || 'armor'),
-                base: snap,
-                enchant: Number(d.enchant) || 0,
-            };
+function resolveParcelCatalogBase(
+    snap: Record<string, unknown>,
+    full: Record<string, unknown> | null,
+): ItemCatalogBase | null {
+    const fullBase = full?.base && typeof full.base === 'object' && !Array.isArray(full.base)
+        ? (full.base as Record<string, unknown>)
+        : null;
+    if (fullBase && String(fullBase.nome || '').trim() !== '') {
+        return fullBase as unknown as ItemCatalogBase;
+    }
+    const lookupKeys = [
+        snap.id,
+        snap.nome,
+        full?.id,
+        full?.nome,
+        fullBase?.id,
+        fullBase?.nome,
+    ].filter(Boolean).map(String);
+    for (const key of lookupKeys) {
+        if (window.RankingSeasons && typeof window.RankingSeasons.findItemData === 'function') {
+            const hit = window.RankingSeasons.findItemData(key);
+            if (hit) return hit;
         }
-        if (typeof window.InventoryManager !== 'undefined' && novoItem) {
-            window.InventoryManager.adicionarEquipamento(novoItem as unknown as EquipRawInput);
-        }
-        window.escreverLog(`<span style="color:#facc15;">${mb('market.mailLogPrefix')}</span> <span style="color:#10b981;">${mb('mailbox.logMarketParcelEquip', { name: String(snap.nome || mb('mailbox.fallbackParcelEquip')) })}</span>`);
-    } else {
-        const nomeMat = String(snap.nome || d.itemNome || '');
-        if (nomeMat) {
-            if (typeof window.InventoryManager !== 'undefined' && typeof window.InventoryManager.adicionarStack === 'function') {
-                window.InventoryManager.adicionarStack(nomeMat, qtd);
-            } else {
-                if (!window.inventario) window.inventario = {};
-                window.inventario[nomeMat] = (Number(window.inventario[nomeMat]) || 0) + qtd;
+        if (
+            typeof window.InventoryStackKeys !== 'undefined' &&
+            typeof window.InventoryStackKeys.findStackCatalogEntry === 'function'
+        ) {
+            const stackHit = window.InventoryStackKeys.findStackCatalogEntry(key);
+            if (stackHit && (stackHit.nome || stackHit.id)) {
+                return stackHit as unknown as ItemCatalogBase;
             }
         }
-        window.escreverLog(`<span style="color:#facc15;">${mb('market.mailLogPrefix')}</span> <span style="color:#10b981;">${mb('mailbox.logMarketParcelMats', { qty: qtd, name: nomeMat || mb('mailbox.fallbackParcelGoods') })}</span>`);
     }
+    if (String(snap.nome || '').trim() !== '') return snap as unknown as ItemCatalogBase;
+    return null;
+}
+
+function resolveParcelStackRaw(d: Record<string, unknown>, snap: Record<string, unknown>): string {
+    const full = d.fullItem && typeof d.fullItem === 'object' && !Array.isArray(d.fullItem)
+        ? (d.fullItem as Record<string, unknown>)
+        : null;
+    const fullBase = full?.base && typeof full.base === 'object' ? (full.base as Record<string, unknown>) : null;
+    return String(
+        snap.nome || snap.id ||
+        d.itemName || d.item_name || d.itemNome || d.item_nome ||
+        (full && full.nome) || (full && full.id) ||
+        (fullBase && fullBase.nome) || (fullBase && fullBase.id) ||
+        '',
+    ).trim();
+}
+
+function resolveParcelStackKey(d: Record<string, unknown>, snap: Record<string, unknown>): string {
+    const raw = resolveParcelStackRaw(d, snap);
+    if (!raw) return '';
+    if (
+        typeof window.InventoryStackKeys !== 'undefined' &&
+        typeof window.InventoryStackKeys.resolveInventarioStackKey === 'function'
+    ) {
+        return window.InventoryStackKeys.resolveInventarioStackKey(raw);
+    }
+    return raw;
+}
+
+function parcelStackQtyBefore(key: string): number {
+    if (!key || !window.inventario || typeof window.inventario !== 'object') return 0;
+    let total = Number(window.inventario[key]) || 0;
+    if (
+        typeof window.InventoryStackKeys !== 'undefined' &&
+        typeof window.InventoryStackKeys.findStackCatalogEntry === 'function'
+    ) {
+        const entry = window.InventoryStackKeys.findStackCatalogEntry(key);
+        const aliases = new Set<string>([key]);
+        if (entry?.id) aliases.add(entry.id);
+        if (entry?.nome) aliases.add(entry.nome);
+        total = 0;
+        aliases.forEach((alias) => {
+            total += Number(window.inventario[alias]) || 0;
+        });
+    }
+    return total;
+}
+
+function parcelRefreshBagAndSave(): void {
+    if (typeof window.syncMoedasInventarioComCarteira === 'function') {
+        window.syncMoedasInventarioComCarteira();
+    }
+    if (typeof window.renderizarInventario === 'function') {
+        window.renderizarInventario();
+    }
+    if (typeof window.atualizar === 'function') {
+        window.atualizar();
+    }
+    if (typeof window.salvarJogo === 'function') {
+        window.salvarJogo({ silent: true, forceCloud: true });
+    }
+}
+
+/** Re-fetch correio (compra na nuvem pode aparecer alguns ms depois do RPC). */
+export function scheduleMailboxBadgeRefresh(): void {
+    const tick = () => { void atualizarIconeMailbox(); };
+    tick();
+    window.setTimeout(tick, 450);
+    window.setTimeout(tick, 1500);
+}
+
+/** Instância nova para o comprador (UID do vendedor não pode ser reutilizado na bolsa). */
+function buildMarketParcelEquip(d: Record<string, unknown>): EquipRawInput | null {
+    const snap = (d.itemSnapshot || {}) as Record<string, unknown>;
+    const full = d.fullItem && typeof d.fullItem === 'object' && !Array.isArray(d.fullItem)
+        ? (d.fullItem as Record<string, unknown>)
+        : null;
+    const base = resolveParcelCatalogBase(snap, full);
+    if (!base || !String(base.nome || '').trim()) {
+        console.error('[Mailbox] parcel equip: catálogo/base inválido', d);
+        return null;
+    }
+
+    const tipo = String(
+        (full && full.tipo) || snap.tipoItem || snap.tipo || base.tipoItem || base.tipo || 'armor',
+    );
+    const enchant = d.enchant != null
+        ? Number(d.enchant)
+        : (full && full.enchant != null ? Number(full.enchant) : 0);
+
+    if (typeof window.ItemSecurity !== 'undefined') {
+        const inst = window.ItemSecurity.createInstance(tipo, base, {
+            enchant: Number.isNaN(enchant) ? 0 : enchant,
+            origin: 'IronGate',
+            owner: typeof window.charName === 'string' ? window.charName : undefined,
+            augmented: !!(full && (full.augmented || (full.base as Record<string, unknown> | undefined)?.augmented)),
+        });
+        if (inst) return inst;
+    }
+
+    return {
+        tipo,
+        base,
+        enchant: Number.isNaN(enchant) ? 0 : enchant,
+        origin: 'IronGate',
+    };
+}
+
+/**
+ * Entrega conteúdo de purchase_delivery ao estado local (bolsa / equips).
+ * @returns true se o item entrou na bolsa
+ */
+function aplicarParcelaMarketCompradorDoCorreio(detailRaw: unknown): boolean {
+    const d = normalizeMailboxDetails(detailRaw);
+    const kind = d.marketKind || d.market_kind;
+    if (kind !== 'purchase_delivery') return false;
+
+    const snap = (d.itemSnapshot || {}) as Record<string, unknown>;
+    enrichParcelSnapshotFromCatalog(snap, d);
+    const qtd = Math.max(1, Number(d.qtd) || 1);
+    const categoria = String(d.categoria || d.category || '').toLowerCase();
+    let equips = categoria !== 'mats' && parcelMarketIsEquips(d);
+
+    if (equips) {
+        const novoItem = buildMarketParcelEquip(d);
+        if (!novoItem) return false;
+        if (typeof window.InventoryManager === 'undefined') return false;
+        const ok = window.InventoryManager.adicionarEquipamento(novoItem);
+        if (!ok) {
+            console.error('[Mailbox] parcel equip: InventoryManager recusou', novoItem);
+            return false;
+        }
+        window.escreverLog(`<span style="color:#facc15;">${mb('market.mailLogPrefix')}</span> <span style="color:#10b981;">${mb('mailbox.logMarketParcelEquip', { name: String(snap.nome || baseDisplayName(novoItem) || mb('mailbox.fallbackParcelEquip')) })}</span>`);
+        parcelRefreshBagAndSave();
+        return true;
+    }
+
+    let stackRaw = resolveParcelStackRaw(d, snap);
+    let stackKey = resolveParcelStackKey(d, snap);
+    if (!stackKey && !equips) {
+        equips = parcelMarketIsEquips({ ...d, itemSnapshot: snap });
+        if (equips) {
+            const novoItem = buildMarketParcelEquip({ ...d, itemSnapshot: snap });
+            if (novoItem && typeof window.InventoryManager !== 'undefined' && window.InventoryManager.adicionarEquipamento(novoItem)) {
+                window.escreverLog(`<span style="color:#facc15;">${mb('market.mailLogPrefix')}</span> <span style="color:#10b981;">${mb('mailbox.logMarketParcelEquip', { name: String(snap.nome || baseDisplayName(novoItem) || mb('mailbox.fallbackParcelEquip')) })}</span>`);
+                parcelRefreshBagAndSave();
+                return true;
+            }
+        }
+        console.error('[Mailbox] parcel stack: chave vazia', d, snap);
+        return false;
+    }
+    if (!stackRaw && stackKey) stackRaw = stackKey;
+    const before = parcelStackQtyBefore(stackKey);
+    if (typeof window.InventoryManager !== 'undefined' && typeof window.InventoryManager.adicionarStack === 'function') {
+        window.InventoryManager.adicionarStack(stackRaw, qtd);
+    } else {
+        if (!window.inventario) window.inventario = {};
+        window.inventario[stackKey] = before + qtd;
+    }
+    const after = parcelStackQtyBefore(stackKey);
+    if (after <= before) {
+        console.error('[Mailbox] parcel stack: qty não aumentou', stackRaw, d);
+        return false;
+    }
+    window.escreverLog(`<span style="color:#facc15;">${mb('market.mailLogPrefix')}</span> <span style="color:#10b981;">${mb('mailbox.logMarketParcelMats', { qty: qtd, name: stackRaw || mb('mailbox.fallbackParcelGoods') })}</span>`);
+    parcelRefreshBagAndSave();
+    return true;
+}
+
+function baseDisplayName(item: EquipRawInput): string {
+    const base = item.base;
+    return base && typeof base === 'object' && base.nome ? String(base.nome) : '';
 }
 
 function isMailboxRewardCurrencyRow(r: Record<string, unknown>): boolean {
@@ -379,7 +630,10 @@ function aplicarNotifBadgeVisual() {
     const badge = document.getElementById('notif-badge');
     if (!btn || !badge) return;
 
-    const mailUnread = (mailboxDados.inbox || []).filter(m => !m.lido).length;
+    const cloudMailActive = !!(window.SupabaseAPI && window.SupabaseAPI.getUser());
+    const mailUnread = cloudMailActive
+        ? (mailboxDados.inbox || []).length
+        : (mailboxDados.inbox || []).filter(m => !m.lido).length;
     const rewardN = (window.RewardEngine && Array.isArray(window.RewardEngine.rewards))
         ? window.RewardEngine.rewards.length
         : 0;
@@ -716,6 +970,29 @@ async function processarAcaoMail(msgId, acao, param = null) {
     // MODO MULTIPLAYER (SUPABASE): sempre RPC ao resgatar (id UUID ou string do PostgREST)
     if (useCloudCollect) {
         try {
+            let parcelAppliedThisAttempt = false;
+
+            // Encomenda: item só existe no payload — aplicar na bolsa ANTES do RPC (não consumir mail à toa)
+            if (acao === 'collect_market_delivery') {
+                if (!marketParcelAppliedMailIds.has(mailKey)) {
+                    let parcelPayload;
+                    try {
+                        parcelPayload = JSON.parse(JSON.stringify(normalizeMailboxDetails(msg.detalhes)));
+                    } catch (e) {
+                        parcelPayload = normalizeMailboxDetails(msg.detalhes);
+                    }
+                    const parcelOk = aplicarParcelaMarketCompradorDoCorreio(parcelPayload);
+                    if (!parcelOk) {
+                        console.error('[Mailbox] Falha ao aplicar encomenda (antes do RPC).', parcelPayload);
+                        window.mostrarAviso(mb('mailbox.parcelClaimFailed'));
+                        return;
+                    }
+                    marketParcelAppliedMailIds.add(mailKey);
+                    parcelAppliedThisAttempt = true;
+                    parcelRefreshBagAndSave();
+                }
+            }
+
             const result = await window.SupabaseAPI.claimMailReward(mailKey);
                 
                 if (result && result.success) {
@@ -755,13 +1032,6 @@ async function processarAcaoMail(msgId, acao, param = null) {
                         escreverLog(`<span style="color:#facc15;">${mb('market.mailLogPrefix')}</span> <span style="color:#10b981;">${mb('mailbox.logMarketSettlement', { amount: (result.reward_adena || result.reward_ancient).toLocaleString(), currency: coinLbl })}</span>`);
                         window.mostrarAviso(mb('mailbox.avisoFundsCollected'));
                     } else if (acao === 'collect_market_delivery') {
-                        let parcelPayload;
-                        try {
-                            parcelPayload = JSON.parse(JSON.stringify(normalizeMailboxDetails(msg.detalhes)));
-                        } catch (e) {
-                            parcelPayload = normalizeMailboxDetails(msg.detalhes);
-                        }
-                        aplicarParcelaMarketCompradorDoCorreio(parcelPayload);
                         window.mostrarAviso(mb('mailbox.avisoParcelClaimed'));
                     } else if (acao === 'collect_raid') {
                         escreverLog(`<span style="color:#10b981;">${mb('mailbox.mailLogTag')} ${mb('mailbox.logRaidRewardsCollected', { subject: msg.assunto })}</span>`);
@@ -775,11 +1045,19 @@ async function processarAcaoMail(msgId, acao, param = null) {
                     await carregarMailbox();
                     renderizarMailbox();
                     await atualizarIconeMailbox();
-                    window.atualizar?.();
-                    if (typeof window.salvarJogo === 'function') window.salvarJogo();
+                    if (typeof window.salvarJogo === 'function') {
+                        window.salvarJogo({ silent: true, forceCloud: acao === 'collect_market_delivery' });
+                    }
                     return;
                 } else {
-                    window.mostrarAviso(mailboxCloudErrorMessage(result ? result.error : 'unknown_error'));
+                    if (acao === 'collect_market_delivery' && marketParcelAppliedMailIds.has(mailKey)) {
+                        window.mostrarAviso(mb('mailbox.parcelClaimRpcRetry'));
+                        if (parcelAppliedThisAttempt && typeof window.salvarJogo === 'function') {
+                            window.salvarJogo();
+                        }
+                    } else {
+                        window.mostrarAviso(mailboxCloudErrorMessage(result ? result.error : 'unknown_error'));
+                    }
                     return;
                 }
         } catch (e) {
@@ -806,9 +1084,14 @@ async function processarAcaoMail(msgId, acao, param = null) {
     else if (acao === 'collect_market_delivery') {
         const d = normalizeMailboxDetails(msg.detalhes || {});
         if (d.marketKind !== 'purchase_delivery') return;
-        aplicarParcelaMarketCompradorDoCorreio(d);
+        const parcelOk = aplicarParcelaMarketCompradorDoCorreio(d);
+        if (!parcelOk) {
+            console.error('[Mailbox] Falha ao aplicar encomenda (modo local).', d);
+            window.mostrarAviso(mb('mailbox.parcelClaimFailed'));
+            return;
+        }
         window.mostrarAviso(mb('mailbox.avisoParcelClaimed'));
-    } 
+    }
     else if (acao === 'collect_raid') {
         const sys = msg.detalhes as Record<string, unknown>;
         const recompensas = sys.recompensas;
@@ -1122,6 +1405,7 @@ function registerMailboxHtmlGlobals() {
     registerGlobal('limparHistoricoMail', limparHistoricoMail);
     registerGlobal('verPerfilPeloMail', verPerfilPeloMail);
     registerGlobal('abrirRewardHubFechandoCorreio', abrirRewardHubFechandoCorreio);
+    registerGlobal('scheduleMailboxBadgeRefresh', scheduleMailboxBadgeRefresh);
     registerGlobal('MailboxEngine', MailboxEngine);
 }
 registerMailboxHtmlGlobals();

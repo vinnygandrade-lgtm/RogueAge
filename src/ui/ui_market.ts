@@ -610,6 +610,11 @@ function executarCompraMarket(id: string | number): void {
                 await mercadoEnviarCorreioComprador(finalEntry);
             }
             // Nuvem: servidor insere purchase_delivery + sale_proceeds na mailbox (evita duplicar / cliente sem RLS insert)
+            if (saldoJaDebitadoNaNuvem && typeof window.scheduleMailboxBadgeRefresh === 'function') {
+                window.scheduleMailboxBadgeRefresh();
+            } else if (saldoJaDebitadoNaNuvem && typeof window.atualizarIconeMailbox === 'function') {
+                await window.atualizarIconeMailbox();
+            }
 
             window.fecharJanelaAcao();
             renderizarListaMarket();

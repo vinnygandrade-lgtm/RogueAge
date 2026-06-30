@@ -24,7 +24,7 @@ function isCloudSaveEnabled(): boolean {
 }
 
 /** Envia o save local do personagem activo para o Supabase. */
-export async function sincronizarSaveComNuvem(): Promise<void> {
+export async function sincronizarSaveComNuvem(force = false): Promise<void> {
   const charName = window.charName;
   if (!CLOUD_CONFIG.syncEnabled || !charName) return;
 
@@ -35,7 +35,7 @@ export async function sincronizarSaveComNuvem(): Promise<void> {
     console.log('☁️ Sincronizando save com a nuvem...');
     if (isCloudSaveEnabled()) {
       const parsed = JSON.parse(saveData) as CharacterSave;
-      await window.SupabaseAPI.savePlayer(charName, parsed);
+      await window.SupabaseAPI.savePlayer(charName, parsed, { force });
     }
   } catch (error) {
     console.error('Erro na sincronização cloud:', error);
@@ -67,8 +67,8 @@ export async function buscarRankingGlobalReal(): Promise<CloudRankingPlayer[] | 
   }
 }
 
-export function dispararSincronizacaoCloud(): void {
-  void sincronizarSaveComNuvem();
+export function dispararSincronizacaoCloud(force = false): void {
+  void sincronizarSaveComNuvem(force);
 }
 
 window.dispararSincronizacaoCloud = dispararSincronizacaoCloud;

@@ -59,6 +59,8 @@ BEGIN
             ('ls_1', 78::BIGINT, 'ancient', 'Life Stone'),
             ('sc_w_ng', 1120::BIGINT, 'adena', 'Enchant Weapon (NG)'),
             ('sc_a_ng', 335::BIGINT, 'adena', 'Enchant Armor (NG)'),
+            ('sc_bw_ng', 2::BIGINT, 'ancient', 'Blessed Enchant Weapon (NG)'),
+            ('sc_ba_ng', 1::BIGINT, 'ancient', 'Blessed Enchant Armor (NG)'),
             ('sc_w_d', 5600::BIGINT, 'adena', 'Enchant Weapon (D)'),
             ('sc_bw_d', 6::BIGINT, 'ancient', 'Blessed Enchant Weapon (D)'),
             ('sc_a_d', 1680::BIGINT, 'adena', 'Enchant Armor (D)'),

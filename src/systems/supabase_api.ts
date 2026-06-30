@@ -287,15 +287,16 @@ const SupabaseAPI = {
         return this.currentUser;
     },
 
-    async savePlayer(charName, data) {
+    async savePlayer(charName, data, opts) {
         if (!SUPABASE_CONFIG.enabled || !charName) return;
         if (!this.client) await this.init();
 
         const user = this.getUser();
         if (!user) return;
 
+        const force = !!(opts && opts.force);
         const agora = Date.now();
-        if (this._lastSaveTime && agora - this._lastSaveTime < 2000) return;
+        if (!force && this._lastSaveTime && agora - this._lastSaveTime < 2000) return;
         this._lastSaveTime = agora;
 
         try {

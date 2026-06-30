@@ -655,6 +655,8 @@ export interface CharacterSave {
 
 export interface SalvarJogoOptions {
   silent?: boolean;
+  /** Ignora throttle de 2s em `SupabaseAPI.savePlayer` (ex.: resgate de encomenda). */
+  forceCloud?: boolean;
 }
 
 export interface CarregarJogoOptions {
@@ -1459,7 +1461,7 @@ export interface SupabaseApi {
   resolveLoginEmail: (usernameOrEmail: string) => Promise<string>;
   updatePresence: (charName: string, meta: Record<string, unknown>) => void;
   ensureChatConnected?: (charName: string, meta: Record<string, unknown>) => void | Promise<void>;
-  savePlayer?: (charName: string, data: CharacterSave) => Promise<unknown>;
+  savePlayer?: (charName: string, data: CharacterSave, opts?: { force?: boolean }) => Promise<unknown>;
   getGlobalRanking?: () => Promise<CloudRankingPlayer[] | null>;
   fetchMailbox: (charName: string) => Promise<CloudMailboxRow[]>;
   sendMail: (

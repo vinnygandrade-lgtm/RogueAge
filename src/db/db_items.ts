@@ -317,9 +317,11 @@ const catalogoScrolls: EnchantScrollCatalogEntry[] = [
     // --- LIFE STONE ---
     { id: 'ls_1', nome: 'Life Stone', preco: 78, moeda: 'Ancient', desc: 'Rare catalyst for augmentation and master forges. Expensive for a reason.', img: 'assets/itens/life_stone.png' },
 
-    // --- NO-GRADE (Adena) ---
+    // --- NO-GRADE (Adena + Blessed Ancient) ---
     { id: 'sc_w_ng', nome: 'Enchant Weapon (NG)', preco: 1120, moeda: 'Adena', desc: 'Raises P. Atk / M. Atk on No-Grade weapons.', img: 'assets/itens/scroll_wpn_ng.png' },
     { id: 'sc_a_ng', nome: 'Enchant Armor (NG)', preco: 335, moeda: 'Adena', desc: 'Enchants No-Grade armor and jewels. On jewels, raises M. Def and enchant-linked bonuses.', img: 'assets/itens/scroll_arm_ng.png' },
+    { id: 'sc_bw_ng', nome: 'Blessed Enchant Weapon (NG)', preco: 2, moeda: 'Ancient', desc: 'Safe enchant for No-Grade weapons. On failure, the weapon does NOT break.', img: 'assets/itens/scroll_b_wpn_ng.png' },
+    { id: 'sc_ba_ng', nome: 'Blessed Enchant Armor (NG)', preco: 1, moeda: 'Ancient', desc: 'Safe enchant for No-Grade armor/jewels. On failure, the item does not break.', img: 'assets/itens/scroll_b_arm_ng.png' },
 
     // --- D-GRADE ---
     { id: 'sc_w_d', nome: 'Enchant Weapon (D)', preco: 5600, moeda: 'Adena', desc: 'Scroll for D-grade weapons.', img: 'assets/itens/scroll_wpn_d.png' },

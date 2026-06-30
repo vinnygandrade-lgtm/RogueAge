@@ -807,6 +807,13 @@ BEGIN
 
     v_cat := lower(trim(COALESCE(NULLIF(trim(p_categoria), ''), 'mats')));
 
+    IF NULLIF(trim(v_item_data->>'nome'), '') IS NULL AND NULLIF(trim(v_item_name), '') IS NOT NULL THEN
+        v_item_data := v_item_data || jsonb_build_object('nome', trim(v_item_name));
+    END IF;
+    IF NULLIF(trim(v_item_data->>'id'), '') IS NULL AND NULLIF(trim(v_item_id), '') IS NOT NULL THEN
+        v_item_data := v_item_data || jsonb_build_object('id', trim(v_item_id));
+    END IF;
+
     v_data := v_data || jsonb_build_object('adenas', v_adena - COALESCE(p_fee, 1000));
     UPDATE public.characters SET data = v_data, updated_at = NOW() WHERE char_name = v_seller;
 
@@ -937,6 +944,12 @@ BEGIN
     WHERE id = p_listing_id;
 
     v_item_snap := COALESCE(v_listing.item_data->'base', v_listing.item_data);
+    IF NULLIF(trim(v_item_snap->>'nome'), '') IS NULL AND NULLIF(trim(v_listing.item_name), '') IS NOT NULL THEN
+        v_item_snap := v_item_snap || jsonb_build_object('nome', trim(v_listing.item_name));
+    END IF;
+    IF NULLIF(trim(v_item_snap->>'id'), '') IS NULL AND NULLIF(trim(v_listing.item_id), '') IS NOT NULL THEN
+        v_item_snap := v_item_snap || jsonb_build_object('id', trim(v_listing.item_id));
+    END IF;
     v_enchant := COALESCE(
         NULLIF((v_listing.item_data->>'enchant')::INTEGER, NULL),
         NULLIF((v_listing.item_data->>'enchantLevel')::INTEGER, NULL),
@@ -956,6 +969,8 @@ BEGIN
             'enchant', v_enchant,
             'itemSnapshot', v_item_snap,
             'fullItem', v_listing.item_data,
+            'itemName', COALESCE(NULLIF(trim(v_listing.item_name), ''), NULLIF(trim(v_item_snap->>'nome'), ''), 'Item'),
+            'listingId', v_listing.id::TEXT,
             'qtd', COALESCE(NULLIF((v_listing.item_data->>'qtd')::INTEGER, NULL), 1),
             'sellerName', COALESCE(v_seller_mail_name, trim(v_listing_seller), ''),
             'paid', v_listing.price,
@@ -2743,6 +2758,8 @@ BEGIN
             ('ls_1', 78::BIGINT, 'ancient', 'Life Stone'),
             ('sc_w_ng', 1120::BIGINT, 'adena', 'Enchant Weapon (NG)'),
             ('sc_a_ng', 335::BIGINT, 'adena', 'Enchant Armor (NG)'),
+            ('sc_bw_ng', 2::BIGINT, 'ancient', 'Blessed Enchant Weapon (NG)'),
+            ('sc_ba_ng', 1::BIGINT, 'ancient', 'Blessed Enchant Armor (NG)'),
             ('sc_w_d', 5600::BIGINT, 'adena', 'Enchant Weapon (D)'),
             ('sc_bw_d', 6::BIGINT, 'ancient', 'Blessed Enchant Weapon (D)'),
             ('sc_a_d', 1680::BIGINT, 'adena', 'Enchant Armor (D)'),

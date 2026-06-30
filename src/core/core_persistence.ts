@@ -520,7 +520,7 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
     }
     
     if (typeof window.dispararSincronizacaoCloud === 'function') {
-        window.dispararSincronizacaoCloud();
+        window.dispararSincronizacaoCloud(!!opts.forceCloud);
     }
 }
 

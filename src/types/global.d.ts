@@ -199,7 +199,7 @@ declare global {
     unwrapCloudCharacterJsonb: (raw: unknown) => CharacterSave;
     pickInspectSaveEquip: (rd: Record<string, unknown> | null | undefined, keys: string[]) => unknown;
     normalizarInventarioEquipsParaInstancias: (arr: unknown[]) => EquipInstance[];
-    dispararSincronizacaoCloud?: () => void;
+    dispararSincronizacaoCloud?: (force?: boolean) => void;
     MailboxEngine?: MailboxEngineApi;
 
     // --- Motores (namespace objects) ---
@@ -675,6 +675,7 @@ declare global {
   function atualizarWorldDailyBossUI(): void;
   function iniciarSistemaMercado(): void;
   function atualizarIconeMailbox(): void | Promise<void>;
+  function scheduleMailboxBadgeRefresh(): void;
   function verificarPagamentosPendentes(): void;
   var radarDeRacas: Record<string, { imgHomem: string; imgMulher: string; imgDestaque?: string; classesBase?: string[]; desc?: string }>;
 }
