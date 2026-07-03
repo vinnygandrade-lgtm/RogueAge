@@ -143,7 +143,9 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
       if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
       if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
       atualizar();
-      if (typeof window.showForestDeathScreen === 'function') {
+      if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
+        window.ExpeditionEngine.onPlayerDeath();
+      } else if (typeof window.showForestDeathScreen === 'function') {
         window.showForestDeathScreen();
       } else {
         setTimeout(() => {

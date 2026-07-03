@@ -51,10 +51,17 @@ function prepararTelaCacada() {
     pararAtaqueMonstro();
     window.monstrosAtivos.length = 0;
     document.getElementById('area-cacada').style.display = 'flex';
-    document.getElementById('btn-iniciar-caca').style.display = 'block';
     document.getElementById('texto-procurando').style.display = 'none';
     document.getElementById('mobs-container').style.display = 'none';
     document.getElementById('botoes-combate').style.display = 'none';
+
+    const exp = (window as any).ExpeditionEngine;
+    if (exp && typeof exp.syncForestEntryUi === 'function') {
+        exp.syncForestEntryUi();
+    } else {
+        const btn = document.getElementById('btn-iniciar-caca');
+        if (btn) btn.style.display = 'block';
+    }
 
     let containerBuffs = document.getElementById('player-combat-buffs');
     if(containerBuffs) containerBuffs.innerHTML = '';
@@ -345,6 +352,12 @@ function iniciarFechamentoVitoriaCacada() {
     setTimeout(() => {
         let mobsContainer = document.getElementById('mobs-container');
         if (mobsContainer) mobsContainer.innerHTML = '';
+        
+        if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
+            window.ExpeditionEngine.onCombatWin(lootTurno);
+            return;
+        }
+
         window.adenas = (Number(window.adenas) || 0) + lootTurno.adenas;
         for (let itemDrop in lootTurno.drops) {
             if (itemDrop === 'Ancient Coin') {
@@ -656,7 +669,13 @@ function fecharVitoriaEProcurar() {
     travarFlorestaResumoVitoria(false);
     fecharModal('janela-vitoria');
     prepararTelaCacada();
-    procurarMonstros();
+
+    const exp = (window as any).ExpeditionEngine;
+    if (exp?.state?.active) {
+        exp.renderMap();
+    } else if (!exp) {
+        procurarMonstros();
+    }
 }
 
 function fecharVitoriaEVoltar() {
@@ -717,7 +736,11 @@ function tentarFugir() {
         if (Math.random() * 100 <= 50) {
             window.escreverLog(`<span style="color:#10b981;">${(typeof window.t === 'function') ? window.t('game.combat.escaped') : 'You got away safely!'}</span>`);
             prepararTelaCacada();
-            showForestFleeSuccessScreen();
+            if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
+                window.ExpeditionEngine.onFlee();
+            } else {
+                showForestFleeSuccessScreen();
+            }
         } else {
             window.escreverLog(`<span style="color:#ef4444;">${(typeof window.t === 'function') ? window.t('game.combat.escapeFailed') : 'Escape failed!'}</span>`);
             showForestFleeFailFloat();
@@ -759,6 +782,10 @@ function confirmForestDeathReturnToTown() {
     if (typeof salvarJogo === 'function') window.salvarJogo();
 };
 
+window.setLootTurno = function(loot: any) {
+    lootTurno = loot;
+};
+
 // --- Globals (HTML onclick + scripts legados) ---
 window.pararAtaqueMonstro = pararAtaqueMonstro;
 window.iniciarAtaqueMonstro = iniciarAtaqueMonstro;
@@ -768,11 +795,13 @@ window.renderizarMonstros = renderizarMonstros;
 window.tentarFugir = tentarFugir;
 window.fecharVitoriaEProcurar = fecharVitoriaEProcurar;
 window.fecharVitoriaEVoltar = fecharVitoriaEVoltar;
+window.mostrarResumoVitoria = mostrarResumoVitoria;
 window.atualizarIconesBuffPlayer = atualizarIconesBuffPlayer;
 window.atualizarIconesDebuffMonstro = atualizarIconesDebuffMonstro;
 window.forceRemoveStuckDeadForestMob = forceRemoveStuckDeadForestMob;
 window.tryProcessForestMobDeath = tryProcessForestMobDeath;
 window.reconciliarMobsFlorestHpZero = reconciliarMobsFlorestHpZero;
+window.showForestFleeSuccessScreen = showForestFleeSuccessScreen;
 window.confirmForestFleeReturnToTown = confirmForestFleeReturnToTown;
 window.showForestDeathScreen = showForestDeathScreen;
 window.confirmForestDeathReturnToTown = confirmForestDeathReturnToTown;

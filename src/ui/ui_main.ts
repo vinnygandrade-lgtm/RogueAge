@@ -483,6 +483,9 @@ function fecharTopModal() {
     else if (topModalId === 'janela-daily-boss') { if(typeof window.fecharJanelaDailyBoss === 'function') window.fecharJanelaDailyBoss(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-status-detalhado') { if(typeof fecharStatusDetalhado === 'function') fecharStatusDetalhado(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-game-settings') { if(typeof fecharGameSettings === 'function') fecharGameSettings(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-expedition-rules') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.closeRulesModal === 'function') window.ExpeditionEngine.closeRulesModal(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-expedition-node') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.cancelNode === 'function') window.ExpeditionEngine.cancelNode(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-expedition-result') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.continueFromResult === 'function') window.ExpeditionEngine.continueFromResult(); else fecharModal(topModalId); }
     else if (topModalId === 'modal-perfil-ranking') {
         const modalPerfil = document.getElementById('modal-perfil-ranking');
         if (modalPerfil) modalPerfil.style.display = 'none';
@@ -603,6 +606,9 @@ function irPara(lugar) {
         if (telaFloresta && telaFloresta.style.display === 'flex' && window.monstrosAtivos && window.monstrosAtivos.length > 0) {
         window.escreverLog(`<span style="color:#ef4444; font-weight:bold;">⚠️ You are in combat! Defeat the monster or use the FLEE button!</span>`);
         return; 
+        }
+        if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
+            window.ExpeditionEngine.reset();
         }
     }
 

@@ -534,6 +534,88 @@
         </div>
     </div>
 
+    <div id="janela-expedition-rules" class="store-window expedition-rules-window" style="display:none;">
+        <div class="store-header expedition-rules-window__header"><span data-i18n="game.hunt.expedition.rulesTitle">Expedition Rules</span></div>
+        <div class="store-body expedition-rules-body">
+            <p class="expedition-rules-intro" data-i18n="game.hunt.expedition.rulesIntro">Loot stays in your Expedition Bag until you extract safely. Choose your path — each step is a risk.</p>
+            <div class="expedition-rules-grid">
+                <div class="expedition-rules-card">
+                    <div class="expedition-rules-card__icon">🎒</div>
+                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesBagTitle">Expedition Bag</div>
+                    <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesBagDesc">Adena and drops from nodes go to the bag — not your inventory — until you finish or extract.</div>
+                </div>
+                <div class="expedition-rules-card">
+                    <div class="expedition-rules-card__icon">💀</div>
+                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesDeathTitle">If you die</div>
+                    <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesDeathDesc">You lose 50% of the bag. Combat XP already earned stays on your character.</div>
+                </div>
+                <div class="expedition-rules-card">
+                    <div class="expedition-rules-card__icon">🏃</div>
+                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesExtractTitle">Extract / Flee</div>
+                    <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesExtractDesc">Extract or escape successfully to keep 100% of the bag. Defeat the boss to auto-extract with full loot.</div>
+                </div>
+                <div class="expedition-rules-card">
+                    <div class="expedition-rules-card__icon">🗺️</div>
+                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesPathTitle">Branching paths</div>
+                    <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesPathDesc">Pick one node per stage. Skipped routes close forever. Elite, chests, camps and events vary each run.</div>
+                </div>
+            </div>
+            <div class="expedition-rules-legend">
+                <div class="expedition-rules-legend__title" data-i18n="game.hunt.expedition.rulesLegendTitle">Node types</div>
+                <ul class="expedition-rules-legend__list">
+                    <li><span>⚔️</span> <span data-i18n="game.hunt.expedition.legendCombat">Combat — standard mob pull</span></li>
+                    <li><span>💀</span> <span data-i18n="game.hunt.expedition.legendElite">Elite — champions, higher risk</span></li>
+                    <li><span>⛺</span> <span data-i18n="game.hunt.expedition.legendCamp">Camp — full HP/MP restore</span></li>
+                    <li><span>❓</span> <span data-i18n="game.hunt.expedition.legendEvent">Event — shrine, trap or bonus XP</span></li>
+                    <li><span>🎁</span> <span data-i18n="game.hunt.expedition.legendChest">Chest — loot or mimic trap</span></li>
+                    <li><span>🗡️</span> <span data-i18n="game.hunt.expedition.legendAmbush">Ambush — surprise fight, bonus bag loot</span></li>
+                    <li><span>🛡️</span> <span data-i18n="game.hunt.expedition.legendGuardian">Guardian — gatekeeper before the boss</span></li>
+                    <li><span>🏪</span> <span data-i18n="game.hunt.expedition.legendMerchant">Merchant — random trade or relief</span></li>
+                    <li><span>👹</span> <span data-i18n="game.hunt.expedition.legendBoss">Boss — final extract</span></li>
+                </ul>
+            </div>
+            <button type="button" class="btn-l2 expedition-rules-close" data-i18n="game.hunt.expedition.rulesCloseBtn" onclick="ExpeditionEngine.closeRulesModal()">Got it</button>
+        </div>
+    </div>
+
+    <div id="janela-expedition-node" class="store-window expedition-node-window" style="display:none;">
+        <div class="store-header expedition-node-window__header"><span id="exp-node-title">NODE</span></div>
+        <div class="store-body expedition-node-body">
+            <div id="exp-node-icon-wrap" class="exp-node-icon-wrap exp-node-icon-wrap--combat">
+                <div id="exp-node-icon" class="exp-node-icon">⚔️</div>
+            </div>
+            <p id="exp-node-desc" class="exp-node-desc">Description</p>
+            <div class="exp-node-outcomes">
+                <div class="exp-node-outcomes__label" data-i18n="game.hunt.expedition.nodeOutcomesLabel">What may happen</div>
+                <ul id="exp-node-outcomes-list" class="exp-node-outcomes__list"></ul>
+            </div>
+            <div id="exp-node-tags" class="exp-node-tags"></div>
+            <div class="exp-node-actions">
+                <button type="button" class="btn-l2 exp-node-actions__enter" onclick="ExpeditionEngine.confirmNode()" data-i18n="game.hunt.expedition.nodeEnter">Enter</button>
+                <button type="button" class="btn-l2 exp-node-actions__cancel" onclick="ExpeditionEngine.cancelNode()" data-i18n="game.hunt.expedition.nodeCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="janela-expedition-result" class="store-window expedition-result-window" style="display:none;">
+        <div class="store-header expedition-result-window__header"><span id="exp-result-title">Result</span></div>
+        <div class="store-body expedition-result-body">
+            <div id="exp-result-icon-wrap" class="exp-result-icon-wrap exp-result-icon-wrap--success">
+                <div id="exp-result-icon" class="exp-result-icon">✓</div>
+            </div>
+            <p id="exp-result-summary" class="exp-result-summary"></p>
+            <div id="exp-result-rewards-wrap" class="exp-result-rewards-wrap" style="display:none;">
+                <div class="exp-result-rewards__label" data-i18n="game.hunt.expedition.resultRewardsLabel">Added to expedition bag</div>
+                <div id="exp-result-rewards" class="exp-result-rewards"></div>
+            </div>
+            <div id="exp-result-effects-wrap" class="exp-result-effects-wrap" style="display:none;">
+                <div class="exp-result-effects__label" data-i18n="game.hunt.expedition.resultEffectsLabel">Character effects</div>
+                <div id="exp-result-effects" class="exp-result-effects"></div>
+            </div>
+            <button type="button" class="btn-l2 exp-result-continue" onclick="ExpeditionEngine.continueFromResult()" data-i18n="game.hunt.expedition.resultContinueBtn">Continue to map</button>
+        </div>
+    </div>
+
     <div id="janela-raid-loot" class="store-window">
         <div class="store-header store-header--loot">
             <span>RAID CLEARED!</span>
@@ -1247,8 +1329,20 @@
             <div class="tela-floresta-inner">
                 <h4 id="hud-zona-nome" data-i18n="game.zones.ng.name">Talking Island</h4>
 
+                <div id="expedition-hub" class="expedition-hub">
+                    <div class="expedition-hub__panel">
+                        <div class="expedition-hub__crest" aria-hidden="true">🗺</div>
+                        <div class="expedition-hub__eyebrow" data-i18n="game.hunt.expedition.hubEyebrow">Branching hunt</div>
+                        <h3 class="expedition-hub__title" data-i18n="game.hunt.expedition.hubTitle">Zone Expedition</h3>
+                        <p class="expedition-hub__desc" data-i18n="game.hunt.expedition.hubDesc">Advance node by node. Loot stays in your expedition bag until you extract or clear the boss.</p>
+                        <button id="btn-iniciar-caca" type="button" class="btn-l2 expedition-hub__begin" data-i18n="game.hunt.expedition.startBtn">Begin Expedition</button>
+                        <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">View rules</button>
+                    </div>
+                </div>
+
+                <div id="expedition-map-container" class="expedition-map-shell" style="display:none;" aria-live="polite"></div>
+
                 <div id="area-cacada">
-                    <button id="btn-iniciar-caca" type="button" class="btn-l2" onclick="procurarMonstros()" data-i18n="game.hunt.searchEnemies">🔍 SEARCH ENEMIES</button>
                     <div id="texto-procurando" data-i18n="game.hunt.searching">Searching for tracks...</div>
                 </div>
 
