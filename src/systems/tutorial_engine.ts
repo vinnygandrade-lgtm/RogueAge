@@ -263,6 +263,9 @@ function tn(key: string, params?: Record<string, string | number>): string {
                 target = document.getElementById('btn-iniciar-caca');
             } else if (step === 8) {
                 forceScreen = 'floresta';
+                target = document.querySelector('.expedition-path-card');
+            } else if (step === 9) {
+                forceScreen = 'floresta';
                 // Destacar o botão de ataque na barra
                 var bar = document.getElementById('barra-de-atalhos-dinamica');
                 if (bar) {
@@ -271,7 +274,7 @@ function tn(key: string, params?: Record<string, string | number>): string {
                 }
                 var slots = document.querySelectorAll('.atalho-slot');
                 if (slots && slots.length > 0) target = slots[0]; // O slot 1 é o Attack
-            } else if (step === 9) {
+            } else if (step === 10) {
                 forceScreen = 'floresta';
                 // Destacar a poção de HP
                 var bar = document.getElementById('barra-de-atalhos-dinamica');
@@ -281,8 +284,6 @@ function tn(key: string, params?: Record<string, string | number>): string {
                 }
                 var slots = document.querySelectorAll('.atalho-slot');
                 if (slots && slots.length > 2) target = slots[2]; // O slot 3 é a HP Potion
-            } else if (step === 10) {
-                forceScreen = 'floresta';
             }
 
             // Auto-navegação defensiva
@@ -620,12 +621,17 @@ function tn(key: string, params?: Record<string, string | number>): string {
             if (getProg().step === 7) setStep(8);
         },
 
+        notifyExpeditionNodeConfirmed: function () {
+            if (!isRunning()) return;
+            if (getProg().step === 8) setStep(9);
+        },
+
         notifyFirstAttack: function () {
             if (!isRunning()) return;
-            if (getProg().step === 8) {
+            if (getProg().step === 9) {
                 window.tutorialFirstAttackDone = true;
                 setTimeout(function() {
-                    setStep(9);
+                    setStep(10);
                 }, 1500);
             }
         },

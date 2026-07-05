@@ -442,7 +442,7 @@ function realizarGolpeAutoAtaque() {
   );
 
   if (typeof window.TutorialEngine !== 'undefined' && window.TutorialEngine.isRunning?.()) {
-    if (window.tutorialProgress?.step === 8) {
+    if (window.tutorialProgress?.step === 9) {
       window.tutorialFirstAttackDone = true;
       if (typeof window.TutorialEngine.notifyFirstAttack === 'function') {
         window.TutorialEngine.notifyFirstAttack();

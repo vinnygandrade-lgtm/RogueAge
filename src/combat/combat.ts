@@ -350,7 +350,7 @@ function iniciarAtaqueMonstro() {
 
         // Tutorial: O monstro espera o primeiro ataque do jogador no Step 8
         if (typeof window.TutorialEngine !== 'undefined' && window.TutorialEngine.isRunning()) {
-            if (window.tutorialProgress.step === 8 && !window.tutorialFirstAttackDone) {
+            if (window.tutorialProgress.step === 9 && !window.tutorialFirstAttackDone) {
                 return; // Espera o jogador atacar
             }
         }

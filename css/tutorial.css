@@ -55,34 +55,19 @@
 
 .tutorial-coach__content {
     display: flex;
-    flex-direction: column; /* Stacked for narrower card */
-    gap: 10px;
+    flex-direction: row;
+    gap: 12px;
     align-items: center;
     margin-bottom: 12px;
-    text-align: center;
-}
-
-.tutorial-coach__avatar {
-    position: relative;
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
-    border-radius: 50%; /* Circular avatar for floating look */
-    background: #1a1510;
-    border: 2px solid #facc15;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    animation: avatar-pulse 2s infinite ease-in-out;
+    text-align: left;
 }
 
 .tutorial-coach__text {
     flex: 1;
     position: relative;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
-    border-left: none;
-    border-top: 2px solid rgba(250, 204, 21, 0.3);
+    padding: 0;
+    background: transparent;
+    border: none;
 }
 
 .tutorial-coach__title {
@@ -214,6 +199,17 @@
         padding: 12px;
     }
     .tutorial-coach__avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 50%; /* Circular avatar for floating look */
+    background: #1a1510;
+    border: 2px solid #facc15;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    animation: avatar-pulse 2s infinite ease-in-out;
+}
         width: 44px;
         height: 44px;
     }

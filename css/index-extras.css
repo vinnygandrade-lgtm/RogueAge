@@ -3017,6 +3017,22 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     background: rgba(30, 41, 59, 0.55);
     border: 1px solid rgba(148, 163, 184, 0.35);
 }
+.expedition-combat-only-banner {
+    margin-bottom: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: 0.04em;
+    color: #fecaca;
+    background: rgba(69, 10, 10, 0.45);
+    border: 1px solid rgba(248, 113, 113, 0.45);
+}
+.expedition-path-section--combat-only {
+    border-color: rgba(248, 113, 113, 0.35);
+}
 @keyframes expedition-path-section-glow {
     0%, 100% { box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.15), 0 0 20px rgba(250, 204, 21, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
     50% { box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.35), 0 0 28px rgba(250, 204, 21, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1); }

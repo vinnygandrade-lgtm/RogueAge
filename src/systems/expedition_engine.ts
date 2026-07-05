@@ -39,6 +39,10 @@ export interface ExpeditionState {
     journey: number;
     pathChoices: ExpeditionPathChoice[];
     currentPath: ExpeditionPathType | null;
+    /** Set when last journey picked a non-combat route; next journey is fights-only. */
+    combatOnlyNextJourney: boolean;
+    /** True while the current map step was forced to fights-only (UI hint). */
+    combatOnlyThisJourney: boolean;
     runBuffs: ExpeditionRunBuffs;
     runStats: ExpeditionRunStats;
     journeyTrait: JourneyMobTrait;
@@ -235,6 +239,8 @@ export class ExpeditionEngine {
             journey: 1,
             pathChoices: [],
             currentPath: null,
+            combatOnlyNextJourney: false,
+            combatOnlyThisJourney: false,
             runBuffs: ExpeditionEngine.emptyRunBuffs(),
             runStats: ExpeditionEngine.emptyRunStats(),
             journeyTrait: 'brutal',
@@ -330,6 +336,28 @@ export class ExpeditionEngine {
         return copy;
     }
 
+    static isCombatPathType(type: ExpeditionPathType): boolean {
+        return type === 'combat' || type === 'elite' || type === 'boss';
+    }
+
+    /** Fight-only cards after skipping combat on the previous journey. */
+    static buildCombatOnlyPathChoices(journey: number): ExpeditionPathChoice[] {
+        if (journey < 2) {
+            return this.shuffle([
+                { id: `j${journey}_combat`, type: 'combat' },
+                { id: `j${journey}_elite`, type: 'elite' }
+            ]);
+        }
+
+        const slotA: ExpeditionPathType = 'combat';
+        const slotB: ExpeditionPathType = Math.random() < 0.55 ? 'elite' : 'combat';
+        let slotC: ExpeditionPathType = Math.random() < 0.45 ? 'elite' : 'combat';
+        if (journey >= 3 && Math.random() < 0.28) slotC = 'boss';
+
+        const types = this.shuffle([slotA, slotB, slotC]);
+        return types.map((type, i) => ({ id: `j${journey}_fight_${i}_${type}`, type }));
+    }
+
     /** Weighted pick for the third “safe” path slot. J1 = prep routes only; chest/merchant from J2+. */
     static pickSafePathType(journey: number): ExpeditionPathType {
         let types: ExpeditionPathType[];
@@ -375,8 +403,17 @@ export class ExpeditionEngine {
     /** Three path cards per journey — fight routes vs safe loot. Journey 10/20/… = mandatory boss gate. */
     static generatePathChoices(journey: number): ExpeditionPathChoice[] {
         if (this.isMilestoneBossJourney(journey)) {
+            this.state.combatOnlyThisJourney = false;
             return [{ id: `j${journey}_milestone_boss`, type: 'boss' }];
         }
+
+        if (this.state.combatOnlyNextJourney) {
+            this.state.combatOnlyNextJourney = false;
+            this.state.combatOnlyThisJourney = true;
+            return this.buildCombatOnlyPathChoices(journey);
+        }
+
+        this.state.combatOnlyThisJourney = false;
 
         if (journey < 2) {
             return this.shuffle([
@@ -642,6 +679,11 @@ export class ExpeditionEngine {
     }
 
     static advanceJourney() {
+        const lastPath = this.state.currentPath;
+        if (lastPath && !this.isCombatPathType(lastPath)) {
+            this.state.combatOnlyNextJourney = true;
+        }
+
         this.state.journey += 1;
         this.state.journeyTrait = this.state.nextJourneyTrait;
         this.state.nextJourneyTrait = this.rollJourneyTrait();
@@ -818,6 +860,8 @@ export class ExpeditionEngine {
             journey: 1,
             pathChoices: [],
             currentPath: null,
+            combatOnlyNextJourney: false,
+            combatOnlyThisJourney: false,
             runBuffs: this.emptyRunBuffs(),
             runStats: this.emptyRunStats(),
             journeyTrait: firstTrait,
@@ -833,6 +877,12 @@ export class ExpeditionEngine {
         this.refreshJourneyPhase();
         this.hideHub();
         this.renderMap();
+        try {
+            const win = window as any;
+            if (typeof win.TutorialEngine !== 'undefined' && typeof win.TutorialEngine.notifyHuntSearch === 'function') {
+                win.TutorialEngine.notifyHuntSearch();
+            }
+        } catch (e) { /* ignore */ }
     }
 
     static getPathCardMeta(type: ExpeditionPathType, opts?: { milestone?: boolean }) {
@@ -930,6 +980,12 @@ export class ExpeditionEngine {
     }
 
     static getPathPickHint(journey: number, choiceCount: number): string {
+        if (this.state.combatOnlyThisJourney && choiceCount > 1) {
+            return this.t(
+                'game.hunt.expedition.pathPickHintCombatOnly',
+                'You skipped a fight — only battle routes this journey'
+            );
+        }
         if (journey < 2 && choiceCount > 1) {
             return this.t('game.hunt.expedition.pathPickHintOpeningChoice', 'First step — pick Fight or Elite below');
         }
@@ -967,6 +1023,10 @@ export class ExpeditionEngine {
             ? `<div class="expedition-opening-banner">${this.t('game.hunt.expedition.openingFightBanner', 'Opening step — standard fight or elite pull, your call')}</div>`
             : '';
 
+        const combatOnlyBanner = this.state.combatOnlyThisJourney && !milestone && choiceCount > 1
+            ? `<div class="expedition-combat-only-banner">${this.t('game.hunt.expedition.combatOnlyBanner', 'No shortcuts — pick a fight to continue')}</div>`
+            : '';
+
         const gridClass = solo
             ? 'expedition-path-grid expedition-path-grid--solo'
             : choiceCount === 2
@@ -979,7 +1039,8 @@ export class ExpeditionEngine {
             solo ? 'expedition-path-section--solo' : '',
             choiceCount === 2 ? 'expedition-path-section--duo' : '',
             opening ? 'expedition-path-section--opening' : '',
-            milestone ? 'expedition-path-section--milestone' : ''
+            milestone ? 'expedition-path-section--milestone' : '',
+            this.state.combatOnlyThisJourney ? 'expedition-path-section--combat-only' : ''
         ].filter(Boolean).join(' ');
 
         const headGlyph = opening ? '⚔️' : milestone ? '👹' : '👇';
@@ -987,6 +1048,7 @@ export class ExpeditionEngine {
         return `
                 ${milestoneBanner}
                 ${openingBanner}
+                ${combatOnlyBanner}
                 <div class="expedition-path-section ${sectionMods}" role="region" aria-label="${pickHint}">
                     <div class="expedition-path-section__head">
                         <span class="expedition-path-section__glyph" aria-hidden="true">${headGlyph}</span>
@@ -1370,6 +1432,11 @@ export class ExpeditionEngine {
 
         if (choice.type === 'combat' || choice.type === 'boss' || choice.type === 'elite') {
             this.startCombatPath(choice.type);
+            try {
+                if (typeof win.TutorialEngine !== 'undefined' && typeof win.TutorialEngine.notifyExpeditionNodeConfirmed === 'function') {
+                    win.TutorialEngine.notifyExpeditionNodeConfirmed();
+                }
+            } catch (e) { /* ignore */ }
         } else if (choice.type === 'chest') {
             this.resolveChestPath();
         } else if (choice.type === 'merchant') {
