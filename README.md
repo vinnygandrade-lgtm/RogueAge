@@ -1,8 +1,10 @@
 # RogueAge
 
+**Jogar online:** [https://rogueage.vercel.app](https://rogueage.vercel.app)
+
 Browser MMORPG (TypeScript + Vite). Cliente em `src/`, deploy via pasta `dist/`.
 
-**Marca pública:** RogueAge. **Repo git** pode manter o nome `Iron-Gate-Mini`; **npm package** `rogeage`. Chaves `localStorage` `l2mini_*` e constantes `L2MINI_*` são legado técnico — não renomear sem migração de save.
+**Marca pública:** RogueAge · **Repo:** [github.com/vinnygandrade-lgtm/RogueAge](https://github.com/vinnygandrade-lgtm/RogueAge) · **npm:** `rogeage`. Chaves `localStorage` `l2mini_*` e constantes `L2MINI_*` são legado técnico — não renomear sem migração de save.
 
 ## Requisitos
 

@@ -3,6 +3,7 @@
   "version": "1.5.0",
   "private": true,
   "description": "RogueAge — browser MMORPG",
+  "homepage": "https://rogueage.vercel.app",
   "scripts": {
     "dev": "vite",
     "dev:lan": "vite --host",
