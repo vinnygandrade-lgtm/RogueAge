@@ -270,6 +270,8 @@ declare global {
     fecharModal: (id: string) => void;
     fecharTopModal: () => void;
     fecharTodosModaisBackdropStack: () => void;
+    isPlayerInGameWorld: () => boolean;
+    closeStaffModals: () => void;
     l2Alert: (mensagem: string, tituloOrOnClose?: string | (() => void), maybeOnClose?: () => void) => void;
     l2Confirm: L2ConfirmFn;
     applyCritRateCap: (value: number) => number;

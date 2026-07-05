@@ -225,8 +225,27 @@ export const RewardEngine: RewardEngineApi = {
   },
 
   open() {
+    const inGame =
+      typeof window.isPlayerInGameWorld === 'function'
+        ? window.isPlayerInGameWorld()
+        : !!(window.charName && String(window.charName).trim());
+    if (!inGame) return;
     window.abrirModal('janela-reward-hub', 2500);
     this.render();
+  },
+
+  hideHub() {
+    const hub = document.getElementById('janela-reward-hub');
+    if (hub) hub.style.display = 'none';
+    if (typeof window.fecharModal === 'function') {
+      window.fecharModal('janela-reward-hub');
+    }
+  },
+
+  teardown() {
+    this.rewards = [];
+    this.lastPendingCount = 0;
+    this.hideHub();
   },
 
   render() {
@@ -384,6 +403,10 @@ export const RewardEngine: RewardEngineApi = {
 };
 
 registerGlobal('RewardEngine', RewardEngine);
+
+document.addEventListener('DOMContentLoaded', () => {
+  RewardEngine.hideHub();
+});
 
 window.addEventListener('load', () => {
   const checkChar = setInterval(() => {

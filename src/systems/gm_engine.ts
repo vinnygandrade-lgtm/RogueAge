@@ -62,16 +62,54 @@ const GMEngine: GmEngineApi = {
     accessLevel: 0,
     activeTab: 'players' as GmPanelTab,
 
+    /** GM controls only after entering the world with an active character. */
+    canShowGmControls() {
+        if (typeof window.isPlayerInGameWorld === 'function') {
+            return window.isPlayerInGameWorld();
+        }
+        const gameScr = document.getElementById('screen-game');
+        const charName = typeof window.charName === 'string' ? window.charName.trim() : '';
+        return !!(charName && gameScr && gameScr.classList.contains('active-screen'));
+    },
+
+    hideGmUi() {
+        const btn = document.getElementById('btn-open-gm');
+        if (btn) btn.remove();
+        const panel = document.getElementById('janela-gm-panel');
+        if (panel) panel.style.display = 'none';
+        if (typeof window.fecharModal === 'function') {
+            window.fecharModal('janela-gm-panel');
+        }
+    },
+
+    async syncGmUi() {
+        await this.refreshGmAccessFromProfile();
+        if (this.accessLevel > 0 && this.canShowGmControls()) {
+            this.renderGMButton();
+        } else {
+            this.hideGmUi();
+        }
+    },
+
+    teardown() {
+        this.accessLevel = 0;
+        this.hideGmUi();
+    },
+
     /**
-     * Initialize GM engine and verify permissions (non-blocking retries via openPanel).
+     * Initialize GM engine and verify permissions (only in-game; openPanel re-checks).
      */
     async init() {
         console.log('🛡️ GM Engine: Checking access...');
+        if (!this.canShowGmControls()) {
+            this.hideGmUi();
+            return;
+        }
         if (typeof window.SupabaseAPI === 'undefined' || !window.SupabaseAPI.client) {
             console.warn('GM Engine: Supabase not initialized.');
             return;
         }
-        await this.refreshGmAccessFromProfile();
+        await this.syncGmUi();
     },
 
     gmT(key, params) {
@@ -131,7 +169,6 @@ const GMEngine: GmEngineApi = {
             if (accessLevel > 0) {
                 this.accessLevel = accessLevel;
                 console.log(`✅ GM access level ${this.accessLevel} granted to:`, user.email);
-                this.renderGMButton();
                 const badge = document.getElementById('gm-level-badge');
                 if (badge) badge.innerText = String(this.accessLevel);
                 return this.accessLevel;
@@ -144,11 +181,12 @@ const GMEngine: GmEngineApi = {
     },
 
     renderGMButton() {
-        let container = document.getElementById('hud-top-bar');
-        
+        if (!this.canShowGmControls()) return;
+
+        const container = document.getElementById('hud-top-bar');
         if (!container) {
-            console.log("⚠️ HUD not found; attaching GM button to document body.");
-            container = document.body;
+            console.log('⚠️ HUD not found; GM button deferred until in-game HUD is ready.');
+            return;
         }
 
         if (!document.getElementById('btn-open-gm')) {
@@ -180,6 +218,10 @@ const GMEngine: GmEngineApi = {
     },
 
     async openPanel() {
+        if (!this.canShowGmControls()) {
+            this.hideGmUi();
+            return;
+        }
         await this.refreshGmAccessFromProfile();
         if (this.accessLevel < 1) {
             const msg =
@@ -858,7 +900,7 @@ const GMEngine: GmEngineApi = {
 registerGlobal('GMEngine', GMEngine);
 
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => void GMEngine.init(), 2000);
+    GMEngine.hideGmUi();
 });
 
 export {};

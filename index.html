@@ -17,6 +17,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
+    <style id="l2-critical-modals">
+        /* Evita flash dos painéis GM/Rewards antes do bundle CSS no mobile */
+        #janela-gm-panel,
+        #janela-reward-hub {
+            display: none;
+        }
+    </style>
     <link rel="stylesheet" href="css/shell.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/layout.css">
@@ -767,7 +774,7 @@
 
 
     <!-- TELA: REWARD HUB (Centro de Recompensas Moderno) -->
-    <div id="janela-reward-hub" class="l2-modal-overlay">
+    <div id="janela-reward-hub" class="l2-modal-overlay" style="display:none">
         <div class="l2-modal l2-modal--reward">
             <div class="l2-modal-header l2-modal-header--reward">
                 <span data-i18n="reward.windowTitle">GLOBAL REWARDS</span>
@@ -781,7 +788,7 @@
             </div>
         </div>
     </div>
-    <div id="janela-gm-panel" class="l2-modal-overlay">
+    <div id="janela-gm-panel" class="l2-modal-overlay" style="display:none">
         <div class="l2-modal l2-modal--gm">
             <div class="l2-modal-header l2-modal-header--gm">
                 <span data-i18n="game.gmPanel.title">ADMIN DASHBOARD (GM)</span>

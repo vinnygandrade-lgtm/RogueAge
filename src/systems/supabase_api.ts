@@ -170,6 +170,12 @@ const SupabaseAPI = {
                     if (window.mostrarAviso) window.mostrarAviso(typeof window.t === 'function' ? window.t('game.cloud.syncConnected') : "Cloud Sync Connected");
                 } else if (event === 'SIGNED_OUT') {
                     console.warn("⚠️ Sessão Cloud Encerrada.");
+                    if (window.GMEngine?.teardown) {
+                        window.GMEngine.teardown();
+                    }
+                    if (window.RewardEngine?.teardown) {
+                        window.RewardEngine.teardown();
+                    }
                     window._l2miniLastCarregarChar = null;
                     if (this._multiLoginKickTimer) {
                         clearTimeout(this._multiLoginKickTimer);

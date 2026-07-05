@@ -50,7 +50,16 @@ export function setBootProgress(percent: number, message?: string): void {
   }
 }
 
+export function sealStaffModalsOnBoot(): void {
+  for (const id of ['janela-gm-panel', 'janela-reward-hub']) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
+}
+
 export function showBootLoading(message?: string): void {
+  sealStaffModalsOnBoot();
+
   document.body.classList.add(BOOT_BODY_CLASS);
 
   const overlay = overlayEl();
@@ -107,6 +116,7 @@ export function finishBootLoading(): void {
 
   document.body.classList.remove(BOOT_BODY_CLASS);
   setLoginFormEnabled(true);
+  sealStaffModalsOnBoot();
 
   // Um único fade curto — não delegar ao AuthEngine (evita 2 timeouts em cascata).
   hideBootOverlay(BOOT_HIDE_MS);

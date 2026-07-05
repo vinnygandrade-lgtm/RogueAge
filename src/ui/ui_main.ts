@@ -433,6 +433,7 @@ function ativarNovaTela(target: HTMLElement, id: string) {
     // Garante que os conteúdos internos do jogo sumam se a tela principal for trocada
     if (id !== 'screen-game') {
         if (typeof fecharTodosModaisBackdropStack === 'function') fecharTodosModaisBackdropStack();
+        closeStaffModals();
         document.querySelectorAll('.screen-content').forEach((sc) => {
             (sc as HTMLElement).style.display = 'none';
         });
@@ -441,6 +442,26 @@ function ativarNovaTela(target: HTMLElement, id: string) {
 
 // --- SISTEMA DE MODAIS E TRAVAS DE INTERAÇÃO ---
 let modaisAtivos = [];
+
+const STAFF_MODAL_IDS = ['janela-gm-panel', 'janela-reward-hub'] as const;
+
+function isPlayerInGameWorld(): boolean {
+    const gameScr = document.getElementById('screen-game');
+    const charName = typeof window.charName === 'string' ? window.charName.trim() : '';
+    return !!(charName && gameScr && gameScr.classList.contains('active-screen'));
+}
+
+function closeStaffModals(): void {
+    for (const id of STAFF_MODAL_IDS) {
+        fecharModal(id);
+    }
+    if (window.GMEngine?.hideGmUi) {
+        window.GMEngine.hideGmUi();
+    }
+    if (window.RewardEngine?.hideHub) {
+        window.RewardEngine.hideHub();
+    }
+}
 
 /** Modais que só fecham pelos botões internos (clique no véu não dispensa). */
 const MODAL_NO_BACKDROP_DISMISS = {
@@ -475,6 +496,10 @@ function toggleModalBackdrop(id, show, zIndex = 1500) {
 function abrirModal(id: string, zIndex = 1500) {
     const el = document.getElementById(id);
     if (!el) return;
+
+    if ((STAFF_MODAL_IDS as readonly string[]).includes(id) && !isPlayerInGameWorld()) {
+        return;
+    }
     
     // Se já estiver visível, apenas ajusta o z-index e o overlay
     if (el.style.display === 'flex') {
@@ -556,6 +581,7 @@ function fecharTodosModaisBackdropStack() {
     if (modaisAtivos.length) modaisAtivos.length = 0;
     var mo = document.getElementById('modal-overlay');
     if (mo) mo.style.display = 'none';
+    closeStaffModals();
 }
 window.fecharTodosModaisBackdropStack = fecharTodosModaisBackdropStack;
 
@@ -1644,6 +1670,8 @@ window.indexSelecao = window.indexSelecao ?? 0;
 window.abrirModal = abrirModal;
 window.fecharModal = fecharModal;
 window.fecharTopModal = fecharTopModal;
+window.isPlayerInGameWorld = isPlayerInGameWorld;
+window.closeStaffModals = closeStaffModals;
 window.mudarTela = mudarTela;
 window.irPara = irPara;
 window.abrirNpc = abrirNpc;

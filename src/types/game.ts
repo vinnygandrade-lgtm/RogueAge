@@ -1243,6 +1243,10 @@ export interface GmEngineApi {
   accessLevel: number;
   activeTab: GmPanelTab;
   init: () => Promise<void>;
+  canShowGmControls: () => boolean;
+  hideGmUi: () => void;
+  syncGmUi: () => Promise<void>;
+  teardown: () => void;
   gmT: (key: string, params?: Record<string, string | number>) => string;
   escapeHtml: (s: unknown) => string;
   encodeGmAttr: (s: unknown) => string;
@@ -1872,6 +1876,8 @@ export interface RewardEngineApi {
   updateBadge(): void;
   createHUDBtn(): void;
   open(): void;
+  hideHub(): void;
+  teardown(): void;
   render(): void;
   renderItems(items: NormalizedRewardItem[]): string;
   claim(id: string): Promise<void>;

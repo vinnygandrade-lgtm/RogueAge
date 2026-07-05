@@ -746,11 +746,6 @@ const AuthEngine = {
         this.loadCharacterList().then(() => {
             this.hideLoading();
             window.window.mudarTela('screen-char-select');
-
-            // Tenta inicializar modo GM se o usuário tiver acesso
-            if (window.GMEngine?.init) {
-                void window.GMEngine.init();
-            }
         }).catch((err) => {
             console.error('Erro ao carregar lista de personagens:', err);
             this.hideLoading();
@@ -988,6 +983,10 @@ const AuthEngine = {
                     void window.SupabaseAPI.ensureChatConnected(name, {});
                 }
 
+                if (window.GMEngine?.init) {
+                    void window.GMEngine.init();
+                }
+
                 setTimeout(() => {
                     this.loading = false;
                     this.hideLoading();
@@ -1158,6 +1157,12 @@ const AuthEngine = {
 
     logout() {
         this._passwordRecoveryMode = false;
+        if (window.GMEngine?.teardown) {
+            window.GMEngine.teardown();
+        }
+        if (window.RewardEngine?.teardown) {
+            window.RewardEngine.teardown();
+        }
         if (typeof window.SupabaseAPI !== 'undefined' && window.SUPABASE_CONFIG.enabled && window.SupabaseAPI.client) {
             window.SupabaseAPI.client.auth.signOut();
         }
