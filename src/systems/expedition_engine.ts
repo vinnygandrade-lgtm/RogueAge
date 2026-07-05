@@ -19,6 +19,18 @@ export interface ExpeditionRunStats {
     rareEventType: ExpeditionRareEventType | null;
 }
 
+export type ExpeditionEnchantSlot = 'weapon' | 'armor' | 'neck' | 'ear1' | 'ear2' | 'ring1' | 'ring2';
+
+export interface ExpeditionRunEnchantBonus {
+    weapon: number;
+    armor: number;
+    neck: number;
+    ear1: number;
+    ear2: number;
+    ring1: number;
+    ring2: number;
+}
+
 export interface ExpeditionRunBuffs {
     pAtkPct: number;
     mAtkPct: number;
@@ -26,12 +38,20 @@ export interface ExpeditionRunBuffs {
     critRatePct: number;
     atkSpeedPct: number;
     maxHpPct: number;
+    poisonResPct: number;
+    bleedResPct: number;
+    /** Bonus to passive HP regen ticks during the run (+10% per card, capped). */
+    hpRegenPct: number;
+    /** Reduces skill MP cost during the run (−15% per card, capped at 60% total). */
+    mpCostReductionPct: number;
 }
 
 export interface ExpeditionPathChoice {
     id: string;
     type: ExpeditionPathType;
 }
+
+export type ExpeditionRunPanelTab = 'path' | 'stats' | 'gear';
 
 export interface ExpeditionState {
     active: boolean;
@@ -44,6 +64,8 @@ export interface ExpeditionState {
     /** True while the current map step was forced to fights-only (UI hint). */
     combatOnlyThisJourney: boolean;
     runBuffs: ExpeditionRunBuffs;
+    /** Temporary +enchant on equipped gear — reverts when the run ends (not saved). */
+    runEnchantBonus: ExpeditionRunEnchantBonus;
     runStats: ExpeditionRunStats;
     journeyTrait: JourneyMobTrait;
     nextJourneyTrait: JourneyMobTrait;
@@ -53,6 +75,8 @@ export interface ExpeditionState {
     rareEventUsed: boolean;
     pendingRareEvent: boolean;
     rareEventType: ExpeditionRareEventType | null;
+    /** Main run screen tab: path cards, stats, or equipped gear. */
+    runPanelTab: ExpeditionRunPanelTab;
     bag: {
         adenas: number;
         xp: number;
@@ -172,6 +196,46 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleFallback: 'Survival Instinct',
         descKey: 'game.hunt.expedition.upgradeVitalityDesc',
         descFallback: '+8% Max HP for this run'
+    },
+    {
+        id: 'poison_res',
+        icon: '☠️',
+        stat: 'poisonResPct',
+        value: 10,
+        titleKey: 'game.hunt.expedition.upgradePoisonResTitle',
+        titleFallback: 'Toxic Ward',
+        descKey: 'game.hunt.expedition.upgradePoisonResDesc',
+        descFallback: '-10% poison damage for this run'
+    },
+    {
+        id: 'bleed_res',
+        icon: '🩸',
+        stat: 'bleedResPct',
+        value: 10,
+        titleKey: 'game.hunt.expedition.upgradeBleedResTitle',
+        titleFallback: 'Hemostatic Wrap',
+        descKey: 'game.hunt.expedition.upgradeBleedResDesc',
+        descFallback: '-10% bleed damage for this run'
+    },
+    {
+        id: 'hp_regen',
+        icon: '💚',
+        stat: 'hpRegenPct',
+        value: 10,
+        titleKey: 'game.hunt.expedition.upgradeHpRegenTitle',
+        titleFallback: 'Field Medic',
+        descKey: 'game.hunt.expedition.upgradeHpRegenDesc',
+        descFallback: '+10% HP regeneration during this run (map and combat)'
+    },
+    {
+        id: 'mp_efficiency',
+        icon: '🔷',
+        stat: 'mpCostReductionPct',
+        value: 15,
+        titleKey: 'game.hunt.expedition.upgradeMpEfficiencyTitle',
+        titleFallback: 'Arcane Efficiency',
+        descKey: 'game.hunt.expedition.upgradeMpEfficiencyDesc',
+        descFallback: '−15% MP cost on skills for this run'
     }
 ];
 
@@ -227,6 +291,9 @@ const RARE_EVENT_TYPES: ExpeditionRareEventType[] = ['shrine', 'gambler', 'cache
 export class ExpeditionEngine {
     static state: ExpeditionState = ExpeditionEngine.createInitialState('');
 
+    /** When true, calcularStatusGlobais skips run-buff apply (upgrade UI base snapshot). */
+    static _skipRunBuffApply = false;
+
     static pendingPathIndex: number | null = null;
     static pendingUpgradeOptions: UpgradeDef[] = [];
     static lastCombatLoot: ExpeditionBagDelta | null = null;
@@ -242,6 +309,7 @@ export class ExpeditionEngine {
             combatOnlyNextJourney: false,
             combatOnlyThisJourney: false,
             runBuffs: ExpeditionEngine.emptyRunBuffs(),
+            runEnchantBonus: ExpeditionEngine.emptyRunEnchantBonus(),
             runStats: ExpeditionEngine.emptyRunStats(),
             journeyTrait: 'brutal',
             nextJourneyTrait: 'brutal',
@@ -251,6 +319,7 @@ export class ExpeditionEngine {
             rareEventUsed: false,
             pendingRareEvent: false,
             rareEventType: null,
+            runPanelTab: 'path',
             bag: { adenas: 0, xp: 0, drops: {} }
         };
     }
@@ -270,7 +339,134 @@ export class ExpeditionEngine {
     }
 
     static emptyRunBuffs(): ExpeditionRunBuffs {
-        return { pAtkPct: 0, mAtkPct: 0, pDefPct: 0, critRatePct: 0, atkSpeedPct: 0, maxHpPct: 0 };
+        return {
+            pAtkPct: 0,
+            mAtkPct: 0,
+            pDefPct: 0,
+            critRatePct: 0,
+            atkSpeedPct: 0,
+            maxHpPct: 0,
+            poisonResPct: 0,
+            bleedResPct: 0,
+            hpRegenPct: 0,
+            mpCostReductionPct: 0
+        };
+    }
+
+    /** Passive HP regen multiplier during an active run (1.0 = base, 1.1 = +10% card). */
+    static getHpRegenMult(): number {
+        if (!this.state.active) return 1;
+        const pct = Math.min(100, Math.max(0, Number(this.state.runBuffs.hpRegenPct) || 0));
+        return 1 + pct / 100;
+    }
+
+    /** Effective MP cost for a skill during an active expedition run (min 1 when base > 0). */
+    static getSkillMpCost(baseMp: number): number {
+        const base = Math.max(0, Math.floor(Number(baseMp) || 0));
+        if (!base) return 0;
+        if (!this.state.active) return base;
+        const pct = Math.min(60, Math.max(0, Number(this.state.runBuffs.mpCostReductionPct) || 0));
+        return Math.max(1, Math.floor(base * (1 - pct / 100)));
+    }
+
+    static emptyRunEnchantBonus(): ExpeditionRunEnchantBonus {
+        return { weapon: 0, armor: 0, neck: 0, ear1: 0, ear2: 0, ring1: 0, ring2: 0 };
+    }
+
+    static getRunEnchantBonus(slot: ExpeditionEnchantSlot): number {
+        if (!this.state.active) return 0;
+        return Math.max(0, Number(this.state.runEnchantBonus[slot]) || 0);
+    }
+
+    static getBaseEnchantLevel(item: unknown): number {
+        if (!item || typeof item !== 'object') return 0;
+        const row = item as { enchant?: number; enchantArmor?: number; enchantJewel?: number };
+        if (row.enchant !== undefined) return Math.max(0, Math.floor(Number(row.enchant) || 0));
+        return Math.max(0, Math.floor(Number(row.enchantArmor ?? row.enchantJewel) || 0));
+    }
+
+    static getEffectiveRunEnchantLevel(slot: ExpeditionEnchantSlot, item: unknown): number {
+        return this.getBaseEnchantLevel(item) + this.getRunEnchantBonus(slot);
+    }
+
+    static collectForgeEnchantTargets(): {
+        slot: ExpeditionEnchantSlot;
+        item: unknown;
+        name: string;
+        slotLabelKey: string;
+    }[] {
+        const win = window as any;
+        const sec = win.ItemSecurity;
+        const targets: ReturnType<typeof ExpeditionEngine.collectForgeEnchantTargets> = [];
+        const push = (slot: ExpeditionEnchantSlot, item: unknown, slotLabelKey: string) => {
+            if (!item) return;
+            if (sec && typeof sec.isValidInstance === 'function' && !sec.isValidInstance(item)) return;
+            const base = (item as { base?: { nome?: string }; nome?: string }).base || item;
+            const name = (base as { nome?: string }).nome || '?';
+            targets.push({ slot, item, name, slotLabelKey });
+        };
+        push('weapon', win.armaEquipadaBase, 'game.hunt.expedition.forgeSlotWeapon');
+        push('armor', win.armaduraEquipada, 'game.hunt.expedition.forgeSlotArmor');
+        push('neck', win.colarEquipado, 'game.hunt.expedition.forgeSlotNeck');
+        push('ear1', win.brincoEquipado1, 'game.hunt.expedition.forgeSlotEar');
+        push('ear2', win.brincoEquipado2, 'game.hunt.expedition.forgeSlotEar');
+        push('ring1', win.anelEquipado1, 'game.hunt.expedition.forgeSlotRing');
+        push('ring2', win.anelEquipado2, 'game.hunt.expedition.forgeSlotRing');
+        return targets;
+    }
+
+    static applyRandomForgeEnchant():
+        | { ok: true; slot: ExpeditionEnchantSlot; itemName: string; slotLabel: string; before: number; after: number }
+        | { ok: false; reason: 'no_gear' | 'max_enchant' } {
+        const targets = this.collectForgeEnchantTargets();
+        const eligible = targets.filter((t) => this.getEffectiveRunEnchantLevel(t.slot, t.item) < 25);
+        if (eligible.length === 0) {
+            return { ok: false, reason: targets.length === 0 ? 'no_gear' : 'max_enchant' };
+        }
+        const pick = eligible[Math.floor(Math.random() * eligible.length)];
+        const before = this.getEffectiveRunEnchantLevel(pick.slot, pick.item);
+        this.state.runEnchantBonus[pick.slot] += 1;
+        return {
+            ok: true,
+            slot: pick.slot,
+            itemName: pick.name,
+            slotLabel: this.t(pick.slotLabelKey, pick.slot),
+            before,
+            after: before + 1
+        };
+    }
+
+    static buildRunEnchantChipsHtml(): string {
+        const en = this.state.runEnchantBonus;
+        const chips: string[] = [];
+        const add = (value: number, icon: string, label: string) => {
+            if (value > 0) chips.push(`${icon} +${value} ${label}`);
+        };
+        add(en.weapon, '⚔️', this.t('game.hunt.expedition.runEnchantWeaponShort', 'Wpn'));
+        add(en.armor, '🛡️', this.t('game.hunt.expedition.runEnchantArmorShort', 'Armor'));
+        add(en.neck, '💎', this.t('game.hunt.expedition.runEnchantNeckShort', 'Neck'));
+        add(en.ear1 + en.ear2, '👂', this.t('game.hunt.expedition.runEnchantEarShort', 'Ear'));
+        add(en.ring1 + en.ring2, '💍', this.t('game.hunt.expedition.runEnchantRingShort', 'Ring'));
+        return chips
+            .map((c) => `<span class="expedition-run-buffs__chip expedition-run-buffs__chip--forge">${c}</span>`)
+            .join('');
+    }
+
+    static buildRunEnchantSummaryText(): string {
+        const en = this.state.runEnchantBonus;
+        const parts: string[] = [];
+        const add = (value: number, label: string) => {
+            if (value > 0) parts.push(`+${value} ${label}`);
+        };
+        add(en.weapon, this.t('game.hunt.expedition.runEnchantWeaponShort', 'Wpn'));
+        add(en.armor, this.t('game.hunt.expedition.runEnchantArmorShort', 'Armor'));
+        add(en.neck, this.t('game.hunt.expedition.runEnchantNeckShort', 'Neck'));
+        const earTotal = en.ear1 + en.ear2;
+        if (earTotal > 0) add(earTotal, this.t('game.hunt.expedition.runEnchantEarShort', 'Ear'));
+        const ringTotal = en.ring1 + en.ring2;
+        if (ringTotal > 0) add(ringTotal, this.t('game.hunt.expedition.runEnchantRingShort', 'Ring'));
+        if (!parts.length) return '';
+        return this.t('game.hunt.expedition.extractSummaryForge', 'Forge: {items}', { items: parts.join(', ') });
     }
 
     static t(key: string, fallback: string, params?: Record<string, string | number>): string {
@@ -384,20 +580,27 @@ export class ExpeditionEngine {
     }
 
     static rollRandomRunStat(): keyof ExpeditionRunBuffs {
-        const statKeys: (keyof ExpeditionRunBuffs)[] = ['pAtkPct', 'mAtkPct', 'pDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct'];
+        const statKeys: (keyof ExpeditionRunBuffs)[] = [
+            'pAtkPct', 'mAtkPct', 'pDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct', 'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpCostReductionPct'
+        ];
         return statKeys[Math.floor(Math.random() * statKeys.length)];
     }
 
     static runStatLabel(stat: keyof ExpeditionRunBuffs): string {
-        const labels: Record<keyof ExpeditionRunBuffs, string> = {
-            pAtkPct: 'P.Atk',
-            mAtkPct: 'M.Atk',
-            pDefPct: 'P.Def',
-            critRatePct: 'Crit',
-            atkSpeedPct: 'Spd',
-            maxHpPct: 'HP'
+        const labels: Record<keyof ExpeditionRunBuffs, [string, string]> = {
+            pAtkPct: ['game.hunt.expedition.runStatPatk', 'P.Atk'],
+            mAtkPct: ['game.hunt.expedition.runStatMatk', 'M.Atk'],
+            pDefPct: ['game.hunt.expedition.runStatPdef', 'P.Def'],
+            critRatePct: ['game.hunt.expedition.runStatCrit', 'Crit'],
+            atkSpeedPct: ['game.hunt.expedition.runStatSpd', 'Spd'],
+            maxHpPct: ['game.hunt.expedition.runStatHp', 'HP'],
+            poisonResPct: ['game.hunt.expedition.runStatPoisonRes', 'Poison res'],
+            bleedResPct: ['game.hunt.expedition.runStatBleedRes', 'Bleed res'],
+            hpRegenPct: ['game.hunt.expedition.runStatHpRegen', 'HP regen'],
+            mpCostReductionPct: ['game.hunt.expedition.runStatMpEfficiency', 'MP cost']
         };
-        return labels[stat];
+        const [key, fb] = labels[stat];
+        return this.t(key, fb);
     }
 
     /** Three path cards per journey — fight routes vs safe loot. Journey 10/20/… = mandatory boss gate. */
@@ -434,6 +637,7 @@ export class ExpeditionEngine {
         if (!this.state.rareEventUsed && this.state.journey === this.state.rareEventJourney) {
             this.state.pendingRareEvent = true;
             this.state.rareEventType = this.rollRareEventType();
+            this.state.runPanelTab = 'path';
         } else {
             this.state.pendingRareEvent = false;
         }
@@ -542,19 +746,354 @@ export class ExpeditionEngine {
         const win = window as any;
         const ps = win.playerStats;
         if (!ps) return;
-        const m = this.getRunBuffMults();
-        ps.pAtk = Math.floor(ps.pAtk * m.pAtk);
-        ps.mAtk = Math.floor(ps.mAtk * m.mAtk);
-        ps.pDef = Math.floor(ps.pDef * m.pDef);
-        ps.critRate = typeof win.applyCritRateCap === 'function'
-            ? win.applyCritRateCap(Math.floor(ps.critRate * m.crit))
-            : Math.min(70, Math.floor(ps.critRate * m.crit));
-        ps.atkSpeed = Math.max(250, Math.floor(ps.atkSpeed * m.atkSpeed));
+        const buffed = this.computeRunBuffedStats({
+            pAtk: ps.pAtk,
+            mAtk: ps.mAtk,
+            pDef: ps.pDef,
+            critRate: ps.critRate,
+            atkSpeed: ps.atkSpeed,
+            maxHp: ps.maxHp
+        });
         const oldMax = ps.maxHp;
-        ps.maxHp = Math.floor(ps.maxHp * m.maxHp);
+        ps.pAtk = buffed.pAtk;
+        ps.mAtk = buffed.mAtk;
+        ps.pDef = buffed.pDef;
+        ps.critRate = buffed.critRate;
+        ps.atkSpeed = buffed.atkSpeed;
+        ps.maxHp = buffed.maxHp;
         if (typeof win.playerHP === 'number' && oldMax > 0) {
             win.playerHP = Math.min(ps.maxHp, Math.floor(win.playerHP * (ps.maxHp / oldMax)));
         }
+    }
+
+    static computeRunBuffedStats(base: {
+        pAtk: number;
+        mAtk: number;
+        pDef: number;
+        critRate: number;
+        atkSpeed: number;
+        maxHp: number;
+    }) {
+        const win = window as any;
+        const m = this.getRunBuffMults();
+        return {
+            pAtk: Math.floor(base.pAtk * m.pAtk),
+            mAtk: Math.floor(base.mAtk * m.mAtk),
+            pDef: Math.floor(base.pDef * m.pDef),
+            critRate: typeof win.applyCritRateCap === 'function'
+                ? win.applyCritRateCap(Math.floor(base.critRate * m.crit))
+                : Math.min(70, Math.floor(base.critRate * m.crit)),
+            atkSpeed: Math.max(250, Math.floor(base.atkSpeed * m.atkSpeed)),
+            maxHp: Math.floor(base.maxHp * m.maxHp)
+        };
+    }
+
+    static getUpgradeStatSnapshot(): {
+        base: { pAtk: number; mAtk: number; pDef: number; mDef: number; critRate: number; atkSpeed: number; maxHp: number };
+        total: { pAtk: number; mAtk: number; pDef: number; critRate: number; atkSpeed: number; maxHp: number };
+    } {
+        const win = window as any;
+        this._skipRunBuffApply = true;
+        try {
+            if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+        } finally {
+            this._skipRunBuffApply = false;
+        }
+        const ps = win.playerStats || {};
+        const base = {
+            pAtk: Math.floor(Number(ps.pAtk) || 0),
+            mAtk: Math.floor(Number(ps.mAtk) || 0),
+            pDef: Math.floor(Number(ps.pDef) || 0),
+            mDef: Math.floor(Number(ps.mDef) || 0),
+            critRate: Math.floor(Number(ps.critRate) || 0),
+            atkSpeed: Math.floor(Number(ps.atkSpeed) || 0),
+            maxHp: Math.floor(Number(ps.maxHp) || 0)
+        };
+        return {
+            base,
+            total: this.computeRunBuffedStats(base)
+        };
+    }
+
+    static formatStatBonusText(bonus: number): string {
+        if (!bonus) return '';
+        const sign = bonus > 0 ? '+' : '−';
+        return `${sign} ${Math.abs(bonus).toLocaleString()}`;
+    }
+
+    static buildRunStatsTableHtml(): string {
+        const { base, total } = this.getUpgradeStatSnapshot();
+        const colBase = this.t('game.hunt.expedition.runStatsColBase', 'Base');
+        const colRun = this.t('game.hunt.expedition.runStatsColRun', 'Run');
+        const colTotal = this.t('game.hunt.expedition.runStatsColTotal', 'Total');
+        const groupOffense = this.t('game.hunt.expedition.runStatsGroupOffense', 'Offense');
+        const groupDefense = this.t('game.hunt.expedition.runStatsGroupDefense', 'Defense');
+        const legend = this.t(
+            'game.hunt.expedition.runStatsLegend',
+            'White = your character · Green = run bonus · Gold = total in combat'
+        );
+
+        const offenseRows = [
+            { label: this.t('game.hunt.expedition.upgradeStatPatk', 'P.Atk'), baseVal: base.pAtk, totalVal: total.pAtk },
+            { label: this.t('game.hunt.expedition.upgradeStatMatk', 'M.Atk'), baseVal: base.mAtk, totalVal: total.mAtk },
+            { label: this.t('game.hunt.expedition.upgradeStatCrit', 'Crit'), baseVal: base.critRate, totalVal: total.critRate },
+            { label: this.t('game.hunt.expedition.upgradeStatSpd', 'Atk Spd'), baseVal: base.atkSpeed, totalVal: total.atkSpeed }
+        ];
+        const defenseRows = [
+            { label: this.t('game.hunt.expedition.upgradeStatPdef', 'P.Def'), baseVal: base.pDef, totalVal: total.pDef },
+            { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, totalVal: base.mDef, noRunBuff: true },
+            { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, totalVal: total.maxHp }
+        ];
+
+        const renderRow = (row: { label: string; baseVal: number; totalVal: number; noRunBuff?: boolean }) => {
+            const bonus = row.noRunBuff ? 0 : row.totalVal - row.baseVal;
+            const runHtml = row.noRunBuff || bonus <= 0
+                ? `<span class="exp-run-stat-row__run exp-run-stat-row__run--na" aria-hidden="true">—</span>`
+                : `<span class="exp-run-stat-row__run">+${bonus.toLocaleString()}</span>`;
+            const totalVal = row.noRunBuff ? row.baseVal : row.totalVal;
+            const totalClass = bonus > 0 && !row.noRunBuff
+                ? 'exp-run-stat-row__total exp-run-stat-row__total--buffed'
+                : 'exp-run-stat-row__total';
+            return `<div class="exp-run-stat-row">
+                <span class="exp-run-stat-row__label">${row.label}</span>
+                <span class="exp-run-stat-row__base">${row.baseVal.toLocaleString()}</span>
+                ${runHtml}
+                <span class="${totalClass}">${totalVal.toLocaleString()}</span>
+            </div>`;
+        };
+
+        return `<div class="exp-run-stats-table">
+            <p class="exp-run-stats-legend">${legend}</p>
+            <div class="exp-run-stats-table__head" aria-hidden="true">
+                <span class="exp-run-stats-table__head-stat"></span>
+                <span>${colBase}</span>
+                <span>${colRun}</span>
+                <span>${colTotal}</span>
+            </div>
+            <div class="exp-run-stats-table__group">${groupOffense}</div>
+            ${offenseRows.map(renderRow).join('')}
+            <div class="exp-run-stats-table__group">${groupDefense}</div>
+            ${defenseRows.map(renderRow).join('')}
+        </div>`;
+    }
+
+    static buildRunUpgradesChipsHtml(): string {
+        const chips: string[] = [];
+        const b = this.state.runBuffs;
+        const pctLines: [keyof ExpeditionRunBuffs, string, 'offense' | 'defense' | 'resist' | 'regen'][] = [
+            ['pAtkPct', '⚔️', 'offense'],
+            ['mAtkPct', '✨', 'offense'],
+            ['critRatePct', '🎯', 'offense'],
+            ['atkSpeedPct', '💨', 'offense'],
+            ['pDefPct', '🛡️', 'defense'],
+            ['maxHpPct', '❤️', 'defense'],
+            ['hpRegenPct', '💚', 'regen'],
+            ['poisonResPct', '☠️', 'resist'],
+            ['bleedResPct', '🩸', 'resist'],
+            ['mpCostReductionPct', '🔷', 'resist']
+        ];
+        for (const [stat, icon, tone] of pctLines) {
+            const val = b[stat];
+            if (!val) continue;
+            const isRes = stat === 'poisonResPct' || stat === 'bleedResPct' || stat === 'mpCostReductionPct';
+            const valText = `${isRes ? '−' : '+'}${val}%`;
+            chips.push(`<span class="exp-run-upgrade-chip exp-run-upgrade-chip--${tone}">
+                <span class="exp-run-upgrade-chip__icon" aria-hidden="true">${icon}</span>
+                <span class="exp-run-upgrade-chip__val">${valText}</span>
+                <span class="exp-run-upgrade-chip__label">${this.runStatLabel(stat)}</span>
+            </span>`);
+        }
+        const en = this.state.runEnchantBonus;
+        const addForge = (value: number, icon: string, label: string) => {
+            if (value > 0) {
+                chips.push(`<span class="exp-run-upgrade-chip exp-run-upgrade-chip--forge">
+                    <span class="exp-run-upgrade-chip__icon" aria-hidden="true">${icon}</span>
+                    <span class="exp-run-upgrade-chip__val">+${value}</span>
+                    <span class="exp-run-upgrade-chip__label">${label}</span>
+                </span>`);
+            }
+        };
+        addForge(en.weapon, '⚔️', this.t('game.hunt.expedition.runEnchantWeaponShort', 'Wpn'));
+        addForge(en.armor, '🛡️', this.t('game.hunt.expedition.runEnchantArmorShort', 'Armor'));
+        addForge(en.neck, '💎', this.t('game.hunt.expedition.runEnchantNeckShort', 'Neck'));
+        const earTotal = en.ear1 + en.ear2;
+        if (earTotal > 0) addForge(earTotal, '👂', this.t('game.hunt.expedition.runEnchantEarShort', 'Ear'));
+        const ringTotal = en.ring1 + en.ring2;
+        if (ringTotal > 0) addForge(ringTotal, '💍', this.t('game.hunt.expedition.runEnchantRingShort', 'Ring'));
+
+        if (!chips.length) {
+            return `<p class="exp-run-upgrades-empty">${this.t('game.hunt.expedition.runBuffsEmpty', 'No run upgrades yet — win fights to grow stronger.')}</p>`;
+        }
+        return `<div class="exp-run-upgrade-chips">${chips.join('')}</div>`;
+    }
+
+    static buildUpgradeStatsHtml(): string {
+        const { base, total } = this.getUpgradeStatSnapshot();
+        const rows: { label: string; baseVal: number; bonus?: number; totalOnly?: boolean }[] = [
+            { label: this.t('game.hunt.expedition.upgradeStatPatk', 'P.Atk'), baseVal: base.pAtk, bonus: total.pAtk - base.pAtk },
+            { label: this.t('game.hunt.expedition.upgradeStatMatk', 'M.Atk'), baseVal: base.mAtk, bonus: total.mAtk - base.mAtk },
+            { label: this.t('game.hunt.expedition.upgradeStatPdef', 'P.Def'), baseVal: base.pDef, bonus: total.pDef - base.pDef },
+            { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, totalOnly: true },
+            { label: this.t('game.hunt.expedition.upgradeStatCrit', 'Crit'), baseVal: base.critRate, bonus: total.critRate - base.critRate },
+            { label: this.t('game.hunt.expedition.upgradeStatSpd', 'Atk Spd'), baseVal: base.atkSpeed, bonus: total.atkSpeed - base.atkSpeed },
+            { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, bonus: total.maxHp - base.maxHp }
+        ];
+
+        return rows.map((row) => {
+            const bonusHtml = !row.totalOnly && row.bonus
+                ? `<span class="exp-upgrade-stat__bonus">${this.formatStatBonusText(row.bonus)}</span>`
+                : '';
+            return `<div class="exp-upgrade-stat">
+                <span class="exp-upgrade-stat__label">${row.label}</span>
+                <span class="exp-upgrade-stat__values">
+                    <span class="exp-upgrade-stat__base">${row.baseVal.toLocaleString()}</span>${bonusHtml}
+                </span>
+            </div>`;
+        }).join('');
+    }
+
+    static buildRunUpgradesDetailListHtml(): string {
+        const lines: string[] = [];
+        const b = this.state.runBuffs;
+        const pctLines: [keyof ExpeditionRunBuffs, string][] = [
+            ['pAtkPct', '⚔️'],
+            ['mAtkPct', '✨'],
+            ['pDefPct', '🛡️'],
+            ['critRatePct', '🎯'],
+            ['atkSpeedPct', '💨'],
+            ['maxHpPct', '❤️'],
+            ['hpRegenPct', '💚'],
+            ['poisonResPct', '☠️'],
+            ['bleedResPct', '🩸'],
+            ['mpCostReductionPct', '🔷']
+        ];
+        for (const [stat, icon] of pctLines) {
+            const val = b[stat];
+            if (!val) continue;
+            const isRes = stat === 'poisonResPct' || stat === 'bleedResPct' || stat === 'mpCostReductionPct';
+            lines.push(`${icon} ${isRes ? '−' : '+'}${val}% ${this.runStatLabel(stat)}`);
+        }
+        const en = this.state.runEnchantBonus;
+        const addForge = (value: number, icon: string, label: string) => {
+            if (value > 0) lines.push(`${icon} +${value} ${label}`);
+        };
+        addForge(en.weapon, '⚔️', this.t('game.hunt.expedition.runEnchantWeaponShort', 'Wpn'));
+        addForge(en.armor, '🛡️', this.t('game.hunt.expedition.runEnchantArmorShort', 'Armor'));
+        addForge(en.neck, '💎', this.t('game.hunt.expedition.runEnchantNeckShort', 'Neck'));
+        const earTotal = en.ear1 + en.ear2;
+        if (earTotal > 0) addForge(earTotal, '👂', this.t('game.hunt.expedition.runEnchantEarShort', 'Ear'));
+        const ringTotal = en.ring1 + en.ring2;
+        if (ringTotal > 0) addForge(ringTotal, '💍', this.t('game.hunt.expedition.runEnchantRingShort', 'Ring'));
+
+        if (!lines.length) {
+            return `<p class="exp-upgrade-buff-details__empty">${this.t('game.hunt.expedition.upgradeBuffsEmpty', 'No run upgrades yet — pick a card below.')}</p>`;
+        }
+        return `<ul class="exp-upgrade-buff-details__list">${lines.map((line) => `<li>${line}</li>`).join('')}</ul>`;
+    }
+
+    static setRunPanelTab(tab: ExpeditionRunPanelTab) {
+        if (this.state.pendingRareEvent && tab !== 'path') return;
+        if (this.state.runPanelTab === tab) return;
+        this.state.runPanelTab = tab;
+        this.renderMap();
+    }
+
+    static buildRunPanelTabsHtml(): string {
+        const tabs: { id: ExpeditionRunPanelTab; labelKey: string; fallback: string }[] = [
+            { id: 'path', labelKey: 'game.hunt.expedition.runTabPath', fallback: 'Path' },
+            { id: 'stats', labelKey: 'game.hunt.expedition.runTabStats', fallback: 'Stats' },
+            { id: 'gear', labelKey: 'game.hunt.expedition.runTabGear', fallback: 'Gear' }
+        ];
+        const rareLocked = this.state.pendingRareEvent;
+        return `<div class="expedition-run-tabs" role="tablist" aria-label="${this.t('game.hunt.expedition.runTabsLabel', 'Expedition run panels')}">
+            ${tabs.map(({ id, labelKey, fallback }) => {
+                const active = this.state.runPanelTab === id;
+                const disabled = rareLocked && id !== 'path';
+                return `<button type="button" role="tab" class="expedition-run-tab${active ? ' expedition-run-tab--active' : ''}${disabled ? ' expedition-run-tab--disabled' : ''}"
+                    aria-selected="${active ? 'true' : 'false'}"${disabled ? ' disabled' : ''}
+                    onclick="ExpeditionEngine.setRunPanelTab('${id}')">${this.t(labelKey, fallback)}</button>`;
+            }).join('')}
+        </div>`;
+    }
+
+    static buildRunStatsPanelHtml(): string {
+        const statsTitle = this.t('game.hunt.expedition.runStatsTitle', 'Combat stats');
+        const upgradeCount = (() => {
+            let n = 0;
+            for (const v of Object.values(this.state.runBuffs)) if (v > 0) n += 1;
+            for (const v of Object.values(this.state.runEnchantBonus)) if (v > 0) n += 1;
+            return n;
+        })();
+        const upgradesTitle = this.t(
+            'game.hunt.expedition.runUpgradesTitle',
+            'Run upgrades ({n})',
+            { n: upgradeCount }
+        );
+        return `<div class="exp-run-stats-panel" role="tabpanel">
+            <div class="exp-run-stats-panel__section">
+                <div class="exp-run-stats-panel__label">${statsTitle}</div>
+                ${this.buildRunStatsTableHtml()}
+            </div>
+            <div class="exp-run-upgrades-block">
+                <div class="exp-run-upgrades-block__label">${upgradesTitle}</div>
+                ${this.buildRunUpgradesChipsHtml()}
+            </div>
+        </div>`;
+    }
+
+    static buildRunGearRowHtml(
+        slot: ExpeditionEnchantSlot,
+        item: unknown,
+        slotLabelKey: string
+    ): string {
+        const base = ((item as { base?: { nome?: string; img?: string } }).base || item) as { nome?: string; img?: string };
+        const name = base.nome || '?';
+        const baseEn = this.getBaseEnchantLevel(item);
+        const runBonus = this.getRunEnchantBonus(slot);
+        const iconHtml = base.img
+            ? `<span class="exp-run-gear-row__icon"><img src="${base.img}" alt="" class="exp-run-gear-row__img" loading="lazy"></span>`
+            : `<span class="exp-run-gear-row__icon exp-run-gear-row__icon--empty" aria-hidden="true">◇</span>`;
+        const runBonusHtml = runBonus > 0
+            ? `<span class="exp-upgrade-stat__bonus">+ ${runBonus}</span>`
+            : '';
+        const slotLabel = this.t(slotLabelKey, slot);
+        return `<div class="exp-run-gear-row">
+            ${iconHtml}
+            <div class="exp-run-gear-row__body">
+                <span class="exp-run-gear-row__slot">${slotLabel}</span>
+                <span class="exp-run-gear-row__name">${name}</span>
+            </div>
+            <span class="exp-run-gear-row__enchant">
+                <span class="exp-upgrade-stat__base">+${baseEn}</span>${runBonusHtml}
+            </span>
+        </div>`;
+    }
+
+    static buildRunGearPanelHtml(): string {
+        const targets = this.collectForgeEnchantTargets();
+        if (!targets.length) {
+            return `<div class="exp-run-gear-panel exp-run-gear-panel--empty" role="tabpanel">
+                <p class="exp-run-gear-panel__empty">${this.t('game.hunt.expedition.runGearEmpty', 'No equipment equipped.')}</p>
+            </div>`;
+        }
+        const title = this.t('game.hunt.expedition.runGearTitle', 'Equipped this run');
+        const hint = this.t('game.hunt.expedition.runGearHint', 'Green +N is temporary forge bonus — lost on extract or death.');
+        const rows = targets
+            .map((t) => this.buildRunGearRowHtml(t.slot, t.item, t.slotLabelKey))
+            .join('');
+        return `<div class="exp-run-gear-panel" role="tabpanel">
+            <div class="exp-run-gear-panel__label">${title}</div>
+            <p class="exp-run-gear-panel__hint">${hint}</p>
+            <div class="exp-run-gear-list">${rows}</div>
+        </div>`;
+    }
+
+    static buildRunPanelContentHtml(journey: number, pickHint: string): string {
+        if (this.state.runPanelTab === 'stats') return this.buildRunStatsPanelHtml();
+        if (this.state.runPanelTab === 'gear') return this.buildRunGearPanelHtml();
+        return this.state.pendingRareEvent
+            ? this.buildRareEventSectionHtml()
+            : this.buildPathSectionHtml(journey, pickHint);
     }
 
     static refreshRulesDom(root?: HTMLElement | null) {
@@ -785,6 +1324,42 @@ export class ExpeditionEngine {
         this.advanceJourney();
     }
 
+    static syncNavigationLock() {
+        const locked = this.state.active;
+        const gameRoot = document.querySelector('.game-container');
+        const floresta = document.getElementById('tela-floresta');
+        if (gameRoot) gameRoot.classList.toggle('expedition-run-locked', locked);
+        if (floresta) floresta.classList.toggle('expedition-run-active', locked);
+    }
+
+    static promptExitAndExtract(): void {
+        void this.confirmExitAndExtract();
+    }
+
+    static async confirmExitAndExtract(): Promise<void> {
+        if (!this.state.active) return;
+        const win = window as any;
+        const title = this.t('game.hunt.expedition.exitRunTitle', 'Leave expedition?');
+        const body = this.t(
+            'game.hunt.expedition.exitRunBody',
+            'You will extract now and collect 100% of your Expedition Bag (Adena, XP and materials). Run upgrades and forge enchants are cleared.'
+        );
+
+        let ok = false;
+        if (typeof win.l2Confirm === 'function') {
+            ok = await win.l2Confirm(body, title);
+        } else {
+            ok = window.confirm(body);
+        }
+        if (!ok) return;
+
+        if (typeof win.pararAtaqueMonstro === 'function') win.pararAtaqueMonstro();
+        if (typeof win.clearForestPlayerThreats === 'function') win.clearForestPlayerThreats();
+        if (Array.isArray(win.monstrosAtivos)) win.monstrosAtivos.length = 0;
+
+        this.extract();
+    }
+
     static setForestLayoutMode(mode: 'hub' | 'map' | 'combat' | 'idle') {
         const floresta = document.getElementById('tela-floresta');
         const inner = document.querySelector('.tela-floresta-inner') as HTMLElement | null;
@@ -863,6 +1438,7 @@ export class ExpeditionEngine {
             combatOnlyNextJourney: false,
             combatOnlyThisJourney: false,
             runBuffs: this.emptyRunBuffs(),
+            runEnchantBonus: this.emptyRunEnchantBonus(),
             runStats: this.emptyRunStats(),
             journeyTrait: firstTrait,
             nextJourneyTrait: this.rollJourneyTrait(),
@@ -872,11 +1448,15 @@ export class ExpeditionEngine {
             rareEventUsed: false,
             pendingRareEvent: false,
             rareEventType: null,
+            runPanelTab: 'path',
             bag: { adenas: 0, xp: 0, drops: {} }
         };
         this.refreshJourneyPhase();
         this.hideHub();
         this.renderMap();
+        this.syncNavigationLock();
+        const win = window as any;
+        if (typeof win.atualizar === 'function') win.atualizar();
         try {
             const win = window as any;
             if (typeof win.TutorialEngine !== 'undefined' && typeof win.TutorialEngine.notifyHuntSearch === 'function') {
@@ -915,7 +1495,7 @@ export class ExpeditionEngine {
             chest: 'Loot now · no upgrade',
             elite: 'Champions · premium',
             merchant: 'Trade · bag loot',
-            forge: 'Run stat · no fight',
+            forge: 'Random +1 enchant · no fight',
             scout: 'Intel · bag bonus',
             patrol: 'XP march · no gifts',
             tracks: 'Next trait intel',
@@ -941,10 +1521,15 @@ export class ExpeditionEngine {
         if (b.atkSpeedPct) chips.push(`💨 +${b.atkSpeedPct}%`);
         if (b.pDefPct) chips.push(`🛡️ +${b.pDefPct}%`);
         if (b.maxHpPct) chips.push(`❤️ +${b.maxHpPct}%`);
-        if (chips.length === 0) {
+        if (b.hpRegenPct) chips.push(`💚 +${b.hpRegenPct}% regen`);
+        if (b.poisonResPct) chips.push(`☠️ -${b.poisonResPct}%`);
+        if (b.bleedResPct) chips.push(`🩸 -${b.bleedResPct}%`);
+        if (b.mpCostReductionPct) chips.push(`🔷 -${b.mpCostReductionPct}% MP`);
+        const enchantHtml = this.buildRunEnchantChipsHtml();
+        if (chips.length === 0 && !enchantHtml) {
             return `<span class="expedition-run-buffs__empty">${this.t('game.hunt.expedition.runBuffsEmpty', 'No run upgrades yet — win fights to grow stronger.')}</span>`;
         }
-        return chips.map((c) => `<span class="expedition-run-buffs__chip">${c}</span>`).join('');
+        return chips.map((c) => `<span class="expedition-run-buffs__chip">${c}</span>`).join('') + enchantHtml;
     }
 
     static getRareEventMeta(type: ExpeditionRareEventType) {
@@ -1128,7 +1713,9 @@ export class ExpeditionEngine {
             case 'storm':
             default: {
                 this.state.luckLegendaryNext = true;
-                const statKeys: (keyof ExpeditionRunBuffs)[] = ['pAtkPct', 'mAtkPct', 'pDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct'];
+                const statKeys: (keyof ExpeditionRunBuffs)[] = [
+                    'pAtkPct', 'mAtkPct', 'pDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct', 'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpCostReductionPct'
+                ];
                 const stat = statKeys[Math.floor(Math.random() * statKeys.length)];
                 this.state.runBuffs[stat] += 6;
                 if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
@@ -1183,7 +1770,13 @@ export class ExpeditionEngine {
         if (runBuffs.critRatePct) buffParts.push(`+${runBuffs.critRatePct}% Crit`);
         if (runBuffs.atkSpeedPct) buffParts.push(`+${runBuffs.atkSpeedPct}% Spd`);
         if (runBuffs.pDefPct) buffParts.push(`+${runBuffs.pDefPct}% P.Def`);
-        if (runBuffs.maxHpPct) buffParts.push(`+${runBuffs.maxHpPct}% HP`);
+        if (runBuffs.maxHpPct) buffParts.push(`+${runBuffs.maxHpPct}% ${this.runStatLabel('maxHpPct')}`);
+        if (runBuffs.hpRegenPct) buffParts.push(`+${runBuffs.hpRegenPct}% ${this.runStatLabel('hpRegenPct')}`);
+        if (runBuffs.poisonResPct) buffParts.push(`-${runBuffs.poisonResPct}% ${this.runStatLabel('poisonResPct')}`);
+        if (runBuffs.bleedResPct) buffParts.push(`-${runBuffs.bleedResPct}% ${this.runStatLabel('bleedResPct')}`);
+        if (runBuffs.mpCostReductionPct) buffParts.push(`-${runBuffs.mpCostReductionPct}% ${this.runStatLabel('mpCostReductionPct')}`);
+        const forgeSummary = this.buildRunEnchantSummaryText();
+        if (forgeSummary) parts.push(forgeSummary);
         if (buffParts.length) {
             parts.push(this.t('game.hunt.expedition.extractSummaryBuffs', 'Run: {buffs}', { buffs: buffParts.join(', ') }));
         }
@@ -1305,12 +1898,9 @@ export class ExpeditionEngine {
         const traitLabel = this.t('game.hunt.expedition.traitLabel', 'Enemy trait');
         const bagTitle = this.t('game.hunt.expedition.bagTitle', 'Expedition Bag');
         const bagEmpty = this.t('game.hunt.expedition.bagEmpty', 'No items yet...');
-        const extractLabel = this.t('game.hunt.expedition.extract', 'Extract (keep loot)');
-        const runBuffsTitle = this.t('game.hunt.expedition.runBuffsTitle', 'Run upgrades');
+        const extractLabel = this.t('game.hunt.expedition.extract', 'Exit & collect loot');
 
-        const mainContentHtml = this.state.pendingRareEvent
-            ? this.buildRareEventSectionHtml()
-            : this.buildPathSectionHtml(journey, pickHint);
+        if (this.state.pendingRareEvent) this.state.runPanelTab = 'path';
 
         const lootLabel = this.t('game.hunt.expedition.metaLoot', 'Loot bonus');
         const enemyLabel = this.t('game.hunt.expedition.metaEnemies', 'Enemy power');
@@ -1358,11 +1948,8 @@ export class ExpeditionEngine {
                 </div>
             </div>
             <div class="expedition-panel__main">
-                ${mainContentHtml}
-                <div class="expedition-run-buffs expedition-run-buffs--compact">
-                    <div class="expedition-run-buffs__title">${runBuffsTitle}</div>
-                    <div class="expedition-run-buffs__chips">${this.buildRunBuffsHtml()}</div>
-                </div>
+                ${this.buildRunPanelTabsHtml()}
+                <div class="expedition-run-panel">${this.buildRunPanelContentHtml(journey, pickHint)}</div>
             </div>
             <div class="expedition-panel__footer expedition-panel__footer--compact">
                 <div class="expedition-bag-bar">
@@ -1377,7 +1964,7 @@ export class ExpeditionEngine {
                             </span>
                         </div>
                     </div>
-                    <button type="button" class="btn-l2 expedition-bag__extract expedition-bag-bar__extract" onclick="ExpeditionEngine.extract()">${extractLabel}</button>
+                    <button type="button" class="btn-l2 expedition-bag__extract expedition-bag-bar__extract" onclick="ExpeditionEngine.promptExitAndExtract()">${extractLabel}</button>
                 </div>
                 ${dropsDetailsHtml}
             </div>
@@ -1552,6 +2139,8 @@ export class ExpeditionEngine {
         (this as any)._combatLootMult = combatLootMult;
 
         win.L2MINI_ZONAL_MOB_TUNING[zoneId] = this.buildMobTuning(pathType);
+        this.syncNavigationLock();
+        if (typeof win.atualizar === 'function') win.atualizar();
         win.procurarMonstros();
     }
 
@@ -1637,21 +2226,58 @@ export class ExpeditionEngine {
 
     static resolveForgePath() {
         const win = window as any;
+        const forged = this.applyRandomForgeEnchant();
+        this.state.runStats.forgesUsed += 1;
+
+        if (forged.ok) {
+            if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+            win.atualizar();
+            this.showResultModal({
+                nodeType: 'forge',
+                tone: 'success',
+                icon: '🔨',
+                titleKey: 'game.hunt.expedition.resultForgeTitle',
+                titleFallback: 'Field forge',
+                summaryKey: 'game.hunt.expedition.resultForgeDesc',
+                summaryFallback: '{item} ({slot}) +1 enchant for this run — now +{after} (was +{before}).',
+                summaryParams: {
+                    item: forged.itemName,
+                    slot: forged.slotLabel,
+                    before: forged.before,
+                    after: forged.after
+                },
+                effects: {
+                    buffText: this.t('game.hunt.expedition.resultForgeBuff', '+1 {item} ({before}→{after})', {
+                        item: forged.itemName,
+                        before: forged.before,
+                        after: forged.after
+                    })
+                }
+            });
+            return;
+        }
+
         const stat = this.rollRandomRunStat();
-        const boost = Math.random() < 0.22 ? 14 : 10;
+        const boost = 8;
         this.state.runBuffs[stat] += boost;
         if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
         win.atualizar();
 
-        this.state.runStats.forgesUsed += 1;
+        const fallbackKey = forged.reason === 'no_gear'
+            ? 'game.hunt.expedition.resultForgeFallbackNoGear'
+            : 'game.hunt.expedition.resultForgeFallbackMax';
+        const fallbackMsg = forged.reason === 'no_gear'
+            ? 'Nothing equipped to enchant — sparks still boost a run stat.'
+            : 'All gear is already +25 — sparks boost a run stat instead.';
+
         this.showResultModal({
             nodeType: 'forge',
-            tone: 'success',
+            tone: forged.reason === 'no_gear' ? 'neutral' : 'warning',
             icon: '🔨',
-            titleKey: 'game.hunt.expedition.resultForgeTitle',
-            titleFallback: 'Field enchant',
-            summaryKey: 'game.hunt.expedition.resultForgeDesc',
-            summaryFallback: 'Sparks bite your gear — a run stat is reinforced until extract.',
+            titleKey: 'game.hunt.expedition.resultForgeFallbackTitle',
+            titleFallback: 'Anvil sparks',
+            summaryKey: fallbackKey,
+            summaryFallback: fallbackMsg,
             summaryParams: { stat: this.runStatLabel(stat), pct: boost },
             effects: { buffText: `+${boost}% ${this.runStatLabel(stat)}` }
         });
@@ -1863,6 +2489,7 @@ export class ExpeditionEngine {
     static reset() {
         this.restoreMobTuning();
         this.state = this.createInitialState('');
+        this.syncNavigationLock();
         this.showHub();
         this.wireStartButton();
     }
@@ -1927,6 +2554,7 @@ export class ExpeditionEngine {
         if (typeof win.salvarJogo === 'function') win.salvarJogo();
 
         this.state = this.createInitialState('');
+        this.syncNavigationLock();
 
         if (success) {
             if (!opts?.skipVictoryModal) {
@@ -1950,13 +2578,6 @@ export class ExpeditionEngine {
 
     static onPlayerDeath() {
         if (this.state.active) this.finishExpedition(false);
-    }
-
-    static onFlee() {
-        if (!this.state.active) return;
-        this.finishExpedition(true, { skipVictoryModal: true });
-        const win = window as any;
-        win.showForestFleeSuccessScreen();
     }
 }
 

@@ -356,7 +356,17 @@ function atualizarPreview() {
     }
 }
 
-function mudarTela(id: string) { 
+function mudarTela(id: string) {
+    if (window.ExpeditionEngine?.state?.active && id !== 'screen-game') {
+        const msg = typeof window.t === 'function'
+            ? window.t('game.hunt.expedition.navLockedMsg')
+            : 'Expedition in progress — use Exit & collect loot at the bottom of the map.';
+        if (typeof window.escreverLog === 'function') {
+            window.escreverLog(`<span style="color:#fbbf24; font-weight:bold;">⚠️ ${msg}</span>`);
+        }
+        return;
+    }
+
     const currentActive = document.querySelector('.screen.active-screen') as HTMLElement | null;
     const target = document.getElementById(id) as HTMLElement | null;
     
@@ -631,14 +641,19 @@ function irPara(lugar) {
         return;
     }
 
+    if (window.ExpeditionEngine?.state?.active && lugar !== 'floresta') {
+        const msg = typeof window.t === 'function'
+            ? window.t('game.hunt.expedition.navLockedMsg')
+            : 'Expedition in progress — use Exit & collect loot at the bottom of the map.';
+        window.escreverLog(`<span style="color:#fbbf24; font-weight:bold;">⚠️ ${msg}</span>`);
+        return;
+    }
+
     if (lugar !== 'floresta') {
         const telaFloresta = document.getElementById('tela-floresta');
         if (telaFloresta && telaFloresta.style.display === 'flex' && window.monstrosAtivos && window.monstrosAtivos.length > 0) {
         window.escreverLog(`<span style="color:#ef4444; font-weight:bold;">⚠️ You are in combat! Defeat the monster or use the FLEE button!</span>`);
         return; 
-        }
-        if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
-            window.ExpeditionEngine.reset();
         }
     }
 

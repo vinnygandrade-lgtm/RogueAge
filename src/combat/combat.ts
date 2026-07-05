@@ -805,6 +805,7 @@ function confirmForestFleeReturnToTown() {
 
 function tentarFugir() {
     if (window.cacadaResumoVitoriaAtivo) return;
+    if (window.ExpeditionEngine?.state?.active) return;
     if (!window.podeAtacar || window.monstrosAtivos.length === 0) return;
     window.podeAtacar = false;
     window.escreverLog(`<span style="color:#fcd34d;">${(typeof window.t === 'function') ? window.t('game.combat.fleeing') : 'Trying to escape...'}</span>`);
@@ -812,11 +813,7 @@ function tentarFugir() {
         if (Math.random() * 100 <= 50) {
             window.escreverLog(`<span style="color:#10b981;">${(typeof window.t === 'function') ? window.t('game.combat.escaped') : 'You got away safely!'}</span>`);
             prepararTelaCacada();
-            if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
-                window.ExpeditionEngine.onFlee();
-            } else {
-                showForestFleeSuccessScreen();
-            }
+            showForestFleeSuccessScreen();
         } else {
             window.escreverLog(`<span style="color:#ef4444;">${(typeof window.t === 'function') ? window.t('game.combat.escapeFailed') : 'Escape failed!'}</span>`);
             showForestFleeFailFloat();

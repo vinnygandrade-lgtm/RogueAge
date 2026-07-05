@@ -16,6 +16,7 @@ import type {
   ItemCatalogBase,
   ShopCatalogItem,
 } from '../types/game';
+import { sincronizarSaveComNuvem } from '../systems/cloud_sync';
 
 let targetEquipObj: EnchantTargetEquip | null = null;
 let targetScroll: string | null = null;
@@ -31,6 +32,49 @@ function _rpcErrorMessage(error: unknown): string {
     return String((error as { message?: unknown }).message || error);
   }
   return String(error);
+}
+
+const JEWEL_ENCHANT_TIPOS = new Set(['jewel', 'neck', 'ear', 'ring']);
+
+function isJewelEnchantTipo(tipo: string | null | undefined): boolean {
+  return !!tipo && JEWEL_ENCHANT_TIPOS.has(tipo);
+}
+
+function resolveEnchantEquipTipo(equip: EnchantTargetEquip | EquipInstance | null | undefined): string {
+  if (!equip) return '';
+  const inst = equip as EquipInstance;
+  const raw = inst.tipo || inst.base?.tipoItem || inst.base?.tipo || '';
+  return isJewelEnchantTipo(raw) ? 'jewel' : String(raw);
+}
+
+function getEquipEnchantLevel(equip: EnchantTargetEquip | EquipInstance | null | undefined): number {
+  if (!equip) return 0;
+  const ref = (equip as EnchantTargetEquip).refOriginal || equip;
+  const inst = ref as EquipInstance;
+  if (isJewelEnchantTipo(inst.tipo || inst.base?.tipoItem || inst.base?.tipo)) {
+    const j = _invNum(inst.enchantJewel);
+    if (j > 0) return j;
+  }
+  if (inst.enchant != null) return Math.max(0, parseInt(String(inst.enchant), 10) || 0);
+  return Math.max(0, parseInt(String((equip as EnchantTargetEquip).lvl), 10) || 0);
+}
+
+async function ensureEnchantCloudSaveReady(): Promise<void> {
+  if (typeof window.salvarJogo === 'function') {
+    window.salvarJogo({ silent: true, forceCloud: true });
+  }
+  await sincronizarSaveComNuvem(true);
+}
+
+function enchantCloudErrorMessage(code: unknown): string {
+  if (typeof window.cloudRpcMessage === 'function') {
+    return window.cloudRpcMessage(code, {
+      prefix: 'game.enchant.error',
+      fallbackKey: 'game.cloud.error',
+      keyStyle: 'dot',
+    });
+  }
+  return _rpcErrorMessage(code);
 }
 
 function _invNum(v: unknown): number {
@@ -64,11 +108,7 @@ interface AugmentRollStat {
 
 /** Nível real do equipamento (refOriginal manda; targetEquipObj.lvl pode ficar stale). */
 function getEnchantLevelForTarget(equipObj: EnchantTargetEquip | null | undefined): number {
-    if (!equipObj) return 0;
-    if (equipObj.refOriginal && equipObj.refOriginal.enchant != null) {
-        return Math.max(0, parseInt(String(equipObj.refOriginal.enchant), 10) || 0);
-    }
-    return Math.max(0, parseInt(String(equipObj.lvl), 10) || 0);
+    return getEquipEnchantLevel(equipObj);
 }
 
 function syncTargetEquipEnchantLevel(novoLvl: number | string): void {
@@ -77,6 +117,9 @@ function syncTargetEquipEnchantLevel(novoLvl: number | string): void {
     targetEquipObj.lvl = lvl;
     if (targetEquipObj.refOriginal) {
         targetEquipObj.refOriginal.enchant = lvl;
+        if (isJewelEnchantTipo(targetEquipObj.refOriginal.tipo || targetEquipObj.refOriginal.base?.tipoItem)) {
+            targetEquipObj.refOriginal.enchantJewel = lvl;
+        }
         if (targetEquipObj.refOriginal.base) {
             targetEquipObj.refOriginal.base.enchant = lvl;
         }
@@ -117,8 +160,8 @@ function extrairMetaScroll(scroll: EnchantScrollCatalogEntry | null | undefined)
 function scrollCompativelComTipo(scrollTipo: string | null, tipoEquip: string | null | undefined): boolean {
     if (!scrollTipo || !tipoEquip) return false;
     if (scrollTipo === tipoEquip) return true;
-    // Regra L2 do projeto: joias usam scroll de armadura
-    if (scrollTipo === 'armor' && tipoEquip === 'jewel') return true;
+    // Regra L2 do projeto: joias usam scroll de armadura (tipo pode ser neck/ear/ring no save)
+    if (scrollTipo === 'armor' && isJewelEnchantTipo(tipoEquip)) return true;
     return false;
 }
 
@@ -288,9 +331,9 @@ function atualizarInterfaceEnchant(): void {
             listaItensEnchant.push({
                 idUnico: slot.id,
                 local: 'equipado',
-                tipo: slot.tipo,
+                tipo: 'jewel',
                 base: slot.item.base,
-                lvl: slot.item.enchant || 0,
+                lvl: getEquipEnchantLevel(slot.item),
                 isAugment: false,
                 uid: slot.item.uid,
                 refOriginal: slot.item
@@ -305,9 +348,9 @@ function atualizarInterfaceEnchant(): void {
             idUnico: 'bolsa_' + (equip.uid || idx), 
             local: 'bolsa', 
             index: idx, 
-            tipo: equip.tipo || equip.base.tipoItem || equip.base.tipo, 
+            tipo: resolveEnchantEquipTipo(equip), 
             base: equip.base, 
-            lvl: equip.enchant || 0, 
+            lvl: getEquipEnchantLevel(equip), 
             isAugment: equip.augmented || false,
             uid: equip.uid,
             refOriginal: equip
@@ -439,16 +482,14 @@ async function executarEnchant(): Promise<void> {
         const tEnchantStart = Date.now();
         const chanceExibida = calcularChanceEnchant(lvlAtual);
         try {
+            await ensureEnchantCloudSaveReady();
             const { data, error } = await window.SupabaseAPI.enchantItem(window.charName, targetEquipObj.uid, targetScroll);
             const rpcData = data as EnchantItemRpcResult | null;
             
             if (error) {
                 console.error('[Enchant RPC Error]', error);
                 if (typeof window.l2Alert === 'function') {
-                    const msg = typeof window.cloudRpcMessage === 'function'
-                        ? window.cloudRpcMessage(error)
-                        : _rpcErrorMessage(error);
-                    window.l2Alert(msg);
+                    window.l2Alert(enchantCloudErrorMessage(error));
                 }
                 btnAcaoEnchant.disabled = false;
                 _enchantInProgress = false;
@@ -529,9 +570,7 @@ async function executarEnchant(): Promise<void> {
             } else {
                 const msg = (rpcData && rpcData.error) ? String(rpcData.error) : '';
                 if (typeof window.l2Alert === 'function') {
-                    window.l2Alert(typeof window.cloudRpcMessage === 'function'
-                        ? window.cloudRpcMessage(msg || 'unknown')
-                        : ('Cloud error' + (msg ? ': ' + msg : '')));
+                    window.l2Alert(enchantCloudErrorMessage(msg || 'unknown'));
                 }
                 btnAcaoEnchant.disabled = false;
                 _enchantInProgress = false;

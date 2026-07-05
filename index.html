@@ -553,7 +553,7 @@
                 </div>
                 <div class="expedition-rules-card">
                     <div class="expedition-rules-card__icon">🏃</div>
-                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesExtractTitle">Extract / Flee</div>
+                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesExtractTitle">Extract</div>
                     <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesExtractDesc">Extract or escape successfully to keep 100% of the bag. Defeat the boss to auto-extract with full loot.</div>
                 </div>
                 <div class="expedition-rules-card">
@@ -1350,6 +1350,31 @@
                     <p class="forest-flee-success-sub" data-i18n="game.hunt.fleeSuccessSubtitle">You slip past the enemy line and put ground between you and the fight.</p>
                     <p class="forest-flee-success-hint" data-i18n="game.hunt.fleeSuccessHint">Catch your breath in town — the wilds will still be here.</p>
                     <button type="button" id="forest-flee-success-to-town" class="forest-flee-success-btn" data-i18n="game.hunt.fleeSuccessToTown" onclick="confirmForestFleeReturnToTown()">RETURN TO TOWN</button>
+                </div>
+            </div>
+            <div id="expedition-run-vitals" class="expedition-run-vitals" role="group" data-i18n-aria-label="game.hunt.expedition.runVitalsLabel" aria-label="Character vitals">
+                <div class="expedition-run-vitals__bars">
+                    <div class="exp-run-vital exp-run-vital--cp">
+                        <span class="exp-run-vital__tag">CP</span>
+                        <div class="exp-run-vital__track">
+                            <div id="expedition-cp-fill" class="exp-run-vital__fill exp-run-vital__fill--cp"></div>
+                            <span id="expedition-cp-text" class="exp-run-vital__text">—</span>
+                        </div>
+                    </div>
+                    <div class="exp-run-vital exp-run-vital--hp">
+                        <span class="exp-run-vital__tag">HP</span>
+                        <div class="exp-run-vital__track">
+                            <div id="expedition-hp-fill" class="exp-run-vital__fill exp-run-vital__fill--hp"></div>
+                            <span id="expedition-hp-text" class="exp-run-vital__text">—</span>
+                        </div>
+                    </div>
+                    <div class="exp-run-vital exp-run-vital--mp">
+                        <span class="exp-run-vital__tag">MP</span>
+                        <div class="exp-run-vital__track">
+                            <div id="expedition-mp-fill" class="exp-run-vital__fill exp-run-vital__fill--mp"></div>
+                            <span id="expedition-mp-text" class="exp-run-vital__text">—</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="tela-floresta-inner">

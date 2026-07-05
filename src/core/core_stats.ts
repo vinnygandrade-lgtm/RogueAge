@@ -16,6 +16,16 @@ function getItemStat(item: StatItem, stat: string): number {
   return typeof val === 'number' && !Number.isNaN(val) ? val : 0;
 }
 
+function expeditionRunEnchantBonus(slot: string): number {
+  try {
+    const eng = window.ExpeditionEngine;
+    if (eng?.state?.active && typeof eng.getRunEnchantBonus === 'function') {
+      return Math.max(0, Number(eng.getRunEnchantBonus(slot)) || 0);
+    }
+  } catch { /* ignore */ }
+  return 0;
+}
+
 window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     const race = window.charRace || "Human";
     const cl = window.charClass || "Fighter";
@@ -67,6 +77,8 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     // Sincroniza os níveis de encante dos objetos com as globais
     let lvlWpn = (arma && arma.enchant !== undefined) ? arma.enchant : (window.enchant || 0);
     let lvlArm = (armor && armor.enchant !== undefined) ? armor.enchant : (window.enchantArmor || 0);
+    lvlWpn += expeditionRunEnchantBonus('weapon');
+    lvlArm += expeditionRunEnchantBonus('armor');
 
     let multEnchant = 1 + (lvlArm * 0.10);
     let armaduraBonusHp = Math.floor(getStat(armor, 'bonusHp') * multEnchant);
@@ -90,7 +102,19 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         (window.anelEquipado2 || null)
     ].filter(j => j !== null);
 
-    const getJewelEnchant = (j) => (j.enchant !== undefined ? j.enchant : (j.enchantJewel || 0));
+    const jewelSlotKey = (j: EquipInstance) => {
+        if (j === window.colarEquipado) return 'neck';
+        if (j === window.brincoEquipado1) return 'ear1';
+        if (j === window.brincoEquipado2) return 'ear2';
+        if (j === window.anelEquipado1) return 'ring1';
+        if (j === window.anelEquipado2) return 'ring2';
+        return 'neck';
+    };
+
+    const getJewelEnchant = (j: EquipInstance) => {
+        const base = j.enchant !== undefined ? j.enchant : (j.enchantJewel || 0);
+        return base + expeditionRunEnchantBonus(jewelSlotKey(j));
+    };
 
     let joiasMDef = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'mDef') * (1 + (getJewelEnchant(j) * 0.10))), 0));
     let joiasBonusHp = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusHp') * (1 + (getJewelEnchant(j) * 0.10))), 0)); 
@@ -215,10 +239,11 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     const atkSpdFlooredBelowMin = window.playerStats.atkSpeed < 250;
     if (atkSpdFlooredBelowMin) { window.playerStats.atkSpeed = 250; }
 
-    if (
+        if (
         typeof window.ExpeditionEngine !== 'undefined'
         && window.ExpeditionEngine.state
         && window.ExpeditionEngine.state.active
+        && !(window.ExpeditionEngine as { _skipRunBuffApply?: boolean })._skipRunBuffApply
         && typeof window.ExpeditionEngine.applyRunBuffsToPlayerStats === 'function'
     ) {
         window.ExpeditionEngine.applyRunBuffsToPlayerStats();

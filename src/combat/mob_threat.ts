@@ -20,8 +20,20 @@ const POISON_DURATION_MS = 6000;
 const BLEED_HITS_FOR_BURST = 3;
 const BLEED_BURST_ATK_MULT = 2.25;
 const BLEED_BURST_POWER_MULT = 0.48;
+const THREAT_RESIST_CAP_PCT = 75;
 
 let poisonTickTimer: ReturnType<typeof setInterval> | null = null;
+
+/** Poison/bleed resist from active expedition run upgrades (0–75% reduction). */
+function getExpeditionThreatDamageMult(kind: 'poison' | 'bleed'): number {
+    const win = window as any;
+    const exp = win.ExpeditionEngine;
+    if (!exp?.state?.active) return 1;
+    const b = exp.state.runBuffs || {};
+    const raw = kind === 'poison' ? Number(b.poisonResPct) || 0 : Number(b.bleedResPct) || 0;
+    const pct = Math.max(0, Math.min(THREAT_RESIST_CAP_PCT, raw));
+    return 1 - pct / 100;
+}
 
 export function rollMobThreat(): MobThreat {
     const roll = Math.random();
@@ -67,7 +79,9 @@ function renderPlayerPoisonBuff(expiresAt: number): void {
 
 function applyPoisonFromHit(mobPower: number, hitDamage: number): void {
     const win = window as any;
-    const dps = Math.max(1, Math.floor(hitDamage * 0.28 + mobPower * 0.05));
+    const resistMult = getExpeditionThreatDamageMult('poison');
+    const rawDps = Math.max(1, Math.floor(hitDamage * 0.28 + mobPower * 0.05));
+    const dps = Math.max(1, Math.floor(rawDps * resistMult));
     const expiresAt = Date.now() + POISON_DURATION_MS;
     const prev = win.forestPoisonDebuff as ForestPoisonDebuff | null;
     win.forestPoisonDebuff = {
@@ -133,10 +147,12 @@ function applyBleedFromHit(
     let extraDamage = 0;
 
     if (mob.bleedHitsOnPlayer >= BLEED_HITS_FOR_BURST) {
-        extraDamage = Math.max(
+        const resistMult = getExpeditionThreatDamageMult('bleed');
+        const rawBurst = Math.max(
             1,
             Math.floor(hitDamage * BLEED_BURST_ATK_MULT + mobPower * BLEED_BURST_POWER_MULT)
         );
+        extraDamage = Math.max(1, Math.floor(rawBurst * resistMult));
         mob.bleedHitsOnPlayer = 0;
         if (typeof window.escreverLog === 'function') {
             const msg = typeof window.t === 'function'

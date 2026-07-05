@@ -450,6 +450,8 @@ export interface EquipInstance {
   tipo: string;
   base: ItemCatalogBase;
   enchant: number;
+  enchantArmor?: number;
+  enchantJewel?: number;
   augmented?: boolean;
   origin?: string;
   owner?: string;

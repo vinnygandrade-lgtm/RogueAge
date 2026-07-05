@@ -161,7 +161,7 @@ BEGIN
         RETURN jsonb_build_object('success', false, 'error', 'scroll_mismatch');
     END IF;
 
-    IF v_scroll_kind = 'armor' AND v_equip_tipo NOT IN ('armor', 'jewel') THEN
+    IF v_scroll_kind = 'armor' AND v_equip_tipo NOT IN ('armor', 'jewel', 'neck', 'ear', 'ring') THEN
         RETURN jsonb_build_object('success', false, 'error', 'scroll_mismatch');
     END IF;
 
@@ -200,6 +200,11 @@ BEGIN
     IF v_pass THEN
         v_new_lvl := v_lvl + 1;
         v_elem := jsonb_set(v_elem, '{enchant}', to_jsonb(v_new_lvl), true);
+        IF v_equip_tipo IN ('jewel', 'neck', 'ear', 'ring') THEN
+            v_elem := jsonb_set(v_elem, '{enchantJewel}', to_jsonb(v_new_lvl), true);
+        ELSIF v_equip_tipo = 'armor' THEN
+            v_elem := jsonb_set(v_elem, '{enchantArmor}', to_jsonb(v_new_lvl), true);
+        END IF;
         IF v_elem ? 'base' AND jsonb_typeof(v_elem->'base') = 'object' THEN
             v_elem := jsonb_set(
                 v_elem,

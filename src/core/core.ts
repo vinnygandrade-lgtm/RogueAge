@@ -200,14 +200,22 @@ function atualizar(): void {
     const maxCp = (window.playerStats && window.playerStats.maxCp > 0) ? window.playerStats.maxCp : 60;
 
     const cpFill = document.getElementById('player-cp-fill'); if (cpFill) cpFill.style.width = Math.min(100, (exibicaoCp / maxCp * 100)) + "%";
-    const cpText = document.getElementById('player-cp-text'); if (cpText) cpText.innerText = `${exibicaoHp}/${maxHp}`; // Wait, this was CP/maxCP? Fix if needed.
-    // Fixed: cpText.innerText = `${exibicaoCp}/${maxCp}`;
-    if (cpText) cpText.innerText = `${exibicaoCp}/${maxCp}`;
+    const cpText = document.getElementById('player-cp-text'); if (cpText) cpText.innerText = `${exibicaoCp}/${maxCp}`;
 
     const hpFill = document.getElementById('player-hp-fill'); if (hpFill) hpFill.style.width = Math.min(100, (exibicaoHp / maxHp * 100)) + "%"; 
     const hpText = document.getElementById('player-hp-text'); if (hpText) hpText.innerText = `${exibicaoHp}/${maxHp}`; 
     const mpFill = document.getElementById('player-mp-fill'); if (mpFill) mpFill.style.width = Math.min(100, (exibicaoMp / maxMp * 100)) + "%"; 
     const mpText = document.getElementById('player-mp-text'); if (mpText) mpText.innerText = `${exibicaoMp}/${maxMp}`;
+
+    const syncExpeditionVital = (fillId: string, textId: string, cur: number, max: number) => {
+        const fill = document.getElementById(fillId);
+        const text = document.getElementById(textId);
+        if (fill) fill.style.width = Math.min(100, (cur / max * 100)) + '%';
+        if (text) text.textContent = `${cur}/${max}`;
+    };
+    syncExpeditionVital('expedition-cp-fill', 'expedition-cp-text', exibicaoCp, maxCp);
+    syncExpeditionVital('expedition-hp-fill', 'expedition-hp-text', exibicaoHp, maxHp);
+    syncExpeditionVital('expedition-mp-fill', 'expedition-mp-text', exibicaoMp, maxMp);
 
     // Sincroniza o badge: correio (memória) + Reward Hub (memória), sem rede
     if (typeof window.aplicarNotifBadgeVisual === 'function') {
@@ -303,14 +311,27 @@ setInterval(() => {
 }, 1000); 
 
 setInterval(() => {
-    let telaFloresta = document.getElementById('tela-floresta');
-    if (telaFloresta && telaFloresta.style.display !== 'flex') {
-        if (window.playerHP < window.playerStats.maxHp || window.playerMP < window.playerStats.maxMp || window.playerCP < window.playerStats.maxCp) {
-            window.playerHP = Math.min(window.playerStats.maxHp, window.playerHP + Math.max(1, Math.floor(window.playerStats.maxHp * 0.05)));
-            window.playerMP = Math.min(window.playerStats.maxMp, window.playerMP + Math.max(1, Math.floor(window.playerStats.maxMp * 0.05)));
-            window.playerCP = Math.min(window.playerStats.maxCp, window.playerCP + Math.max(1, Math.floor(window.playerStats.maxCp * 0.03))); 
-            atualizar();
+    const telaFloresta = document.getElementById('tela-floresta');
+    const onForest = telaFloresta && telaFloresta.style.display === 'flex';
+    const expEng = (window as any).ExpeditionEngine;
+    const expeditionActive = expEng?.state?.active === true;
+    if (onForest && !expeditionActive) return;
+    if (window.playerHP <= 0) return;
+
+    const maxHp = (window.playerStats && window.playerStats.maxHp > 0) ? window.playerStats.maxHp : 100;
+    const maxMp = (window.playerStats && window.playerStats.maxMp > 0) ? window.playerStats.maxMp : 50;
+    const maxCp = (window.playerStats && window.playerStats.maxCp > 0) ? window.playerStats.maxCp : 60;
+    const hpRegenMult = expeditionActive && typeof expEng.getHpRegenMult === 'function'
+        ? expEng.getHpRegenMult()
+        : 1;
+
+    if (window.playerHP < maxHp || window.playerMP < maxMp || window.playerCP < maxCp) {
+        if (window.playerHP < maxHp) {
+            window.playerHP = Math.min(maxHp, window.playerHP + Math.max(1, Math.floor(maxHp * 0.05 * hpRegenMult)));
         }
+        window.playerMP = Math.min(maxMp, window.playerMP + Math.max(1, Math.floor(maxMp * 0.05)));
+        window.playerCP = Math.min(maxCp, window.playerCP + Math.max(1, Math.floor(maxCp * 0.03)));
+        atualizar();
     }
 }, 10000);
 

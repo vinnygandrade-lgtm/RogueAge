@@ -32,6 +32,16 @@ function getBancoDeSkills(): Record<string, SkillDef> | undefined {
     return window.bancoDeSkills as Record<string, SkillDef> | undefined;
 }
 
+function resolveSkillMpCost(baseMp: number): number {
+    const base = Math.max(0, Math.floor(Number(baseMp) || 0));
+    if (!base) return 0;
+    const eng = (window as Window & { ExpeditionEngine?: { getSkillMpCost?: (n: number) => number } }).ExpeditionEngine;
+    if (eng && typeof eng.getSkillMpCost === 'function') {
+        return eng.getSkillMpCost(base);
+    }
+    return base;
+}
+
 function usarSkill(nomeSkill: string) {
     if (window.playerHP <= 0) return; 
     if (typeof window.monstrosAtivos === 'undefined' || window.monstrosAtivos.length === 0) return;
@@ -45,14 +55,15 @@ function usarSkill(nomeSkill: string) {
 
     const skill = getBancoDeSkills()?.[nomeSkill];
     if (!skill || (window.cooldownsAtivos[nomeSkill] > Date.now())) return;
-    if (window.playerMP < skill.mp) {
+    const mpCost = resolveSkillMpCost(skill.mp);
+    if (window.playerMP < mpCost) {
         const msg = (typeof window.t === 'function') ? window.t('game.skills.insufficientMana') : 'Not enough MP!';
         window.escreverLog(`<span style="color:#3b82f6; font-weight:bold;">${msg}</span>`);
         return;
     }
 
     window.globalCooldownAtivo = Date.now() + 1200; 
-    window.playerMP -= skill.mp;
+    window.playerMP -= mpCost;
     window.dispararAnimacaoCooldown?.(nomeSkill, skill.cd); 
     
     if(typeof tocarSom === 'function') tocarSom('enchant');
