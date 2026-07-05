@@ -1,5 +1,5 @@
 -- ========================================================
--- L2 MINI — Ascensão: ledger auditável (append-only)
+-- RogueAge — Ascensão: ledger auditável (append-only)
 -- Cada RPC bem-sucedida de kill elite e de claim semanal insere uma linha.
 -- Não prova combate no servidor; permite trilha temporal e ferramentas staff.
 --
@@ -27,4 +27,4 @@ CREATE POLICY "Users view own ascension events" ON public.ascension_events
     FOR SELECT
     USING (user_id::text = auth.uid()::text);
 
-COMMENT ON TABLE public.ascension_events IS 'L2 Mini — eventos de Ascensão (kill elite / claim semanal); escrita só via RPC SECURITY DEFINER.';
+COMMENT ON TABLE public.ascension_events IS 'RogueAge — eventos de Ascensão (kill elite / claim semanal); escrita só via RPC SECURITY DEFINER.';

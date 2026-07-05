@@ -1,4 +1,4 @@
-# L2 Mini — Balanceamento oficial (referência)
+# RogueAge — Balanceamento oficial (referência)
 
 Documento de produto para **não regressar** decisões já aplicadas no código. Ao alterar stats, crítico, equipamento ou pools mágicos, **cruzar com esta lista** e atualizar este ficheiro na mesma PR quando a regra mudar.
 
@@ -97,4 +97,4 @@ Referência: `js/combat_math.js` — asintótica `(Atk × 1100) / (350 + Def)`, 
 
 ---
 
-*Balanceamento declarado oficial pelo projeto L2 Mini. Preservar em git para não perder histórico.*
+*Balanceamento declarado oficial pelo projeto RogueAge. Preservar em git para não perder histórico.*

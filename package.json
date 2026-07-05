@@ -1,8 +1,8 @@
 {
-  "name": "iron-gate-mini",
+  "name": "rogeage",
   "version": "1.5.0",
   "private": true,
-  "description": "Iron Gate Mini — browser MMORPG",
+  "description": "RogueAge — browser MMORPG",
   "scripts": {
     "dev": "vite",
     "dev:lan": "vite --host",
@@ -14,6 +14,7 @@
     "check:i18n": "node scripts/check-locales-bundle.mjs",
     "generate:skill-i18n": "node scripts/build-skill-pt-catalog.mjs && node scripts/generate-skill-i18n.mjs",
     "generate:polish12-i18n": "node scripts/generate-polish12-i18n.mjs",
+    "generate:pwa-icons": "node tools/generate_pwa_icons.mjs",
     "validate": "npm run typecheck && npm run check:i18n && npm run build",
     "test:smoke": "playwright test",
     "test:smoke:ui": "playwright test --ui",

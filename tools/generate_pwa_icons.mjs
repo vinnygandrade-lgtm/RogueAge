@@ -34,7 +34,7 @@ async function main() {
         console.log('wrote', name);
     }
 
-    /* Maskable: extra padding so Android adaptive icon does not crop the gate. */
+    /* Maskable: extra padding so Android adaptive icon does not crop the mark. */
     const maskableSize = 512;
     const inner = 384;
     const pad = Math.floor((maskableSize - inner) / 2);

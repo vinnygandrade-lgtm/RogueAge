@@ -1,7 +1,7 @@
 {
   "name": "l2mini-arena-server",
   "version": "1.0.0",
-  "description": "Servidor de combate em tempo real para L2 Mini",
+  "description": "Servidor de combate em tempo real para RogueAge",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

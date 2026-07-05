@@ -1,5 +1,5 @@
 -- ========================================================
--- L2 MINI — Auth → public.profiles sync (email confirmation safe)
+-- RogueAge — Auth → public.profiles sync (email confirmation safe)
 -- ========================================================
 -- When "Confirm email" is enabled, signUp() often returns user but no session;
 -- the client cannot upsert public.profiles with the anon key. This trigger
@@ -42,4 +42,4 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user();
 
-COMMENT ON FUNCTION public.handle_new_user() IS 'L2 Mini: mirror auth.users into public.profiles for login-by-username + RLS-friendly signup.';
+COMMENT ON FUNCTION public.handle_new_user() IS 'RogueAge: mirror auth.users into public.profiles for login-by-username + RLS-friendly signup.';

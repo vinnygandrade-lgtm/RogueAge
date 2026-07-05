@@ -32,7 +32,7 @@ const frasesBotsChat = [
     "Anyone with Fighter buff in Giran?",
     "That TitanX is cracked ngl.",
     "Raid? Need a healer!",
-    "L2 Mini is way too addictive...",
+    "RogueAge is way too addictive...",
     "Finally hit level 80! #Hype",
     "Who wins? Spellsinger or Sorcerer?",
     "GK lag or is it just me?",

@@ -438,7 +438,7 @@ function gerarClansIniciais() {
             lider: nomeLider,
             nivelMin: 10 + (i * 5),
             level: 5, // Todos começam level 5 para ter os bônus
-            descricao: `Ancient clan of the Iron Marches. Fighting for ${nome} glory.`,
+            descricao: `Ancient clan of the Rogue Realms. Fighting for ${nome} glory.`,
             membros: [nomeLider]
         };
         window.clans.push(novoClan);

@@ -220,7 +220,7 @@ function gerarPoolMissoes(seedBase: number, gradeAtual: DailyBossGradeTier): Dai
     },
     {
       id: 'forge_minter',
-      titulo: 'Iron Gate Mint',
+      titulo: 'Rogue Mint',
       desc: 'Try minting an Ancient Coin at the forge (Materials tab).',
       tipo: 'tentar_mint',
       alvo: Math.max(1, Math.floor(1 + randomBySeed(baseSeed + 31) * 2)),

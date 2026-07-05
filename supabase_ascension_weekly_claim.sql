@@ -1,5 +1,5 @@
 -- ========================================================
--- L2 MINI — Ascensão: resgate semanal (economia autoritativa)
+-- RogueAge — Ascensão: resgate semanal (economia autoritativa)
 -- Alinhar constantes com js/endgame_pursuits.js (SGRADE_LEVEL, WEEKLY_*).
 -- Idempotente: uma vitória por personagem por ISO week key (YYYY-Www).
 -- Inclui alinhamento de weeklyWeekKey com p_week_key antes de validar kills.

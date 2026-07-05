@@ -3,6 +3,6 @@
 # Para parar: Ctrl+C
 
 Set-Location (Split-Path $PSScriptRoot -Parent)
-Write-Host "Iron Gate Mini — http://localhost:5173/" -ForegroundColor Cyan
+Write-Host "RogueAge — http://localhost:5173/" -ForegroundColor Cyan
 Write-Host "Para parar: Ctrl+C" -ForegroundColor DarkGray
 npm run dev

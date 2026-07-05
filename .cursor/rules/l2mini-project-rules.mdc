@@ -1,21 +1,21 @@
 ---
-description: Regras globais e arquitetura oficial do projeto L2 MINI (Browser MMORPG)
+description: Regras globais e arquitetura oficial do RogueAge (Browser MMORPG)
 globs: **/*.{js,ts,html,css}
 alwaysApply: true
 ---
 
-# Projeto L2 MINI - Game Design Document & Regras (Golden Rules)
+# RogueAge — Game Design Document & Regras (Golden Rules)
 
-Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve seguir as regras abaixo:
+Este é o GDD oficial do **RogueAge**. Toda a lógica e desenvolvimento deve seguir as regras abaixo:
 
 ## 1. Visão Geral e Arquitetura
-- **Conceito:** MMORPG 2D focado em progressão de status, farm, craft e PvP, com vibe de **MMORPGs clássicos** (cerco, clã, enchant). **Identidade e nomes próprios do mundo são originais** — inspirar-se no género, não copiar IPs de terceiros — ver **§11**.
+- **Conceito:** MMORPG 2D focado em progressão de status, farm, craft e PvP, com vibe de **MMORPGs clássicos** (cerco, clã, enchant). **Marca pública:** **RogueAge**. **Identidade e nomes próprios do mundo são originais** — inspirar-se no género, não copiar IPs de terceiros — ver **§11**.
 - **Motor Atual:** Híbrido (Client-Side com Autoridade Server-Side em sistemas críticos). A economia e progressão competitiva (Loot, Enchant, Ascensão) são validadas via Postgres RPC no Supabase.
 - **Arquitetura Modular:** O projeto segue uma arquitetura altamente modular para facilitar edições rápidas e manutenção.
 - **Tecnologias Básicas:** **TypeScript** (cliente), **Vite** (bundler/dev), HTML5, CSS3. Runtime **100% em `src/**/*.ts`** — Fases 0–4 da migração concluídas; **zero `@ts-nocheck` em `src/`**. Boot via **`src/main.ts`** (imports dinâmicos); **`index.html` directo no browser já não funciona** — usar `npm run dev` ou publicar `dist/` após `npm run build`. Detalhe: **§14**.
-- **Persistência de Dados (Fase 1/1.5):** `localStorage` em formato JSON com a chave `l2mini_save_<nome>`. O save ocorre em **`src/core/core_persistence.ts`**. **Nota:** Alterações em arrays globais (ex: `barraAtalhos`) devem incluir lógica de migração para expandir dados de saves antigos sem corrompê-los.
+- **Persistência de Dados (Fase 1/1.5):** `localStorage` em formato JSON com a chave legada `l2mini_save_<nome>` (mantida por compatibilidade). O save ocorre em **`src/core/core_persistence.ts`**. **Nota:** Alterações em arrays globais (ex: `barraAtalhos`) devem incluir lógica de migração para expandir dados de saves antigos sem corrompê-los.
 - **Roadmap de produto (MMO sério):** O projeto assume evolução contínua em direção a **autoridade no servidor** e economia auditável — ver **§9 Visão séria e caminho para o futuro**.
-- **Modelo de rede (decisão de produto — caminho oficial):** O L2 Mini assume, por desenho, um **multiplayer maioritariamente assíncrono / semi-online**: contas e economia com **autoridade na nuvem** (Supabase/RPC onde crítico); **PvP e desafios** (ex.: Grand Olympiad, snapshots de defesa, guerra de clãs como simulação) com **combate resolvido no cliente** e **resultados / MMR / recompensas** persistidos ou validados no servidor conforme os fluxos existentes — em **espírito de produto** próximo a jogos de base/estratégia com **defesas gravadas e confrontos não simultâneos** (referência de **género**, não de IP). Não tratar **PvP em tempo real tick-a-tick** como requisito padrão de todo o MMO.
+- **Modelo de rede (decisão de produto — caminho oficial):** O RogueAge assume, por desenho, um **multiplayer maioritariamente assíncrono / semi-online**: contas e economia com **autoridade na nuvem** (Supabase/RPC onde crítico); **PvP e desafios** (ex.: Grand Olympiad, snapshots de defesa, guerra de clãs como simulação) com **combate resolvido no cliente** e **resultados / MMR / recompensas** persistidos ou validados no servidor conforme os fluxos existentes — em **espírito de produto** próximo a jogos de base/estratégia com **defesas gravadas e confrontos não simultâneos** (referência de **género**, não de IP). Não tratar **PvP em tempo real tick-a-tick** como requisito padrão de todo o MMO.
 - **Combate “ao vivo” (exceção planejada — escopo):** O **foco principal** de produto para **muitos jogadores no mesmo combate ao mesmo tempo** é o **boss mundial** (evento/raid global). **Chat, presença e broadcast** são infraestrutura em tempo real e **não** entram neste critério — servem UX e social, não definem que todo o PvP seja tick-a-tick. **Novas** experiências de combate **live** (além desta linha) exigem decisão explícita no GDD e **§9** (onde autoridade no servidor faz sentido).
 - **Iteração:** Enquanto este modelo der resultado no jogo, **priorizar aprimorar** fairness (ex.: IA de arena), robustez de RPC, RLS, Realtime e anti-abuso — sem reverter para “tudo MMORPG síncrono” como premissa única.
 
@@ -185,7 +185,7 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
     - **Payload `items`:** JSONB pode variar em forma; normalizar no motor (array, string JSON, objeto único) antes de renderizar ou creditar. Validar payload **antes** de marcar `claimed = true`, para não consumir linha sem entrega.
     - **Anti-corrida com save:** Em broadcast `gm_command` / `force_update`, **não** chamar `carregarJogo` por padrão após aviso de prêmio; isso pode sobrescrever Adena/coins locais com JSON da nuvem ainda não sincronizado. Usar `reloadSave: true` somente quando um reload completo for intencional.
     - **GM:** `GMEngine` insere em `rewards`, anuncia no chat e dispara `broadcastGM('force_update', targetName, { msg })` com mensagens que informam **quantidades** quando aplicável.
-- **Mercado global (player-to-player) — Iron Gate / Mailbox:**
+- **Mercado global (player-to-player) — Rogue Exchange / Mailbox:**
     - **Tabela:** `public.market_listings` (scripts em `supabase_market_listings.sql` + RPCs em `supabase_market_03_functions.sql` ou `supabase_market_authority.sql`).
     - **INSERT na tabela:** não usar policy de `INSERT` para `authenticated` — novas listagens **só** via RPC **`market_publish_listing`** (`supabase_market_publish_listing.sql`); o cliente usa `MarketCloud.publishListing` (sem `.insert()` em `market_listings`).
     - **RPC `market_purchase_listing`:** debita Adena/Ancient Coin no JSONB do **comprador** em `characters`, marca listagem `sold` (uma transação). Chamada via `MarketCloud.completePurchase` / **`src/ui/ui_market.ts`**.
@@ -208,7 +208,7 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 - **Melhoria contínua:** Novos sistemas de economia, inventário ou recompensa devem reutilizar estes padrões (InventoryManager, ItemSecurity, mailbox ou Reward Hub conforme o caso) em vez de atalhos que quebrem em produção.
 
 ## 9. Visão séria e caminho para o futuro (produto / backend)
-- **Diretriz de produto:** O L2 Mini **evolui propositalmente** em direção a um MMORPG **sério e sustentável**: mesma base de código pode começar client-heavy, mas **novas features críticas** (economia, troca, progressão competitiva) devem ser pensadas **já considerando autoridade no servidor** e auditoria — não como protégico eterno.
+- **Diretriz de produto:** O RogueAge **evolui propositalmente** em direção a um MMORPG **sério e sustentável**: mesma base de código pode começar client-heavy, mas **novas features críticas** (economia, troca, progressão competitiva) devem ser pensadas **já considerando autoridade no servidor** e auditoria — não como protégico eterno.
 - **Estado atual (honesto):** Grande parte do gameplay e da moeda ainda é **client-authoritative**; a nuvem já centraliza saves, ranking, recompensas GM, mercado (listagens e disputa de compra). Isso é **ponte**, não destino final.
 - **Ascensão (estado atual):** com **sessão Supabase ativa**, **registo de abates** de campeão elite e **resgate semanal** (moedas + Renome) já passam por **RPC** (`register_elite_champion_kill_secure`, `claim_weekly_ascension_secure`), com rollover de semana ISO alinhado no SQL e no cliente. **Modo só local** segue bridge no **`src/systems/endgame_pursuits.ts`** sem RPC.
 - **Dívida residual (Ascensão):** provar no servidor que o kill foi de campeão elite (combate autoritativo ou validação de evento); enriquecer auditoria além de `ascension_events` + JSONB se o produto exigir prova externa — ver §7 “Limitação honesta” e §12.3.
@@ -261,12 +261,12 @@ Este é o GDD oficial do projeto L2 Mini. Toda a lógica e desenvolvimento deve 
 #### Ícones de habilidades (`assets/skills`, campo `icone` em **`src/game/skills.ts`**)
 - **Formato / resolução:** **1:1 quadrado**, **`256×256` px** PNG no repositório que o cliente serve (ícones na barra ~35 px; esta resolução cobre nitidez sem ficheiros MB a MB). **Proibido** acrescentar PNGs de skills em 512² ou superiores ao fluxo habitual do jogo sem redimensionar — evita peso inútil em rede e erro de “arte em alta só para export”.
 - **Moldura:** **Moldura ornamental idêntica** em todo um arco de classe quando o conjunto for desenhado como série (referência atual: prefixo `dem_` = *dark elf mage* vento/trevas — `dem_attack.png`, `dem_wind_strike.png`, …). **Cor de fundo** do painel interno segue **brief** do utilizador por lote; mantém-se coerência dentro do set.
-- **Inspiração:** Mecânicas clássicas de MMORPG aceitáveis; **identidade visual** e nomes **próprios** do L2 Mini — não copiar ícones reconhecíveis de IPs de terceiros (ver **§11** geral).
+- **Inspiração:** Mecânicas clássicas de MMORPG aceitáveis; **identidade visual** e nomes **próprios** do RogueAge — não copiar ícones reconhecíveis de IPs de terceiros (ver **§11** geral).
 
 ### 11.4 Código, `db/` e saves
 - **Chaves técnicas:** `id` de item, nomes de variáveis e campos internos podem **manter-se estáveis** para não quebrar saves ou JSONB em produção; a migração **de ID** exige plano em **`src/core/core_persistence.ts`** (mapa legado → novo).
 - **O que muda primeiro na migração:** Propriedades de **exibição** (`nome`, `descricao`, textos de UI) e cópia de mundo — não alterar IDs sem migração explícita.
-- **Título da aplicação / marca final:** O nome técnico do repositório pode diferir da **marca pública**; quando definirem marca final, alinhar `<title>`, splash e stores.
+- **Título da aplicação / marca pública:** **RogueAge** — alinhar `<title>`, PWA (`manifest.webmanifest`), splash, login e stores. Repositório git/npm pode manter nome legado (`Iron-Gate-Mini` / `rogeage`); chaves `localStorage` `l2mini_*` e constantes `L2MINI_*` **mantêm-se** até migração explícita de save (§12.1).
 
 ### 11.5 Protocolo do Agente (checklist rápido)
 1. Novo texto de jogador → chave em **`src/i18n/locales_bundle.ts`** com **`en`** e **`pt-BR`**; uso de **`t()`** ou `data-i18n`.

@@ -1,5 +1,5 @@
 -- ========================================================
--- L2 MINI — Encantamento de equipamento (autoridade JSONB)
+-- RogueAge — Encantamento de equipamento (autoridade JSONB)
 -- Chances e custos alinhados a js/ui_enchant.js (executarEnchant, modo local).
 -- ========================================================
 

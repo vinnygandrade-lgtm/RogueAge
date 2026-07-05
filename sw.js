@@ -1,8 +1,8 @@
-/* Iron Gate Mini — minimal service worker (install prompt only; network-first). */
+/* RogueAge — minimal service worker (install prompt only; network-first). */
 (function () {
     'use strict';
 
-    var CACHE_VERSION = 'l2mini-pwa-v1';
+    var CACHE_VERSION = 'rogeage-pwa-v1';
 
     self.addEventListener('install', function (event) {
         self.skipWaiting();
@@ -14,7 +14,7 @@
             caches.keys().then(function (keys) {
                 return Promise.all(
                     keys
-                        .filter(function (key) { return key.indexOf('l2mini-pwa-') === 0 && key !== CACHE_VERSION; })
+                        .filter(function (key) { return key.indexOf('rogeage-pwa-') === 0 && key !== CACHE_VERSION; })
                         .map(function (key) { return caches.delete(key); })
                 );
             }).then(function () { return self.clients.claim(); })

@@ -1,5 +1,5 @@
 -- ========================================================
--- L2 MINI — Craft Vesper / épico (autoridade no JSONB)
+-- RogueAge — Craft Vesper / épico (autoridade no JSONB)
 -- Ingredientes e ids de receita: manter alinhados a js/db_items.js (catalogoReceitas.special).
 -- ========================================================
 

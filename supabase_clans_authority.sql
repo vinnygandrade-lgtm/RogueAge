@@ -1,5 +1,5 @@
 -- ========================================================
--- L2 MINI — Clan authority (RPCs + RLS)
+-- RogueAge — Clan authority (RPCs + RLS)
 -- Apply in Supabase SQL Editor after public.clans / clan_members / clan_applications exist.
 -- Idempotent where possible.
 -- ========================================================

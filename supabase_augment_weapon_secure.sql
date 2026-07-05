@@ -1,5 +1,5 @@
 -- ========================================================
--- L2 MINI — Augment de arma (autoridade no JSONB)
+-- RogueAge — Augment de arma (autoridade no JSONB)
 -- Custos e RNG alinhados a js/ui_enchant.js (executarAugment).
 -- ========================================================
 

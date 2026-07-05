@@ -1,22 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Iron Gate Mini">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="RogueAge">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#1c1814"/>
       <stop offset="100%" stop-color="#0a0908"/>
     </linearGradient>
     <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#e6c28a"/>
+      <stop offset="0%" stop-color="#facc15"/>
+      <stop offset="45%" stop-color="#e6c28a"/>
       <stop offset="100%" stop-color="#b38a4d"/>
     </linearGradient>
-    <linearGradient id="gate" x1="50%" y1="0%" x2="50%" y2="100%">
+    <linearGradient id="bronze" x1="50%" y1="0%" x2="50%" y2="100%">
       <stop offset="0%" stop-color="#735939"/>
       <stop offset="100%" stop-color="#241710"/>
     </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="42%">
+      <stop offset="0%" stop-color="#facc15" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#facc15" stop-opacity="0"/>
+    </radialGradient>
   </defs>
+
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <rect x="24" y="24" width="464" height="464" rx="80" fill="none" stroke="url(#gold)" stroke-width="6" opacity="0.55"/>
-  <path d="M156 392V220c0-44 36-80 80-80h40c44 0 80 36 80 80v172" fill="none" stroke="url(#gate)" stroke-width="28" stroke-linecap="round"/>
-  <path d="M136 392h240" fill="none" stroke="url(#gold)" stroke-width="18" stroke-linecap="round"/>
-  <circle cx="256" cy="286" r="22" fill="url(#gold)"/>
-  <text x="256" y="168" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="700" fill="url(#gold)" letter-spacing="6">IG</text>
+  <rect width="512" height="512" rx="96" fill="url(#glow)"/>
+  <rect x="22" y="22" width="468" height="468" rx="82" fill="none" stroke="url(#gold)" stroke-width="5" opacity="0.55"/>
+  <rect x="40" y="40" width="432" height="432" rx="72" fill="none" stroke="url(#bronze)" stroke-width="2" opacity="0.85"/>
+
+  <g transform="translate(256 248)">
+    <path d="M0 -118 L34 -34 L118 -34 L52 16 L78 102 L0 52 L-78 102 L-52 16 L-118 -34 L-34 -34 Z"
+          fill="none" stroke="url(#gold)" stroke-width="7" stroke-linejoin="round" opacity="0.42"/>
+    <circle r="118" fill="url(#bronze)" opacity="0.92"/>
+    <circle r="104" fill="none" stroke="url(#gold)" stroke-width="3" opacity="0.75"/>
+
+    <text x="-58" y="34" text-anchor="middle"
+          font-family="Georgia, 'Times New Roman', serif" font-size="118" font-weight="700"
+          fill="#f5f5f4" letter-spacing="-2">R</text>
+    <text x="42" y="34" text-anchor="middle"
+          font-family="Georgia, 'Times New Roman', serif" font-size="118" font-weight="700"
+          fill="url(#gold)" letter-spacing="-2">A</text>
+
+    <path d="M0 78 L0 108 M-16 94 L16 94" fill="none" stroke="url(#gold)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M0 62 L-22 92 L22 92 Z" fill="url(#gold)" opacity="0.88"/>
+  </g>
 </svg>

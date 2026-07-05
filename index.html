@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Iron Gate Mini — Browser MMORPG</title>
+    <title>RogueAge — Browser MMORPG</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0a0908">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Iron Gate Mini">
+    <meta name="apple-mobile-web-app-title" content="RogueAge">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/svg+xml" href="assets/pwa/icon.svg">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/pwa/icon-192.png">
@@ -44,7 +44,7 @@
 <body class="l2-boot-pending">
     <div id="loading-overlay" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-busy="true" aria-live="polite">
         <div class="loading-content">
-            <div class="loading-logo">IRON <span>GATE</span><span class="loading-logo-mini">MINI</span></div>
+            <div class="loading-logo">ROGUE<span>AGE</span></div>
             <div class="loading-spinner loading-spinner--centered loading-spinner--boot-only"></div>
             <div id="loading-status" class="loading-status" data-i18n="loading.connecting">Connecting to server...</div>
             
@@ -191,9 +191,9 @@
 
     <!-- Modais in-game (.store-window + abrirModal): fora de #screen-game -->
     <div id="janela-mailbox" class="store-window">
-        <div class="store-header"><span data-i18n="mailbox.windowTitle">MAILBOX — IRON GATE</span></div>
+        <div class="store-header"><span data-i18n="mailbox.windowTitle">MAILBOX — ROGUE EXCHANGE</span></div>
         <div class="store-body store-body--mailbox">
-            <p class="mailbox-intro" data-i18n="mailbox.introBlurb">Parcels and auction payouts from Iron Gate arrive here. Claim goods and coin owed to you.</p>
+            <p class="mailbox-intro" data-i18n="mailbox.introBlurb">Parcels and auction payouts from the Rogue Exchange arrive here. Claim goods and coin owed to you.</p>
             <div class="mailbox-tab-row">
                 <button type="button" id="btn-mail-inbox" class="btn-l2" data-i18n="mailbox.tabInbox" onclick="mudarAbaMailbox('inbox')">INBOX</button>
                 <button type="button" id="btn-mail-history" class="btn-l2" data-i18n="mailbox.tabHistory" onclick="mudarAbaMailbox('history')">HISTORY</button>
@@ -527,6 +527,8 @@
                 <div id="vitoria-loot"></div>
             </div>
 
+            <div id="vitoria-expedition-summary" class="vitoria-expedition-summary" style="display:none;" aria-live="polite"></div>
+
             <div class="vitoria-actions">
                 <button type="button" class="btn-l2 btn-vitoria-hunt" onclick="fecharVitoriaEProcurar()">HUNT MORE</button>
                 <button type="button" class="btn-l2 btn-vitoria-town" onclick="fecharVitoriaEVoltar()">RETURN TO TOWN</button>
@@ -561,17 +563,18 @@
                 </div>
             </div>
             <div class="expedition-rules-legend">
-                <div class="expedition-rules-legend__title" data-i18n="game.hunt.expedition.rulesLegendTitle">Node types</div>
-                <ul class="expedition-rules-legend__list">
-                    <li><span>⚔️</span> <span data-i18n="game.hunt.expedition.legendCombat">Combat — standard mob pull</span></li>
-                    <li><span>💀</span> <span data-i18n="game.hunt.expedition.legendElite">Elite — champions, higher risk</span></li>
-                    <li><span>⛺</span> <span data-i18n="game.hunt.expedition.legendCamp">Camp — full HP/MP restore</span></li>
-                    <li><span>❓</span> <span data-i18n="game.hunt.expedition.legendEvent">Event — shrine, trap or bonus XP</span></li>
-                    <li><span>🎁</span> <span data-i18n="game.hunt.expedition.legendChest">Chest — loot or mimic trap</span></li>
-                    <li><span>🗡️</span> <span data-i18n="game.hunt.expedition.legendAmbush">Ambush — surprise fight, bonus bag loot</span></li>
-                    <li><span>🛡️</span> <span data-i18n="game.hunt.expedition.legendGuardian">Guardian — gatekeeper before the boss</span></li>
-                    <li><span>🏪</span> <span data-i18n="game.hunt.expedition.legendMerchant">Merchant — random trade or relief</span></li>
-                    <li><span>👹</span> <span data-i18n="game.hunt.expedition.legendBoss">Boss — final extract</span></li>
+                <div class="expedition-rules-legend__title" data-i18n="game.hunt.expedition.rulesLegendTitle">Path cards</div>
+                <ul class="expedition-rules-legend__list expedition-rules-legend__list--rogue">
+                    <li><span>⚔️</span> <span data-i18n="game.hunt.expedition.legendPathCombat">Fight — win to pick a run upgrade</span></li>
+                    <li><span>👹</span> <span data-i18n="game.hunt.expedition.legendPathBoss">Boss — brutal fight, ×2 bag loot</span></li>
+                    <li><span>💀</span> <span data-i18n="game.hunt.expedition.legendPathElite">Elite — champions, premium loot</span></li>
+                    <li><span>🎁</span> <span data-i18n="game.hunt.expedition.legendPathChest">Chest — loot (from journey 2)</span></li>
+                    <li><span>🧳</span> <span data-i18n="game.hunt.expedition.legendPathMerchant">Merchant — trade (from journey 2)</span></li>
+                    <li><span>🚶</span> <span data-i18n="game.hunt.expedition.legendPathPatrol">Patrol — XP march, opening-safe</span></li>
+                    <li><span>👣</span> <span data-i18n="game.hunt.expedition.legendPathTracks">Tracks — next journey trait</span></li>
+                    <li><span>🔨</span> <span data-i18n="game.hunt.expedition.legendPathForge">Forge — run stat boost</span></li>
+                    <li><span>📯</span> <span data-i18n="game.hunt.expedition.legendPathWarhorn">Warhorn — class atk + speed</span></li>
+                    <li><span>🌿</span> <span data-i18n="game.hunt.expedition.legendPathAmbush">Ambush — loot or HP loss</span></li>
                 </ul>
             </div>
             <button type="button" class="btn-l2 expedition-rules-close" data-i18n="game.hunt.expedition.rulesCloseBtn" onclick="ExpeditionEngine.closeRulesModal()">Got it</button>
@@ -613,6 +616,18 @@
                 <div id="exp-result-effects" class="exp-result-effects"></div>
             </div>
             <button type="button" class="btn-l2 exp-result-continue" onclick="ExpeditionEngine.continueFromResult()" data-i18n="game.hunt.expedition.resultContinueBtn">Continue to map</button>
+        </div>
+    </div>
+
+    <div id="janela-expedition-upgrade" class="store-window expedition-upgrade-window" style="display:none;">
+        <div class="store-header expedition-upgrade-window__header"><span id="exp-upgrade-title">Choose your upgrade</span></div>
+        <div class="store-body expedition-upgrade-body">
+            <p class="exp-upgrade-intro" data-i18n="game.hunt.expedition.upgradeIntro">Victory! Pick one run upgrade — it lasts until you extract or die.</p>
+            <div class="exp-upgrade-loot-panel">
+                <div class="exp-upgrade-loot-panel__label" data-i18n="game.hunt.expedition.upgradeLootLabel">Secured in bag</div>
+                <div id="exp-upgrade-loot" class="exp-upgrade-loot"></div>
+            </div>
+            <div id="exp-upgrade-cards" class="exp-upgrade-cards"></div>
         </div>
     </div>
 
@@ -829,8 +844,8 @@
 
         <main class="auth-flow-main login-main">
         <div class="login-brand-group">
-            <div class="login-logo">IRON <span>GATE</span></div>
-            <div class="login-subtitle" data-i18n="login.subtitle">Chronicles of the Iron Marches</div>
+            <div class="login-logo">ROGUE<span>AGE</span></div>
+            <div class="login-subtitle" data-i18n="login.subtitle">Classic fantasy siege MMO</div>
         </div>
 
         <div class="auth-flow-panel login-box">
@@ -986,7 +1001,7 @@
         </div>
 
         <header class="char-select-top">
-            <div class="char-select-brand">IRON <span>GATE</span></div>
+            <div class="char-select-brand">ROGUE<span>AGE</span></div>
             <p class="char-select-subtitle" data-i18n="charSelect.subtitle">Your champion awaits</p>
             <p id="char-select-account" class="char-select-account" hidden></p>
         </header>
@@ -1176,7 +1191,7 @@
 
             <div id="menu-equipment" class="npc-menu">
                 <img src="assets/npcs/blacksmith.png" class="npc-menu-img" alt="">
-                <div class="npc-dialog" data-i18n="game.town.equipmentDialog">"Looking to upgrade? I carry the finest weapons, armors, and jewelry in the Iron Marches."</div>
+                <div class="npc-dialog" data-i18n="game.town.equipmentDialog">"Looking to upgrade? I carry the finest weapons, armors, and jewelry in the Rogue Realms."</div>
                 <button type="button" class="btn-l2 btn-l2--npc" style="background:#1d4ed8;" onclick="mostrarGradesEquipment()" data-i18n="game.town.equipmentBuy">Buy Equipment</button>
                 <button type="button" class="btn-l2 btn-l2--npc" style="background:#555;" onclick="abrirLojaVenda()" data-i18n="game.town.equipmentSell">Sell Items</button>
                 <button type="button" class="btn-l2 btn-l2--npc" style="background:#444;" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
@@ -1314,6 +1329,9 @@
                     <h2 class="forest-death-title" data-i18n="game.hunt.deathTitle">YOU HAVE FALLEN</h2>
                     <p class="forest-death-sub" data-i18n="game.hunt.deathSubtitle">Your life force has faded. Retreat to safety and recover.</p>
                     <p class="forest-death-hint" data-i18n="game.hunt.deathHint">You barely cling to consciousness — only town offers true safety.</p>
+                    <div id="forest-death-loot" class="forest-death-loot" hidden>
+                        <div id="forest-death-loot-body" class="forest-death-loot__body"></div>
+                    </div>
                     <button type="button" id="forest-death-to-town" class="forest-death-btn" data-i18n="game.hunt.deathToTown" onclick="confirmForestDeathReturnToTown()">RETURN TO TOWN</button>
                 </div>
             </div>
@@ -1331,10 +1349,15 @@
 
                 <div id="expedition-hub" class="expedition-hub">
                     <div class="expedition-hub__panel">
-                        <div class="expedition-hub__crest" aria-hidden="true">🗺</div>
-                        <div class="expedition-hub__eyebrow" data-i18n="game.hunt.expedition.hubEyebrow">Branching hunt</div>
+                        <div class="expedition-hub__crest" aria-hidden="true">♾️</div>
+                        <div class="expedition-hub__eyebrow" data-i18n="game.hunt.expedition.hubEyebrow">Roguelike hunt</div>
                         <h3 class="expedition-hub__title" data-i18n="game.hunt.expedition.hubTitle">Zone Expedition</h3>
-                        <p class="expedition-hub__desc" data-i18n="game.hunt.expedition.hubDesc">Advance node by node. Loot stays in your expedition bag until you extract or clear the boss.</p>
+                        <p class="expedition-hub__desc" data-i18n="game.hunt.expedition.hubDesc">Infinite journeys — pick a path each step. Win fights to choose upgrade cards. Extract to keep 100% of your bag.</p>
+                        <div class="expedition-hub__features">
+                            <span class="expedition-hub__feature"><span aria-hidden="true">🃏</span><span data-i18n="game.hunt.expedition.hubFeaturePaths">3 paths</span></span>
+                            <span class="expedition-hub__feature"><span aria-hidden="true">⬆️</span><span data-i18n="game.hunt.expedition.hubFeatureUpgrades">Run upgrades</span></span>
+                            <span class="expedition-hub__feature"><span aria-hidden="true">🎒</span><span data-i18n="game.hunt.expedition.hubFeatureExtract">Extract 100%</span></span>
+                        </div>
                         <button id="btn-iniciar-caca" type="button" class="btn-l2 expedition-hub__begin" data-i18n="game.hunt.expedition.startBtn">Begin Expedition</button>
                         <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">View rules</button>
                     </div>
@@ -1347,6 +1370,7 @@
                 </div>
 
                 <div id="mobs-container"></div>
+                <div id="mob-type-legend" class="mob-type-legend" hidden aria-hidden="true"></div>
             </div>
 
             <div id="botoes-combate">
@@ -2000,7 +2024,7 @@
                 <div id="btn-tab-chat" class="log-tab" onclick="switchLogTab('chat')">GLOBAL CHAT</div>
                 <div id="btn-tab-clan" class="log-tab" onclick="switchLogTab('clan')">CLAN</div>
             </div>
-            <div id="log" class="log-content active">Welcome to the Iron Marches.</div>
+            <div id="log" class="log-content active" data-i18n="game.core.welcomeLog">Welcome to the Rogue Age.</div>
             <div id="chat-global" class="log-content"></div>
             <div id="chat-clan" class="log-content"></div>
             <div id="chat-input-container">

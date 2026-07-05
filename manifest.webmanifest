@@ -1,7 +1,7 @@
 {
-  "id": "iron-gate-mini",
-  "name": "Iron Gate Mini",
-  "short_name": "Iron Gate",
+  "id": "rogeage",
+  "name": "RogueAge",
+  "short_name": "RogueAge",
   "description": "Browser MMORPG — farm, craft, clans and PvP.",
   "start_url": "./",
   "scope": "./",

@@ -1,6 +1,8 @@
-# Iron Gate Mini
+# RogueAge
 
 Browser MMORPG (TypeScript + Vite). Cliente em `src/`, deploy via pasta `dist/`.
+
+**Marca pública:** RogueAge. **Repo git** pode manter o nome `Iron-Gate-Mini`; **npm package** `rogeage`. Chaves `localStorage` `l2mini_*` e constantes `L2MINI_*` são legado técnico — não renomear sem migração de save.
 
 ## Requisitos
 
@@ -46,6 +48,7 @@ npm run test:ci
 | `npm run preview` | Serve `dist/` localmente |
 | `npm run typecheck` | TypeScript sem emitir ficheiros |
 | `npm run check:i18n` | Valida parse de `locales_bundle.ts` |
+| `npm run generate:pwa-icons` | Regenera PNGs PWA a partir de `assets/pwa/icon.svg` |
 | `npm run test:smoke` | Testes E2E (dev server porta 4173) |
 
 ## Deploy
@@ -60,7 +63,7 @@ Publica o conteúdo de **`dist/`** (GitHub Pages, Netlify, etc.).
 
 | Doc | Conteúdo |
 |-----|----------|
-| `.cursor/rules/l2mini-project-rules.mdc` | GDD e regras oficiais (§14 = toolchain) |
+| `.cursor/rules/l2mini-project-rules.mdc` | GDD RogueAge e regras oficiais (§14 = toolchain) |
 | `docs/new-feature-checklist.md` | Checklist antes de feature nova |
 | `docs/typescript-migration-phase0.md` | Smoke tests e histórico da migração TS |
 

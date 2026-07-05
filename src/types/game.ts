@@ -1,5 +1,5 @@
 /**
- * Tipos de domínio L2 Mini — referência para migração TS.
+ * Tipos de domínio RogueAge — referência para migração TS.
  * Paridade com js/core_persistence.js (save v7) e js/core_globals.js.
  */
 
@@ -747,6 +747,7 @@ export interface ZonalMobTuneEntry {
   championAtkMult?: number;
   championOnePerPull?: boolean;
   packAtkMult?: number;
+  mobAtkSpdMult?: number;
 }
 
 export interface BuffsAtivos {

@@ -1,5 +1,5 @@
 -- ========================================================
--- L2 MINI — Ascensão: registo autoritativo de abate de campeão elite
+-- RogueAge — Ascensão: registo autoritativo de abate de campeão elite
 -- Alinhar c_sgrade / c_weekly_cap com js/endgame_pursuits.js (SGRADE_LEVEL, WEEKLY_CHAMP_KILL_CAP).
 -- Rollover de semana ISO igual a register + claim (weeklyWeekKey).
 --

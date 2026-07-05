@@ -1,5 +1,5 @@
 /**
- * UI — mercado global (Iron Gate)
+ * UI — mercado global (Rogue Exchange)
  * Migrado: js/ui_market.js — Fase 4: tipos explícitos.
  */
 
@@ -174,7 +174,7 @@ function mercadoSerializarItemParaCorreio(fullItem: unknown): unknown {
 }
 
 /**
- * Comprador: envia parcela ao correio (estilo L2 — retirada na Iron Gate).
+ * Comprador: envia parcela ao correio (retirada na Rogue Exchange / Mailbox).
  */
 async function mercadoEnviarCorreioComprador(finalEntry: MarketUiListingEntry): Promise<void> {
     if (typeof window.enviarMail !== 'function' || !window.charName) return;
