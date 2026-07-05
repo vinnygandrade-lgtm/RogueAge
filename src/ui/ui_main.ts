@@ -785,6 +785,9 @@ function executarTrocaSubScreen(lugar) {
     
     if (lugar === 'floresta') { 
         if(typeof prepararTelaCacada === 'function') prepararTelaCacada(); 
+        if (window.ExpeditionEngine?.syncForestEntryUi) {
+            window.ExpeditionEngine.syncForestEntryUi();
+        }
         if(typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos(); 
     }
     

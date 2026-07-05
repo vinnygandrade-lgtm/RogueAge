@@ -72,7 +72,6 @@ function prepararTelaCacada() {
     clearForestPlayerThreats();
     hideMobTypeLegend();
     window.monstrosAtivos.length = 0;
-    document.getElementById('area-cacada').style.display = 'flex';
     document.getElementById('texto-procurando').style.display = 'none';
     document.getElementById('mobs-container').style.display = 'none';
     document.getElementById('botoes-combate').style.display = 'none';
@@ -85,8 +84,11 @@ function prepararTelaCacada() {
             if (btn) btn.style.display = '';
         }
     } else {
+        document.getElementById('area-cacada').style.display = 'flex';
         const btn = document.getElementById('btn-iniciar-caca');
         if (btn) btn.style.display = 'block';
+        const hub = document.getElementById('expedition-hub');
+        if (hub) hub.style.display = 'flex';
     }
 
     let containerBuffs = document.getElementById('player-combat-buffs');

@@ -341,6 +341,15 @@
     z-index: 2000;
     width: 92%;
     max-width: 380px;
+    max-height: min(88dvh, 640px);
+    display: none;
+    flex-direction: column;
+}
+#janela-detalhes-zona .store-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 #janela-detalhes-zona .store-header .fechar-store--zone {
     position: absolute;
@@ -362,6 +371,7 @@
     border-top: 1px solid #3d2b1f;
     display: flex;
     justify-content: center;
+    flex-shrink: 0;
 }
 #btn-confirmar-viagem {
     background: linear-gradient(180deg, #166534 0%, #14532d 100%);
@@ -1951,7 +1961,8 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     position: relative;
     width: 100%;
     max-width: var(--l2-panel-narrow-max-width, 320px);
-    padding: 20px 16px 16px;
+    max-height: 100%;
+    padding: 16px 14px 12px;
     border-radius: 12px;
     border: 1px solid rgba(179, 138, 77, 0.28);
     background:
@@ -1963,7 +1974,25 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
         inset 0 0 0 1px rgba(124, 58, 237, 0.12);
     text-align: center;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     overflow: hidden;
+}
+.expedition-hub__scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+}
+.expedition-hub__actions {
+    flex-shrink: 0;
+    width: 100%;
+    padding-top: 10px;
+    margin-top: 4px;
+    border-top: 1px solid rgba(179, 138, 77, 0.2);
+    background: linear-gradient(180deg, transparent 0%, rgba(12, 10, 14, 0.92) 35%);
 }
 .expedition-hub__panel::before {
     content: '';
@@ -2016,6 +2045,8 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     font-size: 11px;
     line-height: 1.55;
     color: var(--l2-text-secondary, #c4b5a0);
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 .expedition-hub__features {
     position: relative;
@@ -5447,9 +5478,25 @@ html.l2-standalone .settings-section--pwa {
 
 #tela-floresta.screen-content {
     display: none;
-    justify-content: start;
-    padding: 20px;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 10px var(--l2-screen-padding-x, 12px) 8px;
     position: relative;
+    min-height: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+#tela-floresta.expedition-hub-open #expedition-hub,
+#tela-floresta:not(.expedition-map-open):not(.expedition-combat-open) #expedition-hub {
+    display: flex !important;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    align-items: center;
+}
+#tela-floresta:not(.expedition-map-open):not(.expedition-combat-open) #area-cacada {
+    display: none !important;
 }
 
 /* Morte na caça — overlay só na área da floresta (HUD permanece) */
@@ -5914,7 +5961,9 @@ html.l2-standalone .settings-section--pwa {
     justify-content: flex-start;
 }
 #tela-floresta.expedition-hub-open #btn-iniciar-caca,
-#tela-floresta.expedition-hub-open .expedition-hub__begin {
+#tela-floresta.expedition-hub-open .expedition-hub__begin,
+#tela-floresta:not(.expedition-map-open):not(.expedition-combat-open) #btn-iniciar-caca,
+#tela-floresta:not(.expedition-map-open):not(.expedition-combat-open) .expedition-hub__begin {
     display: block !important;
     visibility: visible !important;
 }
