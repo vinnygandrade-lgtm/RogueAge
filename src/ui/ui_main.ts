@@ -406,7 +406,8 @@ let modaisAtivos = [];
 
 /** Modais que só fecham pelos botões internos (clique no véu não dispensa). */
 const MODAL_NO_BACKDROP_DISMISS = {
-    'janela-vitoria': true
+    'janela-vitoria': true,
+    'janela-expedition-upgrade': true
 };
 
 function toggleModalBackdrop(id, show, zIndex = 1500) {
@@ -486,6 +487,7 @@ function fecharTopModal() {
     else if (topModalId === 'janela-expedition-rules') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.closeRulesModal === 'function') window.ExpeditionEngine.closeRulesModal(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-node') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.cancelNode === 'function') window.ExpeditionEngine.cancelNode(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-result') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.continueFromResult === 'function') window.ExpeditionEngine.continueFromResult(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-expedition-upgrade') { /* upgrade requires card pick */ return; }
     else if (topModalId === 'modal-perfil-ranking') {
         const modalPerfil = document.getElementById('modal-perfil-ranking');
         if (modalPerfil) modalPerfil.style.display = 'none';

@@ -4,6 +4,19 @@
  */
 import type { ZonalMobTuneEntry } from '../types/game';
 import { formatMobCardName, itemDropDisplayName, mobDisplayName } from './combat_i18n';
+import { buildMobCombatStats } from './mob_combat_stats';
+import {
+    buildMobArchetypeTagsHtml,
+    buildMobBleedPipsHtml,
+    buildMobSpriteImgFilter,
+    buildMobSpriteImgClasses,
+    buildMobSpriteShellClasses,
+    hideMobTypeLegend,
+    renderMobTypeLegend,
+    updateMobBleedPips
+} from './mob_archetype_visual';
+import { clearForestPlayerThreats, rollMobThreat } from './mob_threat';
+import type { MobThreat } from './mob_threat';
 
 interface ForestMob {
   idUnico?: string;
@@ -12,6 +25,13 @@ interface ForestMob {
   maxHp?: number;
   atk?: number;
   def?: number;
+  pAtk?: number;
+  pDef?: number;
+  mAtk?: number;
+  mDef?: number;
+  tipo?: 'fisico' | 'magico';
+  mobThreat?: MobThreat;
+  bleedHitsOnPlayer?: number;
   lvl?: number;
   nivel?: number;
   dropAd?: number;
@@ -49,6 +69,8 @@ window.motorPet = window.motorPet ?? null;
 function prepararTelaCacada() {
     travarFlorestaResumoVitoria(false);
     pararAtaqueMonstro();
+    clearForestPlayerThreats();
+    hideMobTypeLegend();
     window.monstrosAtivos.length = 0;
     document.getElementById('area-cacada').style.display = 'flex';
     document.getElementById('texto-procurando').style.display = 'none';
@@ -58,6 +80,10 @@ function prepararTelaCacada() {
     const exp = (window as any).ExpeditionEngine;
     if (exp && typeof exp.syncForestEntryUi === 'function') {
         exp.syncForestEntryUi();
+        if (!exp.state?.active) {
+            const btn = document.getElementById('btn-iniciar-caca');
+            if (btn) btn.style.display = '';
+        }
     } else {
         const btn = document.getElementById('btn-iniciar-caca');
         if (btn) btn.style.display = 'block';
@@ -109,7 +135,7 @@ function sortearMob(zona) {
     return zona.mobs[0];
 }
 
-/** XP aplicado no abate para o HUD acompanhar; lootTurno.xp acumula só o total do turno (modal). */
+/** XP no HUD; na expedição fica só na mochila até extract ou morte. */
 function aplicarXpGanhoFloresta(quantia) {
     const q = Number(quantia);
     if (!isFinite(q) || q <= 0) return;
@@ -150,6 +176,11 @@ function aplicarXpGanhoFloresta(quantia) {
         }
     }
     if (typeof window.atualizar === 'function') window.atualizar();
+}
+
+function isExpeditionCombatActive(): boolean {
+    const exp = (window as any).ExpeditionEngine;
+    return !!(exp?.state?.active);
 }
 
 function spawnMonstros() {
@@ -195,6 +226,9 @@ function spawnMonstros() {
         ? tune.championAtkMult
         : defChampAtk;
     const champOnePerPull = tune.championOnePerPull === true;
+    const mobAtkSpdMult = (typeof tune.mobAtkSpdMult === 'number' && tune.mobAtkSpdMult > 0 && tune.mobAtkSpdMult <= 2)
+        ? tune.mobAtkSpdMult
+        : 1;
     let jaTemCampeaoNesteSpawn = false;
 
     for (let i = 0; i < qtd; i++) {
@@ -214,20 +248,29 @@ function spawnMonstros() {
         
         const baseHpMax = Math.max(1, Math.floor(Number(mobEscolhido.hpMax) * thp || 1));
         const instMaxHp = Math.max(1, Math.floor(baseHpMax * multHP));
-        const atkAjustado = Math.max(1, Math.floor(Number(mobEscolhido.atk) * tatk * multAtk));
-        const defAjustada = Math.max(1, Math.floor(Number(mobEscolhido.def) * tdef));
+        const baseAtk = Math.max(1, Math.floor(Number(mobEscolhido.atk) * tatk * multAtk));
+        const baseDef = Math.max(1, Math.floor(Number(mobEscolhido.def) * tdef));
+        const combatStats = buildMobCombatStats(baseAtk, baseDef);
+        const mobThreat = rollMobThreat();
         window.monstrosAtivos.push({
             idUnico: 'mob_' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2, 9),
             nome: nomeFinal,
             hp: instMaxHp,
             maxHp: instMaxHp,
-            atk: atkAjustado,
-            def: defAjustada,
+            atk: combatStats.atk,
+            def: combatStats.def,
+            pAtk: combatStats.pAtk,
+            pDef: combatStats.pDef,
+            mAtk: combatStats.mAtk,
+            mDef: combatStats.mDef,
+            tipo: combatStats.tipo,
+            mobThreat,
+            bleedHitsOnPlayer: 0,
             lvl: mobEscolhido.lvl || mobEscolhido.nivel || 1, // Garante que o nível existe para os cálculos
             dropAd: mobEscolhido.dropAd,
             xp: mobEscolhido.xp,
             idImg: mobEscolhido.idImg,
-            atkSpd: mobEscolhido.atkSpd || 2000,
+            atkSpd: Math.max(400, Math.floor(Number(mobEscolhido.atkSpd || 2000) * mobAtkSpdMult)),
             progresso: 0, 
             isChampion: isChampion, // Identificador para loot e visual
             debuffs: {}
@@ -239,6 +282,7 @@ function spawnMonstros() {
 
     const ambushLine = (typeof window.t === 'function') ? window.t('game.combat.ambush', { list: msgNomes }) : (`AMBUSH! ${msgNomes} appeared!`);
     window.escreverLog(`<span style="color:#ef4444; font-weight:bold;">${ambushLine}</span>`);
+    renderMobTypeLegend();
     renderizarMonstros();
     if (typeof window.syncAllForestMobHpBars === 'function') window.syncAllForestMobHpBars();
 }
@@ -266,24 +310,32 @@ function renderizarMonstros() {
         let marker = (index === 0 && window.monstrosAtivos.length > 1) ? '<span style="color:#ef4444; margin-left:2px;">▼</span>' : '';
         let exibicaoHp = Math.max(0, Math.floor(hpVal));
 
-        let filtroVisual = mob.isChampion ? 
-            'filter: sepia(1) saturate(8) hue-rotate(-50deg) drop-shadow(0 0 8px gold);' : 
-            'filter: drop-shadow(0 0 5px rgba(255,0,0,0.5));';
+        const isMagico = mob.tipo === 'magico';
+        const archetypeTags = buildMobArchetypeTagsHtml(mob);
+        const spriteWrapClass = buildMobSpriteShellClasses(mob);
+        const imgFilter = buildMobSpriteImgFilter(mob);
+        const imgClasses = buildMobSpriteImgClasses(mob);
+        const bleedPips = buildMobBleedPipsHtml(mob);
 
         htmlFinal += `
-        <div id="mob-card-${mob.idUnico}" style="display:flex; flex-direction:column; align-items:center; flex: 1 1 18%; min-width: 60px; max-width: 90px;">
+        <div id="mob-card-${mob.idUnico}" class="mob-hunt-card${mob.mobThreat && mob.mobThreat !== 'none' ? ` mob-hunt-card--${mob.mobThreat}` : ''}${isMagico ? ' mob-hunt-card--magic' : ''}" style="display:flex; flex-direction:column; align-items:center; flex: 1 1 18%; min-width: 60px; max-width: 90px;">
             <div style="width: 100%; margin-bottom: 5px; text-align:center;">
-                <div style="color: #ffcc00; font-size: 0.55em; font-weight: bold; text-shadow: 1px 1px 0 #000; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${formatMobCardName(mob)}${marker}</div>
+                <div class="mob-hunt-card__name" style="color: #ffcc00; font-size: 0.55em; font-weight: bold; text-shadow: 1px 1px 0 #000; margin-bottom: 2px;">${formatMobCardName(mob)}${marker}${archetypeTags}</div>
                 <div style="width: 100%; background: #222; height: 3px; border-radius: 2px; overflow: hidden; border: 1px solid #444;">
                     <div id="mob-cd-fill-${mob.idUnico}" style="background: #ef4444; width: ${mob.progresso}%; height: 100%;"></div>
                 </div>
             </div>
-            <img id="monster-img-${mob.idUnico}" src="${imgSrc}" style="width:100%; object-fit:contain; ${filtroVisual} transition: transform 0.1s ease-out; transform: ${transform}; opacity: ${hpVal > 0 ? 1 : 0};">
+            <div class="mob-hunt-sprite-wrap">
+                <div class="${spriteWrapClass}">
+                    <img id="monster-img-${mob.idUnico}" class="${imgClasses}" src="${imgSrc}" style="${imgFilter} transition: transform 0.1s ease-out; transform: ${transform}; opacity: ${hpVal > 0 ? 1 : 0};">
+                </div>
+            </div>
             <div class="hp-bar" style="margin-top: 5px; margin-bottom: 5px; width:100%;">
                 <div id="mob-hp-fill-${mob.idUnico}" class="mob-hunt-hp-fill" style="width: ${hpPorcento}%;"></div>
                 <small id="mob-hp-text-${mob.idUnico}" class="mob-hunt-hp-text" style="position:absolute; width:100%; left:0; top:0; color:white; font-size:8px; z-index:2;">${exibicaoHp}</small>
             </div>
             <div id="mob-debuffs-${mob.idUnico}" style="display:flex; gap:3px; justify-content:center; margin-top:2px; height:20px;"></div>
+            ${bleedPips}
         </div>`;
     });
 
@@ -340,6 +392,7 @@ function pararAtaqueMonstro() {
     if (loopAtaqueMonstro) { clearInterval(loopAtaqueMonstro); loopAtaqueMonstro = null; }
     if (timeoutCacada) { clearTimeout(timeoutCacada); timeoutCacada = null; }
     if (window.motorPet) { clearInterval(window.motorPet); window.motorPet = null; }
+    clearForestPlayerThreats();
 }
 
 window.dispararAnimacaoCooldown = function dispararAnimacaoCooldown(nome: string, tempoMs: number) {
@@ -352,6 +405,7 @@ function iniciarFechamentoVitoriaCacada() {
     setTimeout(() => {
         let mobsContainer = document.getElementById('mobs-container');
         if (mobsContainer) mobsContainer.innerHTML = '';
+        hideMobTypeLegend();
         
         if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
             window.ExpeditionEngine.onCombatWin(lootTurno);
@@ -471,7 +525,9 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
     lootTurno.adenas += ganhoAdena;
     const xpGanhoMob = mobMorto.xp * multiplicadorChampion;
     lootTurno.xp += xpGanhoMob;
-    aplicarXpGanhoFloresta(xpGanhoMob);
+    if (!isExpeditionCombatActive()) {
+        aplicarXpGanhoFloresta(xpGanhoMob);
+    }
 
     // --- 1. DROP NORMAL (Materiais) ---
     if (Math.random() * 100 <= chanceDrop) {
@@ -661,6 +717,23 @@ function mostrarResumoVitoria() {
     let htmlLoot = `<div style="display:flex; justify-content:space-between;"><span>${labAdena}</span> <b style="color:#ffcc00;">+${lootTurno.adenas}</b></div><div style="display:flex; justify-content:space-between;"><span>${labXp}</span> <b style="color:#10b981;">+${lootTurno.xp}</b></div><hr style="border:0.5px solid #444; margin:5px 0;"><div style="color:#a855f7; font-weight:bold;">${labDrops}</div>`;
     for (let item in lootTurno.drops) { htmlLoot += `<div style="display:flex; justify-content:space-between;"><span>${itemDropDisplayName(item)}:</span> <b>x${lootTurno.drops[item]}</b></div>`; }
     containerLoot.innerHTML = htmlLoot;
+
+    const summaryEl = document.getElementById('vitoria-expedition-summary');
+    const expSummary = (window as any).expeditionExtractSummary;
+    if (summaryEl) {
+        if (expSummary) {
+            const label = (typeof window.t === 'function')
+                ? window.t('game.hunt.expedition.extractSummaryTitle', 'Expedition recap')
+                : 'Expedition recap';
+            summaryEl.innerHTML = `<span class="vitoria-expedition-summary__label">${label}</span><span class="vitoria-expedition-summary__text">${expSummary}</span>`;
+            summaryEl.style.display = 'block';
+        } else {
+            summaryEl.innerHTML = '';
+            summaryEl.style.display = 'none';
+        }
+    }
+    delete (window as any).expeditionExtractSummary;
+
     travarFlorestaResumoVitoria(true);
     abrirModal('janela-vitoria', 1500);
 }
@@ -672,8 +745,11 @@ function fecharVitoriaEProcurar() {
 
     const exp = (window as any).ExpeditionEngine;
     if (exp?.state?.active) {
-        exp.renderMap();
-    } else if (!exp) {
+        if (typeof exp.renderMap === 'function') exp.renderMap();
+    } else if (exp && typeof exp.showHub === 'function') {
+        exp.showHub();
+        if (typeof exp.wireStartButton === 'function') exp.wireStartButton();
+    } else {
         procurarMonstros();
     }
 }
@@ -763,6 +839,21 @@ function showForestDeathScreen() {
     prepararTelaCacada();
     const mobC = document.getElementById('mobs-container');
     if (mobC) mobC.innerHTML = '';
+
+    const lootWrap = document.getElementById('forest-death-loot');
+    const lootBody = document.getElementById('forest-death-loot-body');
+    const summaryHtml = (window as any).expeditionDeathSummaryHtml;
+    if (lootWrap && lootBody) {
+        if (typeof summaryHtml === 'string' && summaryHtml.length > 0) {
+            lootBody.innerHTML = summaryHtml;
+            lootWrap.hidden = false;
+        } else {
+            lootBody.innerHTML = '';
+            lootWrap.hidden = true;
+        }
+    }
+    delete (window as any).expeditionDeathSummaryHtml;
+
     ov.classList.add('forest-death-overlay--visible');
     ov.setAttribute('aria-hidden', 'false');
     if (window.I18n && typeof window.I18n.refreshDom === 'function') {
@@ -777,6 +868,11 @@ function confirmForestDeathReturnToTown() {
         ov.setAttribute('aria-hidden', 'true');
         delete ov.dataset.active;
     }
+    const lootWrap = document.getElementById('forest-death-loot');
+    const lootBody = document.getElementById('forest-death-loot-body');
+    if (lootWrap) lootWrap.hidden = true;
+    if (lootBody) lootBody.innerHTML = '';
+    delete (window as any).expeditionDeathSummaryHtml;
     if (typeof atualizar === 'function') atualizar();
     if (typeof irPara === 'function') window.irPara('cidade');
     if (typeof salvarJogo === 'function') window.salvarJogo();
@@ -805,5 +901,7 @@ window.showForestFleeSuccessScreen = showForestFleeSuccessScreen;
 window.confirmForestFleeReturnToTown = confirmForestFleeReturnToTown;
 window.showForestDeathScreen = showForestDeathScreen;
 window.confirmForestDeathReturnToTown = confirmForestDeathReturnToTown;
+window.aplicarXpGanhoFloresta = aplicarXpGanhoFloresta;
+window.updateMobBleedPips = updateMobBleedPips;
 
 export {};

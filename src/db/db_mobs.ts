@@ -7,7 +7,7 @@ import type { HuntZoneData, HuntZoneGrade } from '../types/game';
 // ==========================================
 // BANCO DE DADOS - MONSTROS E ZONAS DE CAÇA
 // (drops Adena alinhados a economia multiplayer / farm)
-// Valores base; em runtime combat.js aplica L2MINI_ZONAL_MOB_TUNING por grade.
+// atk/def = base power seeds; spawn rolls physical/magic and derives pAtk/pDef/mAtk/mDef at runtime.
 // atkSpd = ms para o monstro completar 1 ciclo de ataque (maior = mais lento).
 // ==========================================
 

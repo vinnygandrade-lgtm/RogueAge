@@ -1,4 +1,4 @@
-# Checklist — nova feature (L2 Mini / cliente TS)
+# Checklist — nova feature (RogueAge / cliente TS)
 
 Use esta lista **antes de abrir PR** ou quando pedires ao agente uma feature nova. Não substitui o GDD (`.cursor/rules/l2mini-project-rules.mdc`); resume o caminho **oficial** no cliente híbrido **Vite + TypeScript + legado `window.*`**.
 

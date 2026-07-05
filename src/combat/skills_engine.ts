@@ -4,6 +4,7 @@
  */
 
 import { petDisplayName, writeSkillLog } from './combat_i18n';
+import { mobDefenseAgainstPlayer } from './mob_combat_stats';
 
 interface ForestMob {
   hp?: number;
@@ -69,9 +70,7 @@ function usarSkill(nomeSkill: string) {
         case "ataque_ultimate":
         case "ataque_dreno":
             let atkBase = isMagico ? window.playerStats.mAtk : window.playerStats.pAtk;
-            let defAlvo = isMagico
-                ? (Number(monstro.mDef) || Number(monstro.def) * 0.8)
-                : (Number(monstro.pDef) || Number(monstro.def));
+            let defAlvo = mobDefenseAgainstPlayer(isMagico, monstro);
             const defMult = monstro.debuffs?.defMult;
             if (typeof defMult === 'number') defAlvo = Math.floor(defAlvo * defMult);
             let danoHabilidade = Math.floor(atkBase * skill.poder);
@@ -197,16 +196,16 @@ function usarSkill(nomeSkill: string) {
             
         case "pet":
             if (window.motorPet) clearInterval(window.motorPet);
-            let nomePet = "PET"; let iconePet = "🐾"; let corFundoPet = "#111"; let baseAtaquePet = window.playerStats.pAtk; let multDano = 1.5; let corTextoAtk = "#ccc";
-            if (nomeSkill === "Summon Zombie") { nomePet = "ZOMBIE"; iconePet = "🧟"; corFundoPet = "#166534"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#4ade80"; multDano = 1.5; }
-            else if (nomeSkill === "Summon Kai the Cat") { nomePet = "KAI THE CAT"; iconePet = "🐱"; corFundoPet = "#ca8a04"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#fef08a"; multDano = 2.0; }
-            else if (nomeSkill === "Summon Feline King") { nomePet = "FELINE KING"; iconePet = "🦁"; corFundoPet = "#b91c1c"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#fca5a5"; multDano = 3.5; }
-            else if (nomeSkill === "Summon Silhouette") { nomePet = "SILHOUETTE"; iconePet = "👤"; corFundoPet = "#475569"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#94a3b8"; multDano = 2.5; }
-            else if (nomeSkill === "Summon Spectral Lord") { nomePet = "SPECTRAL LORD"; iconePet = "🗡️"; corFundoPet = "#1e293b"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#cbd5e1"; multDano = 4.5; }
-            else if (nomeSkill === "Summon Storm Cubic") { nomePet = "STORM CUBIC"; iconePet = "🧊"; corFundoPet = "#0284c7"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#7dd3fc"; multDano = 2.0; }
-            else if (nomeSkill === "Summon Mirage the Unicorn") { nomePet = "MIRAGE UNICORN"; iconePet = "🦄"; corFundoPet = "#0ea5e9"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#7dd3fc"; multDano = 2.2; }
-            else if (nomeSkill === "Summon Aqua Cubic") { nomePet = "AQUA CUBIC"; iconePet = "🧊"; corFundoPet = "#2563eb"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#60a5fa"; multDano = 1.8; }
-            else if (nomeSkill === "Summon Magnus the Unicorn") { nomePet = "MAGNUS"; iconePet = "👑"; corFundoPet = "#3730a3"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#a5b4fc"; multDano = 4.0; }
+            let nomePet = "PET"; let iconePet = "🐾"; let corFundoPet = "#111"; let baseAtaquePet = window.playerStats.pAtk; let multDano = 1.5; let corTextoAtk = "#ccc"; let petUsesMagic = false;
+            if (nomeSkill === "Summon Zombie") { nomePet = "ZOMBIE"; iconePet = "🧟"; corFundoPet = "#166534"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#4ade80"; multDano = 1.5; petUsesMagic = true; }
+            else if (nomeSkill === "Summon Kai the Cat") { nomePet = "KAI THE CAT"; iconePet = "🐱"; corFundoPet = "#ca8a04"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#fef08a"; multDano = 2.0; petUsesMagic = true; }
+            else if (nomeSkill === "Summon Feline King") { nomePet = "FELINE KING"; iconePet = "🦁"; corFundoPet = "#b91c1c"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#fca5a5"; multDano = 3.5; petUsesMagic = true; }
+            else if (nomeSkill === "Summon Silhouette") { nomePet = "SILHOUETTE"; iconePet = "👤"; corFundoPet = "#475569"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#94a3b8"; multDano = 2.5; petUsesMagic = true; }
+            else if (nomeSkill === "Summon Spectral Lord") { nomePet = "SPECTRAL LORD"; iconePet = "🗡️"; corFundoPet = "#1e293b"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#cbd5e1"; multDano = 4.5; petUsesMagic = true; }
+            else if (nomeSkill === "Summon Storm Cubic") { nomePet = "STORM CUBIC"; iconePet = "🧊"; corFundoPet = "#0284c7"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#7dd3fc"; multDano = 2.0; petUsesMagic = true; }
+            else if (nomeSkill === "Summon Mirage the Unicorn") { nomePet = "MIRAGE UNICORN"; iconePet = "🦄"; corFundoPet = "#0ea5e9"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#7dd3fc"; multDano = 2.2; petUsesMagic = true; }
+            else if (nomeSkill === "Summon Aqua Cubic") { nomePet = "AQUA CUBIC"; iconePet = "🧊"; corFundoPet = "#2563eb"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#60a5fa"; multDano = 1.8; petUsesMagic = true; }
+            else if (nomeSkill === "Summon Magnus the Unicorn") { nomePet = "MAGNUS"; iconePet = "👑"; corFundoPet = "#3730a3"; baseAtaquePet = window.playerStats.mAtk; corTextoAtk = "#a5b4fc"; multDano = 4.0; petUsesMagic = true; }
             else if (nomeSkill === "Summon Mechanic Golem") { nomePet = "MECHANIC GOLEM"; iconePet = "🤖"; corFundoPet = "#475569"; baseAtaquePet = window.playerStats.pAtk; corTextoAtk = "#94a3b8"; multDano = 1.8; }
             else if (nomeSkill === "Summon Big Boom") { nomePet = "BIG BOOM"; iconePet = "💣"; corFundoPet = "#991b1b"; baseAtaquePet = window.playerStats.pAtk; corTextoAtk = "#fca5a5"; multDano = 3.0; }
             else if (nomeSkill === "Summon Siege Golem") { nomePet = "SIEGE GOLEM"; iconePet = "🏰"; corFundoPet = "#1e293b"; baseAtaquePet = window.playerStats.pAtk; corTextoAtk = "#cbd5e1"; multDano = 5.0; }
@@ -219,7 +218,7 @@ function usarSkill(nomeSkill: string) {
                     let idxPet = typeof window.getForestTargetMobIndex === 'function' ? window.getForestTargetMobIndex() : 0;
                     if (idxPet < 0) return;
                     let monstroPet = window.monstrosAtivos[idxPet] as ForestMob;
-                    let defAlvoPet = Number(monstroPet.pDef) || Number(monstroPet.def);
+                    let defAlvoPet = mobDefenseAgainstPlayer(petUsesMagic, monstroPet);
                     const defMultPet = monstroPet.debuffs?.defMult;
                     if (typeof defMultPet === 'number') defAlvoPet = Math.floor(defAlvoPet * defMultPet);
                     let danoP = Math.floor((baseAtaquePet * multDano * 70) / (defAlvoPet || 1));

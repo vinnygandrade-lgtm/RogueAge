@@ -4,13 +4,19 @@
 /* ========================================== */
 
 import { consumableDisplayName } from './combat_i18n';
+import { mobAttacksMagically, mobDefenseAgainstPlayer, mobPrimaryAtk } from './mob_combat_stats';
+import { onMobThreatHitPlayer } from './mob_threat';
 
 interface ForestMob {
   idUnico?: string;
   hp?: number;
   maxHp?: number;
   atk?: number;
-  tipo?: string;
+  pAtk?: number;
+  mAtk?: number;
+  tipo?: 'fisico' | 'magico';
+  mobThreat?: 'none' | 'poison' | 'bleed';
+  bleedHitsOnPlayer?: number;
   lvl?: number;
   nivel?: number;
   def?: number;
@@ -85,15 +91,44 @@ window.calcularDefesaDoPlayer = function (ataqueMagicoDoMonstro: boolean) {
   return defesaUsada > 0 ? defesaUsada : 1;
 };
 
+function handleForestPlayerDefeat(): void {
+  window.playerHP = Math.max(1, Math.floor(window.playerStats.maxHp * 0.1));
+  escreverLog(
+    `<span style="color:red; font-weight:bold; font-size:1.1em;">${
+      typeof window.t === 'function'
+        ? window.t('game.combatMath.playerDefeated')
+        : '💀 YOU were defeated! Returning...'
+    }</span>`,
+  );
+  pararAtaqueMonstro();
+  window.autoAtaqueAtivo = false;
+  if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
+  if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
+  atualizar();
+  if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
+    window.ExpeditionEngine.onPlayerDeath();
+  } else if (typeof window.showForestDeathScreen === 'function') {
+    window.showForestDeathScreen();
+  } else {
+    setTimeout(() => {
+      prepararTelaCacada();
+      irPara('cidade');
+    }, 1500);
+  }
+}
+
+window.handleForestPlayerDefeat = handleForestPlayerDefeat;
+
 function executarDanoDeUmMonstro(mob: ForestMob) {
   try {
-    const isMagico = mob.tipo === 'magico';
-    const danoBaseMonstro = Math.floor(Math.random() * ((mob.atk ?? 0) * 0.2)) + ((mob.atk ?? 0) * 0.9);
+    const isMagico = mobAttacksMagically(mob);
+    const mobPower = mobPrimaryAtk(mob);
+    const danoBaseMonstro = Math.floor(Math.random() * (mobPower * 0.2)) + (mobPower * 0.9);
     const defesaSegura = window.calcularDefesaDoPlayer(isMagico);
 
     if (defesaSegura !== 999999) {
-      let danoRecebido = Math.floor((danoBaseMonstro * 700) / (400 + defesaSegura));
-      const danoMinimo = Math.floor((mob.atk ?? 0) * 0.03);
+      let danoRecebido = Math.floor((danoBaseMonstro * 1100) / (350 + defesaSegura));
+      const danoMinimo = Math.floor(mobPower * 0.03);
       if (danoRecebido < danoMinimo) danoRecebido = danoMinimo;
       if (isNaN(danoRecebido) || danoRecebido <= 0) danoRecebido = 1;
 
@@ -119,6 +154,12 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
       }
 
       window.playerHP -= danoRecebido;
+      const extraThreat = onMobThreatHitPlayer(mob, danoRecebido, mobPower);
+      if (extraThreat > 0) {
+        window.playerHP -= extraThreat;
+        mostrarDanoVisualMob(extraThreat, 'rival', true, null);
+        shakeScreenMob(false);
+      }
       const hpBarFill = document.getElementById('player-hp-fill');
       if (hpBarFill) {
         hpBarFill.classList.remove('player-dano');
@@ -130,29 +171,7 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
       shakeScreenMob(false);
     }
     if (window.playerHP <= 0) {
-      window.playerHP = Math.max(1, Math.floor(window.playerStats.maxHp * 0.1));
-      escreverLog(
-        `<span style="color:red; font-weight:bold; font-size:1.1em;">${
-          typeof window.t === 'function'
-            ? window.t('game.combatMath.playerDefeated')
-            : '💀 YOU were defeated! Returning...'
-        }</span>`,
-      );
-      pararAtaqueMonstro();
-      window.autoAtaqueAtivo = false;
-      if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
-      if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
-      atualizar();
-      if (window.ExpeditionEngine && window.ExpeditionEngine.state && window.ExpeditionEngine.state.active) {
-        window.ExpeditionEngine.onPlayerDeath();
-      } else if (typeof window.showForestDeathScreen === 'function') {
-        window.showForestDeathScreen();
-      } else {
-        setTimeout(() => {
-          prepararTelaCacada();
-          irPara('cidade');
-        }, 1500);
-      }
+      handleForestPlayerDefeat();
     } else {
       atualizar();
     }
@@ -236,6 +255,22 @@ function mostrarDanoVisualMob(
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1000);
 }
+
+function mostrarDanoVisualMobPoison(valor: number) {
+  const cena = document.getElementById('tela-floresta');
+  if (!cena) return;
+  const el = document.createElement('div');
+  el.className = 'damage-number rival poison-dot';
+  el.innerText = String(valor);
+  const offset = Math.random() * 30 - 15;
+  el.style.left = `calc(50% + ${offset}px)`;
+  el.style.top = '58%';
+  el.style.position = 'fixed';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+window.mostrarDanoVisualMobPoison = mostrarDanoVisualMobPoison;
 
 function shakeScreenMob(isPlayerCausando: boolean) {
   const cena = document.getElementById('tela-floresta');
@@ -348,7 +383,7 @@ function realizarGolpeAutoAtaque() {
     return;
   }
   const monstro = window.monstrosAtivos[tIdx] as ForestMob;
-  let defAlvo = isMage ? monstro.mDef || (monstro.def ?? 0) * 0.8 : monstro.pDef || monstro.def;
+  let defAlvo = mobDefenseAgainstPlayer(isMage, monstro);
   if (monstro.debuffs?.defMult) defAlvo = Math.floor((defAlvo ?? 0) * monstro.debuffs.defMult);
 
   let atkAtual = isMage ? window.playerStats.mAtk : window.playerStats.pAtk;

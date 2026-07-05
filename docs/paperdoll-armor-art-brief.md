@@ -83,7 +83,7 @@ Guia para desenhar overlays **1080×984** em `assets/paperdolls/<preset>/equips/
 
 | ID | Nome | Tipo | Brief visual |
 |----|------|------|--------------|
-| `a16` | Imperial Crusader | Heavy | Armadura imperial: prata/branco + ouro, emblema **original** do mundo L2 Mini (não IP de terceiros). Peitoral esculpido, hint de capa, gorjal alto. **Máxima massa.** **Mãos:** gauntlets imperiais com filigrana. |
+| `a16` | Imperial Crusader | Heavy | Armadura imperial: prata/branco + ouro, emblema **original** do mundo RogueAge (não IP de terceiros). Peitoral esculpido, hint de capa, gorjal alto. **Máxima massa.** **Mãos:** gauntlets imperiais com filigrana. |
 | `a17` | Draconic Leather | Light | Couro com escamas dracônicas (verde-bronze ou rubro escuro). Ombreiras com garras estilizadas. Silhueta esguia, brilho nas escamas. **Mãos:** luvas com escamas, garras decorativas curtas. |
 | `a18` | Major Arcana | Robe | Vestimenta suprema: branco/ouro ou violeta claro, camadas, runas luminosas grandes. **Mãos:** punhos com luz suave ou cristais. |
 

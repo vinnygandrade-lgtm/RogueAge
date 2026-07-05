@@ -1890,6 +1890,30 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     letter-spacing: 1px;
     text-transform: uppercase;
 }
+.vitoria-expedition-summary {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: rgba(76, 29, 149, 0.25);
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+}
+.vitoria-expedition-summary__label {
+    font-size: 0.65em;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c4b5fd;
+}
+.vitoria-expedition-summary__text {
+    font-size: 0.8em;
+    line-height: 1.45;
+    color: #e9d5ff;
+}
 #vitoria-loot {
     display: flex;
     flex-direction: column;
@@ -1988,10 +2012,36 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .expedition-hub__desc {
     position: relative;
-    margin: 0 0 16px;
+    margin: 0 0 12px;
     font-size: 11px;
-    line-height: 1.5;
+    line-height: 1.55;
     color: var(--l2-text-secondary, #c4b5a0);
+}
+.expedition-hub__features {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.expedition-hub__feature {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #e9d5ff;
+    background: rgba(76, 29, 149, 0.28);
+    border: 1px solid rgba(167, 139, 250, 0.28);
+}
+.expedition-hub__feature span:first-child {
+    font-size: 13px;
+    line-height: 1;
 }
 .expedition-hub__begin,
 #btn-iniciar-caca.expedition-hub__begin {
@@ -2033,6 +2083,8 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     width: 100%;
     padding: 0;
     box-sizing: border-box;
+    flex-direction: column;
+    overflow: hidden;
 }
 .expedition-panel {
     display: flex;
@@ -2040,6 +2092,7 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     flex: 1 1 0;
     min-height: 0;
     width: 100%;
+    max-height: 100%;
     border-radius: 12px;
     border: 1px solid rgba(179, 138, 77, 0.22);
     background:
@@ -2051,12 +2104,37 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     overflow: hidden;
     box-sizing: border-box;
 }
-.expedition-panel__body {
+.expedition-panel__main {
     display: flex;
     flex-direction: column;
     flex: 1 1 0;
     min-height: 0;
-    overflow: hidden;
+    gap: 8px;
+    padding: 10px 12px 8px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #5a4634 rgba(0, 0, 0, 0.25);
+    background: linear-gradient(180deg, rgba(8, 7, 12, 0.45), rgba(12, 10, 16, 0.9));
+}
+.expedition-panel__main::-webkit-scrollbar {
+    width: 5px;
+}
+.expedition-panel__main::-webkit-scrollbar-thumb {
+    background: #5a4634;
+    border-radius: 4px;
+}
+.expedition-panel__footer {
+    flex-shrink: 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid rgba(179, 138, 77, 0.2);
+    background: linear-gradient(180deg, rgba(16, 12, 20, 0.96), rgba(8, 7, 10, 0.99));
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.3);
+}
+.expedition-panel__footer--compact {
+    padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
 }
 .expedition-map-header {
     flex-shrink: 0;
@@ -2341,21 +2419,36 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .expedition-bag__stats {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    margin-bottom: 8px;
-    font-size: 11px;
+    margin-bottom: 10px;
 }
 .expedition-bag__stat {
-    padding: 6px 8px;
-    border-radius: 6px;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-align: left;
     background: rgba(0, 0, 0, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.06);
-    font-weight: 600;
 }
-.expedition-bag__stat--adena { color: #ffcc00; border-color: rgba(250, 204, 21, 0.2); }
-.expedition-bag__stat--xp { color: #6ee7b7; border-color: rgba(16, 185, 129, 0.2); }
+.expedition-bag__stat-label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.expedition-bag__stat-value {
+    font-size: 13px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+.expedition-bag__stat--adena .expedition-bag__stat-value { color: #ffcc00; }
+.expedition-bag__stat--adena { border-color: rgba(250, 204, 21, 0.2); }
+.expedition-bag__stat--xp .expedition-bag__stat-value { color: #6ee7b7; }
+.expedition-bag__stat--xp { border-color: rgba(16, 185, 129, 0.2); }
 .expedition-bag__drops {
     display: flex;
     flex-wrap: wrap;
@@ -2385,14 +2478,14 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .expedition-bag__extract {
     width: 100%;
-    min-height: 44px;
+    min-height: 46px;
     font-family: 'Cinzel', serif;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     font-size: 10px;
-    background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 100%) !important;
-    border: 1px solid rgba(147, 197, 253, 0.35) !important;
-    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, #b45309 0%, #92400e 100%) !important;
+    border: 1px solid rgba(250, 204, 21, 0.4) !important;
+    box-shadow: 0 4px 14px rgba(180, 83, 9, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Rules modal — never set display here; .store-window defaults to display:none until abrirModal */
@@ -2490,6 +2583,21 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     width: 18px;
     text-align: center;
 }
+.expedition-rules-legend__list--rogue {
+    display: grid;
+    gap: 6px;
+}
+.expedition-rules-legend__list--rogue li {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.expedition-rules-legend__list--rogue li span:last-child {
+    color: #e2e8f0;
+    font-size: 11px;
+    line-height: 1.4;
+}
 .expedition-rules-close {
     width: 100%;
     min-height: 44px;
@@ -2542,7 +2650,13 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .exp-node-icon-wrap--combat { border-color: rgba(148, 163, 184, 0.5); box-shadow: 0 0 16px rgba(148, 163, 184, 0.15); }
 .exp-node-icon-wrap--elite { border-color: rgba(239, 68, 68, 0.55); box-shadow: 0 0 16px rgba(239, 68, 68, 0.2); }
-.exp-node-icon-wrap--camp { border-color: rgba(16, 185, 129, 0.55); box-shadow: 0 0 16px rgba(16, 185, 129, 0.2); }
+.exp-node-icon-wrap--merchant { border-color: rgba(234, 179, 8, 0.55); box-shadow: 0 0 16px rgba(234, 179, 8, 0.2); }
+.exp-node-icon-wrap--forge { border-color: rgba(249, 115, 22, 0.55); box-shadow: 0 0 16px rgba(249, 115, 22, 0.2); }
+.exp-node-icon-wrap--scout { border-color: rgba(56, 189, 248, 0.55); box-shadow: 0 0 16px rgba(56, 189, 248, 0.2); }
+.exp-node-icon-wrap--patrol { border-color: rgba(163, 230, 53, 0.55); box-shadow: 0 0 16px rgba(163, 230, 53, 0.2); }
+.exp-node-icon-wrap--tracks { border-color: rgba(148, 163, 184, 0.55); box-shadow: 0 0 16px rgba(148, 163, 184, 0.2); }
+.exp-node-icon-wrap--warhorn { border-color: rgba(192, 132, 252, 0.55); box-shadow: 0 0 16px rgba(192, 132, 252, 0.2); }
+.exp-node-icon-wrap--ambush { border-color: rgba(74, 222, 128, 0.55); box-shadow: 0 0 16px rgba(74, 222, 128, 0.2); }
 .exp-node-icon-wrap--event { border-color: rgba(168, 85, 247, 0.55); box-shadow: 0 0 16px rgba(168, 85, 247, 0.2); }
 .exp-node-icon-wrap--chest { border-color: rgba(250, 204, 21, 0.55); box-shadow: 0 0 16px rgba(250, 204, 21, 0.2); }
 .exp-node-icon-wrap--boss { border-color: rgba(249, 115, 22, 0.55); box-shadow: 0 0 20px rgba(249, 115, 22, 0.25); }
@@ -2747,6 +2861,790 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     letter-spacing: 0.06em;
     background: linear-gradient(180deg, #44403c, #292524) !important;
     border: 1px solid rgba(179, 138, 77, 0.45) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Roguelike expedition — journey paths + upgrade cards */
+.expedition-panel--rogue {
+    border-color: rgba(167, 139, 250, 0.22);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(230, 194, 138, 0.06);
+}
+.expedition-map-header--rogue {
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid rgba(167, 139, 250, 0.12);
+    background: linear-gradient(180deg, rgba(46, 16, 101, 0.18), transparent);
+}
+.expedition-map-header--compact {
+    padding-bottom: 8px;
+}
+.expedition-map-header--compact .expedition-map-header__row {
+    margin-bottom: 8px;
+}
+.expedition-map-header__chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+}
+.expedition-map-header__chips::-webkit-scrollbar {
+    display: none;
+}
+.expedition-meta-chip {
+    flex-shrink: 0;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 5px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.35);
+    color: #cbd5e1;
+    white-space: nowrap;
+}
+.expedition-meta-chip--gold {
+    color: #fde68a;
+    border-color: rgba(250, 204, 21, 0.25);
+    background: rgba(69, 26, 3, 0.35);
+}
+.expedition-meta-chip--danger {
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.25);
+    background: rgba(69, 10, 10, 0.35);
+}
+.expedition-meta-chip--trait.expedition-meta-chip--brutal { color: #fca5a5; }
+.expedition-meta-chip--trait.expedition-meta-chip--swift { color: #93c5fd; }
+.expedition-meta-chip--trait.expedition-meta-chip--lethal { color: #f87171; }
+.expedition-meta-chip--trait.expedition-meta-chip--armored { color: #a5b4fc; }
+.expedition-meta-chip--trait.expedition-meta-chip--frenzied { color: #fdba74; }
+.expedition-map-header--rogue .expedition-map-header__row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+}
+.expedition-journey-badge {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    padding: 6px 8px;
+    border-radius: 10px;
+    background: linear-gradient(165deg, rgba(76, 29, 149, 0.55), rgba(30, 10, 60, 0.85));
+    border: 1px solid rgba(167, 139, 250, 0.45);
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.expedition-journey-badge__eyebrow {
+    font-size: 7px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c4b5fd;
+}
+.expedition-journey-badge__num {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fde68a;
+    text-shadow: 0 0 10px rgba(250, 204, 21, 0.3);
+}
+.expedition-map-header--rogue .expedition-map-header__title {
+    font-size: 13px;
+    background: linear-gradient(90deg, #e6c28a, #c4b5fd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.expedition-map-header--rogue .expedition-map-header__progress {
+    color: #94a3b8;
+    font-size: 10px;
+}
+.expedition-map-header--rogue .expedition-map-header__rules {
+    flex-shrink: 0;
+    min-height: 34px;
+    min-width: 34px;
+    padding: 6px 10px;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    background: rgba(0, 0, 0, 0.35) !important;
+    border: 1px solid rgba(179, 138, 77, 0.35) !important;
+}
+.expedition-path-section--hero {
+    flex: 0 0 auto;
+    margin-bottom: 0;
+    padding: 10px 8px 12px;
+}
+.expedition-path-section--action-focus {
+    border: 1px solid rgba(250, 204, 21, 0.45);
+    background: linear-gradient(165deg, rgba(46, 32, 18, 0.92), rgba(46, 16, 101, 0.35));
+    box-shadow:
+        0 0 0 1px rgba(167, 139, 250, 0.15),
+        0 0 24px rgba(250, 204, 21, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    animation: expedition-path-section-glow 2.4s ease-in-out infinite;
+}
+.expedition-path-section--opening {
+    border-color: rgba(148, 163, 184, 0.5);
+    box-shadow:
+        0 0 0 1px rgba(148, 163, 184, 0.2),
+        0 0 22px rgba(148, 163, 184, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.expedition-path-section--action-focus .expedition-path-section__label {
+    color: #fde68a;
+    text-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
+}
+.expedition-path-section--action-focus .expedition-path-section__glyph {
+    animation: expedition-path-glyph-bounce 1.8s ease-in-out infinite;
+}
+.expedition-opening-banner {
+    margin-bottom: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: 0.04em;
+    color: #cbd5e1;
+    background: rgba(30, 41, 59, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+@keyframes expedition-path-section-glow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.15), 0 0 20px rgba(250, 204, 21, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+    50% { box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.35), 0 0 28px rgba(250, 204, 21, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+}
+@keyframes expedition-path-glyph-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .expedition-path-section--action-focus,
+    .expedition-path-section--action-focus .expedition-path-section__glyph,
+    .expedition-path-card--cta {
+        animation: none !important;
+    }
+}
+.expedition-path-section--hero .expedition-path-section__head {
+    margin-bottom: 10px;
+}
+.expedition-run-buffs--compact {
+    flex-shrink: 0;
+    margin-bottom: 0;
+    padding: 8px 10px;
+}
+.expedition-run-buffs--compact .expedition-run-buffs__title {
+    font-size: 8px;
+    margin-bottom: 5px;
+}
+.expedition-run-buffs--compact .expedition-run-buffs__chip {
+    padding: 3px 8px;
+    font-size: 9px;
+}
+.expedition-bag-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.expedition-bag-bar__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.expedition-bag-bar__icon {
+    flex-shrink: 0;
+    font-size: 18px;
+    line-height: 1;
+}
+.expedition-bag-bar__totals {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.expedition-bag-bar__title {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.expedition-bag-bar__values {
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.expedition-bag-bar__adena { color: #facc15; }
+.expedition-bag-bar__sep { color: #64748b; margin: 0 2px; }
+.expedition-bag-bar__xp { color: #6ee7b7; }
+.expedition-bag-bar__extract {
+    flex-shrink: 0;
+    min-height: 40px !important;
+    min-width: 96px;
+    max-width: 42%;
+    padding: 8px 10px !important;
+    font-size: 9px !important;
+}
+.expedition-bag-details {
+    margin-top: 6px;
+}
+.expedition-bag-details__summary {
+    list-style: none;
+    cursor: pointer;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    padding: 4px 0;
+    user-select: none;
+}
+.expedition-bag-details__summary::-webkit-details-marker {
+    display: none;
+}
+.expedition-bag-details__summary::before {
+    content: '▸ ';
+    color: #a78bfa;
+}
+.expedition-bag-details[open] .expedition-bag-details__summary::before {
+    content: '▾ ';
+}
+.expedition-bag-details .expedition-bag__drops {
+    max-height: 56px;
+    margin-top: 4px;
+    padding: 6px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px dashed rgba(90, 74, 58, 0.45);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.expedition-rogue-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    width: 100%;
+}
+.expedition-rogue-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.expedition-rogue-pill__label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.expedition-rogue-pill__value {
+    font-size: 11px;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+.expedition-rogue-trait--brutal .expedition-rogue-pill__value { color: #fca5a5; }
+.expedition-rogue-trait--swift .expedition-rogue-pill__value { color: #93c5fd; }
+.expedition-rogue-trait--lethal .expedition-rogue-pill__value { color: #f87171; }
+.expedition-rogue-trait--armored .expedition-rogue-pill__value { color: #a5b4fc; }
+.expedition-rogue-trait--frenzied .expedition-rogue-pill__value { color: #fdba74; }
+.expedition-rogue-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+}
+.expedition-rogue-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 8px 6px;
+    border-radius: 8px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.expedition-rogue-stat__label {
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+    line-height: 1.2;
+}
+.expedition-rogue-stat__value {
+    font-size: 12px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #e2e8f0;
+}
+.expedition-rogue-stat__value--gold { color: #facc15; }
+.expedition-rogue-stat__value--danger { color: #f87171; }
+
+.expedition-path-section {
+    margin-bottom: 0;
+    padding: 10px 8px 12px;
+    border-radius: 12px;
+    background: linear-gradient(165deg, rgba(28, 22, 18, 0.7), rgba(12, 10, 18, 0.85));
+    border: 1px solid rgba(179, 138, 77, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+.expedition-path-section__head {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.expedition-path-section__glyph {
+    font-size: 18px;
+    line-height: 1;
+    filter: drop-shadow(0 0 6px rgba(196, 181, 253, 0.4));
+}
+.expedition-path-section__label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #e6c28a;
+    margin: 0;
+    text-align: center;
+}
+.expedition-path-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+.expedition-path-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 3px;
+    min-height: 92px;
+    padding: 22px 4px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(179, 138, 77, 0.28);
+    background: linear-gradient(165deg, rgba(28, 22, 18, 0.95), rgba(12, 10, 14, 0.98));
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+}
+.expedition-path-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 55%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.expedition-path-card:hover::after,
+.expedition-path-card:focus-visible::after {
+    opacity: 1;
+}
+.expedition-path-card:active {
+    transform: scale(0.96);
+}
+.expedition-path-card__badge {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    padding: 3px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+.expedition-path-card__badge--upgrade {
+    color: #fde68a;
+    background: rgba(120, 53, 15, 0.55);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+}
+.expedition-path-card__badge--safe {
+    color: #bbf7d0;
+    background: rgba(6, 78, 59, 0.45);
+    border: 1px solid rgba(52, 211, 153, 0.35);
+}
+.expedition-path-card--combat { border-top: 2px solid #94a3b8; }
+.expedition-path-card--boss {
+    border-top: 2px solid #f97316;
+    box-shadow: 0 0 16px rgba(249, 115, 22, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.expedition-path-card--chest { border-top: 2px solid #facc15; }
+.expedition-path-card--elite { border-top: 2px solid #ef4444; }
+.expedition-path-card--merchant { border-top: 2px solid #eab308; }
+.expedition-path-card--forge { border-top: 2px solid #f97316; }
+.expedition-path-card--scout { border-top: 2px solid #38bdf8; }
+.expedition-path-card--patrol { border-top: 2px solid #a3e635; }
+.expedition-path-card--tracks { border-top: 2px solid #94a3b8; }
+.expedition-path-card--warhorn { border-top: 2px solid #c084fc; }
+.expedition-path-card--ambush { border-top: 2px solid #4ade80; }
+.expedition-path-card__icon {
+    font-size: 26px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
+.expedition-path-card__label {
+    font-family: 'Cinzel', serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #f1f5f9;
+    text-align: center;
+    line-height: 1.25;
+}
+.expedition-path-card__hint {
+    font-size: 8px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #94a3b8;
+    text-align: center;
+    max-width: 100%;
+    padding: 0 2px;
+}
+
+.expedition-milestone-banner {
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.45;
+    color: #fde68a;
+    background: linear-gradient(135deg, rgba(120, 53, 15, 0.55), rgba(76, 29, 149, 0.35));
+    border: 1px solid rgba(250, 204, 21, 0.45);
+    box-shadow: 0 0 18px rgba(249, 115, 22, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.expedition-path-grid--solo {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 220px;
+    margin: 0 auto;
+}
+.expedition-path-grid--duo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 280px;
+    margin: 0 auto;
+    gap: 10px;
+}
+.expedition-path-card--cta {
+    border-color: rgba(250, 204, 21, 0.42);
+    box-shadow:
+        0 4px 18px rgba(0, 0, 0, 0.4),
+        0 0 18px rgba(250, 204, 21, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    animation: expedition-path-card-pulse 2.2s ease-in-out infinite;
+}
+.expedition-path-card--cta:focus-visible {
+    outline: 2px solid #fde68a;
+    outline-offset: 2px;
+}
+.expedition-path-card--opening {
+    min-height: 112px;
+    border-color: rgba(148, 163, 184, 0.45);
+}
+.expedition-path-card--opening .expedition-path-card__icon {
+    font-size: 34px;
+}
+.expedition-path-section--solo .expedition-path-card--cta {
+    min-height: 118px;
+    padding-bottom: 12px;
+}
+.expedition-path-section--duo .expedition-path-card--cta {
+    min-height: 104px;
+}
+@keyframes expedition-path-card-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 16px rgba(250, 204, 21, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+    50% { transform: scale(1.02); box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45), 0 0 24px rgba(250, 204, 21, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+}
+.expedition-path-card__badge--milestone {
+    color: #fde68a;
+    background: rgba(124, 45, 18, 0.65);
+    border: 1px solid rgba(251, 146, 60, 0.55);
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.25);
+}
+.expedition-path-card--milestone {
+    min-height: 108px;
+    border-color: rgba(251, 146, 60, 0.45);
+    box-shadow: 0 0 22px rgba(249, 115, 22, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.expedition-path-card--milestone .expedition-path-card__icon {
+    font-size: 32px;
+}
+
+.expedition-rare-event {
+    margin-bottom: 12px;
+}
+.expedition-rare-event__banner {
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #e9d5ff;
+    background: rgba(76, 29, 149, 0.45);
+    border: 1px solid rgba(167, 139, 250, 0.4);
+}
+.expedition-rare-event__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 12px;
+    border-radius: 12px;
+    background: linear-gradient(165deg, rgba(46, 16, 101, 0.5), rgba(12, 10, 14, 0.98));
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.expedition-rare-event__icon {
+    font-size: 32px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+.expedition-rare-event__title {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #e6c28a;
+    text-align: center;
+}
+.expedition-rare-event__desc {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #cbd5e1;
+    text-align: center;
+}
+.expedition-rare-event__btn {
+    margin-top: 4px;
+    min-height: 44px;
+    width: 100%;
+    max-width: 260px;
+}
+
+.expedition-run-buffs {
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    box-shadow: inset 0 1px 0 rgba(167, 139, 250, 0.08);
+}
+.expedition-run-buffs__title {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c4b5fd;
+    margin-bottom: 8px;
+    text-align: center;
+}
+.expedition-run-buffs__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+}
+.expedition-run-buffs__chip {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(76, 29, 149, 0.4);
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    color: #e9d5ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.expedition-run-buffs__empty {
+    font-size: 10px;
+    color: #64748b;
+    line-height: 1.45;
+    text-align: center;
+    display: block;
+    font-style: italic;
+}
+
+.expedition-upgrade-window {
+    width: min(calc(100vw - 24px), var(--l2-modal-max-width, 420px));
+    max-height: min(88dvh, 680px);
+    z-index: 1600;
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    flex-direction: column;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 24px rgba(124, 58, 237, 0.15);
+}
+.expedition-upgrade-window__header {
+    background: linear-gradient(90deg, #1a1612, #4c1d95, #1a1612);
+}
+.expedition-upgrade-window__header span {
+    letter-spacing: 0.08em;
+    color: #e9d5ff;
+    text-shadow: 0 0 10px rgba(167, 139, 250, 0.35);
+}
+.expedition-upgrade-body {
+    padding: 14px;
+    overflow-y: auto;
+    flex: 0 1 auto;
+    min-height: auto;
+    max-height: calc(88dvh - 52px);
+    background: linear-gradient(180deg, rgba(14, 12, 10, 0.98), rgba(8, 7, 10, 0.99));
+}
+.exp-upgrade-intro {
+    margin: 0 0 12px;
+    font-size: 12px;
+    line-height: 1.55;
+    color: #cbd5e1;
+    text-align: center;
+}
+.exp-upgrade-loot-panel {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(250, 204, 21, 0.15);
+}
+.exp-upgrade-loot-panel__label {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #facc15;
+    margin-bottom: 6px;
+}
+.exp-upgrade-loot-empty {
+    font-size: 11px;
+    color: #64748b;
+    font-style: italic;
+}
+.exp-upgrade-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.exp-upgrade-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 76px;
+    padding: 12px 12px 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    background: linear-gradient(135deg, rgba(46, 16, 101, 0.55), rgba(20, 12, 28, 0.9));
+    cursor: pointer;
+    text-align: left;
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+.exp-upgrade-card:hover,
+.exp-upgrade-card:focus-visible {
+    border-color: rgba(250, 204, 21, 0.45);
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.2);
+}
+.exp-upgrade-card:active {
+    transform: scale(0.98);
+    border-color: rgba(250, 204, 21, 0.55);
+}
+.exp-upgrade-card__icon {
+    flex-shrink: 0;
+    font-size: 26px;
+    line-height: 1;
+    width: 36px;
+    text-align: center;
+}
+.exp-upgrade-card__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+.exp-upgrade-card__pick {
+    flex-shrink: 0;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: #1a1612;
+    background: linear-gradient(180deg, #fde68a, #d97706);
+    border: 1px solid rgba(250, 204, 21, 0.5);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.exp-upgrade-card--patk { border-left: 3px solid #f87171; }
+.exp-upgrade-card--matk { border-left: 3px solid #c4b5fd; }
+.exp-upgrade-card--crit { border-left: 3px solid #facc15; }
+.exp-upgrade-card--atkspd { border-left: 3px solid #38bdf8; }
+.exp-upgrade-card--pdef { border-left: 3px solid #6ee7b7; }
+.exp-upgrade-card--maxhp { border-left: 3px solid #fb923c; }
+.exp-upgrade-card__title {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #e6c28a;
+    letter-spacing: 0.04em;
+}
+.exp-upgrade-card__desc {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.4;
+}
+.exp-upgrade-card--legendary {
+    position: relative;
+    border-color: rgba(250, 204, 21, 0.55);
+    background: linear-gradient(135deg, rgba(120, 53, 15, 0.55), rgba(46, 16, 101, 0.65));
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.exp-upgrade-card--legendary:hover,
+.exp-upgrade-card--legendary:focus-visible {
+    border-color: rgba(253, 224, 71, 0.75);
+    box-shadow: 0 0 24px rgba(250, 204, 21, 0.25);
+}
+.exp-upgrade-card__legend {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 7px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    padding: 3px 7px;
+    border-radius: 999px;
+    color: #1a1612;
+    background: linear-gradient(180deg, #fde68a, #f59e0b);
+    border: 1px solid rgba(250, 204, 21, 0.65);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
@@ -4076,11 +4974,112 @@ html.l2-standalone .settings-section--pwa {
 }
 
 .forest-death-hint {
-    margin: 0 0 20px 0;
+    margin: 0 0 14px 0;
     font-size: 0.68rem;
     line-height: 1.4;
     color: var(--l2-text-muted);
     font-style: italic;
+}
+
+.forest-death-loot {
+    width: 100%;
+    margin: 0 0 16px 0;
+    text-align: left;
+}
+
+.forest-death-loot__body {
+    max-height: min(42vh, 220px);
+    overflow-y: auto;
+    padding: 2px 2px 4px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.forest-death-loot__journey {
+    margin: 0 0 6px 0;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fcd34d;
+    font-weight: bold;
+    text-align: center;
+}
+
+.forest-death-loot__rule {
+    margin: 0 0 10px 0;
+    font-size: 0.65rem;
+    line-height: 1.4;
+    color: var(--l2-text-secondary);
+    text-align: center;
+}
+
+.forest-death-loot__empty {
+    margin: 0;
+    padding: 10px 8px;
+    font-size: 0.68rem;
+    line-height: 1.4;
+    color: var(--l2-text-muted);
+    text-align: center;
+    border: 1px dashed rgba(127, 29, 29, 0.45);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.forest-death-loot__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+@media (max-width: 360px) {
+    .forest-death-loot__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.forest-death-loot__col {
+    padding: 8px 8px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.35);
+    min-height: 0;
+}
+
+.forest-death-loot__col--kept {
+    border-color: rgba(52, 211, 153, 0.28);
+    box-shadow: inset 0 0 12px rgba(16, 185, 129, 0.06);
+}
+
+.forest-death-loot__col--lost {
+    border-color: rgba(248, 113, 113, 0.28);
+    box-shadow: inset 0 0 12px rgba(220, 38, 38, 0.06);
+}
+
+.forest-death-loot__col-title {
+    margin: 0 0 6px 0;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.forest-death-loot__col--kept .forest-death-loot__col-title {
+    color: #6ee7b7;
+}
+
+.forest-death-loot__col--lost .forest-death-loot__col-title {
+    color: #fca5a5;
+}
+
+.forest-death-loot__col-empty {
+    margin: 0;
+    font-size: 0.62rem;
+    color: var(--l2-text-muted);
+    font-style: italic;
+}
+
+.forest-death-panel:has(.forest-death-loot:not([hidden])) {
+    max-width: 380px;
+    padding-bottom: 18px;
 }
 
 .forest-death-btn {
@@ -4301,6 +5300,8 @@ html.l2-standalone .settings-section--pwa {
 .tela-floresta-inner--expedition-map {
     align-items: stretch;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 #tela-floresta.expedition-hub-open.screen-content,
 #tela-floresta.expedition-map-open.screen-content {
@@ -4308,6 +5309,7 @@ html.l2-standalone .settings-section--pwa {
     flex-direction: column;
     overflow: hidden;
     padding: 10px var(--l2-screen-padding-x) 8px;
+    min-height: 0;
 }
 #tela-floresta.expedition-hub-open #area-cacada,
 #tela-floresta.expedition-map-open #area-cacada {
@@ -4317,7 +5319,16 @@ html.l2-standalone .settings-section--pwa {
     margin: 0 !important;
     padding: 0 !important;
 }
+#tela-floresta.expedition-map-open #expedition-map-container {
+    flex: 1 1 0;
+    min-height: 0;
+}
 #tela-floresta.expedition-map-open .tela-floresta-inner {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     align-items: stretch;
 }
 #tela-floresta.expedition-map-open #hud-zona-nome {
@@ -4330,6 +5341,33 @@ html.l2-standalone .settings-section--pwa {
 }
 #tela-floresta.expedition-hub-open #hud-zona-nome {
     margin-bottom: 4px;
+}
+#tela-floresta.expedition-hub-open #expedition-hub {
+    display: flex !important;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+#tela-floresta.expedition-hub-open #expedition-map-container {
+    display: none !important;
+}
+#tela-floresta.expedition-map-open #expedition-hub {
+    display: none !important;
+}
+#tela-floresta.expedition-hub-open .tela-floresta-inner {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+}
+#tela-floresta.expedition-hub-open #btn-iniciar-caca,
+#tela-floresta.expedition-hub-open .expedition-hub__begin {
+    display: block !important;
+    visibility: visible !important;
 }
 #hud-zona-nome {
     color: #88745c;
@@ -4380,6 +5418,175 @@ html.l2-standalone .settings-section--pwa {
     transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), 0 0 10px rgba(239, 68, 68, 0.2);
     border-radius: 2px;
+}
+
+.mob-hunt-sprite-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+.mob-hunt-sprite-shell {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    line-height: 0;
+}
+.mob-hunt-sprite {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    max-height: 72px;
+    object-fit: contain;
+}
+.mob-sprite-glow--poison {
+    animation: mobSpriteGlowPoison 2.4s ease-in-out infinite;
+}
+.mob-sprite-glow--bleed {
+    animation: mobSpriteGlowBleed 1.6s ease-in-out infinite;
+}
+@keyframes mobSpriteGlowPoison {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.88; }
+}
+@keyframes mobSpriteGlowBleed {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.9; }
+}
+.mob-archetype-tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px;
+    max-width: 100%;
+    vertical-align: middle;
+}
+.mob-hunt-card__name {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    line-height: 1.25;
+    word-break: break-word;
+}
+.mob-archetype-tag {
+    display: inline-block;
+    margin-left: 3px;
+    vertical-align: middle;
+    font-size: 0.85em;
+    letter-spacing: 0.06em;
+    padding: 1px 4px;
+    border-radius: 3px;
+    line-height: 1.2;
+}
+.mob-archetype-tag--magic {
+    color: #bae6fd;
+    background: rgba(30, 64, 175, 0.55);
+    border: 1px solid rgba(125, 211, 252, 0.45);
+    text-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
+}
+.mob-archetype-tag--poison {
+    color: #bbf7d0;
+    background: rgba(20, 83, 45, 0.65);
+    border: 1px solid rgba(74, 222, 128, 0.5);
+    text-shadow: 0 0 6px rgba(34, 197, 94, 0.45);
+}
+.mob-archetype-tag--bleed {
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.6);
+    border: 1px solid rgba(248, 113, 113, 0.45);
+    text-shadow: 0 0 6px rgba(239, 68, 68, 0.45);
+}
+.mob-bleed-pips {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 3px;
+    min-height: 6px;
+}
+.mob-bleed-pip {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid rgba(248, 113, 113, 0.55);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+.mob-bleed-pip--filled {
+    background: #ef4444;
+    border-color: #fca5a5;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.75);
+}
+.mob-type-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 8px;
+    margin: 6px var(--l2-screen-padding-x, 8px) 4px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.35);
+    font-size: 0.58rem;
+    line-height: 1.3;
+    color: var(--l2-text-muted);
+}
+.mob-type-legend__title {
+    width: 100%;
+    text-align: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--l2-text-secondary);
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+.mob-type-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.mob-type-legend__item::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.mob-type-legend__item--magic::before {
+    background: #38bdf8;
+    box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
+}
+.mob-type-legend__item--poison::before {
+    background: #4ade80;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+}
+.mob-type-legend__item--bleed::before {
+    background: #f87171;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+}
+.mob-type-legend__item--hybrid {
+    opacity: 0.85;
+    font-style: italic;
+}
+.mob-type-legend__item--hybrid::before {
+    background: linear-gradient(135deg, #38bdf8 40%, #4ade80 60%);
+}
+.forest-poison-buff {
+    border-color: rgba(74, 222, 128, 0.55) !important;
+    background: rgba(20, 83, 45, 0.55) !important;
+}
+.forest-poison-buff__icon {
+    font-size: 12px;
+    line-height: 1;
+}
+.damage-number.poison-dot {
+    color: #4ade80 !important;
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.85), 1px 1px 0 #000;
 }
 #botoes-combate {
     display: none;

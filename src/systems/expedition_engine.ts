@@ -1,34 +1,59 @@
 import { itemDropDisplayName } from '../combat/combat_i18n';
 
-export type ExpeditionNodeType = 'combat' | 'elite' | 'camp' | 'event' | 'boss' | 'chest' | 'merchant' | 'ambush' | 'guardian';
+/** Path card picked each journey (roguelike route). */
+export type ExpeditionPathType = 'combat' | 'boss' | 'chest' | 'elite' | 'merchant' | 'forge' | 'scout' | 'patrol' | 'tracks' | 'warhorn' | 'ambush';
 
-export interface ExpeditionNode {
-    id: number;
-    depth: number;
-    type: ExpeditionNodeType;
-    status: 'locked' | 'available' | 'completed' | 'missed';
-    connections: number[];
+export type ExpeditionRareEventType = 'shrine' | 'gambler' | 'cache' | 'storm';
+
+export type JourneyMobTrait = 'brutal' | 'swift' | 'lethal' | 'armored' | 'frenzied';
+
+export interface ExpeditionRunStats {
+    combatsWon: number;
+    elitesCleared: number;
+    bossesCleared: number;
+    upgradesTaken: number;
+    chestsOpened: number;
+    merchantsUsed: number;
+    forgesUsed: number;
+    scoutsUsed: number;
+    rareEventType: ExpeditionRareEventType | null;
+}
+
+export interface ExpeditionRunBuffs {
+    pAtkPct: number;
+    mAtkPct: number;
+    pDefPct: number;
+    critRatePct: number;
+    atkSpeedPct: number;
+    maxHpPct: number;
+}
+
+export interface ExpeditionPathChoice {
+    id: string;
+    type: ExpeditionPathType;
 }
 
 export interface ExpeditionState {
     active: boolean;
     zoneId: string;
-    nodes: ExpeditionNode[];
-    currentNodeId: number | null;
+    journey: number;
+    pathChoices: ExpeditionPathChoice[];
+    currentPath: ExpeditionPathType | null;
+    runBuffs: ExpeditionRunBuffs;
+    runStats: ExpeditionRunStats;
+    journeyTrait: JourneyMobTrait;
+    nextJourneyTrait: JourneyMobTrait;
     luckLootMult: number;
+    luckLegendaryNext: boolean;
+    rareEventJourney: number;
+    rareEventUsed: boolean;
+    pendingRareEvent: boolean;
+    rareEventType: ExpeditionRareEventType | null;
     bag: {
         adenas: number;
         xp: number;
         drops: Record<string, number>;
     };
-}
-
-interface NodePreview {
-    icon: string;
-    title: string;
-    desc: string;
-    outcomes: string[];
-    tags: { text: string; cls: 'exp-node-tag--risk' | 'exp-node-tag--reward' | 'exp-node-tag--safe' }[];
 }
 
 type ExpeditionResultTone = 'success' | 'warning' | 'danger' | 'neutral';
@@ -48,7 +73,7 @@ interface ExpeditionEffectDelta {
 }
 
 interface ExpeditionNodeResult {
-    nodeType: ExpeditionNodeType;
+    nodeType: ExpeditionPathType | 'event';
     tone: ExpeditionResultTone;
     icon: string;
     titleKey: string;
@@ -60,17 +85,187 @@ interface ExpeditionNodeResult {
     effects?: ExpeditionEffectDelta;
 }
 
-export class ExpeditionEngine {
-    static state: ExpeditionState = {
-        active: false,
-        zoneId: '',
-        nodes: [],
-        currentNodeId: null,
-        luckLootMult: 1,
-        bag: { adenas: 0, xp: 0, drops: {} }
-    };
+interface UpgradeDef {
+    id: string;
+    icon: string;
+    stat: keyof ExpeditionRunBuffs;
+    value: number;
+    titleKey: string;
+    titleFallback: string;
+    descKey: string;
+    descFallback: string;
+    legendary?: boolean;
+}
 
-    static pendingNodeId: number | null = null;
+const ZONE_REWARD_RATE: Record<string, number> = {
+    'No-Grade': 0.01,
+    D: 0.02,
+    C: 0.04,
+    B: 0.06,
+    A: 0.08,
+    S: 0.1
+};
+
+const JOURNEY_TRAITS: JourneyMobTrait[] = ['brutal', 'swift', 'lethal', 'armored', 'frenzied'];
+
+const UPGRADE_POOL: UpgradeDef[] = [
+    {
+        id: 'patk',
+        icon: '⚔️',
+        stat: 'pAtkPct',
+        value: 8,
+        titleKey: 'game.hunt.expedition.upgradePatkTitle',
+        titleFallback: 'Sharpened Blade',
+        descKey: 'game.hunt.expedition.upgradePatkDesc',
+        descFallback: '+8% P.Atk for this run'
+    },
+    {
+        id: 'matk',
+        icon: '✨',
+        stat: 'mAtkPct',
+        value: 8,
+        titleKey: 'game.hunt.expedition.upgradeMatkTitle',
+        titleFallback: 'Arcane Focus',
+        descKey: 'game.hunt.expedition.upgradeMatkDesc',
+        descFallback: '+8% M.Atk for this run'
+    },
+    {
+        id: 'crit',
+        icon: '🎯',
+        stat: 'critRatePct',
+        value: 5,
+        titleKey: 'game.hunt.expedition.upgradeCritTitle',
+        titleFallback: 'Deadly Precision',
+        descKey: 'game.hunt.expedition.upgradeCritDesc',
+        descFallback: '+5% Crit Rate for this run'
+    },
+    {
+        id: 'speed',
+        icon: '💨',
+        stat: 'atkSpeedPct',
+        value: 10,
+        titleKey: 'game.hunt.expedition.upgradeSpeedTitle',
+        titleFallback: 'Battle Rhythm',
+        descKey: 'game.hunt.expedition.upgradeSpeedDesc',
+        descFallback: '+10% Attack Speed for this run'
+    },
+    {
+        id: 'pdef',
+        icon: '🛡️',
+        stat: 'pDefPct',
+        value: 7,
+        titleKey: 'game.hunt.expedition.upgradePdefTitle',
+        titleFallback: 'Iron Guard',
+        descKey: 'game.hunt.expedition.upgradePdefDesc',
+        descFallback: '+7% P.Def for this run'
+    },
+    {
+        id: 'vitality',
+        icon: '❤️',
+        stat: 'maxHpPct',
+        value: 8,
+        titleKey: 'game.hunt.expedition.upgradeVitalityTitle',
+        titleFallback: 'Survival Instinct',
+        descKey: 'game.hunt.expedition.upgradeVitalityDesc',
+        descFallback: '+8% Max HP for this run'
+    }
+];
+
+const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = [
+    {
+        id: 'patk',
+        icon: '⚔️',
+        stat: 'pAtkPct',
+        value: 16,
+        legendary: true,
+        titleKey: 'game.hunt.expedition.upgradeLegendPatkTitle',
+        titleFallback: 'Legendary Edge',
+        descKey: 'game.hunt.expedition.upgradeLegendPatkDesc',
+        descFallback: '+16% P.Atk for this run'
+    },
+    {
+        id: 'matk',
+        icon: '✨',
+        stat: 'mAtkPct',
+        value: 16,
+        legendary: true,
+        titleKey: 'game.hunt.expedition.upgradeLegendMatkTitle',
+        titleFallback: 'Arcane Crown',
+        descKey: 'game.hunt.expedition.upgradeLegendMatkDesc',
+        descFallback: '+16% M.Atk for this run'
+    },
+    {
+        id: 'crit',
+        icon: '🎯',
+        stat: 'critRatePct',
+        value: 10,
+        legendary: true,
+        titleKey: 'game.hunt.expedition.upgradeLegendCritTitle',
+        titleFallback: 'Fatal Star',
+        descKey: 'game.hunt.expedition.upgradeLegendCritDesc',
+        descFallback: '+10% Crit Rate for this run'
+    },
+    {
+        id: 'vitality',
+        icon: '❤️',
+        stat: 'maxHpPct',
+        value: 15,
+        legendary: true,
+        titleKey: 'game.hunt.expedition.upgradeLegendVitalityTitle',
+        titleFallback: 'Ironheart',
+        descKey: 'game.hunt.expedition.upgradeLegendVitalityDesc',
+        descFallback: '+15% Max HP for this run'
+    }
+];
+
+const RARE_EVENT_TYPES: ExpeditionRareEventType[] = ['shrine', 'gambler', 'cache', 'storm'];
+
+export class ExpeditionEngine {
+    static state: ExpeditionState = ExpeditionEngine.createInitialState('');
+
+    static pendingPathIndex: number | null = null;
+    static pendingUpgradeOptions: UpgradeDef[] = [];
+    static lastCombatLoot: ExpeditionBagDelta | null = null;
+    static _resultSkipsAdvance = false;
+
+    static createInitialState(zoneId: string): ExpeditionState {
+        return {
+            active: false,
+            zoneId,
+            journey: 1,
+            pathChoices: [],
+            currentPath: null,
+            runBuffs: ExpeditionEngine.emptyRunBuffs(),
+            runStats: ExpeditionEngine.emptyRunStats(),
+            journeyTrait: 'brutal',
+            nextJourneyTrait: 'brutal',
+            luckLootMult: 1,
+            luckLegendaryNext: false,
+            rareEventJourney: 0,
+            rareEventUsed: false,
+            pendingRareEvent: false,
+            rareEventType: null,
+            bag: { adenas: 0, xp: 0, drops: {} }
+        };
+    }
+
+    static emptyRunStats(): ExpeditionRunStats {
+        return {
+            combatsWon: 0,
+            elitesCleared: 0,
+            bossesCleared: 0,
+            upgradesTaken: 0,
+            chestsOpened: 0,
+            merchantsUsed: 0,
+            forgesUsed: 0,
+            scoutsUsed: 0,
+            rareEventType: null
+        };
+    }
+
+    static emptyRunBuffs(): ExpeditionRunBuffs {
+        return { pAtkPct: 0, mAtkPct: 0, pDefPct: 0, critRatePct: 0, atkSpeedPct: 0, maxHpPct: 0 };
+    }
 
     static t(key: string, fallback: string, params?: Record<string, string | number>): string {
         const win = window as any;
@@ -87,10 +282,242 @@ export class ExpeditionEngine {
         return msg;
     }
 
-    static log(key: string, fallback: string, params?: Record<string, string | number>, color = '#e5e7eb') {
+    static getZoneRewardRate(): number {
+        return ZONE_REWARD_RATE[this.state.zoneId] ?? ZONE_REWARD_RATE['No-Grade'];
+    }
+
+    /** Loot bonus from journey depth (+rate% per journey after the first). Capped at +100%. */
+    static getJourneyRewardMult(): number {
+        const rate = this.getZoneRewardRate();
+        const bonus = rate * Math.max(0, this.state.journey - 1);
+        return Math.min(2, 1 + bonus);
+    }
+
+    static getJourneyMobScale(): number {
+        return 1 + Math.max(0, this.state.journey - 1) * 0.08;
+    }
+
+    static getTraitLabel(trait: JourneyMobTrait): string {
+        return this.t(`game.hunt.expedition.trait_${trait}`, trait);
+    }
+
+    static rollJourneyTrait(): JourneyMobTrait {
+        return JOURNEY_TRAITS[Math.floor(Math.random() * JOURNEY_TRAITS.length)];
+    }
+
+    static isMilestoneBossJourney(journey: number): boolean {
+        return journey > 0 && journey % 10 === 0;
+    }
+
+    static rollRareEventJourney(): number {
+        const candidates: number[] = [];
+        for (let j = 3; j <= 39; j++) {
+            if (j % 10 !== 0) candidates.push(j);
+        }
+        return candidates[Math.floor(Math.random() * candidates.length)] || 7;
+    }
+
+    static rollRareEventType(): ExpeditionRareEventType {
+        return RARE_EVENT_TYPES[Math.floor(Math.random() * RARE_EVENT_TYPES.length)];
+    }
+
+    static shuffle<T>(arr: T[]): T[] {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    }
+
+    /** Weighted pick for the third “safe” path slot. J1 = prep routes only; chest/merchant from J2+. */
+    static pickSafePathType(journey: number): ExpeditionPathType {
+        let types: ExpeditionPathType[];
+        let weights: number[];
+
+        if (journey < 2) {
+            types = ['patrol', 'tracks', 'forge', 'scout', 'warhorn', 'ambush'];
+            weights = [22, 20, 18, 16, 14, 10];
+        } else if (journey < 5) {
+            types = ['chest', 'merchant', 'forge', 'scout', 'patrol', 'ambush', 'tracks', 'warhorn'];
+            weights = [30, 22, 14, 12, 10, 6, 4, 2];
+        } else {
+            types = ['chest', 'merchant', 'forge', 'scout', 'patrol', 'ambush', 'tracks', 'warhorn'];
+            weights = [26, 18, 12, 12, 10, 8, 8, 6];
+        }
+
+        const total = weights.reduce((a, b) => a + b, 0);
+        let roll = Math.random() * total;
+        for (let i = 0; i < types.length; i++) {
+            roll -= weights[i];
+            if (roll <= 0) return types[i];
+        }
+        return types[types.length - 1];
+    }
+
+    static rollRandomRunStat(): keyof ExpeditionRunBuffs {
+        const statKeys: (keyof ExpeditionRunBuffs)[] = ['pAtkPct', 'mAtkPct', 'pDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct'];
+        return statKeys[Math.floor(Math.random() * statKeys.length)];
+    }
+
+    static runStatLabel(stat: keyof ExpeditionRunBuffs): string {
+        const labels: Record<keyof ExpeditionRunBuffs, string> = {
+            pAtkPct: 'P.Atk',
+            mAtkPct: 'M.Atk',
+            pDefPct: 'P.Def',
+            critRatePct: 'Crit',
+            atkSpeedPct: 'Spd',
+            maxHpPct: 'HP'
+        };
+        return labels[stat];
+    }
+
+    /** Three path cards per journey — fight routes vs safe loot. Journey 10/20/… = mandatory boss gate. */
+    static generatePathChoices(journey: number): ExpeditionPathChoice[] {
+        if (this.isMilestoneBossJourney(journey)) {
+            return [{ id: `j${journey}_milestone_boss`, type: 'boss' }];
+        }
+
+        if (journey < 2) {
+            return this.shuffle([
+                { id: `j${journey}_combat`, type: 'combat' },
+                { id: `j${journey}_elite`, type: 'elite' }
+            ]);
+        }
+
+        const slotA: ExpeditionPathType = journey >= 5 && Math.random() < 0.35 ? 'elite' : 'combat';
+        const slotB: ExpeditionPathType = journey >= 3 && Math.random() < 0.28 ? 'boss' : (Math.random() < 0.4 ? 'elite' : 'combat');
+        const slotC = this.pickSafePathType(journey);
+
+        const types = this.shuffle([slotA, slotB, slotC]);
+        return types.map((type, i) => ({ id: `j${journey}_${i}_${type}`, type }));
+    }
+
+    static refreshJourneyPhase() {
+        if (!this.state.rareEventUsed && this.state.journey === this.state.rareEventJourney) {
+            this.state.pendingRareEvent = true;
+            this.state.rareEventType = this.rollRareEventType();
+        } else {
+            this.state.pendingRareEvent = false;
+        }
+        this.state.pathChoices = this.generatePathChoices(this.state.journey);
+    }
+
+    static getPathMeta(type: ExpeditionPathType) {
+        const icons: Record<ExpeditionPathType, string> = {
+            combat: '⚔️',
+            boss: '👹',
+            chest: '🎁',
+            elite: '💀',
+            merchant: '🧳',
+            forge: '🔨',
+            scout: '🔭',
+            patrol: '🚶',
+            tracks: '👣',
+            warhorn: '📯',
+            ambush: '🌿'
+        };
+        const labelKeys: Record<ExpeditionPathType, string> = {
+            combat: 'game.hunt.expedition.pathLabelCombat',
+            boss: 'game.hunt.expedition.pathLabelBoss',
+            chest: 'game.hunt.expedition.pathLabelChest',
+            elite: 'game.hunt.expedition.pathLabelElite',
+            merchant: 'game.hunt.expedition.pathLabelMerchant',
+            forge: 'game.hunt.expedition.pathLabelForge',
+            scout: 'game.hunt.expedition.pathLabelScout',
+            patrol: 'game.hunt.expedition.pathLabelPatrol',
+            tracks: 'game.hunt.expedition.pathLabelTracks',
+            warhorn: 'game.hunt.expedition.pathLabelWarhorn',
+            ambush: 'game.hunt.expedition.pathLabelAmbush'
+        };
+        const fallbacks: Record<ExpeditionPathType, string> = {
+            combat: 'Fight',
+            boss: 'Boss',
+            chest: 'Chest',
+            elite: 'Elite',
+            merchant: 'Merchant',
+            forge: 'Forge',
+            scout: 'Scout',
+            patrol: 'Patrol',
+            tracks: 'Tracks',
+            warhorn: 'Warhorn',
+            ambush: 'Ambush'
+        };
+        return {
+            icon: icons[type],
+            label: this.t(labelKeys[type], fallbacks[type])
+        };
+    }
+
+    static getPathPreview(type: ExpeditionPathType) {
+        if (type === 'merchant') {
+            return {
+                icon: '🧳',
+                title: this.t('game.hunt.expedition.nodeMerchantTitle', 'Wandering Merchant'),
+                desc: this.t('game.hunt.expedition.nodeMerchantDesc', ''),
+                outcomes: [
+                    this.t('game.hunt.expedition.nodeMerchantOutcome1', ''),
+                    this.t('game.hunt.expedition.nodeMerchantOutcome2', ''),
+                    this.t('game.hunt.expedition.nodeMerchantOutcome3', '')
+                ].filter((o, i) => o && o !== `game.hunt.expedition.nodeMerchantOutcome${i + 1}`),
+                tags: [
+                    { text: this.t('game.hunt.expedition.nodeMerchantTagSafe', 'No combat'), cls: 'exp-node-tag--safe' as const },
+                    { text: this.t('game.hunt.expedition.nodeMerchantTagReward', 'Random aid'), cls: 'exp-node-tag--reward' as const }
+                ]
+            };
+        }
+
+        const base = `game.hunt.expedition.path${type.charAt(0).toUpperCase()}${type.slice(1)}`;
+        const meta = this.getPathMeta(type);
+        const grantsUpgrade = type === 'combat' || type === 'boss' || type === 'elite';
+        return {
+            icon: meta.icon,
+            title: this.t(`${base}Title`, meta.label),
+            desc: this.t(`${base}Desc`, ''),
+            outcomes: [
+                this.t(`${base}Outcome1`, ''),
+                this.t(`${base}Outcome2`, ''),
+                this.t(`${base}Outcome3`, '')
+            ].filter((o, i) => o && o !== `${base}Outcome${i + 1}`),
+            tags: [
+                grantsUpgrade
+                    ? { text: this.t('game.hunt.expedition.pathTagUpgrade', 'Grants upgrade card'), cls: 'exp-node-tag--reward' as const }
+                    : { text: this.t('game.hunt.expedition.pathTagNoUpgrade', 'No upgrade — safe trail only'), cls: 'exp-node-tag--safe' as const },
+                { text: this.t('game.hunt.expedition.pathTagEscalate', 'Next journey scales enemies'), cls: 'exp-node-tag--risk' as const }
+            ]
+        };
+    }
+
+    static getRunBuffMults(): { pAtk: number; mAtk: number; pDef: number; crit: number; atkSpeed: number; maxHp: number } {
+        const b = this.state.runBuffs;
+        return {
+            pAtk: 1 + b.pAtkPct / 100,
+            mAtk: 1 + b.mAtkPct / 100,
+            pDef: 1 + b.pDefPct / 100,
+            crit: 1 + b.critRatePct / 100,
+            atkSpeed: Math.max(0.5, 1 - b.atkSpeedPct / 100),
+            maxHp: 1 + b.maxHpPct / 100
+        };
+    }
+
+    static applyRunBuffsToPlayerStats(): void {
+        if (!this.state.active) return;
         const win = window as any;
-        const text = this.t(key, fallback, params);
-        win.escreverLog(`<span style="color:${color}; font-weight:bold;">${text}</span>`);
+        const ps = win.playerStats;
+        if (!ps) return;
+        const m = this.getRunBuffMults();
+        ps.pAtk = Math.floor(ps.pAtk * m.pAtk);
+        ps.mAtk = Math.floor(ps.mAtk * m.mAtk);
+        ps.pDef = Math.floor(ps.pDef * m.pDef);
+        ps.critRate = typeof win.applyCritRateCap === 'function'
+            ? win.applyCritRateCap(Math.floor(ps.critRate * m.crit))
+            : Math.min(70, Math.floor(ps.critRate * m.crit));
+        ps.atkSpeed = Math.max(250, Math.floor(ps.atkSpeed * m.atkSpeed));
+        const oldMax = ps.maxHp;
+        ps.maxHp = Math.floor(ps.maxHp * m.maxHp);
+        if (typeof win.playerHP === 'number' && oldMax > 0) {
+            win.playerHP = Math.min(ps.maxHp, Math.floor(win.playerHP * (ps.maxHp / oldMax)));
+        }
     }
 
     static refreshRulesDom(root?: HTMLElement | null) {
@@ -104,16 +531,12 @@ export class ExpeditionEngine {
     static openRulesModal() {
         const win = window as any;
         this.refreshRulesDom();
-        if (typeof win.abrirModal === 'function') {
-            win.abrirModal('janela-expedition-rules', 1600);
-        }
+        if (typeof win.abrirModal === 'function') win.abrirModal('janela-expedition-rules', 1600);
     }
 
     static closeRulesModal() {
         const win = window as any;
-        if (typeof win.fecharModal === 'function') {
-            win.fecharModal('janela-expedition-rules');
-        }
+        if (typeof win.fecharModal === 'function') win.fecharModal('janela-expedition-rules');
     }
 
     static refreshResultDom(root?: HTMLElement | null) {
@@ -166,13 +589,8 @@ export class ExpeditionEngine {
             }
             if (bag.drops) {
                 for (const item in bag.drops) {
-                    const qty = bag.drops[item];
-                    if (qty > 0) {
-                        rewardsHtml += this.buildResultLine(
-                            itemDropDisplayName(item),
-                            `x${qty}`,
-                            'exp-result-line__val--drop'
-                        );
+                    if (bag.drops[item] > 0) {
+                        rewardsHtml += this.buildResultLine(itemDropDisplayName(item), `x${bag.drops[item]}`, 'exp-result-line__val--drop');
                     }
                 }
             }
@@ -205,7 +623,6 @@ export class ExpeditionEngine {
         if (effectsWrap) effectsWrap.style.display = effectsHtml ? 'block' : 'none';
 
         this.refreshResultDom();
-
         if (typeof win.abrirModal === 'function') {
             win.abrirModal('janela-expedition-result', 1600);
             const body = document.querySelector('.expedition-result-body') as HTMLElement | null;
@@ -215,9 +632,21 @@ export class ExpeditionEngine {
 
     static continueFromResult() {
         const win = window as any;
-        if (typeof win.fecharModal === 'function') {
-            win.fecharModal('janela-expedition-result');
+        if (typeof win.fecharModal === 'function') win.fecharModal('janela-expedition-result');
+        if (this._resultSkipsAdvance) {
+            this._resultSkipsAdvance = false;
+            this.renderMap();
+            return;
         }
+        this.advanceJourney();
+    }
+
+    static advanceJourney() {
+        this.state.journey += 1;
+        this.state.journeyTrait = this.state.nextJourneyTrait;
+        this.state.nextJourneyTrait = this.rollJourneyTrait();
+        this.state.currentPath = null;
+        this.refreshJourneyPhase();
 
         const combatArea = document.getElementById('area-cacada');
         const botoesCombate = document.getElementById('botoes-combate');
@@ -227,50 +656,91 @@ export class ExpeditionEngine {
         this.renderMap();
     }
 
-    static resolveCombatResultTitle(type: ExpeditionNodeType): { titleKey: string; titleFallback: string; summaryKey: string; summaryFallback: string } {
-        if (type === 'elite') {
-            return {
-                titleKey: 'game.hunt.expedition.resultEliteWinTitle',
-                titleFallback: 'Elite defeated',
-                summaryKey: 'game.hunt.expedition.resultEliteWinDesc',
-                summaryFallback: 'Champion-grade spoils added to your bag.'
-            };
+    static rollUpgradeOptions(count = 3): UpgradeDef[] {
+        const picks = this.shuffle(UPGRADE_POOL).slice(0, Math.min(count, UPGRADE_POOL.length));
+        const forceLegendary = this.state.luckLegendaryNext || Math.random() < 0.22;
+        if (forceLegendary) {
+            this.state.luckLegendaryNext = false;
+            const leg = this.shuffle(LEGENDARY_UPGRADE_POOL)[0];
+            const slot = Math.floor(Math.random() * picks.length);
+            picks[slot] = { ...leg };
         }
-        if (type === 'ambush') {
-            return {
-                titleKey: 'game.hunt.expedition.resultAmbushWinTitle',
-                titleFallback: 'Ambush survived',
-                summaryKey: 'game.hunt.expedition.resultAmbushWinDesc',
-                summaryFallback: 'Bonus loot from the ambush is in your bag.'
-            };
-        }
-        if (type === 'guardian') {
-            return {
-                titleKey: 'game.hunt.expedition.resultGuardianWinTitle',
-                titleFallback: 'Guardian fallen',
-                summaryKey: 'game.hunt.expedition.resultGuardianWinDesc',
-                summaryFallback: 'The gatekeeper\'s loot is secured. The boss awaits.'
-            };
-        }
-        return {
-            titleKey: 'game.hunt.expedition.resultCombatWinTitle',
-            titleFallback: 'Encounter cleared',
-            summaryKey: 'game.hunt.expedition.resultCombatWinDesc',
-            summaryFallback: 'Victory loot was secured in your expedition bag.'
-        };
+        return picks;
     }
 
-    static scaleLootForDisplay(lootTurno: { adenas: number; xp: number; drops: Record<string, number> }, extraMult = 1) {
-        const mult = extraMult * this.state.luckLootMult;
-        const drops: Record<string, number> = {};
-        for (const item in lootTurno.drops) {
-            drops[item] = Math.max(1, Math.floor(lootTurno.drops[item] * mult));
+    static showUpgradeModal(loot: ExpeditionBagDelta) {
+        const win = window as any;
+        this.pendingUpgradeOptions = this.rollUpgradeOptions(3);
+        this.lastCombatLoot = loot;
+
+        const lootEl = document.getElementById('exp-upgrade-loot');
+        if (lootEl) {
+            const labAdena = this.t('game.hunt.expedition.resultAdena', 'Adena');
+            const labXp = this.t('game.hunt.expedition.resultXp', 'XP');
+            let html = '';
+            if (loot.adenas) html += this.buildResultLine(labAdena, this.formatSigned(loot.adenas), 'exp-result-line__val--adena');
+            if (loot.xp) html += this.buildResultLine(labXp, this.formatSigned(loot.xp), 'exp-result-line__val--xp');
+            if (loot.drops) {
+                for (const item in loot.drops) {
+                    if (loot.drops[item] > 0) {
+                        html += this.buildResultLine(itemDropDisplayName(item), `x${loot.drops[item]}`, 'exp-result-line__val--drop');
+                    }
+                }
+            }
+            lootEl.innerHTML = html || `<span class="exp-upgrade-loot-empty">${this.t('game.hunt.expedition.upgradeNoLoot', 'Fight cleared.')}</span>`;
         }
-        return {
-            adenas: Math.floor(lootTurno.adenas * mult),
-            xp: Math.floor(lootTurno.xp * mult),
-            drops
-        };
+
+        const grid = document.getElementById('exp-upgrade-cards');
+        if (grid) {
+            grid.innerHTML = this.pendingUpgradeOptions.map((up, idx) => `
+                <button type="button" class="exp-upgrade-card exp-upgrade-card--${up.id}${up.legendary ? ' exp-upgrade-card--legendary' : ''}" onclick="ExpeditionEngine.pickUpgrade(${idx})">
+                    ${up.legendary ? `<span class="exp-upgrade-card__legend">${this.t('game.hunt.expedition.upgradeLegendBadge', 'LEGENDARY')}</span>` : ''}
+                    <span class="exp-upgrade-card__icon">${up.icon}</span>
+                    <span class="exp-upgrade-card__body">
+                        <span class="exp-upgrade-card__title">${this.t(up.titleKey, up.titleFallback)}</span>
+                        <span class="exp-upgrade-card__desc">${this.t(up.descKey, up.descFallback)}</span>
+                    </span>
+                    <span class="exp-upgrade-card__pick">${this.t('game.hunt.expedition.upgradePick', 'Pick')}</span>
+                </button>
+            `).join('');
+        }
+
+        const titleEl = document.getElementById('exp-upgrade-title');
+        if (titleEl) titleEl.innerText = this.t('game.hunt.expedition.upgradeTitle', 'Choose your upgrade');
+
+        this.refreshUpgradeDom();
+
+        const combatArea = document.getElementById('area-cacada');
+        const botoesCombate = document.getElementById('botoes-combate');
+        if (combatArea) combatArea.style.display = 'none';
+        if (botoesCombate) botoesCombate.style.display = 'none';
+
+        if (typeof win.abrirModal === 'function') win.abrirModal('janela-expedition-upgrade', 1600);
+    }
+
+    static refreshUpgradeDom(root?: HTMLElement | null) {
+        const win = window as any;
+        const el = root || document.getElementById('janela-expedition-upgrade');
+        if (win.I18n && typeof win.I18n.refreshDom === 'function' && el) {
+            try { win.I18n.refreshDom(el); } catch { /* ignore */ }
+        }
+    }
+
+    static pickUpgrade(index: number) {
+        const up = this.pendingUpgradeOptions[index];
+        if (!up) return;
+
+        this.state.runBuffs[up.stat] += up.value;
+        this.state.runStats.upgradesTaken += 1;
+        this.pendingUpgradeOptions = [];
+        this.lastCombatLoot = null;
+
+        const win = window as any;
+        if (typeof win.fecharModal === 'function') win.fecharModal('janela-expedition-upgrade');
+        if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+        if (typeof win.atualizar === 'function') win.atualizar();
+
+        this.advanceJourney();
     }
 
     static setForestLayoutMode(mode: 'hub' | 'map' | 'combat' | 'idle') {
@@ -283,19 +753,28 @@ export class ExpeditionEngine {
             if (mode === 'map') floresta.classList.add('expedition-map-open');
             if (mode === 'combat') floresta.classList.add('expedition-combat-open');
         }
-        if (inner) {
-            inner.classList.toggle('tela-floresta-inner--expedition-map', mode === 'map');
-        }
-        if (area) {
-            area.style.display = mode === 'combat' ? 'flex' : 'none';
-        }
+        if (inner) inner.classList.toggle('tela-floresta-inner--expedition-map', mode === 'map');
+        if (area) area.style.display = mode === 'combat' ? 'flex' : 'none';
     }
 
     static showHub() {
         const hub = document.getElementById('expedition-hub');
         const map = document.getElementById('expedition-map-container');
+        const btn = document.getElementById('btn-iniciar-caca');
+        const mobs = document.getElementById('mobs-container');
+        const botoes = document.getElementById('botoes-combate');
+        const area = document.getElementById('area-cacada');
+
         if (hub) hub.style.display = 'flex';
-        if (map) map.style.display = 'none';
+        if (map) {
+            map.style.display = 'none';
+            map.innerHTML = '';
+        }
+        if (btn) btn.style.display = '';
+        if (mobs) mobs.style.display = 'none';
+        if (botoes) botoes.style.display = 'none';
+        if (area) area.style.display = 'none';
+
         this.setForestLayoutMode('hub');
     }
 
@@ -330,183 +809,412 @@ export class ExpeditionEngine {
     }
 
     static startExpedition(zoneId: string) {
+        this.restoreMobTuning();
+        const rareEventJourney = this.rollRareEventJourney();
+        const firstTrait = this.rollJourneyTrait();
         this.state = {
             active: true,
-            zoneId: zoneId,
-            nodes: this.generateNodes(zoneId),
-            currentNodeId: null,
+            zoneId,
+            journey: 1,
+            pathChoices: [],
+            currentPath: null,
+            runBuffs: this.emptyRunBuffs(),
+            runStats: this.emptyRunStats(),
+            journeyTrait: firstTrait,
+            nextJourneyTrait: this.rollJourneyTrait(),
             luckLootMult: 1,
+            luckLegendaryNext: false,
+            rareEventJourney,
+            rareEventUsed: false,
+            pendingRareEvent: false,
+            rareEventType: null,
             bag: { adenas: 0, xp: 0, drops: {} }
         };
-        this.state.nodes[0].status = 'available';
-
+        this.refreshJourneyPhase();
         this.hideHub();
         this.renderMap();
     }
 
-    static pickType(pool: ExpeditionNodeType[]): ExpeditionNodeType {
-        return pool[Math.floor(Math.random() * pool.length)];
+    static getPathCardMeta(type: ExpeditionPathType, opts?: { milestone?: boolean }) {
+        const meta = this.getPathMeta(type);
+        const grantsUpgrade = type === 'combat' || type === 'boss' || type === 'elite';
+        if (opts?.milestone && type === 'boss') {
+            return {
+                ...meta,
+                hint: this.t('game.hunt.expedition.pathCardHintMilestoneBoss', 'Required gate · every 10 journeys'),
+                badge: this.t('game.hunt.expedition.pathBadgeMilestone', 'MILESTONE'),
+                badgeCls: 'expedition-path-card__badge--milestone'
+            };
+        }
+        const hintKeys: Record<ExpeditionPathType, string> = {
+            combat: 'game.hunt.expedition.pathCardHintCombat',
+            boss: 'game.hunt.expedition.pathCardHintBoss',
+            chest: 'game.hunt.expedition.pathCardHintChest',
+            elite: 'game.hunt.expedition.pathCardHintElite',
+            merchant: 'game.hunt.expedition.pathCardHintMerchant',
+            forge: 'game.hunt.expedition.pathCardHintForge',
+            scout: 'game.hunt.expedition.pathCardHintScout',
+            patrol: 'game.hunt.expedition.pathCardHintPatrol',
+            tracks: 'game.hunt.expedition.pathCardHintTracks',
+            warhorn: 'game.hunt.expedition.pathCardHintWarhorn',
+            ambush: 'game.hunt.expedition.pathCardHintAmbush'
+        };
+        const hintFallbacks: Record<ExpeditionPathType, string> = {
+            combat: 'Win → pick 1 upgrade',
+            boss: 'Hard fight · ×2 loot',
+            chest: 'Loot now · no upgrade',
+            elite: 'Champions · premium',
+            merchant: 'Trade · bag loot',
+            forge: 'Run stat · no fight',
+            scout: 'Intel · bag bonus',
+            patrol: 'XP march · no gifts',
+            tracks: 'Next trait intel',
+            warhorn: 'Battle prep buff',
+            ambush: 'Risk · loot or pain'
+        };
+        return {
+            ...meta,
+            hint: this.t(hintKeys[type], hintFallbacks[type]),
+            badge: grantsUpgrade
+                ? this.t('game.hunt.expedition.pathBadgeUpgrade', 'UPGRADE')
+                : this.t('game.hunt.expedition.pathBadgeSafe', 'SAFE'),
+            badgeCls: grantsUpgrade ? 'expedition-path-card__badge--upgrade' : 'expedition-path-card__badge--safe'
+        };
     }
 
-    /** Nine-stage procedural map — ~18 nodes, 8 choices before the boss. */
-    static generateNodes(_zoneId: string): ExpeditionNode[] {
-        const stagePools: ExpeditionNodeType[][] = [
-            ['combat'],
-            [this.pickType(['event', 'chest']), 'combat'],
-            ['combat', this.pickType(['chest', 'event'])],
-            [this.pickType(['ambush', 'combat']), 'chest', 'event'],
-            ['elite', this.pickType(['chest', 'combat'])],
-            ['camp', 'merchant'],
-            [this.pickType(['event', 'chest']), 'elite', this.pickType(['combat', 'ambush'])],
-            [this.pickType(['guardian', 'ambush']), this.pickType(['elite', 'combat'])],
-            ['boss']
-        ];
-
-        const nodes: ExpeditionNode[] = [];
-        const depthNodeIds: number[][] = [];
-        let id = 1;
-
-        for (let depth = 0; depth < stagePools.length; depth++) {
-            const idsAtDepth: number[] = [];
-            for (const type of stagePools[depth]) {
-                nodes.push({ id, depth, type, status: 'locked', connections: [] });
-                idsAtDepth.push(id);
-                id++;
-            }
-            depthNodeIds.push(idsAtDepth);
+    static buildRunBuffsHtml(): string {
+        const b = this.state.runBuffs;
+        const chips: string[] = [];
+        if (b.pAtkPct) chips.push(`⚔️ +${b.pAtkPct}%`);
+        if (b.mAtkPct) chips.push(`✨ +${b.mAtkPct}%`);
+        if (b.critRatePct) chips.push(`🎯 +${b.critRatePct}%`);
+        if (b.atkSpeedPct) chips.push(`💨 +${b.atkSpeedPct}%`);
+        if (b.pDefPct) chips.push(`🛡️ +${b.pDefPct}%`);
+        if (b.maxHpPct) chips.push(`❤️ +${b.maxHpPct}%`);
+        if (chips.length === 0) {
+            return `<span class="expedition-run-buffs__empty">${this.t('game.hunt.expedition.runBuffsEmpty', 'No run upgrades yet — win fights to grow stronger.')}</span>`;
         }
-
-        for (let d = 0; d < depthNodeIds.length - 1; d++) {
-            const nextIds = depthNodeIds[d + 1];
-            for (const nodeId of depthNodeIds[d]) {
-                const node = nodes.find((n) => n.id === nodeId);
-                if (node) node.connections = [...nextIds];
-            }
-        }
-
-        return nodes;
+        return chips.map((c) => `<span class="expedition-run-buffs__chip">${c}</span>`).join('');
     }
 
-    static getNodeMeta(type: ExpeditionNodeType) {
-        const icons: Record<ExpeditionNodeType, string> = {
-            combat: '⚔️',
-            elite: '💀',
-            camp: '⛺',
-            event: '❓',
-            chest: '🎁',
-            boss: '👹',
-            merchant: '🏪',
-            ambush: '🗡️',
-            guardian: '🛡️'
-        };
-        const labelKeys: Record<ExpeditionNodeType, string> = {
-            combat: 'game.hunt.expedition.nodeLabelCombat',
-            elite: 'game.hunt.expedition.nodeLabelElite',
-            camp: 'game.hunt.expedition.nodeLabelCamp',
-            event: 'game.hunt.expedition.nodeLabelEvent',
-            chest: 'game.hunt.expedition.nodeLabelChest',
-            boss: 'game.hunt.expedition.nodeLabelBoss',
-            merchant: 'game.hunt.expedition.nodeLabelMerchant',
-            ambush: 'game.hunt.expedition.nodeLabelAmbush',
-            guardian: 'game.hunt.expedition.nodeLabelGuardian'
-        };
-        const fallbacks: Record<ExpeditionNodeType, string> = {
-            combat: 'Fight',
-            elite: 'Elite',
-            camp: 'Camp',
-            event: 'Event',
-            chest: 'Chest',
-            boss: 'Boss',
-            merchant: 'Trader',
-            ambush: 'Ambush',
-            guardian: 'Guardian'
+    static getRareEventMeta(type: ExpeditionRareEventType) {
+        const icons: Record<ExpeditionRareEventType, string> = {
+            shrine: '🌙',
+            gambler: '🎲',
+            cache: '📦',
+            storm: '⛈️'
         };
         return {
             icon: icons[type],
-            label: this.t(labelKeys[type], fallbacks[type])
+            title: this.t(`game.hunt.expedition.rareEvent_${type}_title`, type),
+            desc: this.t(`game.hunt.expedition.rareEvent_${type}_desc`, ''),
+            btn: this.t(`game.hunt.expedition.rareEvent_${type}_btn`, 'Continue')
         };
     }
 
-    static getNodePreview(type: ExpeditionNodeType): NodePreview {
-        const base = `game.hunt.expedition.node${type.charAt(0).toUpperCase()}${type.slice(1)}`;
-        const meta = this.getNodeMeta(type);
-        const outcomeCount = type === 'event' ? 6 : 3;
-        const outcomes: string[] = [];
-        for (let i = 1; i <= outcomeCount; i++) {
-            const key = `${base}Outcome${i}`;
-            const text = this.t(key, '');
-            if (text && text !== key) outcomes.push(text);
+    static buildRareEventSectionHtml(): string {
+        const type = this.state.rareEventType;
+        if (!type) return '';
+        const meta = this.getRareEventMeta(type);
+        const banner = this.t('game.hunt.expedition.rareEventBanner', 'Rare encounter — once per run');
+        return `
+                <div class="expedition-rare-event">
+                    <div class="expedition-rare-event__banner">${banner}</div>
+                    <div class="expedition-rare-event__card">
+                        <span class="expedition-rare-event__icon" aria-hidden="true">${meta.icon}</span>
+                        <h4 class="expedition-rare-event__title">${meta.title}</h4>
+                        <p class="expedition-rare-event__desc">${meta.desc}</p>
+                        <button type="button" class="btn-l2 expedition-rare-event__btn" onclick="ExpeditionEngine.resolveRareEvent()">${meta.btn}</button>
+                    </div>
+                </div>`;
+    }
+
+    static getPathPickHint(journey: number, choiceCount: number): string {
+        if (journey < 2 && choiceCount > 1) {
+            return this.t('game.hunt.expedition.pathPickHintOpeningChoice', 'First step — pick Fight or Elite below');
+        }
+        if (choiceCount === 1) {
+            if (this.isMilestoneBossJourney(journey)) {
+                return this.t('game.hunt.expedition.pathPickHintMilestone', 'Gate boss — tap the card to fight');
+            }
+            return this.t('game.hunt.expedition.pathPickHintSolo', 'Tap the card below to continue');
+        }
+        return this.t('game.hunt.expedition.pathPickHint', 'Choose a path below to continue');
+    }
+
+    static buildPathSectionHtml(journey: number, pickHint: string): string {
+        const milestone = this.isMilestoneBossJourney(journey);
+        const opening = journey < 2;
+        const choiceCount = this.state.pathChoices.length;
+        const solo = choiceCount === 1;
+        let pathsHtml = '';
+        this.state.pathChoices.forEach((choice, idx) => {
+            const card = this.getPathCardMeta(choice.type, { milestone });
+            pathsHtml += `
+            <button type="button" class="expedition-path-card expedition-path-card--cta expedition-path-card--${choice.type}${milestone ? ' expedition-path-card--milestone' : ''}${opening ? ' expedition-path-card--opening' : ''}" onclick="ExpeditionEngine.clickPath(${idx})">
+                <span class="expedition-path-card__badge ${card.badgeCls}">${card.badge}</span>
+                <span class="expedition-path-card__icon">${card.icon}</span>
+                <span class="expedition-path-card__label">${card.label}</span>
+                <span class="expedition-path-card__hint">${card.hint}</span>
+            </button>`;
+        });
+
+        const milestoneBanner = milestone
+            ? `<div class="expedition-milestone-banner">${this.t('game.hunt.expedition.milestoneBossBanner', 'Milestone {n} — defeat the gate boss to continue', { n: journey })}</div>`
+            : '';
+
+        const openingBanner = opening
+            ? `<div class="expedition-opening-banner">${this.t('game.hunt.expedition.openingFightBanner', 'Opening step — standard fight or elite pull, your call')}</div>`
+            : '';
+
+        const gridClass = solo
+            ? 'expedition-path-grid expedition-path-grid--solo'
+            : choiceCount === 2
+                ? 'expedition-path-grid expedition-path-grid--duo'
+                : 'expedition-path-grid';
+
+        const sectionMods = [
+            'expedition-path-section--hero',
+            'expedition-path-section--action-focus',
+            solo ? 'expedition-path-section--solo' : '',
+            choiceCount === 2 ? 'expedition-path-section--duo' : '',
+            opening ? 'expedition-path-section--opening' : '',
+            milestone ? 'expedition-path-section--milestone' : ''
+        ].filter(Boolean).join(' ');
+
+        const headGlyph = opening ? '⚔️' : milestone ? '👹' : '👇';
+
+        return `
+                ${milestoneBanner}
+                ${openingBanner}
+                <div class="expedition-path-section ${sectionMods}" role="region" aria-label="${pickHint}">
+                    <div class="expedition-path-section__head">
+                        <span class="expedition-path-section__glyph" aria-hidden="true">${headGlyph}</span>
+                        <div class="expedition-path-section__label">${pickHint}</div>
+                    </div>
+                    <div class="${gridClass}">${pathsHtml}</div>
+                </div>`;
+    }
+
+    static resolveRareEvent() {
+        if (!this.state.pendingRareEvent || !this.state.rareEventType) return;
+        const type = this.state.rareEventType;
+        const win = window as any;
+        let result: ExpeditionNodeResult;
+
+        switch (type) {
+            case 'shrine': {
+                const hpBefore = Number(win.playerHP) || 0;
+                const mpBefore = Number(win.playerMP) || 0;
+                win.playerHP = win.playerStats.maxHp;
+                win.playerMP = win.playerStats.maxMp;
+                const adenaGain = Math.floor(400 * this.getJourneyRewardMult());
+                this.state.bag.adenas += adenaGain;
+                if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+                win.atualizar();
+                result = {
+                    nodeType: 'event',
+                    tone: 'success',
+                    icon: '🌙',
+                    titleKey: 'game.hunt.expedition.rareResult_shrine_title',
+                    titleFallback: 'Moonlit shrine',
+                    summaryKey: 'game.hunt.expedition.rareResult_shrine_desc',
+                    summaryFallback: 'Full recovery and a modest offering to your bag.',
+                    bag: { adenas: adenaGain },
+                    effects: {
+                        hpRestored: Math.max(0, win.playerStats.maxHp - hpBefore),
+                        mpRestored: Math.max(0, win.playerStats.maxMp - mpBefore)
+                    }
+                };
+                break;
+            }
+            case 'gambler': {
+                this.state.luckLootMult = 1.75;
+                result = {
+                    nodeType: 'event',
+                    tone: 'warning',
+                    icon: '🎲',
+                    titleKey: 'game.hunt.expedition.rareResult_gambler_title',
+                    titleFallback: 'Fortune twist',
+                    summaryKey: 'game.hunt.expedition.rareResult_gambler_desc',
+                    summaryFallback: 'Your next fight pays +75% bag loot. Choose your path wisely.',
+                    effects: { buffText: this.t('game.hunt.expedition.rareBuffLoot', '+75% next fight loot') }
+                };
+                break;
+            }
+            case 'cache': {
+                const journeyMult = this.getJourneyRewardMult();
+                const adenaGain = Math.floor((Math.random() * 900 + 400) * journeyMult);
+                this.state.bag.adenas += adenaGain;
+                const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore'];
+                const mat = mats[Math.floor(Math.random() * mats.length)];
+                const matQty = Math.max(2, Math.floor((Math.random() * 5 + 3) * journeyMult));
+                this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
+                this.state.runStats.chestsOpened += 1;
+                result = {
+                    nodeType: 'chest',
+                    tone: 'success',
+                    icon: '📦',
+                    titleKey: 'game.hunt.expedition.rareResult_cache_title',
+                    titleFallback: 'Hidden cache',
+                    summaryKey: 'game.hunt.expedition.rareResult_cache_desc',
+                    summaryFallback: 'A stash left on the trail — straight to your expedition bag.',
+                    bag: { adenas: adenaGain, drops: { [mat]: matQty } }
+                };
+                break;
+            }
+            case 'storm':
+            default: {
+                this.state.luckLegendaryNext = true;
+                const statKeys: (keyof ExpeditionRunBuffs)[] = ['pAtkPct', 'mAtkPct', 'pDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct'];
+                const stat = statKeys[Math.floor(Math.random() * statKeys.length)];
+                this.state.runBuffs[stat] += 6;
+                if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+                result = {
+                    nodeType: 'event',
+                    tone: 'neutral',
+                    icon: '⛈️',
+                    titleKey: 'game.hunt.expedition.rareResult_storm_title',
+                    titleFallback: 'Blood storm',
+                    summaryKey: 'game.hunt.expedition.rareResult_storm_desc',
+                    summaryFallback: '+6% to a random run stat and a guaranteed legendary upgrade on your next victory.',
+                    effects: { buffText: this.t('game.hunt.expedition.rareBuffLegendary', 'Next win: legendary upgrade') }
+                };
+                break;
+            }
         }
 
-        const tagDefs: Record<ExpeditionNodeType, { key: string; cls: NodePreview['tags'][0]['cls']; fallback: string }[]> = {
-            combat: [
-                { key: `${base}TagRisk`, cls: 'exp-node-tag--risk', fallback: 'Moderate risk' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Standard loot' }
-            ],
-            elite: [
-                { key: `${base}TagRisk`, cls: 'exp-node-tag--risk', fallback: 'High risk' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Premium loot' }
-            ],
-            camp: [
-                { key: `${base}TagSafe`, cls: 'exp-node-tag--safe', fallback: 'Safe rest' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Full recovery' }
-            ],
-            event: [
-                { key: `${base}TagRisk`, cls: 'exp-node-tag--risk', fallback: 'Unpredictable' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Bonus or heal' }
-            ],
-            chest: [
-                { key: `${base}TagRisk`, cls: 'exp-node-tag--risk', fallback: 'Trap chance' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Quick payout' }
-            ],
-            boss: [
-                { key: `${base}TagRisk`, cls: 'exp-node-tag--risk', fallback: 'Extreme risk' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Full extract' }
-            ],
-            merchant: [
-                { key: `${base}TagSafe`, cls: 'exp-node-tag--safe', fallback: 'No combat' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Random aid' }
-            ],
-            ambush: [
-                { key: `${base}TagRisk`, cls: 'exp-node-tag--risk', fallback: 'High risk' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Loot boost' }
-            ],
-            guardian: [
-                { key: `${base}TagRisk`, cls: 'exp-node-tag--risk', fallback: 'Very high risk' },
-                { key: `${base}TagReward`, cls: 'exp-node-tag--reward', fallback: 'Rich loot' }
-            ]
-        };
+        this.state.runStats.rareEventType = type;
+        this.state.rareEventUsed = true;
+        this.state.pendingRareEvent = false;
+        this._resultSkipsAdvance = true;
+        this.showResultModal(result);
+    }
 
+    static buildExtractSummary(journey: number, stats: ExpeditionRunStats, runBuffs: ExpeditionRunBuffs): string {
+        const parts: string[] = [];
+        parts.push(this.t('game.hunt.expedition.extractSummaryJourney', 'Journey {n}', { n: journey }));
+
+        const fightParts: string[] = [];
+        if (stats.bossesCleared > 0) {
+            fightParts.push(this.t('game.hunt.expedition.extractSummaryBosses', '{n} bosses', { n: stats.bossesCleared }));
+        }
+        if (stats.elitesCleared > 0) {
+            fightParts.push(this.t('game.hunt.expedition.extractSummaryElites', '{n} elites', { n: stats.elitesCleared }));
+        }
+        if (stats.combatsWon > 0) {
+            fightParts.push(this.t('game.hunt.expedition.extractSummaryFights', '{n} fights', { n: stats.combatsWon }));
+        }
+        if (stats.upgradesTaken > 0) {
+            fightParts.push(this.t('game.hunt.expedition.extractSummaryUpgrades', '{n} upgrades', { n: stats.upgradesTaken }));
+        }
+        if (stats.rareEventType) {
+            fightParts.push(this.t('game.hunt.expedition.extractSummaryRare', 'Rare: {event}', {
+                event: this.t(`game.hunt.expedition.rareEvent_${stats.rareEventType}_short`, stats.rareEventType)
+            }));
+        }
+        if (fightParts.length) parts.push(fightParts.join(' · '));
+
+        const buffParts: string[] = [];
+        if (runBuffs.pAtkPct) buffParts.push(`+${runBuffs.pAtkPct}% P.Atk`);
+        if (runBuffs.mAtkPct) buffParts.push(`+${runBuffs.mAtkPct}% M.Atk`);
+        if (runBuffs.critRatePct) buffParts.push(`+${runBuffs.critRatePct}% Crit`);
+        if (runBuffs.atkSpeedPct) buffParts.push(`+${runBuffs.atkSpeedPct}% Spd`);
+        if (runBuffs.pDefPct) buffParts.push(`+${runBuffs.pDefPct}% P.Def`);
+        if (runBuffs.maxHpPct) buffParts.push(`+${runBuffs.maxHpPct}% HP`);
+        if (buffParts.length) {
+            parts.push(this.t('game.hunt.expedition.extractSummaryBuffs', 'Run: {buffs}', { buffs: buffParts.join(', ') }));
+        }
+
+        return parts.join(' · ');
+    }
+
+    /** Integer half on death: kept = floor(n/2), lost = n - kept (no fractional items). */
+    static splitDeathShare(total: number): { kept: number; lost: number } {
+        const t = Math.max(0, Math.floor(Number(total) || 0));
+        const kept = Math.floor(t / 2);
+        return { kept, lost: t - kept };
+    }
+
+    static computeDeathBagSplit(bag: { adenas: number; xp: number; drops: Record<string, number> }) {
+        const adenaSplit = this.splitDeathShare(bag.adenas);
+        const xpSplit = this.splitDeathShare(bag.xp);
+        const dropsKept: Record<string, number> = {};
+        const dropsLost: Record<string, number> = {};
+        for (const item in bag.drops) {
+            const qty = Math.max(0, Math.floor(Number(bag.drops[item]) || 0));
+            if (qty <= 0) continue;
+            const split = this.splitDeathShare(qty);
+            if (split.kept > 0) dropsKept[item] = split.kept;
+            if (split.lost > 0) dropsLost[item] = split.lost;
+        }
         return {
-            icon: meta.icon,
-            title: this.t(`${base}Title`, type.toUpperCase()),
-            desc: this.t(`${base}Desc`, ''),
-            outcomes,
-            tags: tagDefs[type].map((tag) => ({
-                text: this.t(tag.key, tag.fallback),
-                cls: tag.cls
-            }))
+            total: {
+                adenas: Math.max(0, Math.floor(Number(bag.adenas) || 0)),
+                xp: Math.max(0, Math.floor(Number(bag.xp) || 0)),
+                drops: { ...bag.drops }
+            },
+            kept: { adenas: adenaSplit.kept, xp: xpSplit.kept, drops: dropsKept },
+            lost: { adenas: adenaSplit.lost, xp: xpSplit.lost, drops: dropsLost }
         };
     }
 
-    static getMapProgress(): { current: number; total: number } {
-        const maxDepth = Math.max(...this.state.nodes.map((n) => n.depth), 0);
-        const furthestDone = this.state.nodes
-            .filter((n) => n.status === 'completed')
-            .reduce((max, n) => Math.max(max, n.depth), -1);
-        return {
-            current: Math.min(furthestDone + 2, maxDepth + 1),
-            total: maxDepth + 1
-        };
+    static bagHasAnyLoot(bag: { adenas: number; xp: number; drops: Record<string, number> }): boolean {
+        if ((bag.adenas || 0) > 0 || (bag.xp || 0) > 0) return true;
+        return Object.keys(bag.drops || {}).some((k) => (bag.drops[k] || 0) > 0);
     }
 
-    static buildNodeClass(node: ExpeditionNode): string {
-        const classes = ['expedition-node', `expedition-node--${node.type}`];
-        if (node.status === 'completed') classes.push('expedition-node--completed');
-        else if (node.status === 'missed') classes.push('expedition-node--missed');
-        else if (node.status === 'available') classes.push('expedition-node--available');
-        if (node.id === this.state.currentNodeId) classes.push('expedition-node--current');
-        return classes.join(' ');
+    static buildDeathLootColumn(
+        title: string,
+        bag: { adenas: number; xp: number; drops: Record<string, number> },
+        tone: 'kept' | 'lost',
+        emptyLabel: string
+    ): string {
+        const labAdena = this.t('game.hunt.expedition.resultAdena', 'Adena');
+        const labXp = this.t('game.hunt.expedition.resultXp', 'XP');
+        let lines = '';
+        if (bag.adenas > 0) {
+            const valClass = tone === 'kept' ? 'exp-result-line__val--adena' : 'exp-result-line__val--hurt';
+            const val = tone === 'kept' ? this.formatSigned(bag.adenas) : `-${bag.adenas.toLocaleString()}`;
+            lines += this.buildResultLine(labAdena, val, valClass);
+        }
+        if (bag.xp > 0) {
+            const valClass = tone === 'kept' ? 'exp-result-line__val--xp' : 'exp-result-line__val--hurt';
+            const val = tone === 'kept' ? this.formatSigned(bag.xp) : `-${bag.xp.toLocaleString()}`;
+            lines += this.buildResultLine(labXp, val, valClass);
+        }
+        for (const item in bag.drops) {
+            const qty = bag.drops[item];
+            if (qty <= 0) continue;
+            const valClass = tone === 'kept' ? 'exp-result-line__val--drop' : 'exp-result-line__val--hurt';
+            const val = tone === 'kept' ? `x${qty}` : `-x${qty}`;
+            lines += this.buildResultLine(itemDropDisplayName(item), val, valClass);
+        }
+        const body = lines
+            ? `<div class="forest-death-loot__lines">${lines}</div>`
+            : `<p class="forest-death-loot__col-empty">${emptyLabel}</p>`;
+        return `<div class="forest-death-loot__col forest-death-loot__col--${tone}">
+            <h3 class="forest-death-loot__col-title">${title}</h3>
+            ${body}
+        </div>`;
+    }
+
+    static buildDeathSummaryHtml(
+        split: ReturnType<typeof ExpeditionEngine.computeDeathBagSplit>,
+        journey: number
+    ): string {
+        if (!this.bagHasAnyLoot(split.total)) {
+            return `<p class="forest-death-loot__empty">${this.t('game.hunt.deathLootEmpty', 'Your expedition bag was empty.')}</p>`;
+        }
+        const journeyLine = this.t('game.hunt.deathLootJourney', 'Journey {n}', { n: journey });
+        const ruleLine = this.t('game.hunt.deathLootRule', 'You keep half of your expedition bag.');
+        const savedTitle = this.t('game.hunt.deathLootSaved', 'Kept (credited)');
+        const lostTitle = this.t('game.hunt.deathLootLost', 'Lost');
+        const savedCol = this.buildDeathLootColumn(savedTitle, split.kept, 'kept', '—');
+        const lostCol = this.buildDeathLootColumn(lostTitle, split.lost, 'lost', '—');
+        return `<p class="forest-death-loot__journey">${journeyLine}</p>
+            <p class="forest-death-loot__rule">${ruleLine}</p>
+            <div class="forest-death-loot__grid">${savedCol}${lostCol}</div>`;
     }
 
     static renderMap() {
@@ -521,118 +1229,107 @@ export class ExpeditionEngine {
         if (combatArea) combatArea.style.display = 'none';
         if (mobsContainer) mobsContainer.style.display = 'none';
         if (botoesCombate) botoesCombate.style.display = 'none';
-
         if (!mapContainer) return;
 
-        const progress = this.getMapProgress();
-        const progressPct = Math.min(100, Math.max(0, Math.round((progress.current / Math.max(progress.total, 1)) * 100)));
-        const mapTitle = this.t('game.hunt.expedition.mapTitle', 'Expedition Map');
-        const mapProgress = this.t('game.hunt.expedition.mapProgress', 'Stage {current} / {total}', progress);
+        const journey = this.state.journey;
+        const rewardPct = Math.round((this.getJourneyRewardMult() - 1) * 100);
+        const mobScalePct = Math.round((this.getJourneyMobScale() - 1) * 100);
+        const zoneRatePct = Math.round(this.getZoneRewardRate() * 100);
+
+        const mapTitle = this.t('game.hunt.expedition.rogueMapTitle', 'Roguelike Expedition');
+        const journeyLabel = this.t('game.hunt.expedition.journeyLabel', 'Journey {n}', { n: journey });
+        const pickHint = this.getPathPickHint(journey, this.state.pathChoices.length);
         const mapRulesBtn = this.t('game.hunt.expedition.mapRulesBtn', 'Rules');
-        const mapScrollHint = this.t('game.hunt.expedition.mapScrollHint', 'Scroll the path');
+        const traitLabel = this.t('game.hunt.expedition.traitLabel', 'Enemy trait');
         const bagTitle = this.t('game.hunt.expedition.bagTitle', 'Expedition Bag');
         const bagEmpty = this.t('game.hunt.expedition.bagEmpty', 'No items yet...');
         const extractLabel = this.t('game.hunt.expedition.extract', 'Extract (keep loot)');
+        const runBuffsTitle = this.t('game.hunt.expedition.runBuffsTitle', 'Run upgrades');
 
-        const maxDepth = Math.max(...this.state.nodes.map((n) => n.depth));
-        const depths = Array.from({ length: maxDepth + 1 }, (_, i) => i);
+        const mainContentHtml = this.state.pendingRareEvent
+            ? this.buildRareEventSectionHtml()
+            : this.buildPathSectionHtml(journey, pickHint);
+
+        const lootLabel = this.t('game.hunt.expedition.metaLoot', 'Loot bonus');
+        const enemyLabel = this.t('game.hunt.expedition.metaEnemies', 'Enemy power');
+        const zoneLabel = this.t('game.hunt.expedition.metaZone', 'Zone rate');
+        const traitName = this.getTraitLabel(this.state.journeyTrait);
+        const dropKeys = Object.keys(this.state.bag.drops);
+        const dropStacks = dropKeys.reduce((n, k) => n + (this.state.bag.drops[k] || 0), 0);
+        const dropsSummary = dropStacks > 0
+            ? this.t('game.hunt.expedition.bagDropsToggle', 'Bag drops ({n})', { n: dropStacks })
+            : bagEmpty;
+
+        let dropsHtml = '';
+        for (const item of dropKeys) {
+            dropsHtml += `<span class="expedition-bag__drop">${itemDropDisplayName(item)} x${this.state.bag.drops[item]}</span>`;
+        }
+
+        const dropsDetailsHtml = dropStacks > 0
+            ? `<details class="expedition-bag-details">
+                    <summary class="expedition-bag-details__summary">${dropsSummary}</summary>
+                    <div class="expedition-bag__drops">${dropsHtml}</div>
+                </details>`
+            : '';
 
         let html = `
-        <div class="expedition-panel">
-            <div class="expedition-map-header">
+        <div class="expedition-panel expedition-panel--rogue">
+            <div class="expedition-map-header expedition-map-header--rogue expedition-map-header--compact">
                 <div class="expedition-map-header__row">
+                    <div class="expedition-journey-badge" aria-hidden="true">
+                        <span class="expedition-journey-badge__eyebrow">${this.t('game.hunt.expedition.journeyEyebrow', 'Journey')}</span>
+                        <span class="expedition-journey-badge__num">${journey}</span>
+                    </div>
                     <div class="expedition-map-header__brand">
-                        <span class="expedition-map-header__glyph" aria-hidden="true">🗺</span>
                         <div class="expedition-map-header__text">
                             <h3 class="expedition-map-header__title">${mapTitle}</h3>
-                            <p class="expedition-map-header__progress">${mapProgress}</p>
+                            <p class="expedition-map-header__progress">${journeyLabel}</p>
                         </div>
                     </div>
                     <button type="button" class="btn-l2 expedition-map-header__rules" onclick="ExpeditionEngine.openRulesModal()">${mapRulesBtn}</button>
                 </div>
-                <div class="expedition-map-header__track" style="--exp-progress:${progressPct}%">
-                    <div class="expedition-map-header__track-fill"></div>
-                </div>
-                <p class="expedition-map-header__hint">${mapScrollHint}</p>
-            </div>
-            <div class="expedition-panel__body">
-            <div class="expedition-map-track expedition-map-track--vertical">`;
-
-        depths.forEach((d) => {
-            const depthNodes = this.state.nodes.filter((n) => n.depth === d);
-            const stageLabel = this.t('game.hunt.expedition.mapStageLabel', 'Stage {n}', { n: d + 1 });
-
-            html += `
-            <div class="expedition-map-stage" data-depth="${d}">
-                <div class="expedition-map-stage__label">${stageLabel}</div>
-                <div class="expedition-map-stage__nodes">`;
-
-            depthNodes.forEach((node) => {
-                const meta = this.getNodeMeta(node.type);
-                const clickable = node.status === 'available' ? `onclick="ExpeditionEngine.clickNode(${node.id})"` : '';
-                html += `
-                <div class="${this.buildNodeClass(node)}" ${clickable} title="${meta.label}" role="button" ${node.status === 'available' ? 'tabindex="0"' : ''}>
-                    <span class="expedition-node__icon">${meta.icon}</span>
-                    <span class="expedition-node__type">${meta.label}</span>
-                </div>`;
-            });
-
-            html += `</div></div>`;
-            if (d < maxDepth) {
-                html += `<div class="expedition-map-stage__connector" aria-hidden="true"></div>`;
-            }
-        });
-        html += '</div>';
-
-        html += `
-            <div class="expedition-bag">
-                <div class="expedition-bag__head">
-                    <span class="expedition-bag__glyph" aria-hidden="true">🎒</span>
-                    <span class="expedition-bag__title">${bagTitle}</span>
-                </div>
-                <div class="expedition-bag__stats">
-                    <span class="expedition-bag__stat expedition-bag__stat--adena">Adena: +${this.state.bag.adenas}</span>
-                    <span class="expedition-bag__stat expedition-bag__stat--xp">XP: +${this.state.bag.xp}</span>
-                </div>
-                <div class="expedition-bag__drops">`;
-
-        for (const item in this.state.bag.drops) {
-            html += `<span class="expedition-bag__drop">${itemDropDisplayName(item)} x${this.state.bag.drops[item]}</span>`;
-        }
-        if (Object.keys(this.state.bag.drops).length === 0) {
-            html += `<span class="expedition-bag__empty">${bagEmpty}</span>`;
-        }
-
-        html += `
-                </div>
-                <div class="expedition-bag__actions">
-                    <button type="button" class="btn-l2 expedition-bag__extract" onclick="ExpeditionEngine.extract()">${extractLabel}</button>
+                <div class="expedition-map-header__chips" role="list" aria-label="${traitLabel}">
+                    <span class="expedition-meta-chip expedition-meta-chip--trait expedition-meta-chip--${this.state.journeyTrait}" role="listitem">${traitName}</span>
+                    <span class="expedition-meta-chip expedition-meta-chip--gold" role="listitem">${lootLabel} +${rewardPct}%</span>
+                    <span class="expedition-meta-chip expedition-meta-chip--danger" role="listitem">${enemyLabel} +${mobScalePct}%</span>
+                    <span class="expedition-meta-chip" role="listitem">${zoneLabel} +${zoneRatePct}%</span>
                 </div>
             </div>
+            <div class="expedition-panel__main">
+                ${mainContentHtml}
+                <div class="expedition-run-buffs expedition-run-buffs--compact">
+                    <div class="expedition-run-buffs__title">${runBuffsTitle}</div>
+                    <div class="expedition-run-buffs__chips">${this.buildRunBuffsHtml()}</div>
+                </div>
+            </div>
+            <div class="expedition-panel__footer expedition-panel__footer--compact">
+                <div class="expedition-bag-bar">
+                    <div class="expedition-bag-bar__info">
+                        <span class="expedition-bag-bar__icon" aria-hidden="true">🎒</span>
+                        <div class="expedition-bag-bar__totals">
+                            <span class="expedition-bag-bar__title">${bagTitle}</span>
+                            <span class="expedition-bag-bar__values">
+                                <span class="expedition-bag-bar__adena">+${this.state.bag.adenas.toLocaleString()}</span>
+                                <span class="expedition-bag-bar__sep">·</span>
+                                <span class="expedition-bag-bar__xp">+${this.state.bag.xp.toLocaleString()} XP</span>
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-l2 expedition-bag__extract expedition-bag-bar__extract" onclick="ExpeditionEngine.extract()">${extractLabel}</button>
+                </div>
+                ${dropsDetailsHtml}
             </div>
         </div>`;
 
         mapContainer.innerHTML = html;
-
-        requestAnimationFrame(() => {
-            const track = mapContainer.querySelector('.expedition-map-track--vertical');
-            const target = mapContainer.querySelector('.expedition-node--available') as HTMLElement | null;
-            if (track && target) {
-                const trackRect = track.getBoundingClientRect();
-                const targetRect = target.getBoundingClientRect();
-                if (targetRect.top < trackRect.top || targetRect.bottom > trackRect.bottom) {
-                    target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                }
-            }
-        });
     }
 
-    static clickNode(id: number) {
-        const node = this.state.nodes.find((n) => n.id === id);
-        if (!node || node.status !== 'available') return;
+    static clickPath(index: number) {
+        const choice = this.state.pathChoices[index];
+        if (!choice) return;
 
-        this.pendingNodeId = id;
-        const preview = this.getNodePreview(node.type);
+        this.pendingPathIndex = index;
+        const preview = this.getPathPreview(choice.type);
         const win = window as any;
 
         const titleEl = document.getElementById('exp-node-title');
@@ -644,7 +1341,7 @@ export class ExpeditionEngine {
 
         if (titleEl) titleEl.innerText = preview.title;
         if (iconEl) iconEl.innerText = preview.icon;
-        if (iconWrap) iconWrap.className = `exp-node-icon-wrap exp-node-icon-wrap--${node.type}`;
+        if (iconWrap) iconWrap.className = `exp-node-icon-wrap exp-node-icon-wrap--${choice.type}`;
         if (descEl) descEl.innerText = preview.desc;
         if (outcomesEl) outcomesEl.innerHTML = preview.outcomes.map((line) => `<li>${line}</li>`).join('');
         if (tagsEl) {
@@ -661,42 +1358,45 @@ export class ExpeditionEngine {
     }
 
     static confirmNode() {
-        if (this.pendingNodeId === null) return;
-        const node = this.state.nodes.find((n) => n.id === this.pendingNodeId);
-        this.pendingNodeId = null;
+        if (this.pendingPathIndex === null) return;
+        const choice = this.state.pathChoices[this.pendingPathIndex];
+        this.pendingPathIndex = null;
 
         const win = window as any;
-        if (typeof win.fecharModal === 'function') {
-            win.fecharModal('janela-expedition-node');
-        }
+        if (typeof win.fecharModal === 'function') win.fecharModal('janela-expedition-node');
+        if (!choice) return;
 
-        if (!node) return;
+        this.state.currentPath = choice.type;
 
-        this.state.currentNodeId = node.id;
-
-        if (node.type === 'combat' || node.type === 'elite' || node.type === 'boss' || node.type === 'ambush' || node.type === 'guardian') {
-            this.startCombatNode(node);
-        } else if (node.type === 'camp') {
-            this.startCampNode(node);
-        } else if (node.type === 'event') {
-            this.startEventNode(node);
-        } else if (node.type === 'chest') {
-            this.startChestNode(node);
-        } else if (node.type === 'merchant') {
-            this.startMerchantNode(node);
+        if (choice.type === 'combat' || choice.type === 'boss' || choice.type === 'elite') {
+            this.startCombatPath(choice.type);
+        } else if (choice.type === 'chest') {
+            this.resolveChestPath();
+        } else if (choice.type === 'merchant') {
+            this.resolveMerchantPath();
+        } else if (choice.type === 'forge') {
+            this.resolveForgePath();
+        } else if (choice.type === 'scout') {
+            this.resolveScoutPath();
+        } else if (choice.type === 'patrol') {
+            this.resolvePatrolPath();
+        } else if (choice.type === 'tracks') {
+            this.resolveTracksPath();
+        } else if (choice.type === 'warhorn') {
+            this.resolveWarhornPath();
+        } else if (choice.type === 'ambush') {
+            this.resolveAmbushPath();
         }
     }
 
     static cancelNode() {
-        this.pendingNodeId = null;
+        this.pendingPathIndex = null;
         const win = window as any;
-        if (typeof win.fecharModal === 'function') {
-            win.fecharModal('janela-expedition-node');
-        }
+        if (typeof win.fecharModal === 'function') win.fecharModal('janela-expedition-node');
     }
 
     static applyBagLoot(lootTurno: { adenas: number; xp: number; drops: Record<string, number> }, extraMult = 1) {
-        const mult = extraMult * this.state.luckLootMult;
+        const mult = extraMult * this.state.luckLootMult * this.getJourneyRewardMult();
         this.state.bag.adenas += Math.floor(lootTurno.adenas * mult);
         this.state.bag.xp += Math.floor(lootTurno.xp * mult);
         for (const item in lootTurno.drops) {
@@ -706,7 +1406,63 @@ export class ExpeditionEngine {
         if (this.state.luckLootMult > 1) this.state.luckLootMult = 1;
     }
 
-    static startCombatNode(node: ExpeditionNode) {
+    static scaleLootForDisplay(lootTurno: { adenas: number; xp: number; drops: Record<string, number> }, extraMult = 1) {
+        const mult = extraMult * this.state.luckLootMult * this.getJourneyRewardMult();
+        const drops: Record<string, number> = {};
+        for (const item in lootTurno.drops) {
+            drops[item] = Math.max(1, Math.floor(lootTurno.drops[item] * mult));
+        }
+        return {
+            adenas: Math.floor(lootTurno.adenas * mult),
+            xp: Math.floor(lootTurno.xp * mult),
+            drops
+        };
+    }
+
+    static buildMobTuning(pathType: ExpeditionPathType) {
+        const win = window as any;
+        const zoneId = this.state.zoneId;
+        const base = win.L2MINI_ZONAL_MOB_TUNING?.[zoneId] || { hp: 1, atk: 1, def: 1 };
+        const journeyScale = this.getJourneyMobScale();
+        let hp = base.hp * journeyScale;
+        let atk = base.atk * journeyScale;
+        let def = base.def * journeyScale;
+        let mobAtkSpdMult = 1;
+        let championChance = base.championChance;
+
+        if (pathType === 'elite') {
+            hp *= 2.2;
+            atk *= 1.45;
+            championChance = 0.85;
+        } else if (pathType === 'boss') {
+            hp *= 4.5;
+            atk *= 1.85;
+            championChance = 1;
+            if (this.isMilestoneBossJourney(this.state.journey)) {
+                hp *= 1.4;
+                atk *= 1.22;
+            }
+        }
+
+        const trait = this.state.journeyTrait;
+        if (trait === 'brutal') atk *= 1.22;
+        if (trait === 'swift') mobAtkSpdMult = 0.72;
+        if (trait === 'lethal') { atk *= 1.15; championChance = Math.min(1, (championChance ?? 0.05) + 0.2); }
+        if (trait === 'armored') { def *= 1.32; hp *= 1.12; }
+        if (trait === 'frenzied') { hp *= 1.1; atk *= 1.18; }
+
+        return { ...base, hp, atk, def, championChance, mobAtkSpdMult };
+    }
+
+    static restoreMobTuning() {
+        const win = window as any;
+        if ((this as any)._originalTuning && this.state.zoneId) {
+            win.L2MINI_ZONAL_MOB_TUNING[this.state.zoneId] = (this as any)._originalTuning;
+        }
+        (this as any)._originalTuning = null;
+    }
+
+    static startCombatPath(pathType: ExpeditionPathType) {
         const mapContainer = document.getElementById('expedition-map-container');
         if (mapContainer) mapContainer.style.display = 'none';
 
@@ -721,186 +1477,283 @@ export class ExpeditionEngine {
         win.L2MINI_ZONAL_MOB_TUNING = win.L2MINI_ZONAL_MOB_TUNING || {};
         const zoneId = this.state.zoneId;
         const originalTuning = win.L2MINI_ZONAL_MOB_TUNING[zoneId] || { hp: 1, atk: 1, def: 1 };
-
         (this as any)._originalTuning = { ...originalTuning };
-        (this as any)._combatLootMult = 1;
 
-        if (node.type === 'elite') {
-            win.L2MINI_ZONAL_MOB_TUNING[zoneId] = { ...originalTuning, hp: originalTuning.hp * 2.5, atk: originalTuning.atk * 1.5, championChance: 1.0 };
-        } else if (node.type === 'boss') {
-            win.L2MINI_ZONAL_MOB_TUNING[zoneId] = { ...originalTuning, hp: originalTuning.hp * 6, atk: originalTuning.atk * 2, championChance: 1.0 };
-        } else if (node.type === 'ambush') {
-            win.L2MINI_ZONAL_MOB_TUNING[zoneId] = { ...originalTuning, hp: originalTuning.hp * 1.2, atk: originalTuning.atk * 1.8, championChance: 0.35 };
-            (this as any)._combatLootMult = 1.5;
-        } else if (node.type === 'guardian') {
-            win.L2MINI_ZONAL_MOB_TUNING[zoneId] = { ...originalTuning, hp: originalTuning.hp * 4, atk: originalTuning.atk * 1.75, championChance: 0.5 };
-        }
+        let combatLootMult = 1;
+        if (pathType === 'boss') combatLootMult = this.isMilestoneBossJourney(this.state.journey) ? 2.5 : 2;
+        else if (pathType === 'elite') combatLootMult = 1.55;
+        (this as any)._combatLootMult = combatLootMult;
 
+        win.L2MINI_ZONAL_MOB_TUNING[zoneId] = this.buildMobTuning(pathType);
         win.procurarMonstros();
     }
 
     static onCombatWin(lootTurno: { adenas: number; xp: number; drops: Record<string, number> }) {
         if (!this.state.active) return;
 
-        const win = window as any;
-        if ((this as any)._originalTuning) {
-            win.L2MINI_ZONAL_MOB_TUNING[this.state.zoneId] = (this as any)._originalTuning;
-        }
+        this.restoreMobTuning();
 
         const combatMult = (this as any)._combatLootMult || 1;
         const displayedLoot = this.scaleLootForDisplay(lootTurno, combatMult);
         this.applyBagLoot(lootTurno, combatMult);
         (this as any)._combatLootMult = 1;
 
-        const node = this.state.nodes.find((n) => n.id === this.state.currentNodeId);
-        if (!node) return;
+        const path = this.state.currentPath;
+        if (path === 'boss') this.state.runStats.bossesCleared += 1;
+        else if (path === 'elite') this.state.runStats.elitesCleared += 1;
+        else this.state.runStats.combatsWon += 1;
 
-        this.completeNode(node);
+        this.showUpgradeModal(displayedLoot);
+    }
 
-        if (node.type === 'boss') return;
+    static resolveMerchantPath() {
+        if (this.state.journey < 2) {
+            this.resolvePatrolPath();
+            return;
+        }
+        const win = window as any;
+        const journeyMult = this.getJourneyRewardMult();
+        const roll = Math.random();
+        let result: ExpeditionNodeResult;
 
-        const combatArea = document.getElementById('area-cacada');
-        const botoesCombate = document.getElementById('botoes-combate');
-        if (combatArea) combatArea.style.display = 'none';
-        if (botoesCombate) botoesCombate.style.display = 'none';
+        this.state.runStats.merchantsUsed += 1;
 
-        const meta = this.getNodeMeta(node.type);
-        const copy = this.resolveCombatResultTitle(node.type);
+        if (roll < 0.4) {
+            const adenaGain = Math.floor((Math.random() * 400 + 300) * journeyMult);
+            this.state.bag.adenas += adenaGain;
+            result = {
+                nodeType: 'merchant',
+                tone: 'success',
+                icon: '🧳',
+                titleKey: 'game.hunt.expedition.resultMerchantAdenaTitle',
+                titleFallback: 'Trade deal',
+                summaryKey: 'game.hunt.expedition.resultMerchantAdenaDesc',
+                summaryFallback: 'The merchant paid well for a rare trinket.',
+                bag: { adenas: adenaGain }
+            };
+        } else if (roll < 0.75) {
+            const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore', 'Life Stone'];
+            const mat = mats[Math.floor(Math.random() * mats.length)];
+            const matQty = Math.max(2, Math.floor((Math.random() * 4 + 2) * journeyMult));
+            this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
+            result = {
+                nodeType: 'merchant',
+                tone: 'success',
+                icon: '🧳',
+                titleKey: 'game.hunt.expedition.resultMerchantGiftTitle',
+                titleFallback: 'Merchant gift',
+                summaryKey: 'game.hunt.expedition.resultMerchantGiftDesc',
+                summaryFallback: 'Supplies added straight to your bag.',
+                bag: { drops: { [mat]: matQty } }
+            };
+        } else {
+            const stat = this.rollRandomRunStat();
+            const boost = 8;
+            this.state.runBuffs[stat] += boost;
+            if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+            win.atualizar();
+            result = {
+                nodeType: 'merchant',
+                tone: 'warning',
+                icon: '🧳',
+                titleKey: 'game.hunt.expedition.resultMerchantBuffTitle',
+                titleFallback: 'Merchant contract',
+                summaryKey: 'game.hunt.expedition.resultMerchantBuffDesc',
+                summaryFallback: 'A signed pact boosts one run stat until you extract or fall.',
+                summaryParams: { stat: this.runStatLabel(stat), pct: boost },
+                effects: { buffText: `+${boost}% ${this.runStatLabel(stat)}` }
+            };
+        }
+
+        this.showResultModal(result);
+    }
+
+    static resolveForgePath() {
+        const win = window as any;
+        const stat = this.rollRandomRunStat();
+        const boost = Math.random() < 0.22 ? 14 : 10;
+        this.state.runBuffs[stat] += boost;
+        if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+        win.atualizar();
+
+        this.state.runStats.forgesUsed += 1;
         this.showResultModal({
-            nodeType: node.type,
+            nodeType: 'forge',
             tone: 'success',
-            icon: meta.icon,
-            titleKey: copy.titleKey,
-            titleFallback: copy.titleFallback,
-            summaryKey: copy.summaryKey,
-            summaryFallback: copy.summaryFallback,
-            bag: displayedLoot
+            icon: '🔨',
+            titleKey: 'game.hunt.expedition.resultForgeTitle',
+            titleFallback: 'Field enchant',
+            summaryKey: 'game.hunt.expedition.resultForgeDesc',
+            summaryFallback: 'Sparks bite your gear — a run stat is reinforced until extract.',
+            summaryParams: { stat: this.runStatLabel(stat), pct: boost },
+            effects: { buffText: `+${boost}% ${this.runStatLabel(stat)}` }
         });
     }
 
-    static startCampNode(node: ExpeditionNode) {
-        const win = window as any;
-        const hpBefore = Number(win.playerHP) || 0;
-        const mpBefore = Number(win.playerMP) || 0;
-        win.playerHP = win.playerStats.maxHp;
-        win.playerMP = win.playerStats.maxMp;
-        win.atualizar();
+    static resolveScoutPath() {
+        const journeyMult = this.getJourneyRewardMult();
+        const trait = this.state.journeyTrait;
+        const early = this.state.journey < 2;
+        const adenaGain = early ? 0 : Math.floor((Math.random() * 350 + 180) * journeyMult);
+        const xpGain = Math.floor(((early ? 50 : 60) + Math.random() * (early ? 50 : 120)) * journeyMult);
+        if (adenaGain > 0) this.state.bag.adenas += adenaGain;
+        this.state.bag.xp += xpGain;
 
-        this.completeNode(node);
+        this.state.runStats.scoutsUsed += 1;
         this.showResultModal({
-            nodeType: 'camp',
-            tone: 'success',
-            icon: '⛺',
-            titleKey: 'game.hunt.expedition.resultCampTitle',
-            titleFallback: 'Camp rest',
-            summaryKey: 'game.hunt.expedition.resultCampDesc',
-            summaryFallback: 'You recovered fully at the safe camp. No bag changes.',
+            nodeType: 'scout',
+            tone: 'neutral',
+            icon: '🔭',
+            titleKey: early ? 'game.hunt.expedition.resultScoutEarlyTitle' : 'game.hunt.expedition.resultScoutTitle',
+            titleFallback: early ? 'Recon sweep' : 'Trail intel',
+            summaryKey: early ? 'game.hunt.expedition.resultScoutEarlyDesc' : 'game.hunt.expedition.resultScoutDesc',
+            summaryFallback: early
+                ? 'You map the zone trait and earn march XP — no free Adena on the opening step.'
+                : 'You read the land ahead — bonus bag loot and enemy intel.',
+            summaryParams: {
+                trait: this.t(`game.hunt.expedition.trait_${trait}`, trait)
+            },
+            bag: { adenas: adenaGain || undefined, xp: xpGain },
             effects: {
-                hpRestored: Math.max(0, win.playerStats.maxHp - hpBefore),
-                mpRestored: Math.max(0, win.playerStats.maxMp - mpBefore)
+                buffText: this.t('game.hunt.expedition.resultScoutIntel', 'Enemy trait: {trait}', {
+                    trait: this.t(`game.hunt.expedition.trait_${trait}`, trait)
+                })
             }
         });
     }
 
-    static startEventNode(node: ExpeditionNode) {
-        const win = window as any;
-        const roll = Math.random();
-        let result: ExpeditionNodeResult;
+    static resolvePatrolPath() {
+        const journeyMult = this.getJourneyRewardMult();
+        const xpGain = Math.floor((Math.random() * 140 + 90) * journeyMult);
+        const adenaGain = this.state.journey >= 2
+            ? Math.floor((Math.random() * 120 + 60) * journeyMult)
+            : 0;
+        this.state.bag.xp += xpGain;
+        if (adenaGain > 0) this.state.bag.adenas += adenaGain;
 
-        if (roll < 1 / 6) {
-            const hpBefore = Number(win.playerHP) || 0;
-            win.playerHP = win.playerStats.maxHp;
-            win.atualizar();
-            result = {
-                nodeType: 'event',
-                tone: 'success',
-                icon: '✨',
-                titleKey: 'game.hunt.expedition.resultEventShrineTitle',
-                titleFallback: 'Ancient Shrine',
-                summaryKey: 'game.hunt.expedition.resultEventShrineDesc',
-                summaryFallback: 'Sacred energy fully restored your health.',
-                effects: { hpRestored: Math.max(0, win.playerStats.maxHp - hpBefore) }
-            };
-        } else if (roll < 2 / 6) {
-            const dmg = Math.floor(win.playerStats.maxHp * 0.20);
-            win.playerHP = Math.max(1, win.playerHP - dmg);
-            win.atualizar();
-            result = {
-                nodeType: 'event',
-                tone: 'danger',
-                icon: '🪤',
-                titleKey: 'game.hunt.expedition.resultEventTrapTitle',
-                titleFallback: 'Hidden trap',
-                summaryKey: 'game.hunt.expedition.resultEventTrapDesc',
-                summaryFallback: 'You were wounded before escaping the trap.',
-                effects: { hpLost: dmg }
-            };
-        } else if (roll < 3 / 6) {
-            const xpGain = Math.floor(Math.random() * 1000) + 500;
-            this.state.bag.xp += xpGain;
-            result = {
-                nodeType: 'event',
-                tone: 'success',
-                icon: '📜',
-                titleKey: 'game.hunt.expedition.resultEventJournalTitle',
-                titleFallback: 'Adventurer\'s journal',
-                summaryKey: 'game.hunt.expedition.resultEventJournalDesc',
-                summaryFallback: 'Old notes grant experience to your expedition bag.',
-                bag: { xp: xpGain }
-            };
-        } else if (roll < 4 / 6) {
-            const adenaGain = Math.floor(Math.random() * 500) + 250;
-            this.state.bag.adenas += adenaGain;
-            result = {
-                nodeType: 'event',
-                tone: 'success',
-                icon: '💰',
-                titleKey: 'game.hunt.expedition.resultEventStashTitle',
-                titleFallback: 'Hidden stash',
-                summaryKey: 'game.hunt.expedition.resultEventStashDesc',
-                summaryFallback: 'Supplies converted into bag Adena.',
-                bag: { adenas: adenaGain }
-            };
-        } else if (roll < 5 / 6) {
-            const loss = Math.max(1, Math.floor(this.state.bag.adenas * 0.15));
-            this.state.bag.adenas = Math.max(0, this.state.bag.adenas - loss);
-            result = {
-                nodeType: 'event',
-                tone: 'danger',
-                icon: '☠️',
-                titleKey: 'game.hunt.expedition.resultEventCurseTitle',
-                titleFallback: 'Cursed idol',
-                summaryKey: 'game.hunt.expedition.resultEventCurseDesc',
-                summaryFallback: 'Dark magic drained part of your bag Adena.',
-                effects: { bagAdenaLost: loss }
-            };
-        } else {
-            this.state.luckLootMult = 1.25;
-            result = {
-                nodeType: 'event',
-                tone: 'warning',
-                icon: '🍀',
-                titleKey: 'game.hunt.expedition.resultEventCharmTitle',
-                titleFallback: 'Lucky charm',
-                summaryKey: 'game.hunt.expedition.resultEventCharmDesc',
-                summaryFallback: 'Your next combat node pays +25% bag loot.',
-                effects: {
-                    buffText: this.t('game.hunt.expedition.logEventCharm', 'Lucky charm — +25% next fight loot')
-                }
-            };
-        }
-
-        this.completeNode(node);
-        this.showResultModal(result);
+        this.showResultModal({
+            nodeType: 'patrol',
+            tone: 'neutral',
+            icon: '🚶',
+            titleKey: 'game.hunt.expedition.resultPatrolTitle',
+            titleFallback: 'Perimeter patrol',
+            summaryKey: 'game.hunt.expedition.resultPatrolDesc',
+            summaryFallback: 'You march the edge of the hunt zone — XP in the bag, no merchant handouts.',
+            bag: { adenas: adenaGain || undefined, xp: xpGain }
+        });
     }
 
-    static startChestNode(node: ExpeditionNode) {
+    static resolveTracksPath() {
+        const journeyMult = this.getJourneyRewardMult();
+        const nextTrait = this.state.nextJourneyTrait;
+        const xpGain = Math.floor((Math.random() * 80 + 70) * journeyMult);
+        this.state.bag.xp += xpGain;
+
+        this.showResultModal({
+            nodeType: 'tracks',
+            tone: 'neutral',
+            icon: '👣',
+            titleKey: 'game.hunt.expedition.resultTracksTitle',
+            titleFallback: 'Fresh tracks',
+            summaryKey: 'game.hunt.expedition.resultTracksDesc',
+            summaryFallback: 'You read signs on the trail — XP logged and the next journey trait revealed.',
+            summaryParams: {
+                trait: this.t(`game.hunt.expedition.trait_${nextTrait}`, nextTrait)
+            },
+            bag: { xp: xpGain },
+            effects: {
+                buffText: this.t('game.hunt.expedition.resultTracksIntel', 'Next journey trait: {trait}', {
+                    trait: this.t(`game.hunt.expedition.trait_${nextTrait}`, nextTrait)
+                })
+            }
+        });
+    }
+
+    static resolveWarhornPath() {
         const win = window as any;
-        const isMimic = Math.random() < 0.2;
+        const mage = typeof win.isClasseMagica === 'function' && win.isClasseMagica(win.charClass);
+        const mainStat: keyof ExpeditionRunBuffs = mage ? 'mAtkPct' : 'pAtkPct';
+        this.state.runBuffs[mainStat] += 8;
+        this.state.runBuffs.atkSpeedPct += 5;
+        if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+        win.atualizar();
+
+        this.showResultModal({
+            nodeType: 'warhorn',
+            tone: 'success',
+            icon: '📯',
+            titleKey: 'game.hunt.expedition.resultWarhornTitle',
+            titleFallback: 'War horn',
+            summaryKey: 'game.hunt.expedition.resultWarhornDesc',
+            summaryFallback: 'The horn stirs your line — offensive tempo until you extract.',
+            summaryParams: {
+                stat: this.runStatLabel(mainStat)
+            },
+            effects: {
+                buffText: `+8% ${this.runStatLabel(mainStat)} · +5% Spd`
+            }
+        });
+    }
+
+    static resolveAmbushPath() {
+        const win = window as any;
+        const journeyMult = this.getJourneyRewardMult();
+        const early = this.state.journey < 2;
+        const successRoll = early ? 0.55 : 0.62;
+
+        if (Math.random() < successRoll) {
+            const adenaGain = Math.floor((Math.random() * (early ? 220 : 380) + (early ? 80 : 140)) * journeyMult);
+            this.state.bag.adenas += adenaGain;
+            let drops: Record<string, number> | undefined;
+            if (!early && Math.random() < 0.45) {
+                const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal'];
+                const mat = mats[Math.floor(Math.random() * mats.length)];
+                const matQty = Math.max(1, Math.floor((Math.random() * 2 + 1) * journeyMult));
+                this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
+                drops = { [mat]: matQty };
+            }
+            this.showResultModal({
+                nodeType: 'ambush',
+                tone: 'success',
+                icon: '🌿',
+                titleKey: 'game.hunt.expedition.resultAmbushWinTitle',
+                titleFallback: 'Ambush turned',
+                summaryKey: 'game.hunt.expedition.resultAmbushWinDesc',
+                summaryFallback: 'You sprung the trap first — scraps to the bag.',
+                bag: { adenas: adenaGain, drops }
+            });
+        } else {
+            const pct = early ? 0.16 : 0.12;
+            const dmg = Math.floor(win.playerStats.maxHp * pct);
+            win.playerHP = Math.max(1, win.playerHP - dmg);
+            win.atualizar();
+            this.showResultModal({
+                nodeType: 'ambush',
+                tone: 'danger',
+                icon: '🌿',
+                titleKey: 'game.hunt.expedition.resultAmbushFailTitle',
+                titleFallback: 'Caught in the brush',
+                summaryKey: 'game.hunt.expedition.resultAmbushFailDesc',
+                summaryFallback: 'Snares and blades nick you — use potions, then pick your next path.',
+                effects: { hpLost: dmg }
+            });
+        }
+    }
+
+    static resolveChestPath() {
+        if (this.state.journey < 2) {
+            this.resolvePatrolPath();
+            return;
+        }
+        const win = window as any;
+        const journeyMult = this.getJourneyRewardMult();
+        const isMimic = Math.random() < 0.18;
         let result: ExpeditionNodeResult;
 
+        this.state.runStats.chestsOpened += 1;
+
         if (isMimic) {
-            const dmg = Math.floor(win.playerStats.maxHp * 0.30);
+            const dmg = Math.floor(win.playerStats.maxHp * 0.28);
             win.playerHP = Math.max(1, win.playerHP - dmg);
             win.atualizar();
             result = {
@@ -910,18 +1763,16 @@ export class ExpeditionEngine {
                 titleKey: 'game.hunt.expedition.resultChestMimicTitle',
                 titleFallback: 'Mimic attack!',
                 summaryKey: 'game.hunt.expedition.resultChestMimicDesc',
-                summaryFallback: 'The chest bites back — no loot this time.',
+                summaryFallback: 'No upgrade and no loot — only pain. Next journey hits harder.',
                 effects: { hpLost: dmg }
             };
         } else {
-            const adenaGain = Math.floor(Math.random() * 800) + 200;
+            const adenaGain = Math.floor((Math.random() * 700 + 250) * journeyMult);
             this.state.bag.adenas += adenaGain;
-
             const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore'];
             const mat = mats[Math.floor(Math.random() * mats.length)];
-            const matQty = Math.floor(Math.random() * 5) + 1;
+            const matQty = Math.max(1, Math.floor((Math.random() * 4 + 2) * journeyMult));
             this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
-
             result = {
                 nodeType: 'chest',
                 tone: 'success',
@@ -929,193 +1780,115 @@ export class ExpeditionEngine {
                 titleKey: 'game.hunt.expedition.resultChestLootTitle',
                 titleFallback: 'Treasure found',
                 summaryKey: 'game.hunt.expedition.resultChestLootDesc',
-                summaryFallback: 'The chest yields supplies for your expedition bag.',
+                summaryFallback: 'Quick bag loot — you skipped the fight and any upgrade card.',
                 bag: { adenas: adenaGain, drops: { [mat]: matQty } }
             };
         }
 
-        this.completeNode(node);
         this.showResultModal(result);
-    }
-
-    static startMerchantNode(node: ExpeditionNode) {
-        const win = window as any;
-        const roll = Math.random();
-        let result: ExpeditionNodeResult;
-
-        if (roll < 0.4) {
-            const adenaGain = Math.floor(Math.random() * 401) + 300;
-            this.state.bag.adenas += adenaGain;
-            result = {
-                nodeType: 'merchant',
-                tone: 'success',
-                icon: '🏪',
-                titleKey: 'game.hunt.expedition.resultMerchantAdenaTitle',
-                titleFallback: 'Trade deal',
-                summaryKey: 'game.hunt.expedition.resultMerchantAdenaDesc',
-                summaryFallback: 'The merchant paid well for a rare trinket.',
-                bag: { adenas: adenaGain }
-            };
-        } else if (roll < 0.75) {
-            const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore', 'Silver Nugget', 'Stem'];
-            const mat = mats[Math.floor(Math.random() * mats.length)];
-            const matQty = Math.floor(Math.random() * 4) + 2;
-            this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
-            result = {
-                nodeType: 'merchant',
-                tone: 'success',
-                icon: '🏪',
-                titleKey: 'game.hunt.expedition.resultMerchantGiftTitle',
-                titleFallback: 'Merchant gift',
-                summaryKey: 'game.hunt.expedition.resultMerchantGiftDesc',
-                summaryFallback: 'Supplies added straight to your bag.',
-                bag: { drops: { [mat]: matQty } }
-            };
-        } else {
-            const hpBefore = Number(win.playerHP) || 0;
-            const mpBefore = Number(win.playerMP) || 0;
-            const hpRestore = Math.floor(win.playerStats.maxHp * 0.6);
-            const mpRestore = Math.floor(win.playerStats.maxMp * 0.6);
-            win.playerHP = Math.min(win.playerStats.maxHp, win.playerHP + hpRestore);
-            win.playerMP = Math.min(win.playerStats.maxMp, win.playerMP + mpRestore);
-            win.atualizar();
-            result = {
-                nodeType: 'merchant',
-                tone: 'neutral',
-                icon: '🏪',
-                titleKey: 'game.hunt.expedition.resultMerchantPatchTitle',
-                titleFallback: 'Field remedies',
-                summaryKey: 'game.hunt.expedition.resultMerchantPatchDesc',
-                summaryFallback: 'Potions and salves patch you up on the trail.',
-                effects: {
-                    hpRestored: Math.max(0, win.playerHP - hpBefore),
-                    mpRestored: Math.max(0, win.playerMP - mpBefore)
-                }
-            };
-        }
-
-        this.completeNode(node);
-        this.showResultModal(result);
-    }
-
-    static completeNode(node: ExpeditionNode) {
-        node.status = 'completed';
-
-        this.state.nodes.forEach((n) => {
-            if (n.depth === node.depth && n.id !== node.id) {
-                n.status = 'missed';
-            }
-        });
-
-        node.connections.forEach((connId) => {
-            const nextNode = this.state.nodes.find((n) => n.id === connId);
-            if (nextNode && nextNode.status === 'locked') {
-                nextNode.status = 'available';
-            }
-        });
-
-        if (node.type === 'boss') {
-            this.finishExpedition(true);
-        }
     }
 
     static extract() {
         if (!this.state.active) return;
-        this.log('game.hunt.expedition.logExtract', '🏃 You safely extracted with your loot!', undefined, '#facc15');
         this.finishExpedition(true);
     }
 
     static reset() {
-        this.state.active = false;
+        this.restoreMobTuning();
+        this.state = this.createInitialState('');
         this.showHub();
         this.wireStartButton();
     }
 
-    static finishExpedition(success: boolean) {
+    static finishExpedition(success: boolean, opts?: { skipVictoryModal?: boolean }) {
         if (!this.state.active) return;
         const win = window as any;
+        this.restoreMobTuning();
+
+        const bagSnapshot = {
+            adenas: this.state.bag.adenas,
+            xp: this.state.bag.xp,
+            drops: { ...this.state.bag.drops }
+        };
+        const journeySnapshot = this.state.journey;
+        const statsSnapshot = { ...this.state.runStats };
+        const buffsSnapshot = { ...this.state.runBuffs };
+        const extractSummary = success
+            ? this.buildExtractSummary(journeySnapshot, statsSnapshot, buffsSnapshot)
+            : '';
+
+        let deathSummaryHtml = '';
+        let xpReward = 0;
 
         if (success) {
-            win.adenas = (Number(win.adenas) || 0) + this.state.bag.adenas;
-            for (const itemDrop in this.state.bag.drops) {
+            win.adenas = (Number(win.adenas) || 0) + bagSnapshot.adenas;
+            for (const itemDrop in bagSnapshot.drops) {
                 if (itemDrop === 'Ancient Coin') {
-                    win.ancientCoins = (Number(win.ancientCoins) || 0) + this.state.bag.drops[itemDrop];
+                    win.ancientCoins = (Number(win.ancientCoins) || 0) + bagSnapshot.drops[itemDrop];
                     continue;
                 }
-                if (win.InventoryManager && typeof win.InventoryManager.adicionarStack === 'function') {
-                    win.InventoryManager.adicionarStack(itemDrop, this.state.bag.drops[itemDrop]);
-                } else if (win.inventario[itemDrop]) win.inventario[itemDrop] += this.state.bag.drops[itemDrop];
-                else win.inventario[itemDrop] = this.state.bag.drops[itemDrop];
+                if (win.InventoryManager?.adicionarStack) {
+                    win.InventoryManager.adicionarStack(itemDrop, bagSnapshot.drops[itemDrop]);
+                } else if (win.inventario[itemDrop]) win.inventario[itemDrop] += bagSnapshot.drops[itemDrop];
+                else win.inventario[itemDrop] = bagSnapshot.drops[itemDrop];
             }
+            xpReward = bagSnapshot.xp;
         } else {
-            const keptAdena = Math.floor(this.state.bag.adenas * 0.5);
-            win.adenas = (Number(win.adenas) || 0) + keptAdena;
-            for (const itemDrop in this.state.bag.drops) {
-                const keptAmount = Math.floor(this.state.bag.drops[itemDrop] * 0.5);
-                if (keptAmount > 0) {
-                    if (itemDrop === 'Ancient Coin') {
-                        win.ancientCoins = (Number(win.ancientCoins) || 0) + keptAmount;
-                        continue;
-                    }
-                    if (win.InventoryManager && typeof win.InventoryManager.adicionarStack === 'function') {
-                        win.InventoryManager.adicionarStack(itemDrop, keptAmount);
-                    } else if (win.inventario[itemDrop]) win.inventario[itemDrop] += keptAmount;
-                    else win.inventario[itemDrop] = keptAmount;
+            const deathSplit = this.computeDeathBagSplit(bagSnapshot);
+            deathSummaryHtml = this.buildDeathSummaryHtml(deathSplit, journeySnapshot);
+            win.adenas = (Number(win.adenas) || 0) + deathSplit.kept.adenas;
+            for (const itemDrop in deathSplit.kept.drops) {
+                const keptAmount = deathSplit.kept.drops[itemDrop];
+                if (keptAmount <= 0) continue;
+                if (itemDrop === 'Ancient Coin') {
+                    win.ancientCoins = (Number(win.ancientCoins) || 0) + keptAmount;
+                    continue;
                 }
+                if (win.InventoryManager?.adicionarStack) {
+                    win.InventoryManager.adicionarStack(itemDrop, keptAmount);
+                } else if (win.inventario[itemDrop]) win.inventario[itemDrop] += keptAmount;
+                else win.inventario[itemDrop] = keptAmount;
             }
-            this.state.bag.adenas = keptAdena;
-            for (const itemDrop in this.state.bag.drops) {
-                this.state.bag.drops[itemDrop] = Math.floor(this.state.bag.drops[itemDrop] * 0.5);
-            }
+            xpReward = deathSplit.kept.xp;
+        }
+
+        if (typeof win.aplicarXpGanhoFloresta === 'function' && xpReward > 0) {
+            win.aplicarXpGanhoFloresta(xpReward);
         }
 
         win.atualizar();
         if (typeof win.salvarJogo === 'function') win.salvarJogo();
 
-        this.state.active = false;
+        this.state = this.createInitialState('');
 
         if (success) {
-            if (typeof win.setLootTurno === 'function') {
-                win.setLootTurno(this.state.bag);
-            } else {
-                win.lootTurno = this.state.bag;
+            if (!opts?.skipVictoryModal) {
+                if (typeof win.setLootTurno === 'function') {
+                    win.setLootTurno(bagSnapshot);
+                } else {
+                    win.lootTurno = bagSnapshot;
+                }
+                win.expeditionExtractSummary = extractSummary;
+                win.mostrarResumoVitoria();
             }
-            win.mostrarResumoVitoria();
         } else {
+            win.expeditionDeathSummaryHtml = deathSummaryHtml;
             win.showForestDeathScreen();
         }
 
         win.prepararTelaCacada();
+        if (!this.state.active) this.showHub();
         this.wireStartButton();
     }
 
     static onPlayerDeath() {
-        if (this.state.active) {
-            this.finishExpedition(false);
-        }
+        if (this.state.active) this.finishExpedition(false);
     }
 
     static onFlee() {
         if (!this.state.active) return;
-
+        this.finishExpedition(true, { skipVictoryModal: true });
         const win = window as any;
-        win.adenas = (Number(win.adenas) || 0) + this.state.bag.adenas;
-        for (const itemDrop in this.state.bag.drops) {
-            if (itemDrop === 'Ancient Coin') {
-                win.ancientCoins = (Number(win.ancientCoins) || 0) + this.state.bag.drops[itemDrop];
-                continue;
-            }
-            if (win.InventoryManager && typeof win.InventoryManager.adicionarStack === 'function') {
-                win.InventoryManager.adicionarStack(itemDrop, this.state.bag.drops[itemDrop]);
-            } else if (win.inventario[itemDrop]) win.inventario[itemDrop] += this.state.bag.drops[itemDrop];
-            else win.inventario[itemDrop] = this.state.bag.drops[itemDrop];
-        }
-        win.atualizar();
-        if (typeof win.salvarJogo === 'function') win.salvarJogo();
-
-        this.state.active = false;
-        win.prepararTelaCacada();
-        this.wireStartButton();
         win.showForestFleeSuccessScreen();
     }
 }

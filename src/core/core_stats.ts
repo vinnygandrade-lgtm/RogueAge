@@ -215,6 +215,15 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     const atkSpdFlooredBelowMin = window.playerStats.atkSpeed < 250;
     if (atkSpdFlooredBelowMin) { window.playerStats.atkSpeed = 250; }
 
+    if (
+        typeof window.ExpeditionEngine !== 'undefined'
+        && window.ExpeditionEngine.state
+        && window.ExpeditionEngine.state.active
+        && typeof window.ExpeditionEngine.applyRunBuffsToPlayerStats === 'function'
+    ) {
+        window.ExpeditionEngine.applyRunBuffsToPlayerStats();
+    }
+
     // Auditoria única para a UI "Detailed status"
     const innerPAtk = Math.floor(atkTotal * mod.atk * window.buffsAtivos.pAtkMult * clanBonusPAtk * castleBonusPAtk);
     const innerMAtk = Math.floor(matkTotal * mod.atk * window.buffsAtivos.mAtkMult * clanBonusMAtk * castleBonusMAtk);

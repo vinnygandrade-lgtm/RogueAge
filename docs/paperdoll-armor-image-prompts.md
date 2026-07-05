@@ -400,7 +400,7 @@ Combina com pose, estilo, personagem base, etc.
 
 **Silhueta:** ombros **enormes**; peitoral **esculpido** com relevo; gorjal alto; hint de capa; herói lendário.
 
-**Peito / torso:** placa prateada branca com **relevo esculpido** (grifo estilizado ou sol radial — **emblema original L2 Mini**); **filigrana dourada** nas bordas de todas as placas; camadas de placa no abdómen; centro 3D com brasão.
+**Peito / torso:** placa prateada branca com **relevo esculpido** (grifo estilizado ou sol radial — **emblema original RogueAge**); **filigrana dourada** nas bordas de todas as placas; camadas de placa no abdómen; centro 3D com brasão.
 
 **Ombros:** pauldrons **massivos redondeados** com filigrana ouro; duas camadas; conectam a capa curta branca atrás (só hint visível nos ombros).
 
