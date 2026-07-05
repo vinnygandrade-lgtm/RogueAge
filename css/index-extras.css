@@ -1954,15 +1954,16 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     justify-content: center;
     width: 100%;
     flex-shrink: 0;
-    padding: 6px 0 10px;
+    padding: 10px 0 16px;
     box-sizing: border-box;
+    margin: auto 0;
 }
 .expedition-hub__panel {
     position: relative;
     width: 100%;
-    max-width: var(--l2-panel-narrow-max-width, 320px);
-    max-height: 100%;
-    padding: 16px 14px 12px;
+    max-width: var(--l2-panel-narrow-max-width, 360px);
+    height: max-content;
+    padding: 24px 20px 20px;
     border-radius: 12px;
     border: 1px solid rgba(179, 138, 77, 0.28);
     background:
@@ -1976,23 +1977,15 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    min-height: 0;
-    overflow: hidden;
 }
 .expedition-hub__scroll {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
+    display: contents; /* Let it flow naturally in the panel */
 }
 .expedition-hub__actions {
-    flex-shrink: 0;
     width: 100%;
-    padding-top: 10px;
-    margin-top: 4px;
+    padding-top: 14px;
+    margin-top: 8px;
     border-top: 1px solid rgba(179, 138, 77, 0.2);
-    background: linear-gradient(180deg, transparent 0%, rgba(12, 10, 14, 0.92) 35%);
 }
 .expedition-hub__panel::before {
     content: '';
@@ -2008,22 +2001,22 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     pointer-events: none;
 }
 .expedition-hub__crest {
-    width: 52px;
-    height: 52px;
-    margin: 0 auto 10px;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
+    font-size: 32px;
     border-radius: 50%;
     border: 1px solid rgba(179, 138, 77, 0.45);
     background: radial-gradient(circle at 35% 30%, rgba(230, 194, 138, 0.18), rgba(30, 27, 75, 0.85));
-    box-shadow: 0 0 18px rgba(124, 58, 237, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 24px rgba(124, 58, 237, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 .expedition-hub__eyebrow {
     position: relative;
-    font-size: 9px;
-    letter-spacing: 0.16em;
+    font-size: 10px;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: #c4b5fd;
     margin-bottom: 6px;
@@ -2031,19 +2024,19 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .expedition-hub__title {
     position: relative;
-    margin: 0 0 8px;
+    margin: 0 0 12px;
     font-family: 'Cinzel', serif;
-    font-size: 1.08em;
-    font-weight: 700;
+    font-size: 1.35em;
+    font-weight: 900;
     color: var(--l2-accent-gold-light, #e6c28a);
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
     letter-spacing: 0.04em;
 }
 .expedition-hub__desc {
     position: relative;
-    margin: 0 0 12px;
-    font-size: 11px;
-    line-height: 1.55;
+    margin: 0 0 18px;
+    font-size: 12px;
+    line-height: 1.6;
     color: var(--l2-text-secondary, #c4b5a0);
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -2054,54 +2047,58 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
 .expedition-hub__feature {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 6px 10px;
+    gap: 6px;
+    padding: 8px 12px;
     border-radius: 999px;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: #e9d5ff;
     background: rgba(76, 29, 149, 0.28);
-    border: 1px solid rgba(167, 139, 250, 0.28);
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 .expedition-hub__feature span:first-child {
-    font-size: 13px;
+    font-size: 14px;
     line-height: 1;
 }
 .expedition-hub__begin,
 #btn-iniciar-caca.expedition-hub__begin {
     position: relative;
     width: 100% !important;
-    min-height: 48px;
-    margin-bottom: 8px;
+    min-height: 52px;
+    margin-bottom: 10px;
     padding: 12px 14px !important;
-    font-size: 0.92em !important;
+    font-size: 1em !important;
     font-family: 'Cinzel', serif;
     background: linear-gradient(180deg, #8b5cf6 0%, #5b21b6 48%, #4c1d95 100%) !important;
     border: 1px solid rgba(196, 181, 253, 0.55) !important;
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     box-sizing: border-box;
-    box-shadow: 0 4px 14px rgba(91, 33, 182, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 18px rgba(91, 33, 182, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    border-radius: 6px !important;
 }
 .expedition-hub__rules-link {
     position: relative;
     background: none;
     border: none;
     color: #a78bfa;
-    font-size: 11px;
+    font-size: 12px;
     text-decoration: none;
     cursor: pointer;
-    padding: 6px 10px;
+    padding: 8px 12px;
     min-height: 44px;
     border-bottom: 1px dashed rgba(167, 139, 250, 0.45);
+    font-weight: 600;
+    letter-spacing: 0.05em;
 }
 .expedition-hub__rules-link:hover {
     color: #ddd6fe;
@@ -2140,8 +2137,8 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     flex-direction: column;
     flex: 1 1 0;
     min-height: 0;
-    gap: 8px;
-    padding: 10px 12px 8px;
+    gap: 12px;
+    padding: 14px 16px 12px;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -2159,19 +2156,19 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .expedition-panel__footer {
     flex-shrink: 0;
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
-    border-top: 1px solid rgba(179, 138, 77, 0.2);
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid rgba(179, 138, 77, 0.25);
     background: linear-gradient(180deg, rgba(16, 12, 20, 0.96), rgba(8, 7, 10, 0.99));
-    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.4);
 }
 .expedition-panel__footer--compact {
-    padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+    padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px));
 }
 .expedition-map-header {
     flex-shrink: 0;
-    padding: 12px 12px 10px;
-    border-bottom: 1px solid rgba(179, 138, 77, 0.18);
-    background: linear-gradient(180deg, rgba(88, 28, 135, 0.28) 0%, rgba(20, 16, 24, 0.5) 100%);
+    padding: 16px 14px 14px;
+    border-bottom: 1px solid rgba(179, 138, 77, 0.25);
+    background: linear-gradient(180deg, rgba(88, 28, 135, 0.35) 0%, rgba(20, 16, 24, 0.6) 100%);
 }
 .expedition-map-header__row {
     display: grid;
@@ -2188,17 +2185,17 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .expedition-map-header__glyph {
     flex-shrink: 0;
-    width: 38px;
-    height: 38px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 19px;
+    font-size: 22px;
     line-height: 1;
-    border-radius: 10px;
-    background: linear-gradient(145deg, rgba(124, 58, 237, 0.35), rgba(30, 20, 12, 0.9));
-    border: 1px solid rgba(179, 138, 77, 0.35);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 8px rgba(0, 0, 0, 0.35);
+    border-radius: 12px;
+    background: linear-gradient(145deg, rgba(124, 58, 237, 0.4), rgba(30, 20, 12, 0.95));
+    border: 1px solid rgba(179, 138, 77, 0.45);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 10px rgba(0, 0, 0, 0.45);
 }
 .expedition-map-header__text {
     min-width: 0;
@@ -2925,25 +2922,26 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .expedition-meta-chip {
     flex-shrink: 0;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.03em;
-    padding: 5px 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 6px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(0, 0, 0, 0.35);
-    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.45);
+    color: #e2e8f0;
     white-space: nowrap;
 }
 .expedition-meta-chip--gold {
-    color: #fde68a;
-    border-color: rgba(250, 204, 21, 0.25);
-    background: rgba(69, 26, 3, 0.35);
+    color: #fde047;
+    border-color: rgba(234, 179, 8, 0.35);
+    background: rgba(69, 26, 3, 0.5);
 }
 .expedition-meta-chip--danger {
     color: #fca5a5;
-    border-color: rgba(239, 68, 68, 0.25);
-    background: rgba(69, 10, 10, 0.35);
+    border-color: rgba(239, 68, 68, 0.35);
+    background: rgba(69, 10, 10, 0.5);
 }
 .expedition-meta-chip--trait.expedition-meta-chip--brutal { color: #fca5a5; }
 .expedition-meta-chip--trait.expedition-meta-chip--swift { color: #93c5fd; }
@@ -3735,7 +3733,7 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 .expedition-path-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+    gap: 10px;
 }
 .expedition-path-card {
     position: relative;
@@ -3743,13 +3741,13 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    gap: 3px;
-    min-height: 92px;
-    padding: 22px 4px 8px;
-    border-radius: 10px;
+    gap: 4px;
+    min-height: 105px;
+    padding: 24px 6px 12px;
+    border-radius: 12px;
     border: 1px solid rgba(179, 138, 77, 0.28);
     background: linear-gradient(165deg, rgba(28, 22, 18, 0.95), rgba(12, 10, 14, 0.98));
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     -webkit-tap-highlight-color: transparent;
@@ -5493,7 +5491,7 @@ html.l2-standalone .settings-section--pwa {
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    align-items: center;
+    align-items: flex-start; /* Fix for top cut-off on mobile */
 }
 #tela-floresta:not(.expedition-map-open):not(.expedition-combat-open) #area-cacada {
     display: none !important;
