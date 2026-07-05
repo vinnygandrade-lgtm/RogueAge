@@ -4507,29 +4507,6 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     margin-top: 4px;
     line-height: 1.3;
 }
-.creation-nav-btns {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    max-width: 320px;
-    padding: 15px 0;
-}
-#btn-voltar-criacao {
-    display: none;
-    background: #222;
-    border-color: #444;
-    flex: 1;
-    height: 45px;
-    font-size: 0.8em;
-}
-#btn-confirmar-criacao {
-    flex: 2;
-    height: 45px;
-    background: linear-gradient(180deg, #ca8a04 0%, #854d0e 100%);
-    border-color: #facc15;
-    font-weight: 900;
-    letter-spacing: 1px;
-}
 
 .hud-currency-row .coin-icon--hud {
     width: 12px;

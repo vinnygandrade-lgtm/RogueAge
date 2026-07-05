@@ -1025,7 +1025,7 @@
         </div>
 
         <!-- Cabeçalho Sobreposto -->
-        <div class="auth-flow-creation-head" style="position: absolute; top: 0; left: 0; right: 0; z-index: 10;">
+        <div class="auth-flow-creation-head">
             <h2 class="creation-title" data-i18n="creation.title">NEW CHARACTER</h2>
             <div class="creation-steps">
                 <div id="step-1" class="step-dot active">1</div>
@@ -1057,8 +1057,8 @@
                 </div>
 
                 <div class="creation-nav-btns">
-                    <button type="button" id="btn-voltar-criacao" onclick="voltarEtapa()" class="btn-l2 auth-flow-btn-ghost" data-i18n="creation.back">BACK</button>
-                    <button type="button" id="btn-confirmar-criacao" onclick="proximaEtapa()" class="btn-login-main" data-i18n="creation.continue">CONTINUE</button>
+                    <button type="button" id="btn-voltar-criacao" onclick="voltarEtapa()" class="btn-l2 auth-flow-btn-secondary" data-i18n="creation.back" style="display: none;">BACK</button>
+                    <button type="button" id="btn-confirmar-criacao" onclick="proximaEtapa()" class="btn-l2 auth-flow-btn-primary" data-i18n="creation.continue">CONTINUE</button>
                 </div>
             </div>
         </div>

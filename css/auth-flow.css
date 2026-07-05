@@ -504,7 +504,7 @@
 
 .creation-options-container {
     width: 100%;
-    padding: 0 15px;
+    padding: 0 10px;
     box-sizing: border-box;
     display: flex;
     justify-content: center;
@@ -514,17 +514,14 @@
 
 .creation-horizontal-list {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
     padding: 10px 5px 20px;
     width: 100%;
     max-width: 400px;
-    justify-content: flex-start;
-    scrollbar-width: none;
+    justify-content: center;
     animation: fadeInOptions 0.4s ease-out;
 }
-.creation-horizontal-list::-webkit-scrollbar { display: none; }
 
 .creation-card-chip {
     flex: 0 0 auto;
@@ -711,11 +708,29 @@
 }
 
 #screen-criacao .auth-flow-creation-head {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: calc(var(--l2-safe-top, env(safe-area-inset-top, 0px)) + 15px)
+        max(var(--l2-screen-padding-x, 14px), 16px) 8px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, transparent 100%);
+    pointer-events: none;
+}
+
+#screen-criacao .creation-nav-btns {
     flex: 0 0 auto;
     position: relative;
     z-index: 2;
+    display: flex;
     justify-content: center;
     align-items: center;
+    gap: 12px;
     width: 100%;
     max-width: none;
     margin-top: 0;
@@ -728,13 +743,11 @@
     border-top: 1px solid #261c14;
 }
 
-#screen-criacao .creation-nav-btns .btn-l2 {
+#screen-criacao .creation-nav-btns .btn-l2,
+#screen-criacao .creation-nav-btns .btn-login-main {
     min-height: 44px;
-}
-
-#screen-criacao #btn-voltar-criacao,
-#screen-criacao #btn-confirmar-criacao {
-    max-width: 160px;
+    flex: 1;
+    max-width: 180px;
 }
 
 #loading-overlay {
