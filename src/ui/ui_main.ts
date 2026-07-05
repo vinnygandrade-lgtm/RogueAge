@@ -245,7 +245,7 @@ function atualizarPreview() {
         btnConfirm.innerText = tt('creation.confirmRace');
 
         if (stage) {
-            stage.innerHTML = creationPortraitImg(raca, window.charGender, 'Fighter', '');
+            stage.innerHTML = `<div class="creation-stage-glow"></div>` + creationPortraitImg(raca, window.charGender, 'Fighter', '');
         }
 
         container.innerHTML = `
@@ -266,7 +266,7 @@ function atualizarPreview() {
         btnConfirm.innerText = tt('creation.confirmGender');
 
         if (stage) {
-            stage.innerHTML = creationPortraitImg(window.charRace, window.charGender, 'Fighter', '');
+            stage.innerHTML = `<div class="creation-stage-glow"></div>` + creationPortraitImg(window.charRace, window.charGender, 'Fighter', '');
         }
 
         container.innerHTML = `
@@ -292,7 +292,7 @@ function atualizarPreview() {
         btnConfirm.innerText = tt('creation.nextIdentity');
 
         if (stage) {
-            stage.innerHTML = creationPortraitImg(window.charRace, window.charGender, cl, '');
+            stage.innerHTML = `<div class="creation-stage-glow"></div>` + creationPortraitImg(window.charRace, window.charGender, cl, '');
         }
 
         let classCards = opcoes.CLASS.map((c, i) => {
@@ -322,7 +322,7 @@ function atualizarPreview() {
         btnConfirm.innerText = tt('creation.createCharacter');
 
         if (stage) {
-            stage.innerHTML = creationPortraitImg(window.charRace, window.charGender, window.charClass, '');
+            stage.innerHTML = `<div class="creation-stage-glow"></div>` + creationPortraitImg(window.charRace, window.charGender, window.charClass, '');
         }
 
         container.innerHTML = `
