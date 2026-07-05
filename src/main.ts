@@ -60,6 +60,7 @@ async function bootGame(): Promise<void> {
   await import('./systems/olympiad_bots');
   await import('./systems/olympiad_engine');
   await import('./systems/supabase_api');
+  await import('./ui/character_portraits');
   await import('./systems/auth_engine');
   await import('./systems/castle_engine');
   await import('./systems/clan_war_engine');

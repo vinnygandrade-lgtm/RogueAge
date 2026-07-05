@@ -1020,39 +1020,44 @@
 
     <div id="screen-criacao" class="screen auth-flow-screen">
         <div class="auth-flow-bg" aria-hidden="true">
-            <div class="auth-flow-bg__glow"></div>
+            <div class="auth-flow-bg__glow" style="top: 25%; opacity: 0.4;"></div>
             <div class="auth-flow-bg__vignette"></div>
         </div>
 
-        <div class="auth-flow-creation-head">
-        <h2 class="creation-title" data-i18n="creation.title">NEW CHARACTER</h2>
-        <div id="creation-step-title" data-i18n="creation.stepRace">Step 1: Choose Race</div>
-
-        <!-- Barra de Progresso Mobile -->
-        <div class="creation-steps">
-            <div id="step-1" class="step-dot active">1</div>
-            <div id="step-2" class="step-dot">2</div>
-            <div id="step-3" class="step-dot">3</div>
-            <div id="step-4" class="step-dot">4</div>
-        </div>
-        </div>
-
-        <div class="auth-flow-creation-body">
-        <div class="creation-container">
-            <div id="selection-container">
-                <!-- Conteúdo injetado via JS (atualizarPreview) -->
+        <!-- Cabeçalho Sobreposto -->
+        <div class="auth-flow-creation-head" style="position: absolute; top: 0; left: 0; right: 0; z-index: 10;">
+            <h2 class="creation-title" data-i18n="creation.title">NEW CHARACTER</h2>
+            <div class="creation-steps">
+                <div id="step-1" class="step-dot active">1</div>
+                <div id="step-2" class="step-dot">2</div>
+                <div id="step-3" class="step-dot">3</div>
+                <div id="step-4" class="step-dot">4</div>
             </div>
+            <div id="creation-step-title" data-i18n="creation.stepRace">Step 1: Choose Race</div>
+        </div>
 
-            <div id="creation-info-box" class="creation-info-box">
-                <div id="creation-info-name">Human</div>
-                <div id="creation-info-desc">Balanced stats and great versatility. Capable of following any path.</div>
+        <!-- Palco do Personagem (Ocupa o fundo) -->
+        <div id="creation-stage-area" class="creation-stage-area">
+            <!-- Imagem do personagem injetada via JS -->
+        </div>
+
+        <!-- Gaveta de Controles (Embaixo) -->
+        <div class="creation-drawer-area">
+            <div class="creation-drawer-content">
+                <div id="creation-info-box" class="creation-info-box">
+                    <div id="creation-info-name">Human</div>
+                    <div id="creation-info-desc">Balanced stats and great versatility.</div>
+                </div>
+
+                <div id="selection-container" class="creation-options-container">
+                    <!-- Opções injetadas via JS -->
+                </div>
+
+                <div class="creation-nav-btns">
+                    <button type="button" id="btn-voltar-criacao" onclick="voltarEtapa()" class="btn-l2 auth-flow-btn-ghost" data-i18n="creation.back">BACK</button>
+                    <button type="button" id="btn-confirmar-criacao" onclick="proximaEtapa()" class="btn-login-main" data-i18n="creation.continue">CONTINUE</button>
+                </div>
             </div>
-        </div>
-        </div>
-
-        <div class="creation-nav-btns">
-            <button type="button" id="btn-voltar-criacao" onclick="voltarEtapa()" class="btn-l2" data-i18n="creation.back">BACK</button>
-            <button type="button" id="btn-confirmar-criacao" onclick="proximaEtapa()" class="btn-l2" data-i18n="creation.continue">CONTINUE</button>
         </div>
     </div>
 

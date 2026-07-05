@@ -4512,7 +4512,6 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     gap: 10px;
     width: 100%;
     max-width: 320px;
-    margin-top: auto;
     padding: 15px 0;
 }
 #btn-voltar-criacao {

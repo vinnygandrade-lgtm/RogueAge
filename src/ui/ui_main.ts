@@ -15,41 +15,52 @@ type SeasonRewardEntry = {
 // O Dicionário! Para adicionar raças no futuro, é só adicionar aqui.
 const radarDeRacas = {
     "Human": {
-        imgDestaque: "assets/chars/homem.png",
-        imgHomem: "assets/chars/homem.png", 
-        imgMulher: "assets/chars/mulher.png",      
         classesBase: ["Fighter", "Mage"],
         desc: "Balanced stats and great versatility. Capable of following any path."
     },
     "Dark Elf": {
-        imgDestaque: "assets/chars/de_homem.png", 
-        imgHomem: "assets/chars/de_homem.png",
-        imgMulher: "assets/chars/de_mulher.png",
         classesBase: ["Dark_Fighter", "Dark_Mage"],
         desc: "High offense and speed, but lower health. Masters of dark arts and critical hits."
     },
     "Elf": {
-        imgDestaque: "assets/chars/elf_homem.png",
-        imgHomem: "assets/chars/elf_homem.png",   
-        imgMulher: "assets/chars/elf_mulher.png", 
         classesBase: ["Elf_Fighter", "Elf_Mage"],
         desc: "Extremely fast and agile. Experts in archery and supportive white magic."
     },
     "Orc": {
-        imgDestaque: "assets/chars/orc_homem.png", 
-        imgHomem: "assets/chars/orc_homem.png",    
-        imgMulher: "assets/chars/orc_mulher.png",  
         classesBase: ["Orc_Fighter", "Orc_Mage"],
         desc: "Incredible strength and highest vitality. They crush enemies with raw power."
     },
     "Dwarf": {
-        imgDestaque: "assets/chars/dwarf_homem.png", 
-        imgHomem: "assets/chars/dwarf_homem.png",    
-        imgMulher: "assets/chars/dwarf_mulher.png",  
         classesBase: ["Dwarven Fighter"],
         desc: "Masters of crafting and resource gathering. Extremely sturdy and rich."
     }
 };
+
+function creationPortraitImg(
+    race: string,
+    gender: unknown,
+    charClass?: unknown,
+    style = '',
+): string {
+    if (typeof window.portraitImgHtml === 'function') {
+        return window.portraitImgHtml(race, gender, charClass, style);
+    }
+    const src = typeof window.getCharacterPortraitSrc === 'function'
+        ? window.getCharacterPortraitSrc(race, gender, charClass)
+        : 'assets/chars/base_fighter.png';
+    return `<img src="${src}" style="${style.replace(/"/g, '&quot;')}" alt="">`;
+}
+
+function resetCriacaoFluxo(): void {
+    etapaAtual = 'RACE';
+    window.indexSelecao = 0;
+    window.charRace = 'Human';
+    window.charGender = 'Male';
+    window.charClass = 'Fighter';
+    const btnBack = document.getElementById('btn-voltar-criacao');
+    if (btnBack) btnBack.style.display = 'none';
+    if (typeof window.atualizarPreview === 'function') window.atualizarPreview();
+}
 
 // NOVO: Impedir criação se já houver personagem (Garantia de 1 char por conta)
 function verificarLimitePersonagem() {
@@ -189,6 +200,17 @@ function voltarEtapa() {
     atualizarPreview(); 
 }
 
+function getRaceIcon(race: string): string {
+    switch(race) {
+        case 'Human': return '🛡️';
+        case 'Dark Elf': return '🌙';
+        case 'Elf': return '✨';
+        case 'Orc': return '🔥';
+        case 'Dwarf': return '⚒️';
+        default: return '👤';
+    }
+}
+
 function atualizarPreview() {
     const tt = typeof window.t === 'function' ? window.t : function (k) { return k; };
     const container = document.getElementById('selection-container'); 
@@ -196,6 +218,7 @@ function atualizarPreview() {
     const infoName = document.getElementById('creation-info-name');
     const infoDesc = document.getElementById('creation-info-desc');
     const btnConfirm = document.getElementById('btn-confirmar-criacao');
+    const stage = document.getElementById('creation-stage-area');
     
     // Atualiza os pontos de progresso
     document.querySelectorAll('.step-dot').forEach((dot, idx) => {
@@ -221,11 +244,18 @@ function atualizarPreview() {
         infoDesc.innerText = creationRaceDesc(raca, dados.desc);
         btnConfirm.innerText = tt('creation.confirmRace');
 
+        if (stage) {
+            stage.innerHTML = creationPortraitImg(raca, window.charGender, 'Fighter', '');
+        }
+
         container.innerHTML = `
-            <div class="creation-display-mobile">
-                <div class="nav-arrow left" onclick="navegarSelecao(-1)">❮</div>
-                <img src="${dados.imgDestaque}" style="opacity: 1; transform: translateY(20px);">
-                <div class="nav-arrow right" onclick="navegarSelecao(1)">❯</div>
+            <div class="creation-horizontal-list">
+                ${opcoes.RACE.map((r, i) => `
+                    <div class="creation-card-chip ${window.indexSelecao === i ? 'selected' : ''}" onclick="window.indexSelecao=${i}; atualizarPreview();">
+                        <div class="creation-card-icon">${getRaceIcon(r)}</div>
+                        <div class="creation-card-label">${creationRaceDisplayName(r)}</div>
+                    </div>
+                `).join('')}
             </div>
         `;
     } 
@@ -235,16 +265,19 @@ function atualizarPreview() {
         infoDesc.innerText = tt('creation.genderBlurb');
         btnConfirm.innerText = tt('creation.confirmGender');
 
-        const dados = radarDeRacas[window.charRace];
+        if (stage) {
+            stage.innerHTML = creationPortraitImg(window.charRace, window.charGender, 'Fighter', '');
+        }
+
         container.innerHTML = `
-            <div class="gender-grid">
-                <div class="gender-option ${window.charGender === 'Male' ? 'selected' : ''}" onclick="window.charGender='Male'; atualizarPreview();">
-                    <img src="${dados.imgHomem}">
-                    <div class="class-name">${tt('creation.genderMale')}</div>
+            <div class="creation-horizontal-list">
+                <div class="creation-card-chip ${window.charGender === 'Male' ? 'selected' : ''}" onclick="window.charGender='Male'; atualizarPreview();">
+                    <div class="creation-card-icon">♂️</div>
+                    <div class="creation-card-label">${tt('creation.genderMale')}</div>
                 </div>
-                <div class="gender-option ${window.charGender === 'Female' ? 'selected' : ''}" onclick="window.charGender='Female'; atualizarPreview();">
-                    <img src="${dados.imgMulher}">
-                    <div class="class-name">${tt('creation.genderFemale')}</div>
+                <div class="creation-card-chip ${window.charGender === 'Female' ? 'selected' : ''}" onclick="window.charGender='Female'; atualizarPreview();">
+                    <div class="creation-card-icon">♀️</div>
+                    <div class="creation-card-label">${tt('creation.genderFemale')}</div>
                 </div>
             </div>
         `;
@@ -258,28 +291,26 @@ function atualizarPreview() {
         infoDesc.innerText = isMage ? tt('creation.classDescMage') : tt('creation.classDescWarrior');
         btnConfirm.innerText = tt('creation.nextIdentity');
 
+        if (stage) {
+            stage.innerHTML = creationPortraitImg(window.charRace, window.charGender, cl, '');
+        }
+
         let classCards = opcoes.CLASS.map((c, i) => {
             const isMageItem = c.toLowerCase().includes('mage') || c.toLowerCase().includes('shaman') || c.toLowerCase().includes('oracle') || c.toLowerCase().includes('wizard');
             const icon = isMageItem ? "🔮" : "⚔️";
             return `
-                <div class="class-card ${window.indexSelecao === i ? 'selected' : ''}" onclick="window.indexSelecao=${i}; atualizarPreview();">
-                    <div class="class-icon-circle">${icon}</div>
+                <div class="creation-list-item ${window.indexSelecao === i ? 'selected' : ''}" onclick="window.indexSelecao=${i}; atualizarPreview();">
+                    <div class="creation-list-icon">${icon}</div>
                     <div style="flex: 1;">
-                        <div class="class-name" style="font-size: 0.9em;">${c.replace("_", " ")}</div>
-                        <div style="color: #666; font-size: 0.65em; text-transform: uppercase;">${isMageItem ? tt('creation.pathMystic') : tt('creation.pathWarrior')}</div>
+                        <div class="creation-list-title">${c.replace("_", " ")}</div>
+                        <div class="creation-list-sub">${isMageItem ? tt('creation.pathMystic') : tt('creation.pathWarrior')}</div>
                     </div>
                 </div>
             `;
         }).join('');
 
-        const dados = radarDeRacas[window.charRace];
-        const previewImg = (window.charGender === "Male") ? dados.imgHomem : dados.imgMulher;
-
         container.innerHTML = `
-            <div class="creation-display-mobile" style="height: 160px; margin-bottom: 5px;">
-                <img src="${previewImg}" style="height: 140%; transform: translateY(15px);">
-            </div>
-            <div class="class-selector">
+            <div class="creation-vertical-list">
                 ${classCards}
             </div>
         `;
@@ -290,32 +321,29 @@ function atualizarPreview() {
         infoDesc.innerText = tt('creation.nameBlurb');
         btnConfirm.innerText = tt('creation.createCharacter');
 
-        const dados = radarDeRacas[window.charRace];
-        const previewImg = (window.charGender === "Male") ? dados.imgHomem : dados.imgMulher;
+        if (stage) {
+            stage.innerHTML = creationPortraitImg(window.charRace, window.charGender, window.charClass, '');
+        }
 
         container.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; width: 100%; gap: 10px;">
-                <div class="creation-display-mobile" style="height: 140px; margin-bottom: 0;">
-                    <img src="${previewImg}" style="height: 140%; transform: translateY(10px);">
-                </div>
-                
-                <div style="width: 100%; max-width: 280px; background: rgba(0,0,0,0.4); border: 1px solid #3d2b1f; padding: 10px; border-radius: 6px; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);">
-                    <div style="color: #88745c; font-size: 0.6em; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #3d2b1f; padding-bottom: 3px; letter-spacing: 1px;">${tt('creation.summaryTitle')}</div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.75em; margin-bottom: 4px;">
-                        <span style="color: #666;">${tt('creation.summaryRaceGender')}</span>
-                        <span style="color: #fff; font-family: 'Cinzel';">${window.charRace} ${window.charGender}</span>
+            <div class="creation-name-step">
+                <div class="creation-summary-box">
+                    <div class="summary-title">${tt('creation.summaryTitle')}</div>
+                    <div class="summary-row">
+                        <span>${tt('creation.summaryRaceGender')}</span>
+                        <strong>${window.charRace} ${window.charGender === 'Female' ? tt('creation.genderFemale') : tt('creation.genderMale')}</strong>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.75em;">
-                        <span style="color: #666;">${tt('creation.summaryPath')}</span>
-                        <span style="color: #facc15; font-family: 'Cinzel';">${window.charClass.replace('_', ' ')}</span>
+                    <div class="summary-row">
+                        <span>${tt('creation.summaryPath')}</span>
+                        <strong class="highlight">${window.charClass.replace('_', ' ')}</strong>
                     </div>
                 </div>
 
-                <div style="width: 100%; max-width: 280px; margin-top: 5px;">
+                <div class="creation-name-input-box">
                     <input type="text" id="input-new-char-name" class="login-field" placeholder="${tt('creation.namePlaceholder')}" maxlength="16" style="text-align: center; font-size: 1.1em; letter-spacing: 2px; border-color: #ca8a04; background: rgba(20,15,10,0.9); margin-bottom: 0;" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');">
-                    <div style="display: flex; justify-content: center; gap: 15px; margin-top: 5px; opacity: 0.7;">
-                        <p style="color: #88745c; font-size: 0.6em; font-weight: bold;">${tt('creation.nameHintAz')}</p>
-                        <p style="color: #88745c; font-size: 0.6em; font-weight: bold;">${tt('creation.nameHintLen')}</p>
+                    <div class="name-hints">
+                        <p>${tt('creation.nameHintAz')}</p>
+                        <p>${tt('creation.nameHintLen')}</p>
                     </div>
                 </div>
             </div>
@@ -1258,8 +1286,13 @@ function abrirPerfilJogadorRanking(nome, isBot) {
         && (bot.charGender === 'Male' || bot.charGender === 'Female')) {
         imgBot = window.AuthEngine.getAvatarForClass(bot._classKey || bot.classe, raceForImg, bot.charGender);
     } else if (typeof radarDeRacas !== 'undefined' && radarDeRacas[raceForImg]) {
-        // Legado: bots sem charGender — variante antiga (mago = arte “feminina” no radar)
-        imgBot = bot.isMage ? radarDeRacas[raceForImg].imgMulher : radarDeRacas[raceForImg].imgHomem;
+        imgBot = typeof window.getCharacterPortraitSrc === 'function'
+            ? window.getCharacterPortraitSrc(
+                raceForImg,
+                bot.charGender === 'Female' ? 'Female' : 'Male',
+                bot._classKey || bot.classe,
+            )
+            : 'assets/chars/base_fighter.png';
     }
 
     const clsSubtitle = (typeof window.formatClassDisplayName === 'function')
@@ -1607,6 +1640,7 @@ window.setGender = setGender;
 window.proximaEtapa = proximaEtapa;
 window.voltarEtapa = voltarEtapa;
 window.atualizarPreview = atualizarPreview;
+window.resetCriacaoFluxo = resetCriacaoFluxo;
 window.validarLogin = validarLogin;
 window.verificarLimitePersonagem = verificarLimitePersonagem;
 window.abrirDetalhesZona = abrirDetalhesZona;

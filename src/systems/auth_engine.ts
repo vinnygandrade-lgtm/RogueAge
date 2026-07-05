@@ -935,28 +935,10 @@ const AuthEngine = {
     },
 
     getAvatarForClass(className, race, gender) {
-        const g = gender === 'Female' ? 'Female' : 'Male';
-        const mage =
-            typeof window.isClasseMagica === 'function' && className
-                ? window.isClasseMagica(className)
-                : false;
-        if (race === 'Human' && mage)
-            return g === 'Female' ? 'assets/chars/mulher.png' : 'assets/chars/mago_m.png';
-
-        // Mapeamento básico de avatares baseado na raça e gênero (usando assets existentes)
-        const raceMap = {
-            'Human': { 'Male': 'assets/chars/homem.png', 'Female': 'assets/chars/mulher.png' },
-            'Dark Elf': { 'Male': 'assets/chars/de_homem.png', 'Female': 'assets/chars/de_mulher.png' },
-            'Elf': { 'Male': 'assets/chars/elf_homem.png', 'Female': 'assets/chars/elf_mulher.png' },
-            'Orc': { 'Male': 'assets/chars/orc_homem.png', 'Female': 'assets/chars/orc_mulher.png' },
-            'Dwarf': { 'Male': 'assets/chars/dwarf_homem.png', 'Female': 'assets/chars/dwarf_mulher.png' }
-        };
-
-        try {
-            return raceMap[race][g] || 'assets/chars/base_fighter.png';
-        } catch(e) {
-            return 'assets/chars/base_fighter.png';
+        if (typeof window.getCharacterPortraitSrc === 'function') {
+            return window.getCharacterPortraitSrc(race, gender, className);
         }
+        return 'assets/chars/base_fighter.png';
     },
 
     selectCharacter(name) {
@@ -1072,15 +1054,14 @@ const AuthEngine = {
         }
 
         // Redireciona para a tela de criação
-        window.window.mudarTela('screen-criacao');
-        
-        // Limpa estado global de personagem para nova criação
-        window.charName = ""; 
-        
-        if (window.etapaAtual !== undefined) {
-            window.etapaAtual = "RACE";
-            window.indexSelecao = 0;
-            if (typeof window.atualizarPreview === 'function') window.atualizarPreview();
+        window.mudarTela('screen-criacao');
+
+        window.charName = '';
+
+        if (typeof window.resetCriacaoFluxo === 'function') {
+            window.resetCriacaoFluxo();
+        } else if (typeof window.atualizarPreview === 'function') {
+            window.atualizarPreview();
         }
     },
 

@@ -32,10 +32,37 @@
 .creation-display-mobile img { 
     height: 120%; 
     width: auto; 
+    max-width: 92%;
     object-fit: contain; 
     filter: drop-shadow(0 0 10px rgba(0,0,0,0.9)); 
     transform: translateY(20px);
     transition: all 0.5s ease-out;
+}
+
+.creation-display-mobile--compact {
+    height: 160px;
+    margin-bottom: 5px;
+}
+
+.creation-display-mobile--name {
+    height: 140px;
+    margin-bottom: 0;
+}
+
+.creation-name-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+#selection-container {
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .nav-arrow {

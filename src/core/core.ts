@@ -134,11 +134,12 @@ function atualizar(): void {
     if (hudAvatarImg && window.charClass) {
         const classKey = `${window.charClass}|${window.charRace || ''}|${window.charGender || ''}`;
         let raceFallback = 'assets/chars/base_fighter.png';
-        if (typeof radarDeRacas !== 'undefined' && window.charRace && radarDeRacas[window.charRace]) {
-            raceFallback =
-                window.charGender === 'Female'
-                    ? radarDeRacas[window.charRace].imgMulher
-                    : radarDeRacas[window.charRace].imgHomem;
+        if (typeof window.getCharacterPortraitSrc === 'function' && window.charRace) {
+            raceFallback = window.getCharacterPortraitSrc(
+                window.charRace,
+                window.charGender || 'Male',
+                window.charClass,
+            );
         }
         const primarySrc =
             window.AuthEngine && typeof window.AuthEngine.getAvatarForClass === 'function'

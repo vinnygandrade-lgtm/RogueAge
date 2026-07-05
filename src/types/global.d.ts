@@ -75,6 +75,11 @@ declare global {
     proximaEtapa?: () => Promise<void>;
     voltarEtapa?: () => void;
     atualizarPreview?: () => void;
+    resetCriacaoFluxo?: () => void;
+    getCharacterPortraitSrc?: (race: string, gender: unknown, charClass?: unknown) => string;
+    getCharacterPortraitSrcList?: (race: string, gender: unknown, charClass?: unknown) => string[];
+    portraitImgHtml?: (race: string, gender: unknown, charClass?: unknown, style?: string) => string;
+    _l2PortraitImgOnError?: (img: HTMLImageElement) => void;
     validarLogin?: () => void;
     verificarLimitePersonagem?: () => boolean;
     abrirDetalhesZona?: (grade: string) => void;
@@ -677,5 +682,5 @@ declare global {
   function atualizarIconeMailbox(): void | Promise<void>;
   function scheduleMailboxBadgeRefresh(): void;
   function verificarPagamentosPendentes(): void;
-  var radarDeRacas: Record<string, { imgHomem: string; imgMulher: string; imgDestaque?: string; classesBase?: string[]; desc?: string }>;
+  var radarDeRacas: Record<string, { classesBase?: string[]; desc?: string }>;
 }
