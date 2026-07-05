@@ -199,17 +199,6 @@
         padding: 12px;
     }
     .tutorial-coach__avatar {
-    position: relative;
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
-    border-radius: 50%; /* Circular avatar for floating look */
-    background: #1a1510;
-    border: 2px solid #facc15;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    animation: avatar-pulse 2s infinite ease-in-out;
-}
         width: 44px;
         height: 44px;
     }
