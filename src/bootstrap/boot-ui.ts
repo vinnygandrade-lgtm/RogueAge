@@ -51,7 +51,7 @@ export function setBootProgress(percent: number, message?: string): void {
 }
 
 export function sealStaffModalsOnBoot(): void {
-  for (const id of ['janela-gm-panel', 'janela-reward-hub']) {
+  for (const id of ['janela-gm-panel', 'janela-reward-hub', 'l2-modal-overlay']) {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   }

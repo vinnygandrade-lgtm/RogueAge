@@ -18,9 +18,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
     <style id="l2-critical-modals">
-        /* Evita flash dos painéis GM/Rewards antes do bundle CSS no mobile */
+        /* Evita flash de modais antes do bundle CSS no mobile */
         #janela-gm-panel,
-        #janela-reward-hub {
+        #janela-reward-hub,
+        #l2-modal-overlay {
             display: none;
         }
     </style>
@@ -813,7 +814,7 @@
         </div>
     </div>
 
-    <div id="l2-modal-overlay" class="l2-modal-overlay">
+    <div id="l2-modal-overlay" class="l2-modal-overlay" style="display:none">
         <div id="l2-modal-box" class="l2-modal">
             <div id="l2-modal-header" class="l2-modal-header">
                 <span id="l2-modal-title" data-i18n="game.l2Modal.title">MESSAGE</span>

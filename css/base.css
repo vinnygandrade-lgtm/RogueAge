@@ -213,9 +213,10 @@ a:focus-visible,
 }
 .notif-icon-flashing { animation: notif-flash 1.2s infinite ease-in-out; }
 
-/* Staff modals — escondidos até abrirModal (inline flex) com personagem no mundo */
+/* Staff / alert modals — escondidos até abrirModal ou l2Alert */
 #janela-gm-panel,
-#janela-reward-hub {
+#janela-reward-hub,
+#l2-modal-overlay {
     display: none;
 }
 
