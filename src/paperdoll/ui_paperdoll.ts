@@ -38,8 +38,18 @@ function setPaperdollLayerVisible(layer: HTMLImageElement | null, visible: boole
   } else {
     layer.setAttribute('hidden', '');
     layer.style.display = 'none';
-    layer.src = PAPERDOLL_BLANK_SRC;
+    if (layer.src !== PAPERDOLL_BLANK_SRC) {
+      layer.src = PAPERDOLL_BLANK_SRC;
+    }
   }
+}
+
+function _isPaperdollBlankLayer(imgEl: HTMLImageElement | null): boolean {
+  if (!imgEl || !imgEl.src) return true;
+  if (imgEl.hasAttribute('hidden')) return true;
+  if (imgEl.src === PAPERDOLL_BLANK_SRC) return true;
+  if (/^data:image\/gif/i.test(imgEl.src) && (imgEl.naturalWidth || 0) <= 1) return true;
+  return false;
 }
 
 function isHumanPaperdollFighter(): boolean {
@@ -77,22 +87,7 @@ function setPaperdollLayerSrcChain(
   let idx = 0;
   layer.onload = () => {
     layer.onerror = null;
-    const role = layer.getAttribute('data-pd-layer');
-    const shouldValidate =
-      role === 'base' ||
-      role === 'armor' ||
-      role === 'weapon' ||
-      role === 'weaponGrip' ||
-      role === 'hands' ||
-      layer.id === 'char-base-layer' ||
-      layer.id === 'char-armor-layer' ||
-      layer.id === 'char-weapon-layer' ||
-      layer.id === 'char-weapon-grip-layer' ||
-      layer.id === 'char-hands-layer';
-    if (shouldValidate) {
-      _validatePaperdollLayerCanvas(layer, layer.id, { hideOnFail: true });
-      schedulePaperdollFootShadowSyncWithRetries();
-    }
+    _handlePaperdollLayerLoad(layer);
   };
   layer.onerror = () => {
     idx += 1;
@@ -141,6 +136,14 @@ function _isPaperdollRenderableLayer(layer: Element | null): layer is HTMLImageE
     role === 'weaponGrip' ||
     role === 'hands'
   );
+}
+
+/** weaponGlow usa placeholder 1×1 + CSS na weapon layer — não validar como canvas 1080×984 */
+function _handlePaperdollLayerLoad(layer: HTMLImageElement | null): void {
+  if (!layer || _isPaperdollBlankLayer(layer)) return;
+  if (!_isPaperdollRenderableLayer(layer)) return;
+  _validatePaperdollLayerCanvas(layer, layer.id, { hideOnFail: true });
+  schedulePaperdollFootShadowSyncWithRetries();
 }
 
 function _applyPaperdollWeaponGlow(
@@ -579,13 +582,16 @@ function _paperdollCfg(): PaperdollConfig {
     : ({} as PaperdollConfig);
 }
 
+const _pdLayerWarned = new Set<string>();
+
 /** Valida 1080×984; corpo inválido fica oculto (evita mago_m 1000² gigante no palco). */
 function _validatePaperdollLayerCanvas(
   imgEl: HTMLImageElement | null,
   label: string,
   opts?: { hideOnFail?: boolean },
 ): boolean {
-  if (!imgEl || !imgEl.complete) return false;
+  if (!imgEl || !imgEl.complete || _isPaperdollBlankLayer(imgEl)) return false;
+  if (!_isPaperdollRenderableLayer(imgEl)) return true;
   const art = _paperdollCfg().art;
   if (!art || !art.masterWidth) return true;
   const nw = imgEl.naturalWidth;
@@ -598,24 +604,28 @@ function _validatePaperdollLayerCanvas(
   if (ok) return true;
   const preset =
     typeof window.resolvePaperdollPresetId === 'function' ? window.resolvePaperdollPresetId() : '?';
-  console.warn(
-    '[paperdoll] ' +
-      (label || imgEl.id || 'layer') +
-      ' (' +
-      preset +
-      '): precisa ' +
-      art.masterWidth +
-      '×' +
-      art.masterHeight +
-      ', veio ' +
-      nw +
-      '×' +
-      nh +
-      '. Coloca PNG em assets/paperdolls/' +
-      preset +
-      '/ — ' +
-      (imgEl.src || ''),
-  );
+  const warnKey = preset + '|' + (label || imgEl.id || 'layer') + '|' + nw + 'x' + nh;
+  if (!_pdLayerWarned.has(warnKey)) {
+    _pdLayerWarned.add(warnKey);
+    console.warn(
+      '[paperdoll] ' +
+        (label || imgEl.id || 'layer') +
+        ' (' +
+        preset +
+        '): precisa ' +
+        art.masterWidth +
+        '×' +
+        art.masterHeight +
+        ', veio ' +
+        nw +
+        '×' +
+        nh +
+        '. Coloca PNG em assets/paperdolls/' +
+        preset +
+        '/ — ' +
+        (imgEl.src || ''),
+    );
+  }
   if (opts && opts.hideOnFail) setPaperdollLayerVisible(imgEl, false);
   return false;
 }
@@ -699,14 +709,6 @@ function _scanPaperdollFeetAlpha(imgEl: HTMLImageElement | null): PaperdollFeetS
   };
   _pdFeetScanCache[cacheKey] = scan;
   return scan;
-}
-
-function _isPaperdollBlankLayer(imgEl: HTMLImageElement | null): boolean {
-  if (!imgEl || !imgEl.src) return true;
-  if (imgEl.hasAttribute('hidden')) return true;
-  if (imgEl.src === PAPERDOLL_BLANK_SRC) return true;
-  if (/^data:image\/gif/i.test(imgEl.src) && (imgEl.naturalWidth || 0) <= 1) return true;
-  return false;
 }
 
 function _isPaperdollFeetLayer(imgEl: Element | null): imgEl is HTMLImageElement {
@@ -845,9 +847,10 @@ function bindPaperdollFootShadowListeners(): void {
     const layers = root.querySelectorAll('.char-layer');
     for (let i = 0; i < layers.length; i++) {
       layers[i]!.addEventListener('load', function (this: HTMLImageElement) {
-        _invalidateFeetScanCacheForImg(this);
-        _validatePaperdollLayerCanvas(this, this.id, { hideOnFail: true });
-        schedulePaperdollFootShadowSyncWithRetries();
+        if (_isPaperdollFeetLayer(this)) {
+          _invalidateFeetScanCacheForImg(this);
+        }
+        _handlePaperdollLayerLoad(this);
       });
     }
   }
