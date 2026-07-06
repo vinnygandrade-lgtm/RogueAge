@@ -1125,6 +1125,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         vesperJewel: 'Recipe: Vesper Jewel'
                     }
                 },
+                progression: {
+                    noviceBoostEnd: 'Your early journey bonus has ended — full progression rules now apply.',
+                },
                 mobs: {
                     spider: 'Giant Spider',
                     wolf: 'Wolf',
@@ -3482,6 +3485,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         vesperWeapon: 'Receita: Vesper Weapon',
                         vesperJewel: 'Receita: Vesper Jewel'
                     }
+                },
+                progression: {
+                    noviceBoostEnd: 'Seu bônus de jornada inicial acabou — as regras normais de progressão voltam a valer.',
                 },
                 mobs: {
                     spider: 'Aranha Gigante',

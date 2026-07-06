@@ -9,6 +9,8 @@ Contrato de layout para o jogo parecer **o mesmo** em telemóveis diferentes (pr
 | `css/base.css` | Tokens `:root` (`--l2-shell-max-width`, safe areas, paddings, modais) |
 | `css/shell.css` | Cálculo de `--l2-shell-w` / `--l2-shell-h` em `.game-container` |
 | `css/layout.css` | Estrutura interna (viewport, hotbar, tabs) |
+| `css/index-extras.css` | Expedição base, floresta, modais extra |
+| `css/expedition-portrait-fit.css` | Expedição — caber no shell portrait (depois de `index-extras`) |
 
 ## Números oficiais
 
@@ -44,6 +46,16 @@ Contrato de layout para o jogo parecer **o mesmo** em telemóveis diferentes (pr
 - Modais com `abrirModal`: `max-width` via `--l2-modal-max-width`, não valores soltos em px.
 - Não definir `height: 800px` fixo no shell; usar `% do shell ou `dvh` com teto `85dvh` em modais.
 - Arte full-screen (paperdoll 1080×984, ícones 256×256) é **asset**, não tamanho de ecrã.
+
+## Expedição (portrait fit)
+
+A expedição roguelike usa layout próprio em **`css/expedition-portrait-fit.css`** (depois de `index-extras.css`):
+
+- **Run / jornada:** vitals numa linha; chat oculto; **hotbar dentro do painel** (entre caminhos e Extract), não no hub inicial.
+- **Combate:** hotbar acima dos botões de combate, no mesmo painel da floresta.
+- **Hub:** painel full-width com scroll interior.
+
+Não alterar tokens `--l2-shell-*` para remendar expedição — ajustar só este ficheiro.
 
 ## Ajuste fino
 

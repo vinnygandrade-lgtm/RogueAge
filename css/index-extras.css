@@ -3056,6 +3056,27 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     border: 1px solid rgba(179, 138, 77, 0.28);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
+
+/* Expedition combat — hide journey panel + flee (player chose the fight) */
+.game-container.expedition-run-locked #tela-floresta.expedition-combat-open #expedition-map-container,
+.game-container.expedition-run-locked #tela-floresta.expedition-combat-open #expedition-hub {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+}
+
+.game-container.expedition-run-locked #tela-floresta.expedition-combat-open #botoes-combate,
+.game-container.expedition-run-locked #tela-floresta.expedition-combat-open #btn-fugir {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
 .expedition-run-vitals__bars {
     display: flex;
     flex-direction: column;

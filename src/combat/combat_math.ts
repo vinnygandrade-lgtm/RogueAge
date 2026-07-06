@@ -139,15 +139,16 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
       }
 
       try {
-        if (
-          typeof window.zonaAtual !== 'undefined' &&
-          window.zonaAtual &&
-          window.zonaAtual.id === 'No-Grade' &&
-          typeof window.nivel === 'number' &&
-          window.nivel <= 5 &&
-          !mob.isChampion
-        ) {
-          danoRecebido = Math.max(danoMinimo, Math.floor(danoRecebido * 0.88));
+        const zoneId =
+          typeof window.zonaAtual !== 'undefined' && window.zonaAtual && window.zonaAtual.id
+            ? window.zonaAtual.id
+            : 'No-Grade';
+        const lv = typeof window.nivel === 'number' ? window.nivel : 1;
+        if (typeof window.EconomyBalance?.noviceIncomingDamageMult === 'function') {
+          const ease = window.EconomyBalance.noviceIncomingDamageMult(lv, zoneId, !!mob.isChampion);
+          if (ease < 1) {
+            danoRecebido = Math.max(danoMinimo, Math.floor(danoRecebido * ease));
+          }
         }
       } catch {
         /* ignore */

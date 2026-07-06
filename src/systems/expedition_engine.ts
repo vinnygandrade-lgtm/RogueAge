@@ -298,6 +298,126 @@ export class ExpeditionEngine {
     static pendingUpgradeOptions: UpgradeDef[] = [];
     static lastCombatLoot: ExpeditionBagDelta | null = null;
     static _resultSkipsAdvance = false;
+    static _forestLayoutMode: 'hub' | 'map' | 'combat' | 'idle' = 'idle';
+    /** True while expedition combat UI is active (path chosen — no map / no flee). */
+    static _combatUiActive = false;
+
+    static isExpeditionCombatUiActive(): boolean {
+        return !!(this.state.active && this._combatUiActive);
+    }
+
+    /** Original `#hotbar-home-anchor` parent — restore when leaving expedition map/combat. */
+    static _hotbarDockRestore: { parent: HTMLElement; next: ChildNode | null } | null = null;
+
+    static captureHotbarHomeAnchor() {
+        if (this._hotbarDockRestore) return;
+        const anchor = document.getElementById('hotbar-home-anchor');
+        if (!anchor?.parentElement) return;
+        this._hotbarDockRestore = { parent: anchor.parentElement, next: anchor.nextSibling };
+    }
+
+    static restoreHotbarHomeAnchor() {
+        const anchor = document.getElementById('hotbar-home-anchor');
+        if (!anchor || !this._hotbarDockRestore) return;
+        const { parent, next } = this._hotbarDockRestore;
+        if (anchor.parentElement === parent) return;
+        if (next && next.parentNode === parent) {
+            parent.insertBefore(anchor, next);
+        } else {
+            parent.appendChild(anchor);
+        }
+    }
+
+    /** Move bar back to `#screen-game` footer and show it (map wipe destroys docked nodes). */
+    static restoreGameHotbar() {
+        this.captureHotbarHomeAnchor();
+        this.restoreHotbarHomeAnchor();
+
+        const anchor = document.getElementById('hotbar-home-anchor');
+        const barra = document.getElementById('barra-de-atalhos-dinamica');
+        if (anchor) {
+            anchor.style.removeProperty('display');
+            anchor.removeAttribute('aria-hidden');
+        }
+        if (barra) barra.style.removeProperty('display');
+
+        const win = window as any;
+        if (typeof win.renderizarBarraAtalhos === 'function') {
+            win.renderizarBarraAtalhos();
+        } else if (barra) {
+            barra.style.setProperty('display', 'grid', 'important');
+        }
+    }
+
+    static syncExpeditionCombatControls(mode: 'hub' | 'map' | 'combat' | 'idle') {
+        const botoes = document.getElementById('botoes-combate');
+        const flee = document.getElementById('btn-fugir');
+        if (!botoes) return;
+
+        if (this.state.active && mode === 'combat') {
+            botoes.style.setProperty('display', 'none', 'important');
+            if (flee) flee.style.setProperty('display', 'none', 'important');
+            return;
+        }
+
+        botoes.style.display = 'none';
+        if (flee) flee.style.removeProperty('display');
+    }
+
+    /** Dock shortcut bar into journey/combat panel, or restore to `#screen-game` footer. */
+    static dockHotbarToSlot(slotId: string | null) {
+        const anchor = document.getElementById('hotbar-home-anchor');
+        const barra = document.getElementById('barra-de-atalhos-dinamica');
+        if (!anchor || !barra) return;
+
+        this.captureHotbarHomeAnchor();
+
+        if (!slotId) {
+            this.restoreHotbarHomeAnchor();
+            return;
+        }
+
+        const slot = document.getElementById(slotId);
+        if (!slot) {
+            this.restoreHotbarHomeAnchor();
+            return;
+        }
+
+        slot.appendChild(anchor);
+        slot.setAttribute('aria-hidden', 'false');
+        anchor.style.removeProperty('display');
+        barra.style.setProperty('display', 'grid', 'important');
+    }
+
+    static syncExpeditionHotbar(mode: 'hub' | 'map' | 'combat' | 'idle') {
+        const combatSlot = document.getElementById('expedition-combat-hotbar-slot');
+        if (combatSlot && !combatSlot.contains(document.getElementById('hotbar-home-anchor'))) {
+            combatSlot.setAttribute('aria-hidden', 'true');
+        }
+
+        if (!this.state.active) {
+            this.restoreGameHotbar();
+            return;
+        }
+
+        if (mode === 'map') {
+            this.dockHotbarToSlot('expedition-hotbar-slot');
+            return;
+        }
+
+        if (mode === 'combat') {
+            this.dockHotbarToSlot('expedition-combat-hotbar-slot');
+            return;
+        }
+
+        if (mode === 'hub') {
+            this.dockHotbarToSlot(null);
+            const anchor = document.getElementById('hotbar-home-anchor');
+            const barra = document.getElementById('barra-de-atalhos-dinamica');
+            if (anchor) anchor.style.setProperty('display', 'none', 'important');
+            if (barra) barra.style.setProperty('display', 'none', 'important');
+        }
+    }
 
     static createInitialState(zoneId: string): ExpeditionState {
         return {
@@ -495,8 +615,20 @@ export class ExpeditionEngine {
         return Math.min(2, 1 + bonus);
     }
 
+    /** Roguelike curve: journey 1 starts soft (3 mobs ok), then ramps each step. */
     static getJourneyMobScale(): number {
-        return 1 + Math.max(0, this.state.journey - 1) * 0.08;
+        const j = Math.max(1, Math.floor(Number(this.state.journey) || 1));
+        const RUN_START = 0.66;
+        const RUN_STEP = 0.07;
+        return RUN_START + (j - 1) * RUN_STEP;
+    }
+
+    /** Champion bonus (HP/ATK above normal mob) scales with journey — weak mini-champs early, full power late run. */
+    static getJourneyChampionPowerScale(): number {
+        const j = Math.max(1, Math.floor(Number(this.state.journey) || 1));
+        const CHAMP_START = 0.34;
+        const CHAMP_STEP = 0.075;
+        return Math.min(1, CHAMP_START + (j - 1) * CHAMP_STEP);
     }
 
     static getTraitLabel(trait: JourneyMobTrait): string {
@@ -1218,6 +1350,8 @@ export class ExpeditionEngine {
     }
 
     static advanceJourney() {
+        this._combatUiActive = false;
+
         const lastPath = this.state.currentPath;
         if (lastPath && !this.isCombatPathType(lastPath)) {
             this.state.combatOnlyNextJourney = true;
@@ -1361,9 +1495,15 @@ export class ExpeditionEngine {
     }
 
     static setForestLayoutMode(mode: 'hub' | 'map' | 'combat' | 'idle') {
+        this._forestLayoutMode = mode;
+        if (mode === 'combat') this._combatUiActive = true;
+        if (mode === 'map' || mode === 'hub') this._combatUiActive = false;
+
         const floresta = document.getElementById('tela-floresta');
         const inner = document.querySelector('.tela-floresta-inner') as HTMLElement | null;
         const area = document.getElementById('area-cacada');
+        const map = document.getElementById('expedition-map-container');
+        const hub = document.getElementById('expedition-hub');
         if (floresta) {
             floresta.classList.remove('expedition-hub-open', 'expedition-map-open', 'expedition-combat-open');
             if (mode === 'hub') floresta.classList.add('expedition-hub-open');
@@ -1371,10 +1511,40 @@ export class ExpeditionEngine {
             if (mode === 'combat') floresta.classList.add('expedition-combat-open');
         }
         if (inner) inner.classList.toggle('tela-floresta-inner--expedition-map', mode === 'map');
+
+        const hideJourneyChrome = mode === 'combat';
+        if (map) {
+            if (hideJourneyChrome) {
+                map.style.setProperty('display', 'none', 'important');
+                map.style.visibility = 'hidden';
+                map.style.height = '0';
+                map.style.overflow = 'hidden';
+                map.setAttribute('aria-hidden', 'true');
+            } else if (mode === 'map') {
+                map.style.removeProperty('display');
+                map.style.display = 'flex';
+                map.style.removeProperty('visibility');
+                map.style.removeProperty('height');
+                map.style.removeProperty('overflow');
+                map.setAttribute('aria-hidden', 'false');
+            } else {
+                map.style.display = 'none';
+                map.setAttribute('aria-hidden', 'true');
+            }
+        }
+        if (hub) {
+            hub.style.display = mode === 'hub' ? 'flex' : 'none';
+            hub.setAttribute('aria-hidden', mode === 'hub' ? 'false' : 'true');
+        }
+
         if (area) area.style.display = mode === 'combat' ? 'flex' : 'none';
+        this.syncExpeditionCombatControls(mode);
+        this.syncExpeditionHotbar(mode);
     }
 
     static showHub() {
+        this.restoreGameHotbar();
+
         const hub = document.getElementById('expedition-hub');
         const map = document.getElementById('expedition-map-container');
         const btn = document.getElementById('btn-iniciar-caca');
@@ -1403,10 +1573,10 @@ export class ExpeditionEngine {
     static syncForestEntryUi() {
         if (this.state.active) {
             this.hideHub();
-            const map = document.getElementById('expedition-map-container');
-            const mapVisible = map && map.style.display !== 'none';
-            this.setForestLayoutMode(mapVisible ? 'map' : 'combat');
+            const mode = this._combatUiActive ? 'combat' : 'map';
+            this.setForestLayoutMode(mode);
         } else {
+            this._combatUiActive = false;
             this.showHub();
         }
     }
@@ -1452,6 +1622,7 @@ export class ExpeditionEngine {
             bag: { adenas: 0, xp: 0, drops: {} }
         };
         this.refreshJourneyPhase();
+        this._combatUiActive = false;
         this.hideHub();
         this.renderMap();
         this.syncNavigationLock();
@@ -1879,7 +2050,6 @@ export class ExpeditionEngine {
         const botoesCombate = document.getElementById('botoes-combate');
 
         this.hideHub();
-        this.setForestLayoutMode('map');
         if (mapContainer) mapContainer.style.display = 'flex';
         if (combatArea) combatArea.style.display = 'none';
         if (mobsContainer) mobsContainer.style.display = 'none';
@@ -1924,6 +2094,8 @@ export class ExpeditionEngine {
                 </details>`
             : '';
 
+        this.restoreGameHotbar();
+
         let html = `
         <div class="expedition-panel expedition-panel--rogue">
             <div class="expedition-map-header expedition-map-header--rogue expedition-map-header--compact">
@@ -1951,6 +2123,7 @@ export class ExpeditionEngine {
                 ${this.buildRunPanelTabsHtml()}
                 <div class="expedition-run-panel">${this.buildRunPanelContentHtml(journey, pickHint)}</div>
             </div>
+            <div id="expedition-hotbar-slot" class="expedition-hotbar-slot" aria-label="Shortcuts"></div>
             <div class="expedition-panel__footer expedition-panel__footer--compact">
                 <div class="expedition-bag-bar">
                     <div class="expedition-bag-bar__info">
@@ -1971,6 +2144,7 @@ export class ExpeditionEngine {
         </div>`;
 
         mapContainer.innerHTML = html;
+        this.setForestLayoutMode('map');
     }
 
     static clickPath(index: number) {
@@ -2049,6 +2223,17 @@ export class ExpeditionEngine {
         if (typeof win.fecharModal === 'function') win.fecharModal('janela-expedition-node');
     }
 
+    static scalePlayerXpReward(rawXp: number): number {
+        const win = window as any;
+        const raw = Math.max(0, Math.floor(Number(rawXp) || 0));
+        if (raw <= 0) return 0;
+        const lv = Number(win.nivel) || 1;
+        if (typeof win.EconomyBalance?.scaleNoviceXpGain === 'function') {
+            return win.EconomyBalance.scaleNoviceXpGain(raw, lv);
+        }
+        return raw;
+    }
+
     static applyBagLoot(lootTurno: { adenas: number; xp: number; drops: Record<string, number> }, extraMult = 1) {
         const mult = extraMult * this.state.luckLootMult * this.getJourneyRewardMult();
         this.state.bag.adenas += Math.floor(lootTurno.adenas * mult);
@@ -2076,7 +2261,11 @@ export class ExpeditionEngine {
     static buildMobTuning(pathType: ExpeditionPathType) {
         const win = window as any;
         const zoneId = this.state.zoneId;
-        const base = win.L2MINI_ZONAL_MOB_TUNING?.[zoneId] || { hp: 1, atk: 1, def: 1 };
+        const rawBase = win.L2MINI_ZONAL_MOB_TUNING?.[zoneId] || { hp: 1, atk: 1, def: 1 };
+        const playerLv = Number(win.nivel) || 1;
+        const base = (typeof win.EconomyBalance?.resolveNoviceMobTune === 'function')
+            ? win.EconomyBalance.resolveNoviceMobTune(rawBase, playerLv, zoneId)
+            : rawBase;
         const journeyScale = this.getJourneyMobScale();
         let hp = base.hp * journeyScale;
         let atk = base.atk * journeyScale;
@@ -2105,7 +2294,22 @@ export class ExpeditionEngine {
         if (trait === 'armored') { def *= 1.32; hp *= 1.12; }
         if (trait === 'frenzied') { hp *= 1.1; atk *= 1.18; }
 
-        return { ...base, hp, atk, def, championChance, mobAtkSpdMult };
+        const champJourney = this.getJourneyChampionPowerScale();
+        const tunedChampHp = typeof base.championHpMult === 'number' ? base.championHpMult : 2.85;
+        const tunedChampAtk = typeof base.championAtkMult === 'number' ? base.championAtkMult : 1.06;
+        const championHpMult = 1 + (tunedChampHp - 1) * champJourney;
+        const championAtkMult = 1 + (tunedChampAtk - 1) * champJourney;
+
+        return {
+            ...base,
+            hp,
+            atk,
+            def,
+            championChance,
+            championHpMult,
+            championAtkMult,
+            mobAtkSpdMult,
+        };
     }
 
     static restoreMobTuning() {
@@ -2117,15 +2321,8 @@ export class ExpeditionEngine {
     }
 
     static startCombatPath(pathType: ExpeditionPathType) {
-        const mapContainer = document.getElementById('expedition-map-container');
-        if (mapContainer) mapContainer.style.display = 'none';
-
+        this._combatUiActive = true;
         this.setForestLayoutMode('combat');
-
-        const combatArea = document.getElementById('area-cacada');
-        const botoesCombate = document.getElementById('botoes-combate');
-        if (combatArea) combatArea.style.display = 'flex';
-        if (botoesCombate) botoesCombate.style.display = 'flex';
 
         const win = window as any;
         win.L2MINI_ZONAL_MOB_TUNING = win.L2MINI_ZONAL_MOB_TUNING || {};
@@ -2147,6 +2344,7 @@ export class ExpeditionEngine {
     static onCombatWin(lootTurno: { adenas: number; xp: number; drops: Record<string, number> }) {
         if (!this.state.active) return;
 
+        this._combatUiActive = false;
         this.restoreMobTuning();
 
         const combatMult = (this as any)._combatLootMult || 1;
@@ -2288,7 +2486,9 @@ export class ExpeditionEngine {
         const trait = this.state.journeyTrait;
         const early = this.state.journey < 2;
         const adenaGain = early ? 0 : Math.floor((Math.random() * 350 + 180) * journeyMult);
-        const xpGain = Math.floor(((early ? 50 : 60) + Math.random() * (early ? 50 : 120)) * journeyMult);
+        const xpGain = this.scalePlayerXpReward(
+            Math.floor(((early ? 50 : 60) + Math.random() * (early ? 50 : 120)) * journeyMult),
+        );
         if (adenaGain > 0) this.state.bag.adenas += adenaGain;
         this.state.bag.xp += xpGain;
 
@@ -2317,7 +2517,7 @@ export class ExpeditionEngine {
 
     static resolvePatrolPath() {
         const journeyMult = this.getJourneyRewardMult();
-        const xpGain = Math.floor((Math.random() * 140 + 90) * journeyMult);
+        const xpGain = this.scalePlayerXpReward(Math.floor((Math.random() * 140 + 90) * journeyMult));
         const adenaGain = this.state.journey >= 2
             ? Math.floor((Math.random() * 120 + 60) * journeyMult)
             : 0;
@@ -2339,7 +2539,7 @@ export class ExpeditionEngine {
     static resolveTracksPath() {
         const journeyMult = this.getJourneyRewardMult();
         const nextTrait = this.state.nextJourneyTrait;
-        const xpGain = Math.floor((Math.random() * 80 + 70) * journeyMult);
+        const xpGain = this.scalePlayerXpReward(Math.floor((Math.random() * 80 + 70) * journeyMult));
         this.state.bag.xp += xpGain;
 
         this.showResultModal({
@@ -2488,6 +2688,7 @@ export class ExpeditionEngine {
 
     static reset() {
         this.restoreMobTuning();
+        this._combatUiActive = false;
         this.state = this.createInitialState('');
         this.syncNavigationLock();
         this.showHub();
@@ -2554,6 +2755,7 @@ export class ExpeditionEngine {
         if (typeof win.salvarJogo === 'function') win.salvarJogo();
 
         this.state = this.createInitialState('');
+        this._combatUiActive = false;
         this.syncNavigationLock();
 
         if (success) {
@@ -2572,7 +2774,10 @@ export class ExpeditionEngine {
         }
 
         win.prepararTelaCacada();
-        if (!this.state.active) this.showHub();
+        if (!this.state.active) {
+            this.restoreGameHotbar();
+            this.showHub();
+        }
         this.wireStartButton();
     }
 

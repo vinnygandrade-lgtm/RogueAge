@@ -78,7 +78,13 @@ function prepararTelaCacada() {
 
     const exp = (window as any).ExpeditionEngine;
     if (exp && typeof exp.syncForestEntryUi === 'function') {
-        exp.syncForestEntryUi();
+        if (typeof exp.isExpeditionCombatUiActive === 'function' && exp.isExpeditionCombatUiActive()) {
+            if (typeof exp.syncExpeditionCombatControls === 'function') {
+                exp.syncExpeditionCombatControls('combat');
+            }
+        } else {
+            exp.syncForestEntryUi();
+        }
         if (!exp.state?.active) {
             const btn = document.getElementById('btn-iniciar-caca');
             if (btn) btn.style.display = '';
@@ -113,7 +119,16 @@ function procurarMonstros() {
         if(telaFloresta && telaFloresta.style.display === 'flex') {
             document.getElementById('area-cacada').style.display = 'none';
             document.getElementById('mobs-container').style.display = 'flex';
-            document.getElementById('botoes-combate').style.display = 'flex';
+
+            const exp = (window as any).ExpeditionEngine;
+            const expeditionCombat = !!(exp?.state?.active);
+            const botoes = document.getElementById('botoes-combate');
+            if (botoes) {
+                botoes.style.display = expeditionCombat ? 'none' : 'flex';
+            }
+            if (expeditionCombat && typeof exp.syncExpeditionCombatControls === 'function') {
+                exp.syncExpeditionCombatControls('combat');
+            }
 
             spawnMonstros();
             iniciarAtaqueMonstro();
@@ -135,6 +150,16 @@ function sortearMob(zona) {
         if (roll <= acc) return mob;
     }
     return zona.mobs[0];
+}
+
+function scalePlayerXpReward(rawXp: number): number {
+    const raw = Math.max(0, Math.floor(Number(rawXp) || 0));
+    if (raw <= 0) return 0;
+    const lv = Number(window.nivel) || 1;
+    if (typeof window.EconomyBalance !== 'undefined' && typeof window.EconomyBalance.scaleNoviceXpGain === 'function') {
+        return window.EconomyBalance.scaleNoviceXpGain(raw, lv);
+    }
+    return raw;
 }
 
 /** XP no HUD; na expedição fica só na mochila até extract ou morte. */
@@ -176,6 +201,14 @@ function aplicarXpGanhoFloresta(quantia) {
                 window.escreverLog(`<span style="color:#a855f7; font-weight:bold; text-shadow: 1px 1px 0 #000;">${hint}</span>`);
             }
         }
+        if (nl === (window.EconomyBalance?.NOVICE_LEVEL_CAP ?? 20) + 1) {
+            if (typeof window.escreverLog === 'function') {
+                const msg = (typeof window.t === 'function')
+                    ? window.t('game.progression.noviceBoostEnd')
+                    : 'Your early journey bonus has ended — full progression rules now apply.';
+                window.escreverLog(`<span style="color:#94a3b8; font-weight:bold;">${msg}</span>`);
+            }
+        }
     }
     if (typeof window.atualizar === 'function') window.atualizar();
 }
@@ -190,7 +223,7 @@ function spawnMonstros() {
     let zonaID = window.zonaAtual.id || 'No-Grade';
 
     switch(zonaID) {
-        case 'No-Grade': maxMobs = 3; break; // 1–3 por pull (tuning NG + mob stats seguram para quem inicia)
+        case 'No-Grade': maxMobs = 3; break; // 1–3 por pull
         case 'D': maxMobs = 4; break;
         case 'C': maxMobs = 5; break;
         case 'B': maxMobs = 7; break;
@@ -203,10 +236,14 @@ function spawnMonstros() {
     let nomesSorteados = [];
 
     const zonaKey = (window.zonaAtual && window.zonaAtual.id) ? window.zonaAtual.id : 'No-Grade';
+    const playerLv = Number(window.nivel) || 1;
     const tuneDefault: ZonalMobTuneEntry = { hp: 1, atk: 1, def: 1 };
-    const tune: ZonalMobTuneEntry = (typeof window.L2MINI_ZONAL_MOB_TUNING === 'object' && window.L2MINI_ZONAL_MOB_TUNING[zonaKey])
+    let tune: ZonalMobTuneEntry = (typeof window.L2MINI_ZONAL_MOB_TUNING === 'object' && window.L2MINI_ZONAL_MOB_TUNING[zonaKey])
         ? window.L2MINI_ZONAL_MOB_TUNING[zonaKey]
         : tuneDefault;
+    if (typeof window.EconomyBalance?.resolveNoviceMobTune === 'function') {
+        tune = window.EconomyBalance.resolveNoviceMobTune(tune, playerLv, zonaKey);
+    }
     const thp = (typeof tune.hp === 'number' && tune.hp > 0) ? tune.hp : 1;
     let tatk = (typeof tune.atk === 'number' && tune.atk > 0) ? tune.atk : 1;
     const tdef = (typeof tune.def === 'number' && tune.def > 0) ? tune.def : 1;
@@ -525,7 +562,7 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
     let chanceDrop = (window.charRace === "Dwarf") ? 100 : 80;
 
     lootTurno.adenas += ganhoAdena;
-    const xpGanhoMob = mobMorto.xp * multiplicadorChampion;
+    const xpGanhoMob = scalePlayerXpReward(mobMorto.xp * multiplicadorChampion);
     lootTurno.xp += xpGanhoMob;
     if (!isExpeditionCombatActive()) {
         aplicarXpGanhoFloresta(xpGanhoMob);
@@ -708,7 +745,10 @@ function travarFlorestaResumoVitoria(ativo) {
     const floresta = document.getElementById('tela-floresta');
     if (floresta) floresta.classList.toggle('forest-hunt-summary-open', !!ativo);
     const botoes = document.getElementById('botoes-combate');
-    if (botoes) botoes.style.display = ativo ? 'none' : '';
+    if (botoes) {
+        if (ativo) botoes.style.display = 'none';
+        else botoes.style.removeProperty('display');
+    }
 }
 
 function mostrarResumoVitoria() {

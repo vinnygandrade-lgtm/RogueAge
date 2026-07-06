@@ -137,14 +137,14 @@ window.applyCritRateCap = function applyCritRateCap(value: number): number {
 
 window.L2MINI_ZONAL_MOB_TUNING = {
   'No-Grade': {
-    hp: 0.58,
-    atk: 0.5,
-    def: 0.7,
+    hp: 0.52,
+    atk: 0.42,
+    def: 0.68,
     championChance: 0.022,
-    championHpMult: 4.25,
-    championAtkMult: 1.14,
+    championHpMult: 2.85,
+    championAtkMult: 1.06,
     championOnePerPull: true,
-    packAtkMult: 0.93,
+    packAtkMult: 0.82,
   },
   D: { hp: 0.88, atk: 0.82, def: 0.9 },
   C: { hp: 0.83, atk: 0.76, def: 0.86 },
@@ -198,7 +198,14 @@ window.tempoFimBuffGuerreiro = 0;
 window.tempoFimBuffMistico = 0;
 
 window.calcularXpNecessario = function calcularXpNecessario(lvl: number): number {
-  return Math.floor(100 * lvl ** 2 + lvl ** 5 * 0.05);
+  const base = Math.floor(100 * lvl ** 2 + lvl ** 5 * 0.05);
+  if (
+    typeof window.EconomyBalance !== 'undefined'
+    && typeof window.EconomyBalance.scaleNoviceXpRequired === 'function'
+  ) {
+    return window.EconomyBalance.scaleNoviceXpRequired(base, lvl);
+  }
+  return base;
 };
 
 window.labelTipoHUD = null;

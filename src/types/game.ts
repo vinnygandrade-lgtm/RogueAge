@@ -708,9 +708,16 @@ export interface ItemSecurityApi {
 }
 
 export interface EconomyBalanceApi {
+  NOVICE_LEVEL_CAP: number;
   shopLevelPriceMult: (level: number) => number;
   effectiveShopUnitPrice: (basePrice: number, level: number) => number;
   adenaLootMult: (level: number, zonaId?: string | null) => number;
+  noviceXpGainMult: (level: number) => number;
+  noviceXpRequiredMult: (level: number) => number;
+  scaleNoviceXpGain: (baseXp: number, level: number) => number;
+  scaleNoviceXpRequired: (baseRequired: number, level: number) => number;
+  noviceIncomingDamageMult: (level: number, zoneId?: string | null, isChampion?: boolean) => number;
+  resolveNoviceMobTune: (baseTune: ZonalMobTuneEntry, level: number, zoneId?: string | null) => ZonalMobTuneEntry;
   grandMasterBuffPrice: (level: number) => number;
   MINT_ANCIENT_ADENA_COST: number;
   MINT_ANCIENT_SUCCESS_PCT: number;
