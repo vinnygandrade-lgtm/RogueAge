@@ -1,11 +1,11 @@
 -- ========================================================
 -- RogueAge ? SUPABASE MASTER SETUP (V4.2 - ULTRA RESILIENT)
 -- ========================================================
--- Este script contém TODA a infraestrutura unificada e segura.
+-- Este script contï¿½m TODA a infraestrutura unificada e segura.
 -- Ele verifica e corrige a estrutura das tabelas automaticamente.
 -- Execute este script no SQL Editor do seu projeto Supabase.
 
--- 1. EXTENSÕES
+-- 1. EXTENSï¿½ES
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ========================================================
@@ -159,11 +159,11 @@ CREATE INDEX IF NOT EXISTS idx_ascension_events_char_week ON public.ascension_ev
 CREATE INDEX IF NOT EXISTS idx_ascension_events_user_created ON public.ascension_events(user_id, created_at DESC);
 
 -- ========================================================
--- 3. RESILIÊNCIA: CORREÇÃO DE COLUNAS (Caso as tabelas já existissem)
+-- 3. RESILIï¿½NCIA: CORREï¿½ï¿½O DE COLUNAS (Caso as tabelas jï¿½ existissem)
 -- ========================================================
 DO $$ 
 BEGIN 
-    -- Correções para MARKET_LISTINGS
+    -- Correï¿½ï¿½es para MARKET_LISTINGS
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='market_listings' AND column_name='seller_char_name') THEN
         ALTER TABLE public.market_listings ADD COLUMN seller_char_name TEXT;
         UPDATE public.market_listings SET seller_char_name = seller_name WHERE seller_char_name IS NULL;
@@ -213,14 +213,14 @@ BEGIN
         ALTER TABLE public.market_listings ADD COLUMN payout_claimed BOOLEAN NOT NULL DEFAULT FALSE;
     END IF;
 
-    -- Correções para MAILBOX (Garantir colunas essenciais)
+    -- Correï¿½ï¿½es para MAILBOX (Garantir colunas essenciais)
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='mailbox' AND column_name='recipient_name') THEN
         ALTER TABLE public.mailbox ADD COLUMN recipient_name TEXT NOT NULL DEFAULT 'Unknown';
     END IF;
 END $$;
 
 -- ========================================================
--- 4. SEGURANÇA (RLS)
+-- 4. SEGURANï¿½A (RLS)
 -- ========================================================
 
 ALTER TABLE public.mailbox ENABLE ROW LEVEL SECURITY;
@@ -235,7 +235,7 @@ ALTER TABLE public.olympiad_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.olympiad_matches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ascension_events ENABLE ROW LEVEL SECURITY;
 
--- Characters Policies (CRÍTICO PARA RANKING E INSPEÇÃO)
+-- Characters Policies (CRï¿½TICO PARA RANKING E INSPEï¿½ï¿½O)
 DROP POLICY IF EXISTS "Public characters view" ON public.characters;
 CREATE POLICY "Public characters view" ON public.characters FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Users can update own characters" ON public.characters;
@@ -247,7 +247,7 @@ CREATE POLICY "Users can insert own characters" ON public.characters FOR INSERT 
 DROP POLICY IF EXISTS "Users can view own history" ON public.olympiad_history;
 CREATE POLICY "Users can view own history" ON public.olympiad_history FOR SELECT USING (char_name IN (SELECT char_name FROM characters WHERE user_id::text = auth.uid()::text));
 
--- Ascension ledger: leitura só dos próprios eventos; escrita apenas via RPC SECURITY DEFINER
+-- Ascension ledger: leitura sï¿½ dos prï¿½prios eventos; escrita apenas via RPC SECURITY DEFINER
 DROP POLICY IF EXISTS "Users view own ascension events" ON public.ascension_events;
 CREATE POLICY "Users view own ascension events" ON public.ascension_events FOR SELECT USING (user_id::text = auth.uid()::text);
 
@@ -273,7 +273,7 @@ CREATE POLICY "Sellers can view own listings" ON public.market_listings FOR SELE
 -- 5. RPCs: SISTEMA SEGURO
 -- ========================================================
 
--- OLIMPIADA: ATUALIZAR MMR (um só jogador; ex.: duelo vs bot ? dono = auth.uid())
+-- OLIMPIADA: ATUALIZAR MMR (um sï¿½ jogador; ex.: duelo vs bot ? dono = auth.uid())
 CREATE OR REPLACE FUNCTION update_olympiad_mmr(
     p_char_name TEXT,
     p_points_change INTEGER,
@@ -844,7 +844,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.market_publish_listing(TEXT, BIGINT, TEXT, TEXT, INTEGER, INTEGER, JSONB, JSONB, BIGINT) TO authenticated;
 
--- MARKET: COMPRAR LISTAGEM (auth do comprador, nomes canônicos, correio comprador + liquidação vendedor)
+-- MARKET: COMPRAR LISTAGEM (auth do comprador, nomes canï¿½nicos, correio comprador + liquidaï¿½ï¿½o vendedor)
 CREATE OR REPLACE FUNCTION market_purchase_listing(
     p_buyer_name TEXT,
     p_listing_id UUID
@@ -1030,7 +1030,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.market_purchase_listing(TEXT, UUID) TO authenticated;
 
--- MARKET: CANCELAR LISTAGEM (vendedor; sold=TRUE remove do mercado público)
+-- MARKET: CANCELAR LISTAGEM (vendedor; sold=TRUE remove do mercado pï¿½blico)
 CREATE OR REPLACE FUNCTION public.market_cancel_listing(
     p_listing_id UUID,
     p_seller_char_name TEXT
@@ -1093,7 +1093,7 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.market_cancel_listing(UUID, TEXT) TO authenticated;
 
--- CHAT DE CLÃ: INSERIR MENSAGEM SEGURA
+-- CHAT DE CLï¿½: INSERIR MENSAGEM SEGURA
 CREATE OR REPLACE FUNCTION public.insert_clan_chat_secure(
     p_clan_id UUID,
     p_body TEXT,
@@ -1107,11 +1107,11 @@ AS $$
 DECLARE
     v_char_name TEXT;
 BEGIN
-    -- Busca o nome do personagem do usuário logado
+    -- Busca o nome do personagem do usuï¿½rio logado
     SELECT char_name INTO v_char_name FROM public.characters WHERE user_id::text = auth.uid()::text LIMIT 1;
     IF v_char_name IS NULL THEN RETURN jsonb_build_object('success', false, 'error', 'Character not found'); END IF;
 
-    -- Verifica se o personagem pertence ao clã
+    -- Verifica se o personagem pertence ao clï¿½
     IF NOT EXISTS (SELECT 1 FROM public.clan_members WHERE clan_id = p_clan_id AND char_name = v_char_name) THEN
         RETURN jsonb_build_object('success', false, 'error', 'Not a member of this clan');
     END IF;
@@ -1123,7 +1123,7 @@ BEGIN
 END;
 $$;
 
--- MAILBOX: ENVIAR CORREIO SEGURO (destinatário = char_name canónico na tabela)
+-- MAILBOX: ENVIAR CORREIO SEGURO (destinatï¿½rio = char_name canï¿½nico na tabela)
 CREATE OR REPLACE FUNCTION public.send_mail_secure(
     p_recipient_name TEXT,
     p_subject TEXT,
@@ -1162,7 +1162,7 @@ BEGIN
 END;
 $$;
 
--- MAILBOX: LISTAR CORREIO DO PERSONAGEM (case-insensitive; só correio do jogador autenticado)
+-- MAILBOX: LISTAR CORREIO DO PERSONAGEM (case-insensitive; sï¿½ correio do jogador autenticado)
 CREATE OR REPLACE FUNCTION public.get_mailbox_for_character(p_char_name TEXT)
 RETURNS SETOF public.mailbox
 LANGUAGE sql
@@ -1184,7 +1184,7 @@ $$;
 GRANT EXECUTE ON FUNCTION public.get_mailbox_for_character(TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.send_mail_secure(TEXT, TEXT, TEXT, JSONB) TO authenticated;
 
--- MAILBOX: RESGATAR RECOMPENSA (CORRIGIDO + validação de destinatário + char case-insensitive)
+-- MAILBOX: RESGATAR RECOMPENSA (CORRIGIDO + validaï¿½ï¿½o de destinatï¿½rio + char case-insensitive)
 CREATE OR REPLACE FUNCTION public.claim_mail_reward(p_mail_id UUID)
 RETURNS JSONB
 LANGUAGE plpgsql
@@ -1226,7 +1226,7 @@ BEGIN
         v_recompensas := v_mail.details->'recompensas';
         IF v_recompensas IS NOT NULL AND jsonb_typeof(v_recompensas) = 'array' THEN
             FOR v_item IN SELECT * FROM jsonb_array_elements(v_recompensas) LOOP
-                -- CORREÇÃO: Usar ->> com string constante, não jsonb
+                -- CORREï¿½ï¿½O: Usar ->> com string constante, nï¿½o jsonb
                 IF (v_item->>'id') = 'Adena' OR (v_item->>'nome') = 'Adena' THEN
                     v_reward_adena := v_reward_adena + COALESCE((v_item->>'qtd')::BIGINT, 0);
                 ELSIF (v_item->>'id') = 'Ancient Coin' OR (v_item->>'nome') = 'Ancient Coin' THEN
@@ -1241,7 +1241,7 @@ BEGIN
             v_reward_adena := COALESCE((v_mail.details->>'valor')::BIGINT, 0);
         END IF;
     ELSIF v_mail.type = 'market' AND COALESCE(v_mail.details->>'marketKind', '') = 'purchase_delivery' THEN
-        -- Moedas creditadas só pelo cliente (ItemSecurity); aqui só marca resgatado
+        -- Moedas creditadas sï¿½ pelo cliente (ItemSecurity); aqui sï¿½ marca resgatado
         NULL;
     ELSIF v_mail.type = 'player' THEN
         v_reward_adena := COALESCE((v_mail.details->>'adena')::BIGINT, 0);
@@ -1267,9 +1267,9 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.claim_mail_reward(UUID) TO authenticated;
 
--- STATUS: BUSCAR STATUS AUTORITATIVO (stub ? inspeção de stats no cliente)
--- O modal de inspeção usa js/core_stats.js: calcularStatusGlobaisFromData(saveLike), não playerStats no JSON.
--- Esta função mantém-se para compat/API; não assumir que 'data' contém stats de combate corretos.
+-- STATUS: BUSCAR STATUS AUTORITATIVO (stub ? inspeï¿½ï¿½o de stats no cliente)
+-- O modal de inspeï¿½ï¿½o usa js/core_stats.js: calcularStatusGlobaisFromData(saveLike), nï¿½o playerStats no JSON.
+-- Esta funï¿½ï¿½o mantï¿½m-se para compat/API; nï¿½o assumir que 'data' contï¿½m stats de combate corretos.
 CREATE OR REPLACE FUNCTION public.get_player_stats_autoritativo(p_target_char_name TEXT)
 RETURNS JSONB
 LANGUAGE plpgsql
@@ -1281,14 +1281,14 @@ BEGIN
     SELECT data INTO v_data FROM public.characters WHERE char_name = p_target_char_name;
     IF NOT FOUND THEN RETURN jsonb_build_object('success', false, 'error', 'Character not found'); END IF;
     
-    -- Stub: devolve o JSONB; recálculo real de Atk/Def na inspeção = motor do cliente (ver GDD §7).
+    -- Stub: devolve o JSONB; recï¿½lculo real de Atk/Def na inspeï¿½ï¿½o = motor do cliente (ver GDD ï¿½7).
     RETURN jsonb_build_object('success', true, 'data', v_data);
 END;
 $$;
 
 -- ========================================================
--- 5B. CLÃS ? AUTORIDADE (RPCs + RLS)
--- Mesmo conteúdo que supabase_clans_authority.sql (manter em sincronia).
+-- 5B. CLï¿½S ? AUTORIDADE (RPCs + RLS)
+-- Mesmo conteï¿½do que supabase_clans_authority.sql (manter em sincronia).
 -- ========================================================
 
 ALTER TABLE public.clan_applications
@@ -1697,9 +1697,9 @@ GRANT EXECUTE ON FUNCTION public.update_clan_settings_secure(UUID, JSONB) TO aut
 GRANT EXECUTE ON FUNCTION public.upgrade_clan_level_secure(UUID) TO authenticated;
 
 -- ========================================================
--- 5C. ASCENSÃO ? RESGATE SEMANAL (recompensa no JSONB)
--- Mesmo conteúdo que supabase_ascension_weekly_claim.sql
--- Deploy / QA: .cursor/rules/l2mini-project-rules.mdc §13.1
+-- 5C. ASCENSï¿½O ? RESGATE SEMANAL (recompensa no JSONB)
+-- Mesmo conteï¿½do que supabase_ascension_weekly_claim.sql
+-- Deploy / QA: .cursor/rules/l2mini-project-rules.mdc ï¿½13.1
 -- ========================================================
 CREATE OR REPLACE FUNCTION public.claim_weekly_ascension_secure(p_week_key TEXT)
 RETURNS JSONB
@@ -1809,10 +1809,10 @@ $$;
 GRANT EXECUTE ON FUNCTION public.claim_weekly_ascension_secure(TEXT) TO authenticated;
 
 -- ========================================================
--- 5D. ASCENSÃO ? REGISTRO DE ABATE DE CAMPEÃO (JSONB, autoritativo)
+-- 5D. ASCENSï¿½O ? REGISTRO DE ABATE DE CAMPEï¿½O (JSONB, autoritativo)
 -- Incrementa weeklyChampionKills / lifetimeChampionKills no servidor.
 -- c_sgrade = SGRADE_LEVEL; c_weekly_cap = WEEKLY_CHAMP_KILL_CAP em js/endgame_pursuits.js
--- Deploy / QA: .cursor/rules/l2mini-project-rules.mdc §13.1
+-- Deploy / QA: .cursor/rules/l2mini-project-rules.mdc ï¿½13.1
 -- ========================================================
 CREATE OR REPLACE FUNCTION public.register_elite_champion_kill_secure(p_week_key TEXT)
 RETURNS JSONB
@@ -2467,7 +2467,7 @@ GRANT EXECUTE ON FUNCTION public.craft_item_secure(TEXT, TEXT) TO authenticated;
 
 -- ========================================================
 -- 5F. AUGMENT ARMA (JSONB) ? mirror supabase_augment_weapon_secure.sql
--- (Conteúdo duplicado do ficheiro modular na raiz; manter em sincronia.)
+-- (Conteï¿½do duplicado do ficheiro modular na raiz; manter em sincronia.)
 -- ========================================================
 
 CREATE OR REPLACE FUNCTION public.augment_weapon_secure(p_item_uid TEXT, p_stone_name TEXT DEFAULT 'Life Stone')
@@ -2695,7 +2695,7 @@ $$;
 GRANT EXECUTE ON FUNCTION public.augment_weapon_secure(TEXT, TEXT) TO authenticated;
 
 -- 5F2. ENCHANT ITEM (JSONB): aplicar supabase_enchant_item_secure.sql no SQL Editor ?
---     CREATE OR REPLACE public.enchant_item_secure + GRANT (conteúdo espelhado na raiz do repo).
+--     CREATE OR REPLACE public.enchant_item_secure + GRANT (conteï¿½do espelhado na raiz do repo).
 
 
 -- ========================================================
@@ -2850,6 +2850,6 @@ ON CONFLICT (id) DO NOTHING;
 
 
 -- ========================================================
--- 8. Auth ? profiles (confirmação de e-mail sem sessão no cliente)
+-- 8. Auth ? profiles (confirmaï¿½ï¿½o de e-mail sem sessï¿½o no cliente)
 -- ========================================================
--- Aplique também: supabase_auth_profile_trigger.sql (função + trigger em auth.users).
+-- Aplique tambï¿½m: supabase_auth_profile_trigger.sql (funï¿½ï¿½o + trigger em auth.users).
