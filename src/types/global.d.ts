@@ -399,6 +399,8 @@ declare global {
       render?: () => void;
     };
     executarDanoDeUmMonstro?: (mob: unknown) => void;
+    aplicarXpGanhoFloresta?: (quantia: number) => void;
+    iniciarSurvivorHunt?: () => void;
     showForestDeathScreen?: () => void;
     tryProcessForestMobDeath?: (mob: unknown) => void;
     reconciliarMobsFlorestHpZero?: () => void;

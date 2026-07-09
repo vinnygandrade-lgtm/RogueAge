@@ -44,6 +44,7 @@
     <link rel="stylesheet" href="css/expedition-portrait-fit.css">
     <link rel="stylesheet" href="css/auth-flow.css">
     <link rel="stylesheet" href="css/inventory-grid.css">
+    <link rel="stylesheet" href="css/survivor.css">
     <!-- Supabase Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Socket.io Client -->
@@ -1404,6 +1405,7 @@
                         </div>
                         <div class="expedition-hub__actions">
                             <button id="btn-iniciar-caca" type="button" class="btn-l2 expedition-hub__begin" data-i18n="game.hunt.expedition.startBtn">Begin Expedition</button>
+                            <button type="button" class="btn-l2 expedition-hub__begin expedition-hub__begin--survivor" onclick="iniciarSurvivorHunt()" data-i18n="game.survivor.launchBtn">Survivor Hunt (Beta)</button>
                             <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">View rules</button>
                         </div>
                     </div>
