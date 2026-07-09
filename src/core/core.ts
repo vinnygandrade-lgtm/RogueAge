@@ -315,12 +315,20 @@ setInterval(() => {
     const onForest = telaFloresta && telaFloresta.style.display === 'flex';
     const expEng = (window as any).ExpeditionEngine;
     const expeditionActive = expEng?.state?.active === true;
-    if (onForest && !expeditionActive) return;
-    if (window.playerHP <= 0) return;
+    const inLegacyForestPull = Array.isArray(window.monstrosAtivos) && window.monstrosAtivos.length > 0;
+    if (onForest && !expeditionActive && inLegacyForestPull) return;
 
     const maxHp = (window.playerStats && window.playerStats.maxHp > 0) ? window.playerStats.maxHp : 100;
     const maxMp = (window.playerStats && window.playerStats.maxMp > 0) ? window.playerStats.maxMp : 50;
     const maxCp = (window.playerStats && window.playerStats.maxCp > 0) ? window.playerStats.maxCp : 60;
+
+    if (window.playerHP <= 0) {
+        if (expeditionActive && typeof expEng.ensureRunVitalsForCombat === 'function') {
+            expEng.ensureRunVitalsForCombat();
+            atualizar();
+        }
+        return;
+    }
     const hpRegenMult = expeditionActive && typeof expEng.getHpRegenMult === 'function'
         ? expEng.getHpRegenMult()
         : 1;
@@ -345,6 +353,16 @@ function usarPocao(): void {
             escreverLog(`<span style="color:#facc15;">${typeof window.t === 'function' ? window.t('game.core.potionsLocked') : 'Potions are locked until the fight starts!'}</span>`);
             return;
         }
+    }
+
+    const expEng = (window as any).ExpeditionEngine;
+    const inExpeditionCombat = !!(
+        expEng?.state?.active &&
+        typeof expEng.isExpeditionCombatUiActive === 'function' &&
+        expEng.isExpeditionCombatUiActive()
+    );
+    if (window.playerHP <= 0 && inExpeditionCombat && typeof expEng.ensureRunVitalsForCombat === 'function') {
+        expEng.ensureRunVitalsForCombat();
     }
 
     if (window.playerHP <= 0 || !window.inventario['HP Potion'] || window.inventario['HP Potion'] <= 0) {

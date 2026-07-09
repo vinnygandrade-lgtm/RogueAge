@@ -68,15 +68,30 @@ window.motorPet = window.motorPet ?? null;
 
 function prepararTelaCacada() {
     travarFlorestaResumoVitoria(false);
-    pararAtaqueMonstro();
-    clearForestPlayerThreats();
-    hideMobTypeLegend();
-    window.monstrosAtivos.length = 0;
-    document.getElementById('texto-procurando').style.display = 'none';
-    document.getElementById('mobs-container').style.display = 'none';
-    document.getElementById('botoes-combate').style.display = 'none';
 
     const exp = (window as any).ExpeditionEngine;
+    const inExpeditionCombat = !!(
+        exp &&
+        typeof exp.isExpeditionCombatUiActive === 'function' &&
+        exp.isExpeditionCombatUiActive()
+    );
+
+    // Do not wipe an active expedition fight when forest prep runs again (irPara/tutorial refresh).
+    if (!inExpeditionCombat) {
+        pararAtaqueMonstro();
+        clearForestPlayerThreats();
+        hideMobTypeLegend();
+        window.monstrosAtivos.length = 0;
+        const texto = document.getElementById('texto-procurando');
+        if (texto) texto.style.display = 'none';
+        const mobs = document.getElementById('mobs-container');
+        if (mobs) mobs.style.display = 'none';
+        const botoes = document.getElementById('botoes-combate');
+        if (botoes) botoes.style.display = 'none';
+        const containerBuffs = document.getElementById('player-combat-buffs');
+        if (containerBuffs) containerBuffs.innerHTML = '';
+    }
+
     if (exp && typeof exp.syncForestEntryUi === 'function') {
         if (typeof exp.isExpeditionCombatUiActive === 'function' && exp.isExpeditionCombatUiActive()) {
             if (typeof exp.syncExpeditionCombatControls === 'function') {
@@ -96,9 +111,6 @@ function prepararTelaCacada() {
         const hub = document.getElementById('expedition-hub');
         if (hub) hub.style.display = 'flex';
     }
-
-    let containerBuffs = document.getElementById('player-combat-buffs');
-    if(containerBuffs) containerBuffs.innerHTML = '';
 }
 
 function procurarMonstros() {
@@ -116,18 +128,30 @@ function procurarMonstros() {
     timeoutCacada = setTimeout(() => {
         timeoutCacada = null;
         let telaFloresta = document.getElementById('tela-floresta');
-        if(telaFloresta && telaFloresta.style.display === 'flex') {
+        const exp = (window as any).ExpeditionEngine;
+        const expeditionCombat = !!(exp?.state?.active);
+        const forestVisible = telaFloresta && (
+            telaFloresta.style.display === 'flex' ||
+            telaFloresta.style.display === 'block' ||
+            expeditionCombat
+        );
+        if (forestVisible) {
             document.getElementById('area-cacada').style.display = 'none';
             document.getElementById('mobs-container').style.display = 'flex';
 
-            const exp = (window as any).ExpeditionEngine;
-            const expeditionCombat = !!(exp?.state?.active);
             const botoes = document.getElementById('botoes-combate');
             if (botoes) {
                 botoes.style.display = expeditionCombat ? 'none' : 'flex';
             }
-            if (expeditionCombat && typeof exp.syncExpeditionCombatControls === 'function') {
-                exp.syncExpeditionCombatControls('combat');
+            if (expeditionCombat) {
+                if (typeof exp.setForestLayoutMode === 'function') {
+                    exp.setForestLayoutMode('combat');
+                } else if (typeof exp.syncExpeditionHotbar === 'function') {
+                    exp.syncExpeditionHotbar('combat');
+                }
+                if (typeof exp.syncExpeditionCombatControls === 'function') {
+                    exp.syncExpeditionCombatControls('combat');
+                }
             }
 
             spawnMonstros();
@@ -250,7 +274,12 @@ function spawnMonstros() {
     const packMult = (typeof tune.packAtkMult === 'number' && tune.packAtkMult > 0 && tune.packAtkMult <= 1 && qtd >= 3)
         ? tune.packAtkMult
         : 1;
-    if (packMult !== 1) tatk *= packMult;
+    const expeditionActive = !!(window as any).ExpeditionEngine?.state?.active;
+    if (packMult !== 1) {
+        // Expedition: keep pack damage meaningful (legacy forest still eases large pulls).
+        const applied = expeditionActive ? Math.max(packMult, 0.94) : packMult;
+        tatk *= applied;
+    }
 
     const defChampChance = 0.05;
     const defChampHp = 10;

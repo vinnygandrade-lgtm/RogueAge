@@ -239,6 +239,25 @@ function resetHotbarDockStyles(container: HTMLElement): void {
   container.style.removeProperty('z-index');
 }
 
+/** Re-dock hotbar into expedition map/combat panel after render (CSS default is display:none). */
+function syncExpeditionHotbarDockIfNeeded(): void {
+  const exp = (window as Window & {
+    ExpeditionEngine?: {
+      state?: { active?: boolean };
+      isExpeditionCombatUiActive?: () => boolean;
+      syncExpeditionHotbar?: (mode: 'hub' | 'map' | 'combat' | 'idle') => void;
+    };
+  }).ExpeditionEngine;
+  if (!exp?.state?.active || typeof exp.syncExpeditionHotbar !== 'function') return;
+  const mode =
+    typeof exp.isExpeditionCombatUiActive === 'function' && exp.isExpeditionCombatUiActive()
+      ? 'combat'
+      : 'map';
+  exp.syncExpeditionHotbar(mode);
+  const barra = document.getElementById('barra-de-atalhos-dinamica');
+  if (barra) barra.style.setProperty('display', 'grid', 'important');
+}
+
 function getSkillCdTotal(nomeSlot: string): number {
   if (nomeSlot === 'Attack') return window.playerStats?.atkSpeed ?? 1000;
   const skill = window.bancoDeSkills?.[nomeSlot];
@@ -259,12 +278,29 @@ function renderizarBarraAtalhos(): void {
     const estaNaRaid = arenaRaid && (arenaRaid.style.display === 'flex' || arenaRaid.style.display === 'block');
     const estaNaOlympiad = arenaOly && arenaOly.style.display === 'flex';
 
+    const expEng = (window as Window & {
+      ExpeditionEngine?: {
+        state?: { active?: boolean };
+        isExpeditionCombatUiActive?: () => boolean;
+        syncExpeditionHotbar?: (mode: 'hub' | 'map' | 'combat' | 'idle') => void;
+      };
+    }).ExpeditionEngine;
+    const expeditionActive = !!expEng?.state?.active;
+    const expeditionCombat = !!(
+      expeditionActive &&
+      typeof expEng?.isExpeditionCombatUiActive === 'function' &&
+      expEng.isExpeditionCombatUiActive()
+    );
+
     if (container) {
       if (estaNaRaid && raidHook) {
         if (container.parentElement !== raidHook) raidHook.appendChild(container);
         applyHotbarCombatDockStyles(container);
       } else if (estaNaOlympiad && olyHook) {
         if (container.parentElement !== olyHook) olyHook.appendChild(container);
+        applyHotbarCombatDockStyles(container);
+      } else if (expeditionActive && typeof expEng?.syncExpeditionHotbar === 'function') {
+        expEng.syncExpeditionHotbar(expeditionCombat ? 'combat' : 'map');
         applyHotbarCombatDockStyles(container);
       } else if (hotbarHome) {
         if (container.parentElement !== hotbarHome) hotbarHome.appendChild(container);
@@ -361,6 +397,10 @@ function renderizarBarraAtalhos(): void {
             `;
     }
     container.innerHTML = novoHtml;
+
+    if (!estaNaRaid && !estaNaOlympiad) {
+      syncExpeditionHotbarDockIfNeeded();
+    }
   } catch (erro) {
     console.error('Error drawing shortcuts:', erro);
   }

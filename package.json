@@ -33,8 +33,5 @@
     "typescript": "^5.8.3",
     "vite": "^6.3.5",
     "vite-plugin-static-copy": "^2.3.2"
-  },
-  "dependencies": {
-    "phaser": "^4.2.0"
   }
 }

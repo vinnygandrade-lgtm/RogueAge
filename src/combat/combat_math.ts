@@ -92,7 +92,8 @@ window.calcularDefesaDoPlayer = function (ataqueMagicoDoMonstro: boolean) {
 };
 
 function handleForestPlayerDefeat(): void {
-  window.playerHP = Math.max(1, Math.floor(window.playerStats.maxHp * 0.1));
+  const maxHp = Math.max(1, Math.floor(Number(window.playerStats?.maxHp) || 100));
+  window.playerHP = Math.max(1, Math.floor(maxHp * 0.1));
   escreverLog(
     `<span style="color:red; font-weight:bold; font-size:1.1em;">${
       typeof window.t === 'function'
@@ -128,13 +129,17 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
 
     if (defesaSegura !== 999999) {
       let danoRecebido = Math.floor((danoBaseMonstro * 1100) / (350 + defesaSegura));
-      const danoMinimo = Math.floor(mobPower * 0.03);
+      const expeditionActive = !!(window.ExpeditionEngine?.state?.active);
+      const danoMinPct = expeditionActive ? 0.05 : 0.03;
+      const danoMinimo = Math.floor(mobPower * danoMinPct);
       if (danoRecebido < danoMinimo) danoRecebido = danoMinimo;
       if (isNaN(danoRecebido) || danoRecebido <= 0) danoRecebido = 1;
 
       const lvlMob = mob.lvl || mob.nivel || 1;
       if (window.nivel > lvlMob) {
-        const red = Math.min(0.6, (window.nivel - lvlMob) * 0.03);
+        const perLevel = expeditionActive ? 0.015 : 0.03;
+        const cap = expeditionActive ? 0.28 : 0.6;
+        const red = Math.min(cap, (window.nivel - lvlMob) * perLevel);
         danoRecebido = Math.floor(danoRecebido * (1 - red));
       }
 
@@ -145,7 +150,10 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
             : 'No-Grade';
         const lv = typeof window.nivel === 'number' ? window.nivel : 1;
         if (typeof window.EconomyBalance?.noviceIncomingDamageMult === 'function') {
-          const ease = window.EconomyBalance.noviceIncomingDamageMult(lv, zoneId, !!mob.isChampion);
+          let ease = window.EconomyBalance.noviceIncomingDamageMult(lv, zoneId, !!mob.isChampion);
+          if (expeditionActive && ease < 1) {
+            ease = Math.max(ease, 0.88);
+          }
           if (ease < 1) {
             danoRecebido = Math.max(danoMinimo, Math.floor(danoRecebido * ease));
           }

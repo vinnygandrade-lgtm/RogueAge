@@ -312,8 +312,13 @@ export class ExpeditionEngine {
     static captureHotbarHomeAnchor() {
         if (this._hotbarDockRestore) return;
         const anchor = document.getElementById('hotbar-home-anchor');
-        if (!anchor?.parentElement) return;
-        this._hotbarDockRestore = { parent: anchor.parentElement, next: anchor.nextSibling };
+        const screen = document.getElementById('screen-game');
+        if (!anchor || !screen) return;
+        const log = screen.querySelector(':scope > .log-container');
+        this._hotbarDockRestore = {
+            parent: screen,
+            next: log && log.parentElement === screen ? log : anchor.nextSibling
+        };
     }
 
     static restoreHotbarHomeAnchor() {
@@ -328,11 +333,10 @@ export class ExpeditionEngine {
         }
     }
 
-    /** Move bar back to `#screen-game` footer and show it (map wipe destroys docked nodes). */
-    static restoreGameHotbar() {
+    /** Pull hotbar to `#screen-game` before map `innerHTML` wipe — never re-dock into the old map slot. */
+    static detachHotbarBeforeMapWipe(): void {
         this.captureHotbarHomeAnchor();
         this.restoreHotbarHomeAnchor();
-
         const anchor = document.getElementById('hotbar-home-anchor');
         const barra = document.getElementById('barra-de-atalhos-dinamica');
         if (anchor) {
@@ -340,7 +344,13 @@ export class ExpeditionEngine {
             anchor.removeAttribute('aria-hidden');
         }
         if (barra) barra.style.removeProperty('display');
+    }
 
+    /** Move bar back to `#screen-game` footer and show it (map wipe destroys docked nodes). */
+    static restoreGameHotbar() {
+        this.detachHotbarBeforeMapWipe();
+
+        const barra = document.getElementById('barra-de-atalhos-dinamica');
         const win = window as any;
         if (typeof win.renderizarBarraAtalhos === 'function') {
             win.renderizarBarraAtalhos();
@@ -385,27 +395,64 @@ export class ExpeditionEngine {
 
         slot.appendChild(anchor);
         slot.setAttribute('aria-hidden', 'false');
+        slot.style.removeProperty('display');
         anchor.style.removeProperty('display');
         barra.style.setProperty('display', 'grid', 'important');
     }
 
+    /** Keep expedition vitals playable — HP at 0 softlocks attack, regen and potions. */
+    static ensureRunVitalsForCombat(): void {
+        const win = window as any;
+        if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+        const ps = win.playerStats;
+        if (!ps) return;
+        const maxHp = Math.max(1, Math.floor(Number(ps.maxHp) || 100));
+        const maxMp = Math.max(1, Math.floor(Number(ps.maxMp) || 50));
+        const maxCp = Math.max(1, Math.floor(Number(ps.maxCp) || 60));
+        ps.maxHp = maxHp;
+        if (!Number.isFinite(win.playerHP) || win.playerHP <= 0) {
+            win.playerHP = maxHp;
+        } else {
+            win.playerHP = Math.max(1, Math.min(maxHp, Math.floor(win.playerHP)));
+        }
+        if (!Number.isFinite(win.playerMP) || win.playerMP < 0) {
+            win.playerMP = maxMp;
+        } else {
+            win.playerMP = Math.min(maxMp, Math.floor(win.playerMP));
+        }
+        if (!Number.isFinite(win.playerCP) || win.playerCP < 0) {
+            win.playerCP = maxCp;
+        } else {
+            win.playerCP = Math.min(maxCp, Math.floor(win.playerCP));
+        }
+    }
+
     static syncExpeditionHotbar(mode: 'hub' | 'map' | 'combat' | 'idle') {
         const combatSlot = document.getElementById('expedition-combat-hotbar-slot');
-        if (combatSlot && !combatSlot.contains(document.getElementById('hotbar-home-anchor'))) {
-            combatSlot.setAttribute('aria-hidden', 'true');
-        }
+        const mapSlot = document.getElementById('expedition-hotbar-slot');
+        const anchor = document.getElementById('hotbar-home-anchor');
 
         if (!this.state.active) {
             this.restoreGameHotbar();
+            if (combatSlot) combatSlot.setAttribute('aria-hidden', 'true');
             return;
         }
 
         if (mode === 'map') {
+            if (combatSlot && (!anchor || !combatSlot.contains(anchor))) {
+                combatSlot.setAttribute('aria-hidden', 'true');
+            }
+            if (mapSlot) mapSlot.style.removeProperty('display');
             this.dockHotbarToSlot('expedition-hotbar-slot');
             return;
         }
 
         if (mode === 'combat') {
+            if (mapSlot) mapSlot.setAttribute('aria-hidden', 'true');
+            if (combatSlot) {
+                combatSlot.style.removeProperty('display');
+                combatSlot.setAttribute('aria-hidden', 'false');
+            }
             this.dockHotbarToSlot('expedition-combat-hotbar-slot');
             return;
         }
@@ -615,12 +662,27 @@ export class ExpeditionEngine {
         return Math.min(2, 1 + bonus);
     }
 
-    /** Roguelike curve: journey 1 starts soft (3 mobs ok), then ramps each step. */
-    static getJourneyMobScale(): number {
+    /** Roguelike curve: HP ramps gently so early journeys stay learnable. */
+    static getJourneyMobHpScale(): number {
         const j = Math.max(1, Math.floor(Number(this.state.journey) || 1));
-        const RUN_START = 0.66;
-        const RUN_STEP = 0.07;
-        return RUN_START + (j - 1) * RUN_STEP;
+        const HP_START = 0.74;
+        const HP_STEP = 0.085;
+        return HP_START + (j - 1) * HP_STEP;
+    }
+
+    /** ATK ramps faster — mobs must threaten HP and potions without one-shots. */
+    static getJourneyMobAtkScale(): number {
+        const j = Math.max(1, Math.floor(Number(this.state.journey) || 1));
+        const ATK_START = 1.05;
+        const ATK_STEP = 0.095;
+        return ATK_START + (j - 1) * ATK_STEP;
+    }
+
+    /** UI chip + def scaling reference (weighted toward felt threat). */
+    static getJourneyMobScale(): number {
+        const hp = this.getJourneyMobHpScale();
+        const atk = this.getJourneyMobAtkScale();
+        return hp * 0.35 + atk * 0.65;
     }
 
     /** Champion bonus (HP/ATK above normal mob) scales with journey — weak mini-champs early, full power late run. */
@@ -894,7 +956,10 @@ export class ExpeditionEngine {
         ps.atkSpeed = buffed.atkSpeed;
         ps.maxHp = buffed.maxHp;
         if (typeof win.playerHP === 'number' && oldMax > 0) {
-            win.playerHP = Math.min(ps.maxHp, Math.floor(win.playerHP * (ps.maxHp / oldMax)));
+            const scaled = Math.floor(win.playerHP * (ps.maxHp / oldMax));
+            win.playerHP = Math.max(1, Math.min(ps.maxHp, scaled));
+        } else if (!Number.isFinite(win.playerHP) || win.playerHP <= 0) {
+            win.playerHP = ps.maxHp;
         }
     }
 
@@ -1430,6 +1495,8 @@ export class ExpeditionEngine {
         if (combatArea) combatArea.style.display = 'none';
         if (botoesCombate) botoesCombate.style.display = 'none';
 
+        this.setForestLayoutMode('map');
+
         if (typeof win.abrirModal === 'function') win.abrirModal('janela-expedition-upgrade', 1600);
     }
 
@@ -1538,12 +1605,15 @@ export class ExpeditionEngine {
         }
 
         if (area) area.style.display = mode === 'combat' ? 'flex' : 'none';
+        if (mode === 'combat' && this.state.active) {
+            this.ensureRunVitalsForCombat();
+        }
         this.syncExpeditionCombatControls(mode);
         this.syncExpeditionHotbar(mode);
     }
 
     static showHub() {
-        this.restoreGameHotbar();
+        this.detachHotbarBeforeMapWipe();
 
         const hub = document.getElementById('expedition-hub');
         const map = document.getElementById('expedition-map-container');
@@ -1627,6 +1697,7 @@ export class ExpeditionEngine {
         this.renderMap();
         this.syncNavigationLock();
         const win = window as any;
+        this.ensureRunVitalsForCombat();
         if (typeof win.atualizar === 'function') win.atualizar();
         try {
             const win = window as any;
@@ -2058,7 +2129,7 @@ export class ExpeditionEngine {
 
         const journey = this.state.journey;
         const rewardPct = Math.round((this.getJourneyRewardMult() - 1) * 100);
-        const mobScalePct = Math.round((this.getJourneyMobScale() - 1) * 100);
+        const mobScalePct = Math.round((this.getJourneyMobAtkScale() - 1) * 100);
         const zoneRatePct = Math.round(this.getZoneRewardRate() * 100);
 
         const mapTitle = this.t('game.hunt.expedition.rogueMapTitle', 'Roguelike Expedition');
@@ -2094,7 +2165,7 @@ export class ExpeditionEngine {
                 </details>`
             : '';
 
-        this.restoreGameHotbar();
+        this.detachHotbarBeforeMapWipe();
 
         let html = `
         <div class="expedition-panel expedition-panel--rogue">
@@ -2145,6 +2216,8 @@ export class ExpeditionEngine {
 
         mapContainer.innerHTML = html;
         this.setForestLayoutMode('map');
+        const win = window as any;
+        if (typeof win.renderizarBarraAtalhos === 'function') win.renderizarBarraAtalhos();
     }
 
     static clickPath(index: number) {
@@ -2266,10 +2339,16 @@ export class ExpeditionEngine {
         const base = (typeof win.EconomyBalance?.resolveNoviceMobTune === 'function')
             ? win.EconomyBalance.resolveNoviceMobTune(rawBase, playerLv, zoneId)
             : rawBase;
-        const journeyScale = this.getJourneyMobScale();
-        let hp = base.hp * journeyScale;
-        let atk = base.atk * journeyScale;
-        let def = base.def * journeyScale;
+        const journeyHpScale = this.getJourneyMobHpScale();
+        const journeyAtkScale = this.getJourneyMobAtkScale();
+        const journeyDefScale = (journeyHpScale + journeyAtkScale) / 2;
+        let hp = base.hp * journeyHpScale;
+        let atk = base.atk * journeyAtkScale;
+        let def = base.def * journeyDefScale;
+        // Novice No-Grade tuning crushes mob atk — partial recovery for fair expedition hits.
+        if (zoneId === 'No-Grade' && playerLv <= 20) {
+            atk *= 1.35;
+        }
         let mobAtkSpdMult = 1;
         let championChance = base.championChance;
 
@@ -2337,6 +2416,7 @@ export class ExpeditionEngine {
 
         win.L2MINI_ZONAL_MOB_TUNING[zoneId] = this.buildMobTuning(pathType);
         this.syncNavigationLock();
+        this.ensureRunVitalsForCombat();
         if (typeof win.atualizar === 'function') win.atualizar();
         win.procurarMonstros();
     }

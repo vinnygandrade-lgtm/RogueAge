@@ -54,6 +54,7 @@
 #tela-floresta.expedition-combat-open .expedition-hotbar-slot#expedition-combat-hotbar-slot {
     flex-shrink: 0;
     width: 100%;
+    display: block;
     border-top: 1px solid rgba(179, 138, 77, 0.22);
     background: linear-gradient(180deg, rgba(12, 10, 16, 0.92), rgba(8, 7, 10, 0.98));
 }

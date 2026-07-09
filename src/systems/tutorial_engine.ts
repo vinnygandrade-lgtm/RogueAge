@@ -244,7 +244,7 @@ function tn(key: string, params?: Record<string, string | number>): string {
                     bar.style.zIndex = '2001';
                 }
                 // Destacar o primeiro slot vazio (que limpamos no iniciarJogo)
-                var slots = document.querySelectorAll('.atalho-slot');
+                var slots = document.querySelectorAll('.shortcut-slot');
                 if (slots && slots.length > 1) target = slots[1]; // O slot 2 está vazio agora
             } else if (step === 5) {
                 target = document.getElementById('btn-tab-world');
@@ -272,7 +272,7 @@ function tn(key: string, params?: Record<string, string | number>): string {
                     bar.style.setProperty('display', 'grid', 'important');
                     bar.style.zIndex = '2001';
                 }
-                var slots = document.querySelectorAll('.atalho-slot');
+                var slots = document.querySelectorAll('.shortcut-slot');
                 if (slots && slots.length > 0) target = slots[0]; // O slot 1 é o Attack
             } else if (step === 10) {
                 forceScreen = 'floresta';
@@ -282,7 +282,7 @@ function tn(key: string, params?: Record<string, string | number>): string {
                     bar.style.setProperty('display', 'grid', 'important');
                     bar.style.zIndex = '2001';
                 }
-                var slots = document.querySelectorAll('.atalho-slot');
+                var slots = document.querySelectorAll('.shortcut-slot');
                 if (slots && slots.length > 2) target = slots[2]; // O slot 3 é a HP Potion
             }
 
