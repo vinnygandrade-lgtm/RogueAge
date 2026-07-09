@@ -158,6 +158,18 @@ CREATE TABLE IF NOT EXISTS public.ascension_events (
 CREATE INDEX IF NOT EXISTS idx_ascension_events_char_week ON public.ascension_events(char_name, week_key);
 CREATE INDEX IF NOT EXISTS idx_ascension_events_user_created ON public.ascension_events(user_id, created_at DESC);
 
+-- REWARDS (Reward Hub GM)
+CREATE TABLE IF NOT EXISTS public.rewards (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    char_name TEXT NOT NULL,
+    items JSONB NOT NULL DEFAULT '[]'::jsonb,
+    claimed BOOLEAN NOT NULL DEFAULT FALSE,
+    sender TEXT DEFAULT 'System',
+    message TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_rewards_char_unclaimed ON public.rewards (lower(char_name)) WHERE claimed = FALSE;
+
 -- ========================================================
 -- 3. RESILI�NCIA: CORRE��O DE COLUNAS (Caso as tabelas j� existissem)
 -- ========================================================
@@ -234,6 +246,7 @@ ALTER TABLE public.characters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.olympiad_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.olympiad_matches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ascension_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.rewards ENABLE ROW LEVEL SECURITY;
 
 -- Characters Policies (CR�TICO PARA RANKING E INSPE��O)
 DROP POLICY IF EXISTS "Public characters view" ON public.characters;
@@ -267,6 +280,21 @@ CREATE POLICY "Public market view" ON public.market_listings FOR SELECT USING (s
 DROP POLICY IF EXISTS "Sellers can view own listings" ON public.market_listings;
 CREATE POLICY "Sellers can view own listings" ON public.market_listings FOR SELECT USING (
     COALESCE(NULLIF(trim(seller_char_name), ''), NULLIF(trim(seller_name), '')) IN (SELECT char_name FROM characters WHERE user_id::text = auth.uid()::text)
+);
+
+-- Rewards Policies (Reward Hub)
+DROP POLICY IF EXISTS "recipients_select_own_rewards" ON public.rewards;
+CREATE POLICY "recipients_select_own_rewards" ON public.rewards FOR SELECT USING (
+    claimed = FALSE
+    AND lower(char_name) IN (SELECT lower(char_name) FROM public.characters WHERE user_id = auth.uid())
+);
+DROP POLICY IF EXISTS "recipients_update_own_rewards" ON public.rewards;
+CREATE POLICY "recipients_update_own_rewards" ON public.rewards FOR UPDATE
+USING (lower(char_name) IN (SELECT lower(char_name) FROM public.characters WHERE user_id = auth.uid()))
+WITH CHECK (lower(char_name) IN (SELECT lower(char_name) FROM public.characters WHERE user_id = auth.uid()));
+DROP POLICY IF EXISTS "gm_insert_rewards" ON public.rewards;
+CREATE POLICY "gm_insert_rewards" ON public.rewards FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND access_level > 0)
 );
 
 -- ========================================================
@@ -1092,6 +1120,95 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.market_cancel_listing(UUID, TEXT) TO authenticated;
+
+-- MERCADO: REIVINDICAR PROCEEDS DE VENDAS (taxa 5%; cliente entrega via enviarMail)
+CREATE OR REPLACE FUNCTION public.market_claim_payouts(
+    p_seller_char_name TEXT
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid UUID;
+    v_seller_canon TEXT;
+    v_payouts JSONB := '[]'::jsonb;
+    v_row RECORD;
+    v_is_adena BOOLEAN;
+    v_moeda TEXT;
+    v_gross BIGINT;
+    v_raw_tax BIGINT;
+    v_cap BIGINT;
+    v_tax BIGINT;
+    v_net BIGINT;
+    v_item_snap JSONB;
+    v_enchant INTEGER;
+    v_one JSONB;
+BEGIN
+    v_uid := auth.uid();
+    IF v_uid IS NULL THEN
+        RETURN jsonb_build_object('ok', false, 'error', 'not_authenticated');
+    END IF;
+
+    SELECT c.char_name INTO v_seller_canon
+    FROM public.characters c
+    WHERE lower(trim(c.char_name)) = lower(trim(p_seller_char_name))
+      AND c.user_id = v_uid
+    LIMIT 1;
+
+    IF v_seller_canon IS NULL THEN
+        RETURN jsonb_build_object('ok', false, 'error', 'seller_not_owner');
+    END IF;
+
+    FOR v_row IN
+        SELECT ml.*
+        FROM public.market_listings ml
+        WHERE ml.sold = TRUE
+          AND ml.payout_claimed = FALSE
+          AND lower(trim(COALESCE(NULLIF(trim(ml.seller_char_name), ''), NULLIF(trim(ml.seller_name), ''))))
+              = lower(trim(v_seller_canon))
+        FOR UPDATE
+    LOOP
+        v_is_adena := (lower(trim(COALESCE(v_row.currency, 'adena'))) = 'adena');
+        v_moeda := CASE WHEN v_is_adena THEN 'adena' ELSE 'coin' END;
+        v_gross := v_row.price;
+        v_raw_tax := CEIL(v_gross * 0.05)::BIGINT;
+        v_cap := GREATEST(0::BIGINT, v_gross - 1);
+        v_tax := LEAST(v_raw_tax, v_cap);
+        v_net := GREATEST(0::BIGINT, v_gross - v_tax);
+
+        UPDATE public.market_listings SET payout_claimed = TRUE WHERE id = v_row.id;
+
+        v_item_snap := COALESCE(v_row.item_data->'base', v_row.item_data);
+        IF NULLIF(trim(v_item_snap->>'nome'), '') IS NULL AND NULLIF(trim(v_row.item_name), '') IS NOT NULL THEN
+            v_item_snap := v_item_snap || jsonb_build_object('nome', trim(v_row.item_name));
+        END IF;
+        v_enchant := COALESCE(
+            NULLIF((v_row.item_data->>'enchant')::INTEGER, NULL),
+            NULLIF((v_row.item_data->>'enchantLevel')::INTEGER, NULL),
+            0
+        );
+        IF v_enchant > 0 THEN
+            v_item_snap := COALESCE(v_item_snap, '{}'::jsonb) || jsonb_build_object('enchant', v_enchant);
+        END IF;
+
+        v_one := jsonb_build_object(
+            'net', v_net,
+            'currency', v_moeda,
+            'gross', v_gross,
+            'tax', v_tax,
+            'buyer_char_name', COALESCE(v_row.buyer_name, '—'),
+            'item_snapshot', COALESCE(v_item_snap, '{}'::jsonb)
+        );
+        v_payouts := v_payouts || jsonb_build_array(v_one);
+    END LOOP;
+
+    RETURN jsonb_build_object('ok', true, 'payouts', v_payouts);
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.market_claim_payouts(TEXT) TO authenticated;
 
 -- CHAT DE CL�: INSERIR MENSAGEM SEGURA
 CREATE OR REPLACE FUNCTION public.insert_clan_chat_secure(
@@ -2835,12 +2952,161 @@ GRANT EXECUTE ON FUNCTION public.npc_shop_buy_stackable(TEXT, TEXT, BIGINT) TO a
 
 
 -- ========================================================
+-- 5H. GM + LOOT MOB (espelho supabase_gm_set_character_level.sql / supabase_validate_mob_loot_secure.sql)
+-- ========================================================
+
+CREATE OR REPLACE FUNCTION public.gm_set_character_level(
+    p_char_name TEXT,
+    p_level INTEGER
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid UUID;
+    v_access INT;
+    v_canon TEXT;
+    v_level INT;
+    v_data JSONB;
+BEGIN
+    v_uid := auth.uid();
+    IF v_uid IS NULL THEN
+        RETURN jsonb_build_object('ok', false, 'error', 'not_authenticated');
+    END IF;
+
+    SELECT COALESCE(p.access_level, 0) INTO v_access
+    FROM public.profiles p
+    WHERE p.id = v_uid;
+
+    IF COALESCE(v_access, 0) < 1 THEN
+        RETURN jsonb_build_object('ok', false, 'error', 'not_gm');
+    END IF;
+
+    IF p_char_name IS NULL OR length(trim(p_char_name)) = 0 THEN
+        RETURN jsonb_build_object('ok', false, 'error', 'invalid_char_name');
+    END IF;
+
+    v_level := GREATEST(1, LEAST(999, COALESCE(p_level, 1)));
+
+    SELECT c.char_name, c.data
+    INTO v_canon, v_data
+    FROM public.characters c
+    WHERE lower(trim(c.char_name)) = lower(trim(p_char_name))
+    FOR UPDATE;
+
+    IF NOT FOUND OR v_canon IS NULL THEN
+        RETURN jsonb_build_object('ok', false, 'error', 'character_not_found');
+    END IF;
+
+    v_data := COALESCE(v_data, '{}'::jsonb);
+    v_data := v_data || jsonb_build_object('nivel', v_level, 'xpAtual', 0);
+
+    UPDATE public.characters
+    SET level = v_level, data = v_data, updated_at = NOW()
+    WHERE char_name = v_canon;
+
+    RETURN jsonb_build_object('ok', true, 'char_name', v_canon, 'level', v_level);
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.gm_set_character_level(TEXT, INTEGER) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.validate_mob_loot_secure(
+    p_char_name TEXT,
+    p_mob_instance_id TEXT,
+    p_zone_name TEXT,
+    p_is_champion BOOLEAN,
+    p_spoil BOOLEAN,
+    p_mob_level INTEGER
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    v_uid UUID;
+    v_char_level INT;
+    v_mob_level INT;
+    v_chance DOUBLE PRECISION;
+    v_base_coins INT;
+    v_ancient INT;
+    v_zone TEXT;
+    v_recipe TEXT;
+BEGIN
+    v_uid := auth.uid();
+    IF v_uid IS NULL THEN
+        RETURN jsonb_build_object('success', false, 'error', 'not_authenticated');
+    END IF;
+
+    IF p_char_name IS NULL OR length(trim(p_char_name)) = 0 THEN
+        RETURN jsonb_build_object('success', false, 'error', 'invalid_char_name');
+    END IF;
+
+    SELECT c.level INTO v_char_level
+    FROM public.characters c
+    WHERE lower(trim(c.char_name)) = lower(trim(p_char_name))
+      AND c.user_id = v_uid
+    LIMIT 1;
+
+    IF v_char_level IS NULL THEN
+        RETURN jsonb_build_object('success', false, 'error', 'character_not_found');
+    END IF;
+
+    v_mob_level := GREATEST(1, COALESCE(p_mob_level, 1));
+
+    IF (v_char_level - v_mob_level) >= 20 THEN
+        RETURN jsonb_build_object('success', true, 'ancient_coins', 0);
+    END IF;
+
+    v_chance := CASE WHEN COALESCE(p_spoil, false) THEN 7.0 ELSE 3.5 END;
+    v_ancient := 0;
+
+    IF (random() * 100.0) <= v_chance THEN
+        v_zone := lower(trim(COALESCE(p_zone_name, '')));
+        v_base_coins := 1;
+        IF v_zone LIKE '%d-grade%' OR v_zone LIKE '% d %' OR v_zone LIKE '%(d)%' THEN
+            v_base_coins := 2;
+        ELSIF v_zone LIKE '%c-grade%' OR v_zone LIKE '% c %' THEN
+            v_base_coins := 5;
+        ELSIF v_zone LIKE '%b-grade%' OR v_zone LIKE '% b %' THEN
+            v_base_coins := 10;
+        ELSIF v_zone LIKE '%a-grade%' OR v_zone LIKE '% a %' THEN
+            v_base_coins := 22;
+        ELSIF v_zone LIKE '%s-grade%' OR v_zone LIKE '% s %' THEN
+            v_base_coins := 52;
+        END IF;
+        v_ancient := CASE WHEN COALESCE(p_is_champion, false) THEN v_base_coins * 2 ELSE v_base_coins END;
+    END IF;
+
+    v_recipe := NULL;
+    IF COALESCE(p_is_champion, false) AND (random() * 100.0) <= 0.35 THEN
+        v_recipe := (ARRAY['Recipe: D-Grade Weapon', 'Recipe: C-Grade Armor', 'Recipe: B-Grade Weapon'])[
+            1 + floor(random() * 3)::INT
+        ];
+    END IF;
+
+    RETURN jsonb_build_object(
+        'success', true,
+        'ancient_coins', v_ancient,
+        'recipe_dropped', v_recipe
+    );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.validate_mob_loot_secure(TEXT, TEXT, TEXT, BOOLEAN, BOOLEAN, INTEGER) TO authenticated;
+
+
+-- ========================================================
 -- 6. HABILITAR REALTIME
 -- ========================================================
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'clan_chat_messages') THEN ALTER PUBLICATION supabase_realtime ADD TABLE public.clan_chat_messages; END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'mailbox') THEN ALTER PUBLICATION supabase_realtime ADD TABLE public.mailbox; END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'market_listings') THEN ALTER PUBLICATION supabase_realtime ADD TABLE public.market_listings; END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'rewards') THEN ALTER PUBLICATION supabase_realtime ADD TABLE public.rewards; END IF;
 END $$;
 
 -- 7. INSERIR CASTELOS INICIAIS
