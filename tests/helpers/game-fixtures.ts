@@ -28,9 +28,7 @@ export function buildMinimalSave(charName: string, adenas = 500): CharacterSave 
     armaduraEquipada: null,
     barraAtalhos: [
       'Attack', null, 'HP Potion', 'Mana Potion',
-      null, null, null, null, null, null,
-      null, null, null, null, null, null,
-      null, null, null, null,
+      null, null, null, null, null, null, null, null,
     ],
     endgame: {
       weeklyChampionKills: 0,

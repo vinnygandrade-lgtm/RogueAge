@@ -44,10 +44,10 @@
 
 .expedition-hotbar-slot #barra-de-atalhos-dinamica,
 .game-container.expedition-run-locked #barra-de-atalhos-dinamica {
-    grid-template-columns: repeat(10, 1fr) !important;
+    grid-template-columns: repeat(6, 1fr) !important;
     grid-template-rows: repeat(2, 1fr) !important;
-    gap: 3px !important;
-    padding: 4px 5px calc(4px + var(--l2-safe-bottom, 0px)) !important;
+    gap: 5px !important;
+    padding: 5px 6px calc(5px + var(--l2-safe-bottom, 0px)) !important;
     border-radius: 0 !important;
 }
 

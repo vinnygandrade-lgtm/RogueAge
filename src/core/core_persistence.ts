@@ -3,6 +3,7 @@
  * Migrado: js/core_persistence.js
  */
 import {
+  L2MINI_HOTBAR_SLOT_COUNT,
   L2MINI_SAVE_VERSION,
   type CarregarJogoOptions,
   type CharacterSave,
@@ -327,6 +328,26 @@ window.normalizarInventarioEquipsParaInstancias = function normalizarInventarioE
     });
 };
 
+/** Normaliza barra de atalhos para 12 slots; resgata pins dos slots 13–20 legados se houver vaga. */
+function normalizeBarraAtalhosArray(arr: unknown): Array<string | null> {
+    const out: Array<string | null> = [];
+    const src = Array.isArray(arr) ? arr : [];
+    for (let i = 0; i < L2MINI_HOTBAR_SLOT_COUNT; i++) {
+        const slot = src[i];
+        out.push(slot == null || slot === '' ? null : String(slot));
+    }
+    if (src.length > L2MINI_HOTBAR_SLOT_COUNT) {
+        for (let i = L2MINI_HOTBAR_SLOT_COUNT; i < src.length; i++) {
+            const item = src[i];
+            if (item == null || item === '') continue;
+            const emptyIdx = out.findIndex((s) => s == null);
+            if (emptyIdx < 0) break;
+            out[emptyIdx] = String(item);
+        }
+    }
+    return out;
+}
+
 /**
  * Ajusta um save antigo para a estrutura esperada pela versão atual.
  * Saves sem `saveVersion` tratam-se como versão 0.
@@ -439,6 +460,13 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
             });
         }
         v = 9;
+    }
+
+    if (v < 10) {
+        if (Array.isArray(data.barraAtalhos)) {
+            data.barraAtalhos = normalizeBarraAtalhosArray(data.barraAtalhos);
+        }
+        v = 10;
     }
 
     data.saveVersion = L2MINI_SAVE_VERSION;
@@ -624,13 +652,11 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             window.InventoryStackKeys.remapInventarioRecentStackAliases();
         }
 
-        window.barraAtalhos = data.barraAtalhos || (window.tutorialProgress && window.tutorialProgress.active
-            ? ['Attack', null, 'HP Potion', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]
-            : ['Attack', 'HP Potion', 'Mana Potion', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]);
-        
-        if (window.barraAtalhos.length < 20) {
-            while (window.barraAtalhos.length < 20) window.barraAtalhos.push(null);
-        }
+        window.barraAtalhos = normalizeBarraAtalhosArray(
+            data.barraAtalhos || (window.tutorialProgress && window.tutorialProgress.active
+                ? ['Attack', null, 'HP Potion', null, null, null, null, null, null, null, null, null]
+                : ['Attack', 'HP Potion', 'Mana Potion', null, null, null, null, null, null, null, null, null])
+        );
         
         window.tempoFimBuffGuerreiro = data.tempoFimBuffGuerreiro || 0; 
         window.tempoFimBuffMistico = data.tempoFimBuffMistico || 0;

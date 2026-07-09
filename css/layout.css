@@ -169,10 +169,10 @@
 
 .action-bar {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 4px;
-    padding: 7px 5px calc(7px + var(--l2-safe-bottom));
+    gap: 6px;
+    padding: 8px 6px calc(8px + var(--l2-safe-bottom));
     background: linear-gradient(180deg, #181411 0%, #100d0a 100%);
     border-top: 2px solid var(--l2-border-strong);
     border-bottom: 1px solid var(--l2-border-soft);

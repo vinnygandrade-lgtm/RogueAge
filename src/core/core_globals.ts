@@ -184,14 +184,6 @@ window.barraAtalhos = [
   null,
   null,
   null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
-  null,
 ];
 
 window.tempoFimBuffGuerreiro = 0;

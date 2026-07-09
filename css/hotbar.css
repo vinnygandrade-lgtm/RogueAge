@@ -17,10 +17,10 @@
 #raid-atalhos-hook #barra-de-atalhos-dinamica,
 #olympiad-atalhos-hook #barra-de-atalhos-dinamica {
     display: none;
-    grid-template-columns: repeat(10, 1fr) !important;
+    grid-template-columns: repeat(6, 1fr) !important;
     grid-template-rows: repeat(2, 1fr) !important;
-    gap: 4px !important;
-    padding: 7px 5px calc(7px + var(--l2-safe-bottom, 0px)) !important;
+    gap: 6px !important;
+    padding: 8px 6px calc(8px + var(--l2-safe-bottom, 0px)) !important;
     background: linear-gradient(180deg, #181411 0%, #100d0a 100%) !important;
     border-top: 2px solid var(--l2-border-strong, #5a4634) !important;
     border-bottom: 1px solid var(--l2-border-soft, #2a241e) !important;
@@ -67,9 +67,10 @@
 .shortcut-slot {
     width: 100% !important;
     aspect-ratio: 1 / 1 !important;
+    min-height: 44px !important;
     background: linear-gradient(135deg, #1a1410 0%, #0a0806 100%) !important;
     border: 1px solid #3d2b1f !important;
-    border-radius: 3px !important;
+    border-radius: 5px !important;
     position: relative !important;
     display: flex !important;
     align-items: center !important;
@@ -122,9 +123,9 @@
 
 .shortcut-key {
     position: absolute !important;
-    top: 1px !important;
-    left: 2px !important;
-    font-size: 7px !important;
+    top: 2px !important;
+    left: 3px !important;
+    font-size: 9px !important;
     color: #88745c !important;
     font-weight: bold !important;
     z-index: 6 !important;
@@ -133,9 +134,9 @@
 
 .shortcut-count {
     position: absolute !important;
-    bottom: 1px !important;
-    right: 2px !important;
-    font-size: 8px !important;
+    bottom: 2px !important;
+    right: 3px !important;
+    font-size: 10px !important;
     color: #fff !important;
     text-shadow: 1px 1px 1px #000 !important;
     z-index: 6 !important;
@@ -165,6 +166,13 @@
     animation: hotbarShimmers 2s infinite linear;
     border: 1px solid #fff;
     box-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .shortcut-key {
+        font-size: 8px !important;
+        letter-spacing: -0.2px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

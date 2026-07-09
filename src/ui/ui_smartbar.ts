@@ -4,8 +4,8 @@
  */
 
 import type { ItemCatalogBase, ShopCatalogItem, SkillCatalogEntry } from '../types/game';
+import { L2MINI_HOTBAR_SLOT_COUNT } from '../types/game';
 
-const HOTBAR_SLOT_COUNT = 20;
 const LONG_PRESS_MS = 600;
 
 type HotbarPinCallback = (index: number) => void;
@@ -152,7 +152,7 @@ window.abrirSeletorAtalhoGlobal = function (nomeItem: string, callback: HotbarPi
   nomePreview.innerText = hotbarLabel(nomeItem);
 
   grid.innerHTML = '';
-  for (let i = 0; i < HOTBAR_SLOT_COUNT; i++) {
+  for (let i = 0; i < L2MINI_HOTBAR_SLOT_COUNT; i++) {
     const nomeSlot = window.barraAtalhos[i];
     let visualSlot = '';
 
@@ -161,7 +161,7 @@ window.abrirSeletorAtalhoGlobal = function (nomeItem: string, callback: HotbarPi
       if (skill?.icone) {
         visualSlot = `<div style="font-size: 1.2em; filter: drop-shadow(0 0 2px #000);">${skill.icone}</div>`;
       } else {
-        visualSlot = `<img src="${obterImgItemDinamico(nomeSlot)}" style="width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 0 2px #000);">`;
+        visualSlot = `<img src="${obterImgItemDinamico(nomeSlot)}" style="width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 0 2px #000);">`;
       }
     }
 
@@ -177,7 +177,7 @@ window.abrirSeletorAtalhoGlobal = function (nomeItem: string, callback: HotbarPi
     slot.style.minWidth = '32px';
 
     slot.innerHTML = `
-            <span style="position: absolute; top: 1px; left: 2px; font-size: 7px; color: ${i >= 10 ? '#facc15' : '#88745c'}; font-weight: bold;">${i + 1}</span>
+            <span style="position: absolute; top: 1px; left: 2px; font-size: 8px; color: ${i >= 6 ? '#facc15' : '#88745c'}; font-weight: bold;">${hotbarSlotKeyLabel(i)}</span>
             <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
                 ${visualSlot}
             </div>
@@ -313,9 +313,10 @@ function renderizarBarraAtalhos(): void {
     let novoHtml = '';
     const agora = Date.now();
 
-    for (let i = 0; i < HOTBAR_SLOT_COUNT; i++) {
+    for (let i = 0; i < L2MINI_HOTBAR_SLOT_COUNT; i++) {
       const nomeSlot = window.barraAtalhos[i];
-      const numDisplay = i + 1;
+      const keyLabel = hotbarSlotKeyLabel(i);
+      const secondRow = i >= 6;
       let conteudo = '';
       let classExtra = '';
       let styleExtra = '';
@@ -347,8 +348,8 @@ function renderizarBarraAtalhos(): void {
           conteudo = `
                         <div class="cd-overlay" data-cd="Attack" style="height: ${pct}%;"></div>
                         ${htmlTimer}
-                        <img src="${imgAtaque}" style="width:80%; height:80%; object-fit:contain; filter: drop-shadow(0 0 2px #000); z-index: 1;">
-                        <span class="shortcut-key" style="${i >= 10 ? 'color: #facc15; font-size: 6px;' : ''}">${numDisplay}</span>
+                        <img src="${imgAtaque}" style="width:92%; height:92%; object-fit:contain; filter: drop-shadow(0 0 2px #000); z-index: 1;">
+                        <span class="shortcut-key" style="${secondRow ? 'color: #facc15;' : ''}">${keyLabel}</span>
                     `;
         } else {
           const skill = window.bancoDeSkills?.[nomeSlot];
@@ -356,8 +357,8 @@ function renderizarBarraAtalhos(): void {
             conteudo = `
                         <div class="cd-overlay" data-cd="${nomeSlot}" style="height: ${pct}%;"></div>
                         ${htmlTimer}
-                        <span style="font-size:1.4em; filter: drop-shadow(0 0 3px #000); z-index: 1;">${skill.icone || ''}</span>
-                        <span class="shortcut-key" style="${i >= 10 ? 'color: #facc15; font-size: 6px;' : ''}">${numDisplay}</span>
+                        <span style="font-size:1.75em; filter: drop-shadow(0 0 3px #000); z-index: 1;">${skill.icone || ''}</span>
+                        <span class="shortcut-key" style="${secondRow ? 'color: #facc15;' : ''}">${keyLabel}</span>
                     `;
             styleExtra = `border-color: ${skill.cor || '#888'}88; box-shadow: inset 0 0 8px ${skill.cor || '#888'}20;`;
           } else {
@@ -374,14 +375,14 @@ function renderizarBarraAtalhos(): void {
             conteudo = `
                         <div class="cd-overlay" data-cd="${nomeSlot}" style="height: ${pct}%;"></div>
                         ${htmlTimer}
-                        <img src="${imgItem}" style="width:70%; height:70%; object-fit:contain; filter: drop-shadow(0 0 2px #000); z-index: 1;">
+                        <img src="${imgItem}" style="width:88%; height:88%; object-fit:contain; filter: drop-shadow(0 0 2px #000); z-index: 1;">
                         <span class="shortcut-count">${qtd}</span>
-                        <span class="shortcut-key" style="${i >= 10 ? 'color: #facc15; font-size: 6px;' : ''}">${numDisplay}</span>
+                        <span class="shortcut-key" style="${secondRow ? 'color: #facc15;' : ''}">${keyLabel}</span>
                     `;
           }
         }
       } else {
-        conteudo = `<span class="shortcut-key" style="color:#333; ${i >= 10 ? 'font-size: 6px;' : ''}">${numDisplay}</span>`;
+        conteudo = `<span class="shortcut-key" style="color:#333; ${secondRow ? 'color: #665544;' : ''}">${keyLabel}</span>`;
       }
 
       novoHtml += `
@@ -405,6 +406,141 @@ function renderizarBarraAtalhos(): void {
     console.error('Error drawing shortcuts:', erro);
   }
 }
+
+function hotbarKeyboardInputEnabled(): boolean {
+  if (typeof window.matchMedia !== 'function') return true;
+  return !window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+}
+
+function hotbarSlotKeyLabel(index: number): string {
+  const n = index + 1;
+  return hotbarKeyboardInputEnabled() ? `F${n}` : String(n);
+}
+
+function isTypingInFormField(): boolean {
+  const el = document.activeElement;
+  if (!el || !(el instanceof HTMLElement)) return false;
+  const tag = el.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  return el.isContentEditable;
+}
+
+function isPlayerInGameScreen(): boolean {
+  const game = document.getElementById('screen-game');
+  return !!(game && game.classList.contains('active-screen'));
+}
+
+function fnKeyToHotbarIndex(key: string): number | null {
+  const match = /^F(\d{1,2})$/i.exec(key);
+  if (!match) return null;
+  const n = parseInt(match[1], 10);
+  if (!Number.isFinite(n) || n < 1 || n > L2MINI_HOTBAR_SLOT_COUNT) return null;
+  return n - 1;
+}
+
+/** Dispara o atalho do slot (toque curto ou tecla F1–F12 no PC). */
+function ativarAtalhoSlot(index: number): void {
+  if (index < 0 || index >= L2MINI_HOTBAR_SLOT_COUNT) return;
+
+  if (modoAtalhoItem) {
+    window.barraAtalhos[index] = modoAtalhoItem;
+    modoAtalhoItem = null;
+    const barra = document.getElementById('barra-de-atalhos-dinamica');
+    if (barra) barra.classList.remove('glow-yellow');
+    if (typeof window.escreverLog === 'function') {
+      window.escreverLog(`<span style="color:#10b981;">${smartbarT('game.smartbar.pinnedToSlot', { slot: String(index + 1) })}</span>`);
+    }
+    renderizarBarraAtalhos();
+    if (typeof window.salvarJogo === 'function') window.salvarJogo();
+    return;
+  }
+
+  const nomeSlot = window.barraAtalhos[index];
+  if (!nomeSlot) return;
+
+  const naRaid = !!window.RaidEngine?.ativo;
+  const naOlympiad = !!window.OlympiadEngine?.ativo;
+  const naGuerra = !!window.ClanWarEngine?.ativo;
+
+  if (nomeSlot === 'Attack') {
+    if (naOlympiad) window.OlympiadEngine?.playerAtaca?.();
+    else if (naRaid) {
+      if (typeof window.atacar === 'function') window.atacar();
+      else window.RaidEngine?.playerAtaca?.();
+    } else if (naGuerra) window.ClanWarEngine?.usarSkillPlayer?.('Attack');
+    else {
+      window.atacar?.();
+      renderizarBarraAtalhos();
+    }
+  } else {
+    const skill = window.bancoDeSkills?.[nomeSlot];
+    if (skill) {
+      if (naOlympiad) window.OlympiadEngine?.playerUsaSkill?.(nomeSlot);
+      else if (naGuerra) window.ClanWarEngine?.usarSkillPlayer?.(nomeSlot);
+      else if (naRaid) executarSkillNaRaid(nomeSlot, skill);
+      else if (typeof window.usarSkill === 'function') window.usarSkill(nomeSlot);
+    } else {
+      let nomeReal = nomeSlot;
+      if (nomeSlot === 'MP Potion' && window.inventario['Mana Potion']) nomeReal = 'Mana Potion';
+      if (nomeSlot === 'Mana Potion' && window.inventario['MP Potion']) nomeReal = 'MP Potion';
+
+      const qtdAtual = window.inventario[nomeReal] || 0;
+
+      if (qtdAtual <= 0 && !nomeSlot.includes('shot')) {
+        if (typeof window.escreverLog === 'function') {
+          window.escreverLog(`<span style="color:#ef4444; font-weight:bold; font-size:0.9em;">${smartbarT('game.smartbar.emptyStock', { item: hotbarLabel(nomeSlot) })}</span>`);
+        }
+        return;
+      }
+
+      if (nomeSlot === 'HP Potion') {
+        if (typeof window.usarPocao === 'function') window.usarPocao();
+      } else if (nomeSlot === 'Mana Potion' || nomeSlot === 'MP Potion') {
+        if (typeof window.usarPocaoMP === 'function') window.usarPocaoMP(nomeSlot);
+      } else if (nomeSlot.includes('Soulshot') || nomeSlot.includes('Spiritshot')) {
+        const telaOly = document.getElementById('tela-olympiad-arena');
+        if (telaOly && telaOly.style.display === 'flex') {
+          if (typeof window.escreverLog === 'function') {
+            window.escreverLog(`<span style="color:#facc15;">${smartbarT('game.smartbar.olympiadShotsDisabled')}</span>`);
+          }
+          window.autoShotAtivo = false;
+          renderizarBarraAtalhos();
+          return;
+        }
+
+        window.autoShotAtivo = !window.autoShotAtivo;
+        if (typeof window.escreverLog === 'function') {
+          if (window.autoShotAtivo) {
+            window.escreverLog(`<span style="color:#60a5fa; font-weight:bold;">${smartbarT('game.smartbar.autoShotOn')}</span>`);
+          } else {
+            window.escreverLog(`<span style="color:#aaa;">${smartbarT('game.smartbar.autoShotOff')}</span>`);
+          }
+        }
+        renderizarBarraAtalhos();
+      }
+    }
+  }
+}
+
+function installHotbarKeyboardBindings(): void {
+  if ((window as Window & { _hotbarKeyboardBound?: boolean })._hotbarKeyboardBound) return;
+  (window as Window & { _hotbarKeyboardBound?: boolean })._hotbarKeyboardBound = true;
+
+  document.addEventListener('keydown', (e) => {
+    if (!hotbarKeyboardInputEnabled()) return;
+    if (e.repeat) return;
+    if (!isPlayerInGameScreen()) return;
+    if (isTypingInFormField()) return;
+
+    const index = fnKeyToHotbarIndex(e.key);
+    if (index == null) return;
+
+    e.preventDefault();
+    ativarAtalhoSlot(index);
+  });
+}
+
+installHotbarKeyboardBindings();
 
 function iniciarToqueAtalho(index: number): void {
   if (timerSegurarDedo) clearTimeout(timerSegurarDedo);
@@ -494,83 +630,7 @@ function executarSkillNaRaid(nomeSlot: string, skill: SkillCatalogEntry): void {
 function soltarToqueAtalho(index: number): void {
   if (timerSegurarDedo) clearTimeout(timerSegurarDedo);
   if (!segurouDedo) {
-    if (modoAtalhoItem) {
-      window.barraAtalhos[index] = modoAtalhoItem;
-      modoAtalhoItem = null;
-      const barra = document.getElementById('barra-de-atalhos-dinamica');
-      if (barra) barra.classList.remove('glow-yellow');
-      if (typeof window.escreverLog === 'function') {
-        window.escreverLog(`<span style="color:#10b981;">${smartbarT('game.smartbar.pinnedToSlot', { slot: String(index + 1) })}</span>`);
-      }
-      renderizarBarraAtalhos();
-      if (typeof window.salvarJogo === 'function') window.salvarJogo();
-    } else {
-      const nomeSlot = window.barraAtalhos[index];
-      if (!nomeSlot) return;
-
-      const naRaid = !!window.RaidEngine?.ativo;
-      const naOlympiad = !!window.OlympiadEngine?.ativo;
-      const naGuerra = !!window.ClanWarEngine?.ativo;
-
-      if (nomeSlot === 'Attack') {
-        if (naOlympiad) window.OlympiadEngine?.playerAtaca?.();
-        else if (naRaid) {
-          if (typeof window.atacar === 'function') window.atacar();
-          else window.RaidEngine?.playerAtaca?.();
-        } else if (naGuerra) window.ClanWarEngine?.usarSkillPlayer?.('Attack');
-        else {
-          window.atacar?.();
-          renderizarBarraAtalhos();
-        }
-      } else {
-        const skill = window.bancoDeSkills?.[nomeSlot];
-        if (skill) {
-          if (naOlympiad) window.OlympiadEngine?.playerUsaSkill?.(nomeSlot);
-          else if (naGuerra) window.ClanWarEngine?.usarSkillPlayer?.(nomeSlot);
-          else if (naRaid) executarSkillNaRaid(nomeSlot, skill);
-          else if (typeof window.usarSkill === 'function') window.usarSkill(nomeSlot);
-        } else {
-          let nomeReal = nomeSlot;
-          if (nomeSlot === 'MP Potion' && window.inventario['Mana Potion']) nomeReal = 'Mana Potion';
-          if (nomeSlot === 'Mana Potion' && window.inventario['MP Potion']) nomeReal = 'MP Potion';
-
-          const qtdAtual = window.inventario[nomeReal] || 0;
-
-          if (qtdAtual <= 0 && !nomeSlot.includes('shot')) {
-            if (typeof window.escreverLog === 'function') {
-              window.escreverLog(`<span style="color:#ef4444; font-weight:bold; font-size:0.9em;">${smartbarT('game.smartbar.emptyStock', { item: hotbarLabel(nomeSlot) })}</span>`);
-            }
-            return;
-          }
-
-          if (nomeSlot === 'HP Potion') {
-            if (typeof window.usarPocao === 'function') window.usarPocao();
-          } else if (nomeSlot === 'Mana Potion' || nomeSlot === 'MP Potion') {
-            if (typeof window.usarPocaoMP === 'function') window.usarPocaoMP(nomeSlot);
-          } else if (nomeSlot.includes('Soulshot') || nomeSlot.includes('Spiritshot')) {
-            const telaOly = document.getElementById('tela-olympiad-arena');
-            if (telaOly && telaOly.style.display === 'flex') {
-              if (typeof window.escreverLog === 'function') {
-                window.escreverLog(`<span style="color:#facc15;">${smartbarT('game.smartbar.olympiadShotsDisabled')}</span>`);
-              }
-              window.autoShotAtivo = false;
-              renderizarBarraAtalhos();
-              return;
-            }
-
-            window.autoShotAtivo = !window.autoShotAtivo;
-            if (typeof window.escreverLog === 'function') {
-              if (window.autoShotAtivo) {
-                window.escreverLog(`<span style="color:#60a5fa; font-weight:bold;">${smartbarT('game.smartbar.autoShotOn')}</span>`);
-              } else {
-                window.escreverLog(`<span style="color:#aaa;">${smartbarT('game.smartbar.autoShotOff')}</span>`);
-              }
-            }
-            renderizarBarraAtalhos();
-          }
-        }
-      }
-    }
+    ativarAtalhoSlot(index);
   }
 }
 

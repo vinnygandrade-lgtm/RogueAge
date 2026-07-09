@@ -4439,9 +4439,9 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 #grid-seletor-global {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 4px;
+    gap: 6px;
     margin-bottom: 20px;
 }
 #janela-seletor-atalho-global .btn-seletor-cancel {

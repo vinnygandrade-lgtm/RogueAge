@@ -1083,7 +1083,7 @@ const AuthEngine = {
                         charGender: window.charGender || 'Male',
                         nivel: 1,
                         playerStats: window.playerStats || {},
-                        barraAtalhos: ['Attack', null, 'HP Potion', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+                        barraAtalhos: ['Attack', null, 'HP Potion', null, null, null, null, null, null, null, null, null],
                         tutorial: { v: 1, active: true, step: 0, completed: false, skipped: false }
                     };
 

@@ -4,7 +4,11 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 9 as const;
+export const L2MINI_SAVE_VERSION = 10 as const;
+
+/** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
+export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
+export const L2MINI_HOTBAR_GRID_COLS = 6 as const;
 
 /** Filtro activo na grelha da bolsa. */
 export type InventarioBagFilter =

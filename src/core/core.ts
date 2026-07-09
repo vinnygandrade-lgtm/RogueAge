@@ -26,9 +26,9 @@ function iniciarJogo(): void {
     // Se o tutorial estiver ativo, começamos com a barra MAIS LIMPA ainda (só Attack e Potion, slot 2 vazio para o tutorial)
     if (window.tutorialProgress && window.tutorialProgress.active) {
         console.log("🎓 [Tutorial] Iniciando com barra limpa para aprendizado.");
-        window.barraAtalhos = ['Attack', null, 'HP Potion', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null];
+        window.barraAtalhos = ['Attack', null, 'HP Potion', null, null, null, null, null, null, null, null, null];
     } else {
-        window.barraAtalhos = ['Attack', initialSkill, 'HP Potion', 'Mana Potion', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null]; 
+        window.barraAtalhos = ['Attack', initialSkill, 'HP Potion', 'Mana Potion', null, null, null, null, null, null, null, null];
     }
     window.tempoFimBuffGuerreiro = 0; 
     window.tempoFimBuffMistico = 0;
