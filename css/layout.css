@@ -284,6 +284,7 @@
     display: flex; 
     gap: 0; 
     width: 100%; 
+    position: relative;
     background: linear-gradient(180deg, #1a1612 0%, #0d0b09 100%); 
     border-top: 2px solid var(--l2-border-strong); 
     flex-shrink: 0; 
@@ -365,14 +366,59 @@
     top: 0;
     left: 50%;
     width: 0;
-    height: 2px;
-    background: #facc15;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: linear-gradient(90deg, rgba(250, 204, 21, 0.15), #facc15 30%, #fde047 50%, #facc15 70%, rgba(250, 204, 21, 0.15));
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
     transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
 }
 
 .btn-travel.active::after {
-    width: 40%;
+    width: 70%;
+    opacity: 1;
+}
+
+.btn-travel--accent {
+    background: linear-gradient(180deg, rgba(250, 204, 21, 0.08) 0%, rgba(36, 23, 16, 0.35) 100%);
+    box-shadow: inset 0 1px 0 rgba(250, 204, 21, 0.1), 0 0 12px rgba(202, 138, 4, 0.15);
+}
+#btn-tab-world.btn-travel--accent::before {
+    opacity: 0.72;
+    filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.35));
+}
+#btn-tab-world.btn-travel--accent.active {
+    background: rgba(250, 204, 21, 0.06);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.45), 0 0 16px rgba(202, 138, 4, 0.3);
+}
+
+/* Tabs só-ícone em ecrãs estreitos */
+@media (max-width: 360px) {
+    .travel-menu .btn-travel {
+        font-size: 0;
+        line-height: 0;
+        min-height: 50px;
+        padding: 6px 2px;
+        gap: 0;
+        letter-spacing: 0;
+    }
+    .travel-menu .btn-travel::before {
+        width: 22px;
+        height: 22px;
+    }
+    #btn-tab-menu .btn-travel__label {
+        display: none;
+    }
+    #btn-tab-menu .btn-travel__icon-wrap {
+        width: 22px;
+        height: 22px;
+    }
+    #btn-tab-menu .btn-travel__glyph--menu {
+        width: 22px;
+        height: 22px;
+    }
 }
 
 /* Log / Chat */
@@ -425,6 +471,83 @@
 .log-container--collapsed {
     height: auto;
     min-height: 0;
+}
+
+/* Caça na floresta — só log de combate (tabs de chat ocultas) */
+.log-container--hunt-log-only #btn-tab-chat,
+.log-container--hunt-log-only #btn-tab-clan {
+    display: none !important;
+}
+.log-container--hunt-log-only #btn-tab-combat {
+    flex: 1;
+    pointer-events: none;
+    color: var(--l2-accent-gold-light, #facc15);
+}
+.log-container--hunt-log-only #chat-input-container {
+    display: none !important;
+}
+.log-container--hunt-log-only:not(.log-container--collapsed) {
+    height: 108px;
+}
+.log-container--hunt-log-only:not(.log-container--collapsed) .log-content.active {
+    max-height: 72px;
+}
+.log-container--hunt-log-only.log-container--collapsed .log-tabs {
+    border-bottom-color: rgba(250, 204, 21, 0.15);
+}
+.log-collapsed-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px 8px;
+    font-size: 0.72em;
+    line-height: 1.35;
+    color: var(--l2-text-muted, #9a8a78);
+    background: #0d0b09;
+    border-top: 1px solid var(--l2-border-soft, #3d2b1f);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 0;
+}
+.log-collapsed-preview__tag {
+    flex-shrink: 0;
+    min-width: 34px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 0.62em;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-align: center;
+    line-height: 1.2;
+    background: rgba(90, 70, 52, 0.45);
+    color: var(--l2-text-secondary, #c4b5a0);
+}
+.log-collapsed-preview__text {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.log-collapsed-preview--combat { color: #fca5a5; }
+.log-collapsed-preview--combat .log-collapsed-preview__tag { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.log-collapsed-preview--heal { color: #6ee7b7; }
+.log-collapsed-preview--heal .log-collapsed-preview__tag { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.log-collapsed-preview--loot { color: #fde047; }
+.log-collapsed-preview--loot .log-collapsed-preview__tag { background: rgba(250, 204, 21, 0.15); color: #fde047; }
+.log-collapsed-preview--warn { color: #f87171; }
+.log-collapsed-preview--warn .log-collapsed-preview__tag { background: rgba(239, 68, 68, 0.25); color: #fff; }
+.log-collapsed-preview--system { color: #a8a29e; }
+.log-collapsed-preview--chat { color: #e9d5ff; }
+.log-collapsed-preview--chat .log-collapsed-preview__tag { background: rgba(126, 34, 206, 0.25); color: #d8b4fe; }
+.log-collapsed-preview:hover,
+.log-collapsed-preview:focus-visible {
+    color: var(--l2-text-secondary, #e8dcc8);
+    outline: none;
+    box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.25);
+}
+.log-container--collapsed .log-collapsed-preview[hidden] {
+    display: none !important;
 }
 
 .log-tab { 

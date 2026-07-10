@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 10 as const;
+export const L2MINI_SAVE_VERSION = 12 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -613,6 +613,12 @@ export interface TutorialProgress {
   skipped: boolean;
 }
 
+export interface UiCoachSave {
+  menuTownSeen?: boolean;
+  mailboxTipSeen?: boolean;
+  missionsTipSeen?: boolean;
+}
+
 /** Payload persistido (localStorage + characters.data JSONB). */
 export interface CharacterSave {
   saveVersion?: number;
@@ -653,6 +659,7 @@ export interface CharacterSave {
   endgame?: EndgameData;
   uiLocale?: UiLocale;
   tutorial?: TutorialProgress;
+  uiCoach?: UiCoachSave;
   playerClanId?: number | string | null;
   mailboxCloud?: unknown[];
   inventarioRecentLog?: InventarioRecentEntry[];
@@ -868,6 +875,8 @@ export interface OlympiadEngineApi {
   rankRewards?: Record<string, unknown>;
   dbRanking?: unknown[];
   getRank?: (pts: number | string) => OlympiadRankInfo;
+  countClaimableRankRewards?: () => number;
+  refreshOlympiadClaimNotifs?: () => void;
   abrirOlympiad?: () => void;
   OLY_LOCAL_ONLY?: boolean;
   handleMultiplayerEvent?: (evento: string, dados: unknown) => void;

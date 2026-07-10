@@ -160,6 +160,80 @@ const OlympiadEngine = {
         this.carregarHistorico();
         this.carregarRecompensasResgatadas();
         console.log("⚔️ [Olympiad] Motor Semi-Online inicializado.");
+        this.refreshOlympiadClaimNotifs();
+    },
+
+    /** Patentes com recompensa de rank-up ainda não resgatadas (badge Quick Menu). */
+    countClaimableRankRewards(): number {
+        const currentRank = this.getRank(window.olympiadPoints || 0);
+        const tiers = ["Paper", "Wood", "Copper", "Silver", "Gold", "Platinum", "Diamond", "Legendary", "Mythic"];
+        const tierOrder: Record<string, number> = {};
+        tiers.forEach((t, i) => { tierOrder[t] = i; });
+        let count = 0;
+        Object.keys(this.rankRewards).forEach((rankId) => {
+            if (this.rewardsClaimed.includes(rankId)) return;
+            const parts = rankId.split(' ');
+            const rTier = parts[0];
+            const rDiv = parts[1] ? parseInt(parts[1], 10) : 1;
+            let alcancou = false;
+            if (tierOrder[currentRank.tier] > tierOrder[rTier]) {
+                alcancou = true;
+            } else if (currentRank.tier === rTier && currentRank.divisao <= rDiv) {
+                alcancou = true;
+            }
+            if (alcancou) count += 1;
+        });
+        return count;
+    },
+
+    /** Badge no lobby + banner quando há patentes com prémio por resgatar. */
+    refreshOlympiadClaimNotifs(): void {
+        const count = this.countClaimableRankRewards();
+        const banner = document.getElementById('oly-claim-banner');
+        const tabNotif = document.getElementById('oly-tab-notif-ranking');
+        const msgEl = document.getElementById('oly-claim-banner-msg');
+        const rankBtn = document.getElementById('btn-oly-tab-ranking');
+
+        if (banner) {
+            if (count > 0) {
+                banner.hidden = false;
+                banner.classList.remove('oly-claim-banner--hidden');
+                if (msgEl) {
+                    const title = typeof window.t === 'function'
+                        ? window.t('olympiad.unclaimedBannerTitle', { count: String(count) })
+                        : `${count} rank reward(s) waiting!`;
+                    const sub = typeof window.t === 'function'
+                        ? window.t('olympiad.unclaimedBannerSub')
+                        : 'Claim them now — rewards go to your Mailbox.';
+                    msgEl.textContent = `${title} ${sub}`;
+                }
+            } else {
+                banner.hidden = true;
+                banner.classList.add('oly-claim-banner--hidden');
+            }
+        }
+
+        if (tabNotif) {
+            if (count > 0) {
+                const label = count > 9 ? '9+' : String(count);
+                tabNotif.hidden = false;
+                tabNotif.removeAttribute('aria-hidden');
+                tabNotif.textContent = label;
+                tabNotif.setAttribute(
+                    'aria-label',
+                    typeof window.t === 'function'
+                        ? window.t('olympiad.tabNotifClaimable', { count: label })
+                        : `${label} unclaimed rank rewards`,
+                );
+            } else {
+                tabNotif.hidden = true;
+                tabNotif.setAttribute('aria-hidden', 'true');
+                tabNotif.textContent = '';
+                tabNotif.removeAttribute('aria-label');
+            }
+        }
+
+        rankBtn?.classList.toggle('oly-tab-btn--has-notif', count > 0);
     },
 
     /** Mapeia códigos `error` devolvidos pelas RPCs da Olympiad (EN/pt-BR em locales_bundle). */
@@ -347,6 +421,7 @@ const OlympiadEngine = {
         });
 
         if (typeof window.abrirModal === 'function') window.abrirModal('janela-oly-rewards');
+        this.refreshOlympiadClaimNotifs();
     },
 
     getIconForTier(tier) {
@@ -544,6 +619,8 @@ const OlympiadEngine = {
             
             this.abrirModalRecompensas();
             if (typeof window.renderizarSocial === 'function') window.renderizarSocial();
+            window.refreshNavMenuNotifications?.();
+            this.refreshOlympiadClaimNotifs();
             return;
         }
 
@@ -586,6 +663,8 @@ const OlympiadEngine = {
         
         // Garante que o save global inclua a nova lista
         if (typeof window.salvarJogo === 'function') window.salvarJogo();
+        window.refreshNavMenuNotifications?.();
+        this.refreshOlympiadClaimNotifs();
     },
 
     // --- NAVEGAÇÃO E UI ---
@@ -634,6 +713,7 @@ const OlympiadEngine = {
         }
         if (aba === 'battle') this.carregarOponentes();
         if (aba === 'rules') this.renderizarRegras();
+        this.refreshOlympiadClaimNotifs();
     },
 
     renderizarRegras() {
@@ -931,6 +1011,7 @@ const OlympiadEngine = {
             const res = document.getElementById('olympiad-resultado');
             if (res) window.I18n.refreshDom(res);
         }
+        this.refreshOlympiadClaimNotifs();
     },
 
     async renderizarLobby() {
@@ -940,6 +1021,7 @@ const OlympiadEngine = {
         lobby.style.display = 'flex';
         this.renderizarHistorico();
         await this.carregarOponentes();
+        this.refreshOlympiadClaimNotifs();
     },
 
     async carregarOponentes() {

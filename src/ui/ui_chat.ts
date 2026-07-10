@@ -169,6 +169,117 @@ async function sincronizarAbaClanChatCloud() {
 // ==========================================
 const CHAT_COLLAPSED_KEY = 'l2mini_chat_collapsed';
 
+/** Estado do chat antes do auto-collapse de combate (não persiste em localStorage). */
+let chatCollapsedBeforeCombat: boolean | null = null;
+
+function stripLogHtml(html: string): string {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+type LogPreviewKind = 'combat' | 'heal' | 'loot' | 'warn' | 'system' | 'chat' | 'neutral';
+
+function getActiveLogPanel(): HTMLElement | null {
+    return (
+        document.querySelector<HTMLElement>('#log.log-content.active')
+        || document.querySelector<HTMLElement>('#chat-global.log-content.active')
+        || document.querySelector<HTMLElement>('#chat-clan.log-content.active')
+        || document.getElementById('log')
+    );
+}
+
+function getLatestPanelEntry(panel: HTMLElement): { html: string; text: string } {
+    const child = panel.firstElementChild as HTMLElement | null;
+    if (child) {
+        return { html: child.outerHTML, text: stripLogHtml(child.innerHTML) };
+    }
+    const raw = (panel.innerHTML || '').trim();
+    if (!raw) return { html: '', text: '' };
+    const firstBreak = raw.search(/<br\s*\/?>/i);
+    const chunk = firstBreak >= 0 ? raw.slice(0, firstBreak) : raw;
+    return { html: chunk, text: stripLogHtml(chunk) };
+}
+
+function inferLogPreviewKind(html: string, text: string, panelId: string): LogPreviewKind {
+    if (panelId === 'chat-global' || panelId === 'chat-clan') return 'chat';
+    const lower = text.toLowerCase();
+    const colorMatch = html.match(/color:\s*#([0-9a-f]{3,6})/i);
+    const hex = colorMatch ? colorMatch[1].toLowerCase() : '';
+
+    if (hex === 'ef4444' || lower.includes('fail') || lower.includes('crystallized') || lower.includes('no hp') || lower.includes('no mana')) {
+        return 'warn';
+    }
+    if (hex === '10b981' || lower.includes('heal') || lower.includes('hp potion') || lower.includes('regenerat')) {
+        return 'heal';
+    }
+    if (lower.includes('damage') || lower.includes('dano') || lower.includes('dealt') || lower.includes('duel')) {
+        return 'combat';
+    }
+    if (hex === 'facc15' || hex === 'fde047' || lower.includes('adena') || lower.includes('drop') || lower.includes('obtained')) {
+        return 'loot';
+    }
+    if (hex === 'aaa' || lower.includes('faded') || lower.includes('ended') || lower.includes('wore off')) {
+        return 'system';
+    }
+    return 'neutral';
+}
+
+function logPreviewTagForKind(kind: LogPreviewKind): string {
+    if (typeof window.t !== 'function') {
+        const fallback: Record<LogPreviewKind, string> = {
+            combat: 'FIGHT', heal: 'HEAL', loot: 'LOOT', warn: '!', system: 'SYS', chat: 'CHAT', neutral: 'LOG',
+        };
+        return fallback[kind];
+    }
+    switch (kind) {
+        case 'combat': return window.t('chat.previewTagCombat');
+        case 'heal': return window.t('chat.previewTagHeal');
+        case 'loot': return window.t('chat.previewTagLoot');
+        case 'warn': return window.t('chat.previewTagWarn');
+        case 'system': return window.t('chat.previewTagSystem');
+        case 'chat': return window.t('chat.previewTagChat');
+        default: return window.t('chat.previewTagNeutral');
+    }
+}
+
+function refreshLogCollapsedPreview(): void {
+    const preview = document.getElementById('log-collapsed-preview');
+    const tagEl = document.getElementById('log-collapsed-preview-tag');
+    const textEl = document.getElementById('log-collapsed-preview-text');
+    const cont = document.querySelector('.log-container');
+    if (!preview || !textEl || !cont) return;
+
+    const collapsed = cont.classList.contains('log-container--collapsed');
+    if (!collapsed) {
+        preview.hidden = true;
+        if (tagEl) tagEl.textContent = '';
+        textEl.textContent = '';
+        preview.className = 'log-collapsed-preview';
+        return;
+    }
+
+    const panel = getActiveLogPanel();
+    if (!panel) return;
+
+    const { html, text } = getLatestPanelEntry(panel);
+    const emptyLabel = typeof window.t === 'function' ? window.t('chat.collapsedEmpty') : 'No recent messages';
+
+    if (!text) {
+        preview.className = 'log-collapsed-preview log-collapsed-preview--neutral';
+        if (tagEl) tagEl.textContent = '';
+        textEl.textContent = emptyLabel;
+        preview.hidden = false;
+        return;
+    }
+
+    const kind = inferLogPreviewKind(html, text, panel.id);
+    preview.className = `log-collapsed-preview log-collapsed-preview--${kind}`;
+    if (tagEl) tagEl.textContent = logPreviewTagForKind(kind);
+    textEl.textContent = text.slice(0, 96);
+    preview.hidden = false;
+}
+
 function aplicarChatCollapse(collapsed: boolean): void {
     const cont = document.querySelector('.log-container');
     const btn = document.getElementById('btn-log-collapse');
@@ -178,15 +289,55 @@ function aplicarChatCollapse(collapsed: boolean): void {
         btn.textContent = collapsed ? '▴' : '▾';
         btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
     }
+    refreshLogCollapsedPreview();
+}
+
+let combatLogTabDefaultLabel: string | null = null;
+
+/** Recolhe o chat durante combate na floresta; modo log-only (só SYSTEM). */
+function setChatCollapsedForCombat(inCombat: boolean): void {
+    const cont = document.querySelector('.log-container');
+    if (!cont) return;
+
+    const combatTab = document.getElementById('btn-tab-combat');
+
+    if (inCombat) {
+        if (chatCollapsedBeforeCombat !== null) return;
+        chatCollapsedBeforeCombat = cont.classList.contains('log-container--collapsed');
+        cont.classList.add('log-container--hunt-log-only');
+        if (combatTab) {
+            if (combatLogTabDefaultLabel === null) combatLogTabDefaultLabel = combatTab.textContent || 'SYSTEM';
+            combatTab.textContent = typeof window.t === 'function'
+                ? window.t('chat.huntLogTab')
+                : 'COMBAT LOG';
+        }
+        applyLogTabSwitch('combat');
+        if (!chatCollapsedBeforeCombat) aplicarChatCollapse(true);
+        refreshLogCollapsedPreview();
+    } else {
+        cont.classList.remove('log-container--hunt-log-only');
+        if (combatTab && combatLogTabDefaultLabel !== null) {
+            combatTab.textContent = combatLogTabDefaultLabel;
+            combatLogTabDefaultLabel = null;
+        }
+        if (chatCollapsedBeforeCombat === null) return;
+        const restoreCollapsed = chatCollapsedBeforeCombat;
+        chatCollapsedBeforeCombat = null;
+        aplicarChatCollapse(restoreCollapsed);
+    }
 }
 
 function toggleChatCollapse(): void {
     const cont = document.querySelector('.log-container');
     const collapsed = !(cont && cont.classList.contains('log-container--collapsed'));
     aplicarChatCollapse(collapsed);
-    try {
-        localStorage.setItem(CHAT_COLLAPSED_KEY, collapsed ? '1' : '0');
-    } catch (e) { /* storage cheio/indisponível — estado só da sessão */ }
+    if (chatCollapsedBeforeCombat !== null) {
+        chatCollapsedBeforeCombat = collapsed;
+    } else {
+        try {
+            localStorage.setItem(CHAT_COLLAPSED_KEY, collapsed ? '1' : '0');
+        } catch (e) { /* storage cheio/indisponível — estado só da sessão */ }
+    }
 }
 
 function restaurarChatCollapse(): void {
@@ -198,26 +349,32 @@ function restaurarChatCollapse(): void {
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', restaurarChatCollapse);
+    document.addEventListener('DOMContentLoaded', () => {
+        restaurarChatCollapse();
+        bindLogCollapsedPreviewKeys();
+    });
 } else {
     restaurarChatCollapse();
+    bindLogCollapsedPreviewKeys();
 }
 
-/**
- * Alterna entre as abas de LOG (Combat/System), CHAT (Global) e CLAN
- */
-function switchLogTab(tab: ChatLogTab | string): void {
+function bindLogCollapsedPreviewKeys(): void {
+    const preview = document.getElementById('log-collapsed-preview');
+    if (!preview || preview.dataset.keysBound === '1') return;
+    preview.dataset.keysBound = '1';
+    preview.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleChatCollapse();
+        }
+    });
+}
+
+function applyLogTabSwitch(tab: ChatLogTab | string): void {
     if (tab !== 'clan' && window.SupabaseAPI && typeof window.SupabaseAPI.unsubscribeClanChat === 'function') {
         window.SupabaseAPI.unsubscribeClanChat();
     }
-    // Trocar de aba com o chat recolhido reabre o painel (intenção clara de ler)
-    const contColl = document.querySelector('.log-container');
-    if (contColl && contColl.classList.contains('log-container--collapsed')) {
-        aplicarChatCollapse(false);
-        try { localStorage.setItem(CHAT_COLLAPSED_KEY, '0'); } catch (e) { /* ignore */ }
-    }
 
-    // Esconde todos os conteúdos primeiro
     const log = document.getElementById('log');
     const chatGlobal = document.getElementById('chat-global');
     const chatClan = document.getElementById('chat-clan');
@@ -228,17 +385,14 @@ function switchLogTab(tab: ChatLogTab | string): void {
     if (chatClan) chatClan.classList.remove('active');
     if (chatInput) chatInput.style.display = 'none';
 
-    // Remove active class from all buttons
     document.querySelectorAll('.log-tab').forEach(btn => btn.classList.remove('active'));
-    
+
     if (tab === 'combat') {
-        const btnCombat = document.getElementById('btn-tab-combat');
-        if (btnCombat) btnCombat.classList.add('active');
-        if (log) log.classList.add('active');
+        document.getElementById('btn-tab-combat')?.classList.add('active');
+        log?.classList.add('active');
     } else if (tab === 'chat') {
-        const btnChat = document.getElementById('btn-tab-chat');
-        if (btnChat) btnChat.classList.add('active');
-        if (chatGlobal) chatGlobal.classList.add('active');
+        document.getElementById('btn-tab-chat')?.classList.add('active');
+        chatGlobal?.classList.add('active');
         if (chatInput) chatInput.style.display = 'flex';
     } else if (tab === 'clan') {
         void (async () => {
@@ -251,6 +405,25 @@ function switchLogTab(tab: ChatLogTab | string): void {
             activateClanChatPanel();
         })();
     }
+}
+
+/**
+ * Alterna entre as abas de LOG (Combat/System), CHAT (Global) e CLAN
+ */
+function switchLogTab(tab: ChatLogTab | string): void {
+    const contColl = document.querySelector('.log-container');
+    if (contColl?.classList.contains('log-container--hunt-log-only') && tab !== 'combat') {
+        return;
+    }
+    if (contColl && contColl.classList.contains('log-container--collapsed')) {
+        aplicarChatCollapse(false);
+        if (chatCollapsedBeforeCombat !== null) {
+            chatCollapsedBeforeCombat = false;
+        } else {
+            try { localStorage.setItem(CHAT_COLLAPSED_KEY, '0'); } catch (e) { /* ignore */ }
+        }
+    }
+    applyLogTabSwitch(tab);
 }
 
 /**
@@ -375,6 +548,8 @@ function adicionarMensagemChat(
     if (chatContainer.children.length > 50) {
         chatContainer.removeChild(chatContainer.lastElementChild);
     }
+
+    window.refreshLogCollapsedPreview?.();
 }
 
 /**
@@ -870,6 +1045,8 @@ document.addEventListener('keydown', (e) => {
 
 window.switchLogTab = switchLogTab;
 window.toggleChatCollapse = toggleChatCollapse;
+window.setChatCollapsedForCombat = setChatCollapsedForCombat;
+window.refreshLogCollapsedPreview = refreshLogCollapsedPreview;
 window.abrirPerfilChat = abrirPerfilChat;
 window.enviarMensagemPlayer = enviarMensagemPlayer;
 window.iniciarChatAutomatico = iniciarChatAutomatico;

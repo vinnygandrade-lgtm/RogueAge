@@ -469,6 +469,26 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 10;
     }
 
+    if (v < 11) {
+        if (!data.uiCoach || typeof data.uiCoach !== 'object') {
+            data.uiCoach = { menuTownSeen: false };
+        } else if (typeof data.uiCoach.menuTownSeen !== 'boolean') {
+            data.uiCoach.menuTownSeen = false;
+        }
+        v = 11;
+    }
+
+    if (v < 12) {
+        if (!data.uiCoach || typeof data.uiCoach !== 'object') {
+            data.uiCoach = { menuTownSeen: false, mailboxTipSeen: false, missionsTipSeen: false };
+        } else {
+            if (typeof data.uiCoach.menuTownSeen !== 'boolean') data.uiCoach.menuTownSeen = false;
+            if (typeof data.uiCoach.mailboxTipSeen !== 'boolean') data.uiCoach.mailboxTipSeen = false;
+            if (typeof data.uiCoach.missionsTipSeen !== 'boolean') data.uiCoach.missionsTipSeen = false;
+        }
+        v = 12;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -536,7 +556,14 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
                     completed: !!window.tutorialProgress.completed,
                     skipped: !!window.tutorialProgress.skipped
                 }
-                : undefined
+                : undefined,
+        uiCoach: window.uiCoachFlags && typeof window.uiCoachFlags === 'object'
+            ? {
+                menuTownSeen: !!window.uiCoachFlags.menuTownSeen,
+                mailboxTipSeen: !!window.uiCoachFlags.mailboxTipSeen,
+                missionsTipSeen: !!window.uiCoachFlags.missionsTipSeen,
+            }
+            : undefined
     };
     
     if (!window.charName) return;
@@ -712,6 +739,16 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
                 window.tutorialProgress.active = false;
             }
         })(data);
+
+        if (data.uiCoach && typeof data.uiCoach === 'object') {
+            window.uiCoachFlags = {
+                menuTownSeen: !!data.uiCoach.menuTownSeen,
+                mailboxTipSeen: !!data.uiCoach.mailboxTipSeen,
+                missionsTipSeen: !!data.uiCoach.missionsTipSeen,
+            };
+        } else {
+            window.uiCoachFlags = { menuTownSeen: false, mailboxTipSeen: false, missionsTipSeen: false };
+        }
         
         if (typeof window.EndgamePursuits !== 'undefined' && typeof window.EndgamePursuits.normalizeAfterLoad === 'function') {
             window.EndgamePursuits.normalizeAfterLoad();

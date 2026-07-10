@@ -9,6 +9,7 @@ function writeGameLog(msg: string): void {
     if (!log) return;
     log.innerHTML = msg + "<br>" + log.innerHTML;
     log.scrollTop = 0;
+    window.refreshLogCollapsedPreview?.();
 }
 
 function iniciarJogo(): void {

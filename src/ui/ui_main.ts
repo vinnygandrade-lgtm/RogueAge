@@ -547,6 +547,7 @@ function fecharTopModal() {
     else if (topModalId === 'janela-daily-boss') { if(typeof window.fecharJanelaDailyBoss === 'function') window.fecharJanelaDailyBoss(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-status-detalhado') { if(typeof fecharStatusDetalhado === 'function') fecharStatusDetalhado(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-game-settings') { if(typeof fecharGameSettings === 'function') fecharGameSettings(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-nav-menu') { if(typeof window.fecharNavMenu === 'function') window.fecharNavMenu(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-rules') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.closeRulesModal === 'function') window.ExpeditionEngine.closeRulesModal(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-node') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.cancelNode === 'function') window.ExpeditionEngine.cancelNode(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-result') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.continueFromResult === 'function') window.ExpeditionEngine.continueFromResult(); else fecharModal(topModalId); }
@@ -556,7 +557,7 @@ function fecharTopModal() {
         if (modalPerfil) modalPerfil.style.display = 'none';
         toggleModalBackdrop('modal-perfil-ranking', false);
     }
-    else if (topModalId === 'janela-mailbox') { fecharModal(topModalId); }
+    else if (topModalId === 'janela-mailbox') { fecharModal(topModalId); window.syncNavMenuActiveItem?.(); }
     else if (topModalId === 'janela-seletor-atalho-global') { if(typeof fecharSeletorGlobal === 'function') fecharSeletorGlobal(); else fecharModal(topModalId); }
     else {
         fecharModal(topModalId);
@@ -630,6 +631,7 @@ function abrirMenuSocial(menuId: string) {
             go();
         }
     }
+    window.syncNavMenuActiveItem?.();
 }
 
 function fecharNpcSocial() {
@@ -638,6 +640,7 @@ function fecharNpcSocial() {
     if (pracaSocial) pracaSocial.style.display = 'block';
     if (document.getElementById('menu-social-market')) document.getElementById('menu-social-market').style.display = 'none';
     if (document.getElementById('menu-social-clans')) document.getElementById('menu-social-clans').style.display = 'none';
+    window.syncNavMenuActiveItem?.();
 }
 
 function irPara(lugar) {
@@ -765,6 +768,7 @@ function executarTrocaSubScreen(lugar) {
         if (window.SupabaseAPI && window.charName) {
             window.SupabaseAPI.updatePresence(window.charName, {});
         }
+        window.maybeShowMenuTownCoach?.();
     }
     
     if (lugar === 'world') { 
@@ -781,6 +785,7 @@ function executarTrocaSubScreen(lugar) {
             const isLider = Array.isArray(window.clans) && window.playerClanId && window.clans.find(c => c.id === window.playerClanId)?.lider === window.charName;
             cardClanWar.style.display = isLider ? 'flex' : 'none';
         }
+        window.refreshNavMenuNotifications?.();
     }
     
     if (lugar === 'floresta') { 
@@ -988,6 +993,10 @@ function renderizarSocial() {
 
     // ATUALIZAÇÃO: Informações da Temporada
     atualizarRelogioSeason();
+
+    if (oly && typeof oly.refreshOlympiadClaimNotifs === 'function') {
+        oly.refreshOlympiadClaimNotifs();
+    }
 }
 
 function atualizarRelogioSeason() {

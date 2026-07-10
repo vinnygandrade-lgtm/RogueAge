@@ -128,61 +128,7 @@ input:focus {
     box-shadow: inset 0 1px 1px rgba(255,255,255,0.2); 
 }
 
-/* Bottom Navigation (Travel Menu) */
-.travel-menu {
-    display: flex;
-    width: 100%;
-    background: linear-gradient(180deg, #1a1410 0%, #0a0806 100%);
-    border-top: 2px solid #5a4634;
-    padding: 5px;
-    gap: 5px;
-    z-index: 100;
-    flex-shrink: 0;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.6);
-}
-
-.btn-travel {
-    flex: 1;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid #3d2b1f;
-    border-radius: 6px;
-    color: #88745c;
-    font-family: 'Cinzel', serif;
-    font-size: 0.65em;
-    font-weight: bold;
-    padding: 10px 2px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-}
-
-.btn-travel:hover {
-    background: rgba(61, 43, 31, 0.4);
-    color: #d4c4a8;
-    border-color: #5a4634;
-}
-
-.btn-travel.active {
-    background: linear-gradient(180deg, #3d2b1f 0%, #241710 100%);
-    color: #facc15;
-    border-color: #ca8a04;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px rgba(202, 138, 4, 0.2);
-    transform: translateY(-2px);
-}
-
-.btn-travel--accent {
-    border-color: rgba(202, 138, 4, 0.3);
-}
-
-.btn-travel:active {
-    transform: scale(0.95);
-}
+/* Bottom Navigation — autoridade em layout.css (ícones, safe-area, compact). */
 
 /* Slots - Premium Design Mobile-First */
 .inv-slot, .store-item-slot, .paperdoll-slot:not(.l2-paperdoll .paperdoll-slot) { 

@@ -88,6 +88,8 @@ async function bootGame(): Promise<void> {
 
   await import('./ui/pwa_install');
   await import('./ui/ui_settings');
+  await import('./ui/ui_nav_notifications');
+  await import('./ui/ui_nav_coach');
   await import('./ui/ui_nav_menu');
   await import('./ui/ui_inventory');
   tickBoot(91, bootMsg('loading.phaseUi', 'Preparing interface...'));
