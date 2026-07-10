@@ -1577,6 +1577,9 @@ export class ExpeditionEngine {
             if (mode === 'map') floresta.classList.add('expedition-map-open');
             if (mode === 'combat') floresta.classList.add('expedition-combat-open');
         }
+        if (typeof window.applyForestBattleBackground === 'function') {
+            window.applyForestBattleBackground(mode === 'combat', this.state.zoneId);
+        }
         if (inner) inner.classList.toggle('tela-floresta-inner--expedition-map', mode === 'map');
 
         const hideJourneyChrome = mode === 'combat';
@@ -2541,16 +2544,17 @@ export class ExpeditionEngine {
         if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
         win.atualizar();
 
-        const fallbackKey = forged.reason === 'no_gear'
+        const forgeFailReason = (forged as { ok: false; reason: 'no_gear' | 'max_enchant' }).reason;
+        const fallbackKey = forgeFailReason === 'no_gear'
             ? 'game.hunt.expedition.resultForgeFallbackNoGear'
             : 'game.hunt.expedition.resultForgeFallbackMax';
-        const fallbackMsg = forged.reason === 'no_gear'
+        const fallbackMsg = forgeFailReason === 'no_gear'
             ? 'Nothing equipped to enchant — sparks still boost a run stat.'
             : 'All gear is already +25 — sparks boost a run stat instead.';
 
         this.showResultModal({
             nodeType: 'forge',
-            tone: forged.reason === 'no_gear' ? 'neutral' : 'warning',
+            tone: forgeFailReason === 'no_gear' ? 'neutral' : 'warning',
             icon: '🔨',
             titleKey: 'game.hunt.expedition.resultForgeFallbackTitle',
             titleFallback: 'Anvil sparks',

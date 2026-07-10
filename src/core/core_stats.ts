@@ -20,7 +20,10 @@ function expeditionRunEnchantBonus(slot: string): number {
   try {
     const eng = window.ExpeditionEngine;
     if (eng?.state?.active && typeof eng.getRunEnchantBonus === 'function') {
-      return Math.max(0, Number(eng.getRunEnchantBonus(slot)) || 0);
+      return Math.max(
+        0,
+        Number(eng.getRunEnchantBonus(slot as import('../systems/expedition_engine').ExpeditionEnchantSlot)) || 0,
+      );
     }
   } catch { /* ignore */ }
   return 0;

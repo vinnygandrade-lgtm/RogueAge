@@ -96,7 +96,18 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 town: 'TOWN',
                 world: 'WORLD',
                 bag: 'BAG',
-                social: 'SOCIAL'
+                social: 'SOCIAL',
+                menu: 'MENU'
+            },
+            navMenu: {
+                title: 'QUICK MENU',
+                social: 'Community Hub',
+                marketplace: 'Marketplace',
+                clanHall: 'Clan Hall',
+                mailbox: 'Mailbox',
+                missions: 'Daily Missions',
+                settings: 'Settings',
+                close: 'CLOSE'
             },
             hud: {
                 mailboxTitle: 'Mailbox',
@@ -438,7 +449,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 spamWait: 'Wait a second...',
                 msgTooLong: 'Message too long!',
                 placeholderInput: 'Press Enter to send...',
-                send: 'SEND'
+                send: 'SEND',
+                toggleCollapse: 'Show/hide chat'
             },
             game: {
                 travel: {
@@ -2457,7 +2469,18 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 town: 'CIDADE',
                 world: 'MUNDO',
                 bag: 'MOCHILA',
-                social: 'SOCIAL'
+                social: 'SOCIAL',
+                menu: 'MENU'
+            },
+            navMenu: {
+                title: 'MENU RÁPIDO',
+                social: 'Hub da Comunidade',
+                marketplace: 'Mercado',
+                clanHall: 'Salão do Clã',
+                mailbox: 'Correio',
+                missions: 'Missões Diárias',
+                settings: 'Configurações',
+                close: 'FECHAR'
             },
             hud: {
                 mailboxTitle: 'Correio',
@@ -2799,7 +2822,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 spamWait: 'Aguarde um instante...',
                 msgTooLong: 'Mensagem longa demais!',
                 placeholderInput: 'Enter para enviar...',
-                send: 'ENVIAR'
+                send: 'ENVIAR',
+                toggleCollapse: 'Mostrar/ocultar chat'
             },
             game: {
                 travel: {

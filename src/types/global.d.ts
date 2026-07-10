@@ -355,6 +355,13 @@ declare global {
     PwaInstall?: { isStandalone: () => boolean; refreshUi: () => void };
     refreshGameSettingsUi?: () => void;
     abrirGameSettings?: () => void;
+    abrirNavMenu?: () => void;
+    fecharNavMenu?: () => void;
+    navMenuGo?: (dest: string) => void;
+    toggleChatCollapse?: () => void;
+    abrirJanelaCorreio?: () => void;
+    abrirMissoesDiarias?: () => void;
+    abrirMenuSocial?: (menu: string) => void;
     _l2InvIconFrameHtml?: (src: string, imgClass?: string) => string;
     _l2AppendInvGridSlot?: (
       grid: HTMLElement,
@@ -398,6 +405,14 @@ declare global {
       skipTutorial?: () => void;
       render?: () => void;
     };
+    ExpeditionEngine?: typeof import('../systems/expedition_engine').ExpeditionEngine;
+    handleForestPlayerDefeat?: () => void;
+    mostrarDanoVisualMobPoison?: (valor: number) => void;
+    setLootTurno?: (loot: unknown) => void;
+    mostrarResumoVitoria?: () => void;
+    showForestFleeSuccessScreen?: () => void;
+    aplicarXpGanhoFloresta?: (quantia: number) => void;
+    updateMobBleedPips?: (mob: unknown) => void;
     executarDanoDeUmMonstro?: (mob: unknown) => void;
     showForestDeathScreen?: () => void;
     tryProcessForestMobDeath?: (mob: unknown) => void;
@@ -435,6 +450,8 @@ declare global {
   function usarSkill(nomeSkill: string): void;
   function prepararTelaCacada(): void;
   function procurarMonstros(): void;
+  function applyForestBattleBackground(show: boolean, grade?: string): void;
+  function battleBgUrlForGrade(grade: string): string;
   function tentarFugir(): void;
   function fecharVitoriaEProcurar(): void;
   function fecharVitoriaEVoltar(): void;

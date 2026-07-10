@@ -79,6 +79,7 @@ async function bootGame(): Promise<void> {
   await import('./systems/raid_engine');
   await import('./combat/combat_math');
   await import('./ui/ui_main');
+  await import('./ui/ui_forest_battle_bg');
   await import('./combat/combat');
   await import('./combat/skills_engine');
   await import('./game/classes');
@@ -87,6 +88,7 @@ async function bootGame(): Promise<void> {
 
   await import('./ui/pwa_install');
   await import('./ui/ui_settings');
+  await import('./ui/ui_nav_menu');
   await import('./ui/ui_inventory');
   tickBoot(91, bootMsg('loading.phaseUi', 'Preparing interface...'));
   await import('./systems/endgame_pursuits');

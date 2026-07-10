@@ -90,6 +90,9 @@ function prepararTelaCacada() {
         if (botoes) botoes.style.display = 'none';
         const containerBuffs = document.getElementById('player-combat-buffs');
         if (containerBuffs) containerBuffs.innerHTML = '';
+        if (typeof window.applyForestBattleBackground === 'function') {
+            window.applyForestBattleBackground(false);
+        }
     }
 
     if (exp && typeof exp.syncForestEntryUi === 'function') {
@@ -152,6 +155,10 @@ function procurarMonstros() {
                 if (typeof exp.syncExpeditionCombatControls === 'function') {
                     exp.syncExpeditionCombatControls('combat');
                 }
+            }
+
+            if (typeof window.applyForestBattleBackground === 'function') {
+                window.applyForestBattleBackground(true);
             }
 
             spawnMonstros();
@@ -794,7 +801,7 @@ function mostrarResumoVitoria() {
     if (summaryEl) {
         if (expSummary) {
             const label = (typeof window.t === 'function')
-                ? window.t('game.hunt.expedition.extractSummaryTitle', 'Expedition recap')
+                ? window.t('game.hunt.expedition.extractSummaryTitle')
                 : 'Expedition recap';
             summaryEl.innerHTML = `<span class="vitoria-expedition-summary__label">${label}</span><span class="vitoria-expedition-summary__text">${expSummary}</span>`;
             summaryEl.style.display = 'block';

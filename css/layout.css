@@ -332,6 +332,7 @@
 #btn-tab-world::before { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%237a6a58"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.488V5.488a2 2 0 011.106-1.789l5.447-2.724a2 2 0 011.894 0l5.447 2.724A2 2 0 0118 5.488v10.001a2 2 0 01-1.106 1.789L11.447 20a2 2 0 01-1.894 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v17M15 4v17"/></svg>'); }
 #btn-tab-inventario::before { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%237a6a58"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>'); }
 #btn-tab-social::before { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%237a6a58"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>'); }
+#btn-tab-menu::before { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%237a6a58"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>'); }
 
 .btn-travel.active { 
     color: #facc15; 
@@ -351,6 +352,7 @@
 #btn-tab-world.active::before { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23facc15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A2 2 0 013 15.488V5.488a2 2 0 011.106-1.789l5.447-2.724a2 2 0 011.894 0l5.447 2.724A2 2 0 0118 5.488v10.001a2 2 0 01-1.106 1.789L11.447 20a2 2 0 01-1.894 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v17M15 4v17"/></svg>'); }
 #btn-tab-inventario.active::before { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23facc15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>'); }
 #btn-tab-social.active::before { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23facc15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>'); }
+#btn-tab-menu.active::before { background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23facc15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>'); }
 
 .btn-travel:active {
     transform: scale(0.92);
@@ -396,6 +398,33 @@
     background: #1a1612; 
     border-bottom: 1px solid var(--l2-border-soft); 
     padding: 2px 5px 0;
+    align-items: stretch;
+}
+
+/* Chat recolhível — devolve ~125px de ecrã no farm */
+.log-collapse-btn {
+    flex: 0 0 auto;
+    width: 40px;
+    min-height: 36px;
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--l2-border-soft);
+    color: var(--l2-text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+.log-collapse-btn:hover { color: #facc15; }
+.log-container--collapsed .log-content,
+.log-container--collapsed #chat-input-container {
+    display: none !important;
+}
+.log-container--collapsed {
+    height: auto;
+    min-height: 0;
 }
 
 .log-tab { 

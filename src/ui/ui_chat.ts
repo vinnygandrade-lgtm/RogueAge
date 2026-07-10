@@ -164,12 +164,57 @@ async function sincronizarAbaClanChatCloud() {
     window.SupabaseAPI.subscribeClanChat?.(clanId, (row) => aplicarMensagemClanCloudRow(row));
 }
 
+// ==========================================
+// CHAT RECOLHÍVEL (ganha espaço vertical no mobile)
+// ==========================================
+const CHAT_COLLAPSED_KEY = 'l2mini_chat_collapsed';
+
+function aplicarChatCollapse(collapsed: boolean): void {
+    const cont = document.querySelector('.log-container');
+    const btn = document.getElementById('btn-log-collapse');
+    if (!cont) return;
+    cont.classList.toggle('log-container--collapsed', collapsed);
+    if (btn) {
+        btn.textContent = collapsed ? '▴' : '▾';
+        btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }
+}
+
+function toggleChatCollapse(): void {
+    const cont = document.querySelector('.log-container');
+    const collapsed = !(cont && cont.classList.contains('log-container--collapsed'));
+    aplicarChatCollapse(collapsed);
+    try {
+        localStorage.setItem(CHAT_COLLAPSED_KEY, collapsed ? '1' : '0');
+    } catch (e) { /* storage cheio/indisponível — estado só da sessão */ }
+}
+
+function restaurarChatCollapse(): void {
+    let collapsed = false;
+    try {
+        collapsed = localStorage.getItem(CHAT_COLLAPSED_KEY) === '1';
+    } catch (e) { /* ignore */ }
+    if (collapsed) aplicarChatCollapse(true);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restaurarChatCollapse);
+} else {
+    restaurarChatCollapse();
+}
+
 /**
  * Alterna entre as abas de LOG (Combat/System), CHAT (Global) e CLAN
  */
 function switchLogTab(tab: ChatLogTab | string): void {
     if (tab !== 'clan' && window.SupabaseAPI && typeof window.SupabaseAPI.unsubscribeClanChat === 'function') {
         window.SupabaseAPI.unsubscribeClanChat();
+    }
+    // Trocar de aba com o chat recolhido reabre o painel (intenção clara de ler)
+    const contColl = document.querySelector('.log-container');
+    if (contColl && contColl.classList.contains('log-container--collapsed')) {
+        aplicarChatCollapse(false);
+        try { localStorage.setItem(CHAT_COLLAPSED_KEY, '0'); } catch (e) { /* ignore */ }
     }
 
     // Esconde todos os conteúdos primeiro
@@ -824,6 +869,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 window.switchLogTab = switchLogTab;
+window.toggleChatCollapse = toggleChatCollapse;
 window.abrirPerfilChat = abrirPerfilChat;
 window.enviarMensagemPlayer = enviarMensagemPlayer;
 window.iniciarChatAutomatico = iniciarChatAutomatico;

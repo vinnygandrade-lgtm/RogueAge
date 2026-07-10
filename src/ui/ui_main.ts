@@ -828,11 +828,15 @@ function executarTrocaSubScreen(lugar) {
         if (barraGlobal) barraGlobal.style.setProperty('display', 'grid', 'important');
     }
 
-    // 3. Atualizar Botões do Menu Inferior
+    // 3. Atualizar Botões do Menu Inferior (Social vive dentro do Quick Menu)
     document.querySelectorAll('.btn-travel').forEach(btn => {
         btn.classList.remove('active');
         if (btn.id === `btn-tab-${lugar}`) btn.classList.add('active');
     });
+    if (lugar === 'social') {
+        const menuTab = document.getElementById('btn-tab-menu');
+        if (menuTab) menuTab.classList.add('active');
+    }
 
     try {
         if (typeof window.TutorialEngine !== 'undefined' && typeof window.TutorialEngine.onNav === 'function') {

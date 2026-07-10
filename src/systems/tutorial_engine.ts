@@ -207,7 +207,7 @@ function tn(key: string, params?: Record<string, string | number>): string {
         clearHighlights();
         try {
             // Bloqueia botões de navegação global durante o tutorial
-            var navButtons = ['btn-tab-perfil', 'btn-tab-cidade', 'btn-tab-world', 'btn-tab-inventario', 'btn-tab-social'];
+            var navButtons = ['btn-tab-perfil', 'btn-tab-cidade', 'btn-tab-world', 'btn-tab-inventario', 'btn-tab-menu'];
             navButtons.forEach(function(id) {
                 var btn = document.getElementById(id);
                 if (btn) btn.classList.add('tutorial-lock');

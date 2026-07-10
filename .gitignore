@@ -6,3 +6,7 @@ dist/
 *.log
 .env
 .env.local
+
+# Arte-mestre pesada dos cenários de batalha (o jogo carrega o .webp comprimido)
+assets/zones/*.png
+!assets/zones/.gitkeep

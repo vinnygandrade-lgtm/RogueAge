@@ -72,6 +72,39 @@
     <div id="modal-overlay" onclick="fecharTopModal()" aria-hidden="true"></div>
     <div id="modal-perfil-ranking"></div>
 
+    <!-- Quick Menu (barra inferior — destinos secundários; irmão do #modal-overlay, padrão §5) -->
+    <div id="janela-nav-menu" class="nav-menu-sheet" role="dialog" aria-modal="true" data-i18n-aria-label="navMenu.title" aria-label="Quick menu">
+        <div class="nav-menu-sheet__handle" aria-hidden="true"></div>
+        <div class="nav-menu-sheet__title" data-i18n="navMenu.title">QUICK MENU</div>
+        <div class="nav-menu-sheet__grid">
+            <button type="button" class="nav-menu-item" onclick="navMenuGo('social')">
+                <span class="nav-menu-item__icon" aria-hidden="true">🏛️</span>
+                <span data-i18n="navMenu.social">Community Hub</span>
+            </button>
+            <button type="button" class="nav-menu-item" onclick="navMenuGo('market')">
+                <span class="nav-menu-item__icon" aria-hidden="true">⚖️</span>
+                <span data-i18n="navMenu.marketplace">Marketplace</span>
+            </button>
+            <button type="button" class="nav-menu-item" onclick="navMenuGo('clans')">
+                <span class="nav-menu-item__icon" aria-hidden="true">🛡️</span>
+                <span data-i18n="navMenu.clanHall">Clan Hall</span>
+            </button>
+            <button type="button" class="nav-menu-item" onclick="navMenuGo('mailbox')">
+                <span class="nav-menu-item__icon" aria-hidden="true">✉️</span>
+                <span data-i18n="navMenu.mailbox">Mailbox</span>
+            </button>
+            <button type="button" class="nav-menu-item" onclick="navMenuGo('missions')">
+                <span class="nav-menu-item__icon" aria-hidden="true">📜</span>
+                <span data-i18n="navMenu.missions">Daily Missions</span>
+            </button>
+            <button type="button" class="nav-menu-item" onclick="navMenuGo('settings')">
+                <span class="nav-menu-item__icon" aria-hidden="true">⚙️</span>
+                <span data-i18n="navMenu.settings">Settings</span>
+            </button>
+        </div>
+        <button type="button" class="nav-menu-sheet__close btn-l2" data-i18n="navMenu.close" onclick="fecharNavMenu()">CLOSE</button>
+    </div>
+
     <div id="janela-oly-rewards" class="store-window store-window--oly-rewards" style="display: none;">
         <div class="store-header"><span data-i18n="olympiad.rankRewardsTitle">RANK REWARDS</span></div>
         <div class="store-body store-body--oly-rewards">
@@ -1169,7 +1202,7 @@
             <button id="btn-tab-cidade" class="btn-travel" data-i18n="nav.town" onclick="irPara('cidade')">TOWN</button>
             <button id="btn-tab-world" class="btn-travel btn-travel--accent" data-i18n="nav.world" onclick="irPara('world')">WORLD</button>
             <button id="btn-tab-inventario" class="btn-travel" data-i18n="nav.bag" onclick="irPara('inventario')">BAG</button>
-            <button id="btn-tab-social" class="btn-travel btn-travel--accent" data-i18n="nav.social" onclick="irPara('social')">SOCIAL</button>
+            <button id="btn-tab-menu" class="btn-travel" data-i18n="nav.menu" onclick="abrirNavMenu()">MENU</button>
         </div>
 
         <div class="game-viewport" id="game-viewport">
@@ -1340,6 +1373,7 @@
         </div>
 
         <div id="tela-floresta" class="screen-content">
+            <div id="forest-battle-bg" class="forest-battle-bg" aria-hidden="true"></div>
             <div id="forest-death-overlay" class="forest-death-overlay" aria-hidden="true">
                 <div class="forest-death-panel">
                     <div class="forest-death-skull" aria-hidden="true">☠</div>
@@ -2067,6 +2101,7 @@
                 <div id="btn-tab-combat" class="log-tab active" onclick="switchLogTab('combat')">SYSTEM</div>
                 <div id="btn-tab-chat" class="log-tab" onclick="switchLogTab('chat')">GLOBAL CHAT</div>
                 <div id="btn-tab-clan" class="log-tab" onclick="switchLogTab('clan')">CLAN</div>
+                <button type="button" id="btn-log-collapse" class="log-collapse-btn" onclick="toggleChatCollapse()" data-i18n-title="chat.toggleCollapse" title="Show/hide chat" aria-expanded="true">▾</button>
             </div>
             <div id="log" class="log-content active" data-i18n="game.core.welcomeLog">Welcome to the Rogue Age.</div>
             <div id="chat-global" class="log-content"></div>
