@@ -4,6 +4,7 @@
 /* ========================================== */
 
 import { consumableDisplayName } from './combat_i18n';
+import { severityFromDamageRatio, triggerCombatImpact } from './combat_feedback';
 import { mobAttacksMagically, mobDefenseAgainstPlayer, mobPrimaryAtk } from './mob_combat_stats';
 import { onMobThreatHitPlayer } from './mob_threat';
 
@@ -163,11 +164,19 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
       }
 
       window.playerHP -= danoRecebido;
+      const maxHp = Math.max(1, Number(window.playerStats?.maxHp) || 100);
+      const hitRatio = danoRecebido / maxHp;
       const extraThreat = onMobThreatHitPlayer(mob, danoRecebido, mobPower);
       if (extraThreat > 0) {
         window.playerHP -= extraThreat;
         mostrarDanoVisualMob(extraThreat, 'rival', true, null);
-        shakeScreenMob(false);
+        const threatRatio = extraThreat / maxHp;
+        triggerCombatImpact({
+          rootId: 'area-cacada',
+          tone: 'crit',
+          severity: severityFromDamageRatio(threatRatio),
+          shake: threatRatio >= 0.08,
+        });
       }
       const hpBarFill = document.getElementById('player-hp-fill');
       if (hpBarFill) {
@@ -177,7 +186,12 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
       }
 
       mostrarDanoVisualMob(danoRecebido, 'rival', false, null);
-      shakeScreenMob(false);
+      triggerCombatImpact({
+        rootId: 'area-cacada',
+        tone: 'damage',
+        severity: severityFromDamageRatio(hitRatio),
+        shake: hitRatio >= 0.1,
+      });
     }
     if (window.playerHP <= 0) {
       handleForestPlayerDefeat();
@@ -211,7 +225,14 @@ function aplicarDanoNoMonstro(index: number, dano: number, isCrit = false) {
   window.refreshMobHpUI(monstro);
 
   mostrarDanoVisualMob(dano, 'player', isCrit, monstro.idUnico ?? null);
-  if (isCrit) shakeScreenMob(true);
+  if (isCrit) {
+    triggerCombatImpact({
+      rootId: 'area-cacada',
+      tone: 'deal',
+      severity: 'light',
+      shake: true,
+    });
+  }
 
   if (Math.floor(Number(monstro.hp)) <= 0) {
     monstro.hp = 0;
@@ -280,23 +301,6 @@ function mostrarDanoVisualMobPoison(valor: number) {
 }
 
 window.mostrarDanoVisualMobPoison = mostrarDanoVisualMobPoison;
-
-function shakeScreenMob(isPlayerCausando: boolean) {
-  const cena = document.getElementById('tela-floresta');
-  if (!cena) return;
-
-  cena.classList.add('screen-shake');
-
-  const flash = document.createElement('div');
-  flash.className = 'hit-flash';
-  if (!isPlayerCausando) flash.style.background = 'rgba(255,0,0,0.15)';
-  cena.appendChild(flash);
-
-  setTimeout(() => {
-    cena.classList.remove('screen-shake');
-    flash.remove();
-  }, 250);
-}
 
 let loopAutoAtaque: ReturnType<typeof setTimeout> | null = null;
 

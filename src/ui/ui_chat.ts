@@ -48,7 +48,12 @@ const frasesBotsChat = [
 
 let chatIniciado = false;
 
-/** IDs já mostrados (evita duplicar INSERT local + postgres_changes). */
+function resetChatBootstrap(): void {
+    chatIniciado = false;
+}
+const CHAT_HISTORY_LIMIT_DAYS = 3;
+
+/** IDs já mostrados no chat de clã (evita duplicar INSERT local + postgres_changes). */
 let clanChatSeenMessageIds = new Set<string | number>();
 
 function isCloudChatUser(): boolean {
@@ -56,7 +61,7 @@ function isCloudChatUser(): boolean {
         window.SupabaseAPI && typeof window.SupabaseAPI.getUser === 'function' && window.SupabaseAPI.getUser());
 }
 
-function aplicarMensagemClanCloudRow(row: ClanChatRow): void {
+function aplicarMensagemClanCloudRow(row: ClanChatRow, historyReplay = false): void {
     if (!row || !row.id) return;
     if (clanChatSeenMessageIds.has(row.id)) return;
     clanChatSeenMessageIds.add(row.id);
@@ -64,7 +69,7 @@ function aplicarMensagemClanCloudRow(row: ClanChatRow): void {
         clanChatSeenMessageIds = new Set(Array.from(clanChatSeenMessageIds).slice(-200));
     }
     const ts = row.created_at ? new Date(row.created_at).getTime() : Date.now();
-    adicionarMensagemChat(row.char_name, row.body, row.tier || 'Paper', 'clan', true, ts, row.ascension_title || '');
+    adicionarMensagemChat(row.char_name, row.body, row.tier || 'Paper', 'clan', true, ts, row.ascension_title || '', historyReplay);
 }
 
 function charNamesMatch(a: unknown, b: unknown): boolean {
@@ -139,6 +144,7 @@ function activateClanChatPanel() {
     const chatInput = document.getElementById('chat-input-container');
     if (chatClan) chatClan.classList.add('active');
     if (chatInput) chatInput.style.display = 'flex';
+    flushPendingChatScroll(chatClan);
     if (isCloudChatUser()) {
         void sincronizarAbaClanChatCloud();
     }
@@ -159,7 +165,8 @@ async function sincronizarAbaClanChatCloud() {
     clanChatSeenMessageIds.clear();
 
     const rows = await window.SupabaseAPI.fetchClanChatHistory!(clanId);
-    rows.forEach((row) => aplicarMensagemClanCloudRow(row));
+    rows.forEach((row) => aplicarMensagemClanCloudRow(row, true));
+    scrollChatPanelToBottom(el, true);
 
     window.SupabaseAPI.subscribeClanChat?.(clanId, (row) => aplicarMensagemClanCloudRow(row));
 }
@@ -168,6 +175,70 @@ async function sincronizarAbaClanChatCloud() {
 // CHAT RECOLHÍVEL (ganha espaço vertical no mobile)
 // ==========================================
 const CHAT_COLLAPSED_KEY = 'l2mini_chat_collapsed';
+
+type ChatPanelId = 'chat-global' | 'chat-clan';
+
+/** true = colado no fundo; false = jogador rolou para ler histórico antigo */
+const chatStickToBottom: Record<ChatPanelId, boolean> = {
+    'chat-global': true,
+    'chat-clan': true,
+};
+
+function isChatPanelNearBottom(panel: HTMLElement): boolean {
+    return panel.scrollHeight - panel.scrollTop - panel.clientHeight < 80;
+}
+
+function bindChatPanelScrollTracking(): void {
+    (['chat-global', 'chat-clan'] as ChatPanelId[]).forEach((id) => {
+        const panel = document.getElementById(id);
+        if (!panel || panel.dataset.scrollTrackBound === '1') return;
+        panel.dataset.scrollTrackBound = '1';
+        panel.addEventListener('scroll', () => {
+            chatStickToBottom[id] = isChatPanelNearBottom(panel);
+        }, { passive: true });
+    });
+}
+
+function scrollChatPanelToBottom(panel: HTMLElement, force = false): void {
+    const panelId = panel.id as ChatPanelId;
+    if (panelId !== 'chat-global' && panelId !== 'chat-clan') return;
+
+    const pinned = chatStickToBottom[panelId] !== false;
+    if (!force && !pinned) return;
+
+    if (!panel.classList.contains('active')) {
+        panel.dataset.pendingScrollBottom = force ? 'force' : '1';
+        return;
+    }
+
+    const run = () => {
+        panel.scrollTop = panel.scrollHeight;
+    };
+
+    requestAnimationFrame(() => {
+        run();
+        requestAnimationFrame(() => {
+            run();
+            setTimeout(run, 0);
+        });
+    });
+}
+
+function flushPendingChatScroll(panel: HTMLElement | null | undefined): void {
+    if (!panel || !panel.classList.contains('active')) return;
+    const pending = panel.dataset.pendingScrollBottom;
+    if (pending) {
+        delete panel.dataset.pendingScrollBottom;
+        scrollChatPanelToBottom(panel, pending === 'force');
+        return;
+    }
+    const panelId = panel.id as ChatPanelId;
+    if (panelId === 'chat-global' || panelId === 'chat-clan') {
+        if (chatStickToBottom[panelId] !== false) {
+            scrollChatPanelToBottom(panel, true);
+        }
+    }
+}
 
 /** Estado do chat antes do auto-collapse de combate (não persiste em localStorage). */
 let chatCollapsedBeforeCombat: boolean | null = null;
@@ -190,7 +261,8 @@ function getActiveLogPanel(): HTMLElement | null {
 }
 
 function getLatestPanelEntry(panel: HTMLElement): { html: string; text: string } {
-    const child = panel.firstElementChild as HTMLElement | null;
+    const isChatPanel = panel.id === 'chat-global' || panel.id === 'chat-clan';
+    const child = (isChatPanel ? panel.lastElementChild : panel.firstElementChild) as HTMLElement | null;
     if (child) {
         return { html: child.outerHTML, text: stripLogHtml(child.innerHTML) };
     }
@@ -290,6 +362,12 @@ function aplicarChatCollapse(collapsed: boolean): void {
         btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
     }
     refreshLogCollapsedPreview();
+    if (!collapsed) {
+        const panel = getActiveLogPanel();
+        if (panel && (panel.id === 'chat-global' || panel.id === 'chat-clan')) {
+            flushPendingChatScroll(panel);
+        }
+    }
 }
 
 let combatLogTabDefaultLabel: string | null = null;
@@ -394,6 +472,7 @@ function applyLogTabSwitch(tab: ChatLogTab | string): void {
         document.getElementById('btn-tab-chat')?.classList.add('active');
         chatGlobal?.classList.add('active');
         if (chatInput) chatInput.style.display = 'flex';
+        flushPendingChatScroll(chatGlobal);
     } else if (tab === 'clan') {
         void (async () => {
             const clanId = await ensureClanIdForChat();
@@ -437,7 +516,6 @@ function escaparHTML(str: unknown): string {
 
 let lastMessageTime = 0;
 const SPAM_COOLDOWN = 1000; // 1 segundo entre mensagens
-const CHAT_HISTORY_LIMIT_DAYS = 3;
 
 /**
  * Adiciona uma mensagem visual ao container de chat (global ou clan)
@@ -450,6 +528,7 @@ function adicionarMensagemChat(
     pularPersistencia = false,
     forcedTimestamp: number | null = null,
     ascensionTitle = '',
+    historyReplay = false,
 ): void {
     const containerId = canal === 'clan' ? 'chat-clan' : 'chat-global';
     const chatContainer = document.getElementById(containerId);
@@ -541,14 +620,17 @@ function adicionarMensagemChat(
         `;
     }
 
-    // No chat global/clan, as mensagens novas aparecem em baixo agora por causa do flex-direction: column-reverse
-    chatContainer.insertAdjacentHTML('afterbegin', msgHtml);
-    
-    // Limita o número de mensagens visíveis para não pesar
+    chatContainer.insertAdjacentHTML('beforeend', msgHtml);
+
     if (chatContainer.children.length > 50) {
-        chatContainer.removeChild(chatContainer.lastElementChild);
+        chatContainer.removeChild(chatContainer.firstElementChild!);
     }
 
+    if (!historyReplay) {
+        const panelId = chatContainer.id as ChatPanelId;
+        if (ehOMeuPersonagem) chatStickToBottom[panelId] = true;
+        scrollChatPanelToBottom(chatContainer, ehOMeuPersonagem);
+    }
     window.refreshLogCollapsedPreview?.();
 }
 
@@ -563,6 +645,10 @@ function salvarMensagemNoHistorico(canal: 'global' | 'clan', msgObj: ChatHistory
         const saved = localStorage.getItem(key);
         if (saved) history = JSON.parse(saved);
     } catch (e) { history = []; }
+
+    if (msgObj.cloudId != null) {
+        history = history.filter((m) => String(m.cloudId || '') !== String(msgObj.cloudId));
+    }
 
     history.push(msgObj);
 
@@ -584,7 +670,7 @@ function carregarHistoricoChat(): void {
     const cloud = isCloudChatUser();
 
     canais.forEach(canal => {
-        if (canal === 'clan' && cloud) return;
+        if (cloud && canal === 'clan') return;
 
         const key = canal === 'clan' ? 'l2mini_chat_clan_history' : 'l2mini_chat_global_history';
         try {
@@ -594,14 +680,17 @@ function carregarHistoricoChat(): void {
             let history = JSON.parse(saved) as ChatHistoryEntry[];
             const tresDiasAtras = Date.now() - (CHAT_HISTORY_LIMIT_DAYS * 24 * 60 * 60 * 1000);
             
-            // Filtra e ordena por timestamp (antigas primeiro para o insertAdjacentHTML funcionar)
+            // Filtra e ordena por timestamp (antigas primeiro → novas em baixo)
             history = history
                 .filter(m => m.timestamp > tresDiasAtras)
                 .sort((a, b) => a.timestamp - b.timestamp);
 
             history.forEach(m => {
-                adicionarMensagemChat(m.autor, m.mensagem, m.tipo, canal, true, m.timestamp, m.ascensionTitle || '');
+                adicionarMensagemChat(m.autor, m.mensagem, m.tipo, canal, true, m.timestamp, m.ascensionTitle || '', true);
             });
+
+            const panel = document.getElementById(canal === 'clan' ? 'chat-clan' : 'chat-global');
+            if (panel && history.length) scrollChatPanelToBottom(panel, true);
         } catch (e) { console.error(`Erro ao carregar histórico de chat (${canal}):`, e); }
     });
 }
@@ -867,29 +956,15 @@ function enviarMensagemPlayer(): void {
 
     const cloudUser = isCloudChatUser();
     const isClanCloud = canalAtual === 'clan' && cloudUser;
+    const isGlobalCloud = canalAtual === 'global' && cloudUser;
 
-    if (!isClanCloud) {
+    if (!isClanCloud && !isGlobalCloud) {
         adicionarMensagemChat(meuNome, msg, rankData.nomeCompleto, canalAtual, false, null, ascTitle);
     }
     input.value = '';
 
-    if (cloudUser && canalAtual === 'global') {
-        void (async () => {
-            try {
-                await window.SupabaseAPI.ensureChatConnected(meuNome, {});
-                const sent = await window.SupabaseAPI.broadcastChat?.(
-                    meuNome, msg, rankData.nomeCompleto, canalAtual, ascTitle,
-                );
-                if (!sent && typeof window.mostrarAviso === 'function') {
-                    window.mostrarAviso(typeof window.t === 'function' ? window.t('game.cloud.chatSendFailed') : 'Could not send chat to other players. Check your connection.');
-                }
-            } catch (e) {
-                console.warn('Chat cloud:', e);
-                if (typeof window.mostrarAviso === 'function') {
-                    window.mostrarAviso(typeof window.t === 'function' ? window.t('game.cloud.chatSendFailed') : 'Could not send chat to other players. Check your connection.');
-                }
-            }
-        })();
+    if (isGlobalCloud) {
+        void window.GlobalChatEngine?.send(meuNome, msg, rankData.nomeCompleto, ascTitle);
     }
 
     if (isClanCloud) {
@@ -986,17 +1061,29 @@ function enviarMensagemPlayer(): void {
  * Inicia o loop de mensagens automáticas dos bots
  */
 function iniciarChatAutomatico() {
-    if (chatIniciado) return;
-    chatIniciado = true;
-
-    carregarHistoricoChat();
-
-    // SEGURANÇA: Se estiver logado na nuvem (Multiplayer Real), DESATIVA os bots de chat completamente.
+    const cloudEnabled = !!(window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.enabled);
     const cloudUser = isCloudChatUser();
-    if (cloudUser) {
-        console.log("🚫 [Chat] Bots desativados (Modo Multiplayer Ativo)");
+
+    if (chatIniciado) {
+        if (cloudUser) void window.GlobalChatEngine?.start(true);
         return;
     }
+
+    if (cloudEnabled && !cloudUser) {
+        setTimeout(iniciarChatAutomatico, 1500);
+        return;
+    }
+
+    chatIniciado = true;
+    bindChatPanelScrollTracking();
+
+    if (cloudUser) {
+        console.log('☁️ [Chat] Modo nuvem — GlobalChatEngine');
+        void window.GlobalChatEngine?.start();
+        return;
+    }
+
+    carregarHistoricoChat();
 
     // Função para gerar uma mensagem aleatória de um bot
     function gerarMensagemAleatoria() {
@@ -1030,6 +1117,8 @@ function iniciarChatAutomatico() {
 }
 
 // Ouvinte para o Enter no chat
+bindChatPanelScrollTracking();
+
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter') return;
     const inputChat = document.getElementById('input-chat-msg');
@@ -1047,9 +1136,11 @@ window.switchLogTab = switchLogTab;
 window.toggleChatCollapse = toggleChatCollapse;
 window.setChatCollapsedForCombat = setChatCollapsedForCombat;
 window.refreshLogCollapsedPreview = refreshLogCollapsedPreview;
+window.scrollChatPanelToBottom = scrollChatPanelToBottom;
 window.abrirPerfilChat = abrirPerfilChat;
 window.enviarMensagemPlayer = enviarMensagemPlayer;
 window.iniciarChatAutomatico = iniciarChatAutomatico;
+window.resetChatBootstrap = resetChatBootstrap;
 window.adicionarMensagemChat = adicionarMensagemChat;
 
 export {};

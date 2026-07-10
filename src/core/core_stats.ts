@@ -395,6 +395,19 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     }
 };
 
+/** Raid/Olympiad defeat can persist HP 0 in save — restores vitals when out of combat. */
+window.restorePlayerVitalsIfDowned = function restorePlayerVitalsIfDowned(): void {
+    if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
+    const ps = window.playerStats;
+    if (!ps) return;
+    const maxHp = Math.max(1, Math.floor(Number(ps.maxHp) || 100));
+    const maxMp = Math.max(1, Math.floor(Number(ps.maxMp) || 50));
+    const maxCp = Math.max(1, Math.floor(Number(ps.maxCp) || 60));
+    if (!Number.isFinite(window.playerHP) || window.playerHP <= 0) window.playerHP = maxHp;
+    if (!Number.isFinite(window.playerMP) || window.playerMP < 0) window.playerMP = maxMp;
+    if (!Number.isFinite(window.playerCP) || window.playerCP < 0) window.playerCP = maxCp;
+};
+
 /**
  * Recalcula combat stats com o mesmo motor que o jogo (`calcularStatusGlobais`) a partir de um blob
  * estilo save — usado na inspeção cloud (`ui_chat.js`). O JSONB não tem `playerStats` fiável e a RPC

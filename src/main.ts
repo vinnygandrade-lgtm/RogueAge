@@ -60,6 +60,7 @@ async function bootGame(): Promise<void> {
   await import('./systems/olympiad_bots');
   await import('./systems/olympiad_engine');
   await import('./systems/supabase_api');
+  await import('./systems/global_chat_engine');
   await import('./ui/character_portraits');
   await import('./systems/auth_engine');
   await import('./systems/castle_engine');
@@ -77,6 +78,7 @@ async function bootGame(): Promise<void> {
   await import('./combat/combat_i18n');
   await import('./core/core');
   await import('./systems/raid_engine');
+  await import('./combat/combat_feedback');
   await import('./combat/combat_math');
   await import('./ui/ui_main');
   await import('./ui/ui_forest_battle_bg');

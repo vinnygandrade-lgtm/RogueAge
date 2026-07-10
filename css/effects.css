@@ -81,11 +81,95 @@
 @keyframes pulsarVerdeAugment { 0% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); border-color: #00ff00; } 50% { box-shadow: 0 0 20px rgba(0, 255, 0, 1); border-color: #55ff55; } 100% { box-shadow: 0 0 5px rgba(0, 255, 0, 0.5); border-color: #00ff00; } }
 .augmented { animation: pulsarVerdeAugment 1.5s infinite ease-in-out !important; border: 1px solid #00ff00 !important; }
 
-@keyframes flashVermelho { 0% { filter: drop-shadow(0 0 10px rgba(255,0,0,0.5)) brightness(1); } 50% { filter: drop-shadow(0 0 25px rgba(255,0,0,1)) brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(5); } 100% { filter: drop-shadow(0 0 10px rgba(255,0,0,0.5)) brightness(1); } }
-.tomando-dano { animation: flashVermelho 0.4s ease-out; }
+@keyframes combatSpriteHitRed {
+    0%, 100% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
+    40% { filter: brightness(1.2) drop-shadow(0 0 10px rgba(239, 68, 68, 0.45)); }
+}
+.tomando-dano { animation: combatSpriteHitRed 0.32s ease-out; }
 
-@keyframes flashBranco { 0% { filter: brightness(1); } 50% { filter: brightness(2.5); } 100% { filter: brightness(1); } }
-.causando-dano { animation: flashBranco 0.3s ease-out; }
+@keyframes combatSpriteDeal {
+    0%, 100% { filter: brightness(1); }
+    45% { filter: brightness(1.35); }
+}
+.causando-dano { animation: combatSpriteDeal 0.26s ease-out; }
+
+/* Combat impact layers — flash + micro-shake scoped to arena, not full HUD */
+#area-cacada,
+#oly-combate-cena,
+#raid-arena-center {
+    position: relative;
+    overflow: hidden;
+}
+
+.combat-hit-flash {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40;
+    opacity: 0;
+    animation: combatHitFlash 0.48s ease-out forwards;
+}
+
+.combat-hit-flash--damage {
+    background: radial-gradient(ellipse 80% 70% at 50% 55%, rgba(239, 68, 68, 0.18) 0%, transparent 68%);
+}
+
+.combat-hit-flash--crit {
+    background: radial-gradient(ellipse 75% 65% at 50% 50%, rgba(250, 204, 21, 0.22) 0%, transparent 62%);
+}
+
+.combat-hit-flash--deal {
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 58%);
+}
+
+@keyframes combatHitFlash {
+    0% { opacity: 0; }
+    18% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.combat-shake--light { animation: combatShakeLight 0.28s ease-out both; }
+.combat-shake--medium { animation: combatShakeMedium 0.32s ease-out both; }
+.combat-shake--heavy { animation: combatShakeHeavy 0.36s ease-out both; }
+
+@keyframes combatShakeLight {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    30% { transform: translate3d(-1px, 1px, 0); }
+    60% { transform: translate3d(1px, -1px, 0); }
+}
+
+@keyframes combatShakeMedium {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    20% { transform: translate3d(-2px, 1px, 0); }
+    50% { transform: translate3d(2px, -1px, 0); }
+    80% { transform: translate3d(-1px, 0, 0); }
+}
+
+@keyframes combatShakeHeavy {
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    15% { transform: translate3d(-3px, 2px, 0); }
+    35% { transform: translate3d(3px, -2px, 0); }
+    55% { transform: translate3d(-2px, 1px, 0); }
+    75% { transform: translate3d(2px, -1px, 0); }
+}
+
+.combat-card-pulse--damage {
+    animation: combatCardPulseDamage 0.42s ease-out;
+}
+
+.combat-card-pulse--heal {
+    animation: combatCardPulseHeal 0.42s ease-out;
+}
+
+@keyframes combatCardPulseDamage {
+    0%, 100% { box-shadow: none; border-color: inherit; }
+    35% { box-shadow: 0 0 14px rgba(239, 68, 68, 0.35); border-color: rgba(248, 113, 113, 0.85); }
+}
+
+@keyframes combatCardPulseHeal {
+    0%, 100% { box-shadow: none; }
+    35% { box-shadow: 0 0 12px rgba(34, 197, 94, 0.35); }
+}
 
 @keyframes warFadeUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
 .war-floating-damage { position: absolute; top: 0; left: 50%; transform: translateX(-50%); font-weight: 900; pointer-events: none; z-index: 100; font-family: 'Tahoma', sans-serif; text-shadow: 2px 2px 4px #000; animation: warFadeUp 0.8s forwards; }
@@ -173,16 +257,30 @@
     100% { transform: translate(-50%, -80px) scale(1); opacity: 0; }
 }
 
-/* Screen Shake */
+/* Screen Shake (legacy — prefer combat-shake--* on combat layers) */
 .screen-shake {
-    animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+    animation: combatShakeLight 0.28s ease-out both;
 }
 
 @keyframes shake {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-    40%, 60% { transform: translate3d(4px, 0, 0); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    30% { transform: translate3d(-1px, 1px, 0); }
+    60% { transform: translate3d(1px, -1px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .combat-shake--light,
+    .combat-shake--medium,
+    .combat-shake--heavy,
+    .screen-shake,
+    .impact-shake,
+    .combat-hit-flash,
+    .tomando-dano,
+    .causando-dano,
+    .combat-card-pulse--damage,
+    .combat-card-pulse--heal {
+        animation: none !important;
+    }
 }
 
 /* Hero Aura & Prestige */

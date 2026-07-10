@@ -947,6 +947,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     kickedByGm: 'You have been kicked by a GM.',
                     kickedElsewhere: 'Your account was signed in on another device.',
                     chatSendFailed: 'Could not send your message to other players. Check your connection.',
+                    chatHistoryPendingDeploy: 'Message sent live only. Ask staff to apply supabase_global_chat.sql on Supabase for chat history.',
                     clanChatSendFailed: 'Could not send clan chat. Sync your character to the cloud and ensure playerClanId is saved (same clan id for all members).',
                     shopStackableFailed: 'Grocer purchase failed. Check your connection or try saving your character again.',
                     error_mail_not_found: 'Mail not found.',
@@ -2303,6 +2304,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 multiplayer: {
                     offline: 'OFFLINE',
+                    connecting: 'CONNECTING…',
                     online: 'ONLINE',
                     connectedLabel: 'ONLINE',
                     onlineRosterTitle: 'Other players online ({n})',
@@ -3361,6 +3363,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     kickedByGm: 'Você foi expulso por um GM.',
                     kickedElsewhere: 'Sua conta foi conectada em outro dispositivo.',
                     chatSendFailed: 'Não foi possível enviar a mensagem a outros jogadores. Verifique a conexão.',
+                    chatHistoryPendingDeploy: 'Mensagem enviada só ao vivo. Peça para aplicar supabase_global_chat.sql no Supabase para histórico do chat.',
                     clanChatSendFailed: 'Não foi possível enviar no chat do clã. Sincronize o personagem na nuvem e confira se o clã está salvo (mesmo playerClanId para todos os membros).',
                     shopStackableFailed: 'Falha na compra no Grocer. Verifique a conexão ou salve o personagem de novo.',
                     error_mail_not_found: 'Correio não encontrado.',
@@ -4717,6 +4720,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 multiplayer: {
                     offline: 'OFFLINE',
+                    connecting: 'CONECTANDO…',
                     online: 'ONLINE',
                     connectedLabel: 'ONLINE',
                     onlineRosterTitle: 'Outros jogadores online ({n})',

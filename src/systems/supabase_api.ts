@@ -5,7 +5,7 @@
  * Funções para salvar dados, ranking global, Realtime e RPCs na nuvem.
  */
 
-import type { SupabaseApi, SupabaseConfig } from '../types/game';
+import type { GlobalChatRow, SupabaseApi, SupabaseConfig } from '../types/game';
 import { registerGlobal } from '../runtime/register-global';
 
 type RealtimeI18nPayload = {
@@ -30,6 +30,63 @@ function resolveRealtimeI18nText(
     }
     const fb = payload[fallbackField];
     return fb != null ? String(fb) : '';
+}
+
+let _multiplayerHudMode: 'offline' | 'connecting' | 'online' = 'offline';
+let _multiplayerHudOfflineTimer: ReturnType<typeof setTimeout> | null = null;
+
+function applyMultiplayerHudStatus(mode: 'offline' | 'connecting' | 'online'): void {
+    const dot = document.getElementById('multiplayer-dot');
+    const text = document.getElementById('multiplayer-text');
+    if (!dot || !text) return;
+    const t = typeof window.t === 'function' ? window.t : (k: string) => k;
+    if (mode === 'online') {
+        dot.style.background = '#22c55e';
+        text.innerText = t('game.multiplayer.connectedLabel');
+        text.style.color = '#22c55e';
+    } else if (mode === 'connecting') {
+        dot.style.background = '#eab308';
+        text.innerText = t('game.multiplayer.connecting');
+        text.style.color = '#eab308';
+    } else {
+        dot.style.background = '#ef4444';
+        text.innerText = t('game.multiplayer.offline');
+        text.style.color = '#a8a29e';
+    }
+}
+
+/** Evita flicker ONLINE/OFFLINE: offline só após pausa; online cancela timer pendente. */
+function requestMultiplayerHudStatus(mode: 'offline' | 'connecting' | 'online'): void {
+    if (mode === 'online') {
+        if (_multiplayerHudOfflineTimer) {
+            clearTimeout(_multiplayerHudOfflineTimer);
+            _multiplayerHudOfflineTimer = null;
+        }
+        if (_multiplayerHudMode !== 'online') {
+            _multiplayerHudMode = 'online';
+            applyMultiplayerHudStatus('online');
+        }
+        return;
+    }
+    if (mode === 'connecting') {
+        if (_multiplayerHudOfflineTimer) {
+            clearTimeout(_multiplayerHudOfflineTimer);
+            _multiplayerHudOfflineTimer = null;
+        }
+        if (_multiplayerHudMode === 'offline') {
+            _multiplayerHudMode = 'connecting';
+            applyMultiplayerHudStatus('connecting');
+        }
+        return;
+    }
+    if (_multiplayerHudOfflineTimer) return;
+    _multiplayerHudOfflineTimer = setTimeout(() => {
+        _multiplayerHudOfflineTimer = null;
+        if (_multiplayerHudMode !== 'online') {
+            _multiplayerHudMode = 'offline';
+            applyMultiplayerHudStatus('offline');
+        }
+    }, 4000);
 }
 
 const SUPABASE_CONFIG: SupabaseConfig = {
@@ -168,6 +225,11 @@ const SupabaseAPI = {
                     }
 
                     if (window.mostrarAviso) window.mostrarAviso(typeof window.t === 'function' ? window.t('game.cloud.syncConnected') : "Cloud Sync Connected");
+
+                    const activeChar = typeof window.charName === 'string' ? window.charName.trim() : '';
+                    if (activeChar && window.GlobalChatEngine?.start) {
+                        void window.GlobalChatEngine.start();
+                    }
                 } else if (event === 'SIGNED_OUT') {
                     console.warn("⚠️ Sessão Cloud Encerrada.");
                     if (window.GMEngine?.teardown) {
@@ -183,6 +245,12 @@ const SupabaseAPI = {
                     }
                     this.currentUser = null;
                     this.unsubscribeClanChat();
+                    this.unsubscribeGlobalChat();
+                    this._clearPresenceRetry();
+                    this._presenceGeneration += 1;
+                    this._presenceConnecting = false;
+                    if (window.GlobalChatEngine?.reset) window.GlobalChatEngine.reset();
+                    if (typeof window.resetChatBootstrap === 'function') window.resetChatBootstrap();
                     if (this.presenceChannel) {
                         this.client.removeChannel(this.presenceChannel);
                         this.presenceChannel = null;
@@ -199,6 +267,9 @@ const SupabaseAPI = {
                         if (!this.presenceChannel || this.presenceChannel.state === 'closed') {
                             console.log("🔌 [Supabase] Reativando conexão após suspensão da aba...");
                             this.updatePresence(n, {}).catch((e) => console.warn('Erro ao reativar presença:', e));
+                        }
+                        if (window.GlobalChatEngine?.reconnect) {
+                            void window.GlobalChatEngine.reconnect();
                         }
                     }
                 }
@@ -328,6 +399,28 @@ const SupabaseAPI = {
     presenceConnectChain: Promise.resolve(),
     _presenceSubscribed: false,
     _presenceReadyPromise: null,
+    _presenceGeneration: 0,
+    _presenceConnecting: false,
+    _presenceRetryTimer: null as ReturnType<typeof setTimeout> | null,
+
+    _clearPresenceRetry() {
+        if (this._presenceRetryTimer) {
+            clearTimeout(this._presenceRetryTimer);
+            this._presenceRetryTimer = null;
+        }
+    },
+
+    _schedulePresenceRetry(charName: string) {
+        if (this._presenceRetryTimer || !charName) return;
+        this._presenceRetryTimer = setTimeout(() => {
+            this._presenceRetryTimer = null;
+            const alive = this.presenceChannel
+                && this._presenceSubscribed
+                && this.presenceChannel.state === 'joined';
+            if (alive) return;
+            void this.updatePresence(charName, {});
+        }, 8000);
+    },
     _presenceReadyResolve: null,
 
     _resetPresenceReadyPromise() {
@@ -390,13 +483,24 @@ const SupabaseAPI = {
                 new Promise((resolve) => setTimeout(resolve, 12000))
             ]);
         }
+        if (this.getUser()) {
+            void this.ensureGlobalChatReady();
+            if (window.GlobalChatEngine?.start) {
+                void window.GlobalChatEngine.start();
+            }
+        }
     },
 
     async updatePresence(charName, data) {
         if (!this.client || !charName) return;
+        if (this._presenceConnecting) return;
         const payload = data || {};
         const channelName = 'l2mini-global-v5';
-        if (this.presenceChannel && this.presenceChannel.topic === channelName && this._presenceSubscribed) {
+        const channelAlive = this.presenceChannel
+            && this.presenceChannel.topic === channelName
+            && this._presenceSubscribed
+            && this.presenceChannel.state === 'joined';
+        if (channelAlive) {
             return;
         }
 
@@ -413,14 +517,25 @@ const SupabaseAPI = {
     /** Evita corrida quando vários pontos chamam updatePresence antes do primeiro subscribe terminar */
     async _connectUnifiedRealtimeChannel(charName /* data reservado p/ futuro */) {
         const channelName = 'l2mini-global-v5';
-        if (this.presenceChannel && this.presenceChannel.topic === channelName && this._presenceSubscribed) {
+        if (this._presenceConnecting) return;
+        if (this.presenceChannel && this.presenceChannel.topic === channelName && this._presenceSubscribed
+            && this.presenceChannel.state === 'joined') {
             return;
         }
 
-        console.log(`📡 [Supabase] Conectando ao canal unificado: ${channelName}`);
+        this._presenceConnecting = true;
+        const connectGen = ++this._presenceGeneration;
 
-        if (this.presenceChannel) {
-            try { await this.client.removeChannel(this.presenceChannel); } catch(e) {}
+        console.log(`📡 [Supabase] Conectando ao canal unificado: ${channelName}`);
+        if (_multiplayerHudMode !== 'online') {
+            requestMultiplayerHudStatus('connecting');
+        }
+
+        const oldChannel = this.presenceChannel;
+        this.presenceChannel = null;
+        this._presenceSubscribed = false;
+        if (oldChannel) {
+            try { await this.client.removeChannel(oldChannel); } catch (e) { /* noop */ }
         }
 
         this._resetPresenceReadyPromise();
@@ -434,20 +549,16 @@ const SupabaseAPI = {
         const ch = this.presenceChannel;
         ch
             .on('presence', { event: 'sync' }, () => {
+                if (connectGen !== this._presenceGeneration || ch !== this.presenceChannel) return;
                 const state = ch.presenceState();
                 window.dispatchEvent(new CustomEvent('l2-presence-update', { detail: state }));
-                const dot = document.getElementById('multiplayer-dot');
-                const text = document.getElementById('multiplayer-text');
-                if (dot) dot.style.background = '#22c55e';
-                if (text) {
-                    text.innerText = (typeof window.t === 'function') ? window.t('game.multiplayer.connectedLabel') : 'ONLINE';
-                    text.style.color = '#22c55e';
-                }
+                requestMultiplayerHudStatus('online');
                 this._resolvePresenceReady();
             })
             .on('broadcast', { event: 'chat' }, (envelope) => {
                 const inner = this.unwrapRealtimeChatPayload(envelope);
                 if (!inner || typeof inner.autor !== 'string') return;
+                const canal = inner.canal || 'global';
                 const displayMsg = resolveRealtimeI18nText(inner, 'mensagem');
                 if (!displayMsg) return;
                 const myName = typeof window.charName === 'string' ? window.charName.trim().toLowerCase() : '';
@@ -456,6 +567,31 @@ const SupabaseAPI = {
                 console.log(`📥 [Chat] Recebido de ${inner.autor}: ${displayMsg}`);
 
                 if (myName && autorNorm === myName && inner.tabSessionId === this.tabSessionId) return;
+
+                if (canal === 'global' && inner.cloudMsgId != null
+                    && window.GlobalChatEngine?.ingestBroadcast) {
+                    window.GlobalChatEngine.ingestBroadcast({
+                        autor: inner.autor,
+                        mensagem: displayMsg,
+                        tipo: inner.tipo,
+                        ascensionTitle: inner.ascensionTitle,
+                        cloudMsgId: String(inner.cloudMsgId),
+                        createdAt: inner.createdAt,
+                    });
+                    return;
+                }
+
+                if (canal === 'global' && window.GlobalChatEngine?.ingestBroadcast) {
+                    window.GlobalChatEngine.ingestBroadcast({
+                        autor: inner.autor,
+                        mensagem: displayMsg,
+                        tipo: inner.tipo,
+                        ascensionTitle: inner.ascensionTitle,
+                        createdAt: inner.createdAt,
+                    });
+                    return;
+                }
+
                 if (typeof window.adicionarMensagemChat === 'function') {
                     window.adicionarMensagemChat(inner.autor, displayMsg, inner.tipo || 'papel', inner.canal || 'global', true, null, inner.ascensionTitle || '');
                 }
@@ -500,21 +636,31 @@ const SupabaseAPI = {
             });
 
         ch.subscribe(async (status) => {
+            if (connectGen !== this._presenceGeneration || ch !== this.presenceChannel) return;
             console.log(`📡 [Supabase] Status do canal unificado: ${status}`);
             if (status === 'SUBSCRIBED') {
                 this._presenceSubscribed = true;
-                await ch.track({
-                    charName: charName,
-                    online_at: new Date().toISOString(),
-                    tabSessionId: this.tabSessionId
-                });
+                this._clearPresenceRetry();
+                try {
+                    await ch.track({
+                        charName: charName,
+                        online_at: new Date().toISOString(),
+                        tabSessionId: this.tabSessionId
+                    });
+                } catch (e) {
+                    console.warn('[Supabase] presence track:', e);
+                }
+                requestMultiplayerHudStatus('online');
                 this._resolvePresenceReady();
-            } else {
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
                 this._presenceSubscribed = false;
-                const dot = document.getElementById('multiplayer-dot');
-                if (dot) dot.style.background = '#ef4444';
+                requestMultiplayerHudStatus('offline');
+                const retryName = typeof window.charName === 'string' ? window.charName : charName;
+                this._schedulePresenceRetry(retryName);
             }
         });
+
+        this._presenceConnecting = false;
     },
 
     async broadcastChat(autor, mensagem, tipo, canal, ascensionTitle, opts) {
@@ -533,6 +679,12 @@ const SupabaseAPI = {
         if (opts && opts.i18nKey) {
             payloadOut.i18nKey = opts.i18nKey;
             payloadOut.i18nParams = opts.i18nParams || {};
+        }
+        if (opts && opts.cloudMsgId != null) {
+            payloadOut.cloudMsgId = String(opts.cloudMsgId);
+        }
+        if (opts && opts.createdAt) {
+            payloadOut.createdAt = opts.createdAt;
         }
         
         const status = await this.presenceChannel.send({
@@ -591,6 +743,59 @@ const SupabaseAPI = {
 
     clanChatChannel: null,
     _clanChatSubscribedClanId: null,
+
+    globalChatChannel: null,
+    _globalChatSubscribed: false,
+    _globalChatOnInsert: null as ((row: Record<string, unknown>) => void) | null,
+    _globalChatPgReady: false,
+
+    parseGlobalChatRpcResult(r: { data?: unknown; error?: unknown } | null | undefined): {
+        ok: boolean;
+        id?: string;
+        errorCode?: string;
+        transportError?: boolean;
+    } {
+        if (!r) return { ok: false, errorCode: 'unknown' };
+        if (r.error) {
+            const msg = String((r.error as { message?: string })?.message || r.error).toLowerCase();
+            const transportError = msg.includes('insert_global_chat_secure')
+                || msg.includes('global_chat_messages')
+                || msg.includes('does not exist')
+                || msg.includes('could not find the function');
+            return { ok: false, errorCode: 'transport', transportError };
+        }
+        const d = r.data as { success?: boolean; error?: string; id?: string } | null;
+        if (d && d.success === false) {
+            return { ok: false, errorCode: d.error || 'rpc_failed' };
+        }
+        if (d && d.success === true) {
+            return { ok: true, id: d.id != null ? String(d.id) : undefined };
+        }
+        return { ok: true };
+    },
+
+    async ensureGlobalChatReady(): Promise<void> {
+        if (!SUPABASE_CONFIG.enabled || !this.getUser()) return;
+        if (!this.client) await this.init();
+        if (!this.client) return;
+        if (!this._globalChatSubscribed || !this.globalChatChannel) {
+            this.subscribeGlobalChat((row) => {
+                if (typeof this._globalChatOnInsert === 'function') this._globalChatOnInsert(row);
+            });
+        }
+    },
+
+    unsubscribeGlobalChat() {
+        if (!this.client || !this.globalChatChannel) {
+            this.globalChatChannel = null;
+            this._globalChatSubscribed = false;
+            return;
+        }
+        const ch = this.globalChatChannel;
+        this.globalChatChannel = null;
+        this._globalChatSubscribed = false;
+        try { this.client.removeChannel(ch); } catch (e) {}
+    },
 
     unsubscribeClanChat() {
         if (!this.client || !this.clanChatChannel) {
@@ -1007,6 +1212,120 @@ const SupabaseAPI = {
         const { data, error } = await this.client.rpc('insert_clan_chat_secure', {
             p_clan_id: clanId, p_body: body, p_tier: tier || 'Paper',
             p_ascension_title: (ascensionTitle && String(ascensionTitle).trim()) ? String(ascensionTitle).trim().slice(0, 48) : ''
+        });
+        return { data, error };
+    },
+
+    async fetchGlobalChatHistoryRpc(limit = 200, days = 3): Promise<GlobalChatRow[]> {
+        if (!SUPABASE_CONFIG.enabled) return [];
+        if (!this.client) await this.init();
+        if (!this.client || !this.getUser()) return [];
+        try {
+            const { data, error } = await this.client.rpc('get_global_chat_history_secure', {
+                p_limit: limit,
+                p_days: days,
+            });
+            if (error) {
+                console.warn('[fetchGlobalChatHistoryRpc]', error.message || error);
+                return [];
+            }
+            const payload = data as { success?: boolean; messages?: GlobalChatRow[] } | GlobalChatRow[] | null;
+            if (Array.isArray(payload)) return payload.reverse();
+            if (payload && Array.isArray(payload.messages)) {
+                this._globalChatPgReady = true;
+                return payload.messages.slice().reverse();
+            }
+            if (payload && payload.success === true && Array.isArray(payload.messages)) {
+                this._globalChatPgReady = true;
+                return payload.messages.slice().reverse();
+            }
+            return [];
+        } catch (e) {
+            console.warn('[fetchGlobalChatHistoryRpc]', e);
+            return [];
+        }
+    },
+
+    async fetchGlobalChatHistory(limit = 200, days = 3) {
+        if (!SUPABASE_CONFIG.enabled) return [];
+        if (!this.client) await this.init();
+        if (!this.client || !this.getUser()) return [];
+        const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+        const { data, error } = await this.client
+            .from('global_chat_messages')
+            .select('id, char_name, body, tier, ascension_title, msg_kind, i18n_key, i18n_params, created_at')
+            .gte('created_at', since)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+        if (error) {
+            console.warn('[fetchGlobalChatHistory]', error.message || error);
+            const msg = String(error.message || error).toLowerCase();
+            if (msg.includes('global_chat_messages') || msg.includes('does not exist')) {
+                this._globalChatPgReady = false;
+            }
+            return [];
+        }
+        this._globalChatPgReady = true;
+        return (data || []).reverse();
+    },
+
+    subscribeGlobalChat(onInsert) {
+        if (!SUPABASE_CONFIG.enabled) return;
+        if (!this.client) {
+            this.init().then(() => this._subscribeGlobalChatAfterInit(onInsert));
+            return;
+        }
+        this._subscribeGlobalChatAfterInit(onInsert);
+    },
+
+    _subscribeGlobalChatAfterInit(onInsert) {
+        if (!this.client || !this.getUser()) return;
+        this._globalChatOnInsert = onInsert;
+        if (this._globalChatSubscribed && this.globalChatChannel
+            && this.globalChatChannel.state === 'joined') return;
+        this.unsubscribeGlobalChat();
+        this._globalChatSubscribed = true;
+        this.globalChatChannel = this.client
+            .channel('global-chat-pg')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'global_chat_messages' }, (payload) => {
+                const row = payload && payload.new;
+                if (row && typeof this._globalChatOnInsert === 'function') this._globalChatOnInsert(row);
+            })
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('[GlobalChat] Realtime postgres_changes subscribed');
+                }
+                if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                    console.warn('[GlobalChat] Realtime subscription status:', status);
+                    this._globalChatSubscribed = false;
+                    const retryCb = this._globalChatOnInsert;
+                    if (typeof retryCb === 'function') {
+                        setTimeout(() => this._subscribeGlobalChatAfterInit(retryCb), 4000);
+                    }
+                }
+            });
+    },
+
+    async insertGlobalChatMessage(charName, body, tier, ascensionTitle) {
+        if (!SUPABASE_CONFIG.enabled) return { data: null, error: new Error('offline') };
+        if (!this.client) await this.init();
+        const { data, error } = await this.client.rpc('insert_global_chat_secure', {
+            p_char_name: charName,
+            p_body: body,
+            p_tier: tier || 'Paper',
+            p_ascension_title: (ascensionTitle && String(ascensionTitle).trim()) ? String(ascensionTitle).trim().slice(0, 48) : '',
+        });
+        return { data, error };
+    },
+
+    async insertGlobalChatSystemMessage(body, tier = 'GM_ANNOUNCEMENT', i18nKey, i18nParams) {
+        if (!SUPABASE_CONFIG.enabled) return { data: null, error: new Error('offline') };
+        if (!this.client) await this.init();
+        const { data, error } = await this.client.rpc('insert_global_chat_system_secure', {
+            p_body: body,
+            p_tier: tier || 'GM_ANNOUNCEMENT',
+            p_i18n_key: i18nKey || null,
+            p_i18n_params: i18nParams || null,
         });
         return { data, error };
     },

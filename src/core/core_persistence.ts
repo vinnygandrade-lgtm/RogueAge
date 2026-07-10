@@ -832,6 +832,7 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
         }
         
         if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
+        if (typeof window.restorePlayerVitalsIfDowned === 'function') window.restorePlayerVitalsIfDowned();
         
         // --- ATUALIZAÇÃO DE PRESENÇA CLOUD (Garantia de Troca de Personagem) ---
         if (typeof window.SupabaseAPI !== 'undefined' && window.SUPABASE_CONFIG.enabled && window.charName) {

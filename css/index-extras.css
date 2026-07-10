@@ -7000,7 +7000,7 @@ html.l2-standalone .settings-section--pwa {
 .raid-arena-vignette {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle, rgba(40, 10, 10, 0.8) 0%, rgba(5, 5, 5, 1) 100%);
+    background: radial-gradient(ellipse 90% 80% at 50% 38%, rgba(55, 18, 18, 0.28) 0%, rgba(8, 8, 12, 0.88) 70%, rgba(4, 4, 6, 1) 100%);
     pointer-events: none;
 }
 #raid-header {

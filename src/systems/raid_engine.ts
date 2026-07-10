@@ -360,6 +360,18 @@ const RaidEngine = {
         // Se o alvo for o player desta aba, atualiza o HP real
         if (alvo.nome === window.charName) {
             window.playerHP = alvo.hp;
+            const cf = window.CombatFeedback;
+            const maxHp = Math.max(1, Number(window.playerStats?.maxHp) || 100);
+            const ratio = danoFinal / maxHp;
+            if (cf?.pulseCombatCard) cf.pulseCombatCard('raid-player-status-card');
+            if (cf?.triggerCombatImpact) {
+                cf.triggerCombatImpact({
+                    rootId: 'raid-arena-center',
+                    tone: ratio >= 0.15 ? 'crit' : 'damage',
+                    severity: cf.severityFromDamageRatio ? cf.severityFromDamageRatio(ratio) : 'light',
+                    shake: ratio >= 0.1,
+                });
+            }
             if (window.playerHP <= 0) {
                 window.playerHP = 0;
                 this.derrotaRaid();
@@ -760,6 +772,9 @@ const RaidEngine = {
 
     derrotaRaid: async function() {
         this.limparRaid();
+        if (typeof window.restorePlayerVitalsIfDowned === 'function') window.restorePlayerVitalsIfDowned();
+        if (typeof window.salvarJogo === 'function') window.salvarJogo();
+        if (typeof window.atualizar === 'function') window.atualizar();
         await window.l2Alert(typeof window.t === 'function' ? window.t('game.raid.youDied') : "YOU DIED! The boss won the battle.", typeof window.t === 'function' ? window.t('game.raid.defeatTitle') : "RAID DEFEAT");
         window.irPara(this.modoDiario ? 'world' : 'cidade');
     },

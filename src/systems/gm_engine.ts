@@ -697,7 +697,19 @@ const GMEngine: GmEngineApi = {
         );
         if (!ok) return;
 
-        if (window.SupabaseAPI?.broadcastChat) {
+        if (window.SupabaseAPI?.insertGlobalChatSystemMessage) {
+            const r = await window.SupabaseAPI.insertGlobalChatSystemMessage(msg, 'GM_ANNOUNCEMENT');
+            if (r.error) {
+                if (typeof window.mostrarAviso === 'function') {
+                    window.mostrarAviso(typeof window.t === 'function' ? window.t('game.cloud.chatSendFailed') : 'Could not send announcement.');
+                }
+                return;
+            }
+            if (msgEl) msgEl.value = '';
+            if (typeof window.mostrarAviso === 'function') {
+                window.mostrarAviso(typeof window.t === 'function' ? window.t('game.gm.announcementSent') : 'Announcement sent!');
+            }
+        } else if (window.SupabaseAPI?.broadcastChat) {
             await window.SupabaseAPI.broadcastChat('SYSTEM', msg, 'GM_ANNOUNCEMENT', 'global');
             if (msgEl) msgEl.value = '';
             if (typeof window.mostrarAviso === 'function') {

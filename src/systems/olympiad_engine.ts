@@ -1655,7 +1655,7 @@ const OlympiadEngine = {
         this.escreverLog(`<span style="color:#fca5a5;">${msg}</span>`);
 
         this.mostrarDanoVisual(dano, 'rival', false);
-        this.shakeScreen(false);
+        this.shakeScreen(false, dano);
 
         if (window.playerHP <= 0) {
             window.playerHP = 0;
@@ -1782,6 +1782,7 @@ const OlympiadEngine = {
 
     async finalizarDuelo(vitoria) {
         this.ativo = false;
+        if (typeof window.restorePlayerVitalsIfDowned === 'function') window.restorePlayerVitalsIfDowned();
         if (this.loopInimigo) clearInterval(this.loopInimigo);
         if (Array.isArray(this._olyRivalBurstTimers)) {
             this._olyRivalBurstTimers.forEach((id) => clearTimeout(id));
@@ -2309,22 +2310,22 @@ const OlympiadEngine = {
         setTimeout(() => el.remove(), 1000);
     },
 
-    shakeScreen(isPlayerCausando) {
-        const cena = document.getElementById('oly-combate-cena');
-        if (!cena) return;
+    shakeScreen(isPlayerCausando, dano = 0) {
+        const cf = window.CombatFeedback;
+        if (!cf?.triggerCombatImpact) return;
 
-        cena.classList.add('screen-shake');
-        
-        // Flash de tela sutil
-        const flash = document.createElement('div');
-        flash.className = 'hit-flash';
-        if (!isPlayerCausando) flash.style.background = 'rgba(255,0,0,0.2)';
-        cena.appendChild(flash);
+        const maxHp = Math.max(1, Number(window.playerStats?.maxHp) || 100);
+        const ratio = dano > 0 ? dano / maxHp : 0;
+        const severity = isPlayerCausando
+          ? 'light'
+          : (cf.severityFromDamageRatio ? cf.severityFromDamageRatio(ratio) : 'light');
 
-        setTimeout(() => {
-            cena.classList.remove('screen-shake');
-            flash.remove();
-        }, 300);
+        cf.triggerCombatImpact({
+          rootId: 'oly-combate-cena',
+          tone: isPlayerCausando ? 'deal' : (ratio >= 0.15 ? 'crit' : 'damage'),
+          severity,
+          shake: isPlayerCausando || ratio >= 0.1,
+        });
     }
 };
 

@@ -69,7 +69,6 @@ function iniciarJogo(): void {
     
     // Força atualização de presença logo ao iniciar
     if (window.SupabaseAPI && window.charName) {
-        window.SupabaseAPI.updatePresence(window.charName, {});
         if (typeof window.SupabaseAPI.getUser === 'function' && window.SupabaseAPI.getUser()) {
             void window.SupabaseAPI.ensureChatConnected?.(window.charName, {});
         }
@@ -327,6 +326,13 @@ setInterval(() => {
         if (expeditionActive && typeof expEng.ensureRunVitalsForCombat === 'function') {
             expEng.ensureRunVitalsForCombat();
             atualizar();
+        } else {
+            const raidActive = !!(window.RaidEngine && window.RaidEngine.ativo);
+            const olyActive = !!(window.OlympiadEngine && window.OlympiadEngine.ativo);
+            if (!raidActive && !olyActive && typeof window.restorePlayerVitalsIfDowned === 'function') {
+                window.restorePlayerVitalsIfDowned();
+                atualizar();
+            }
         }
         return;
     }
@@ -364,6 +370,8 @@ function usarPocao(): void {
     );
     if (window.playerHP <= 0 && inExpeditionCombat && typeof expEng.ensureRunVitalsForCombat === 'function') {
         expEng.ensureRunVitalsForCombat();
+    } else if (window.playerHP <= 0 && typeof window.restorePlayerVitalsIfDowned === 'function') {
+        window.restorePlayerVitalsIfDowned();
     }
 
     if (window.playerHP <= 0 || !window.inventario['HP Potion'] || window.inventario['HP Potion'] <= 0) {

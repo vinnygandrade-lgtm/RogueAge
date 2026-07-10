@@ -977,10 +977,15 @@ const AuthEngine = {
                 }
                 if (typeof atualizar === 'function') atualizar();
                 
-                // Conexão com Multiplayer
+                // Conexão com Multiplayer + histórico do chat global
                 if (window.SupabaseAPI && window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.enabled) {
                     window.SupabaseAPI.updatePresence(name, {});
                     void window.SupabaseAPI.ensureChatConnected(name, {});
+                }
+                if (typeof window.iniciarChatAutomatico === 'function') {
+                    window.iniciarChatAutomatico();
+                } else if (window.GlobalChatEngine?.start) {
+                    void window.GlobalChatEngine.start(true);
                 }
 
                 if (window.GMEngine?.init) {

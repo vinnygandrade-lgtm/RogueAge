@@ -500,6 +500,21 @@ export interface ChatHistoryEntry {
   tipo: string;
   timestamp: number;
   ascensionTitle?: string;
+  /** ID em `global_chat_messages` — dedup local ↔ nuvem */
+  cloudId?: string | number;
+}
+
+export interface GlobalChatRow {
+  id?: string | number;
+  char_name?: string;
+  body?: string;
+  tier?: string;
+  ascension_title?: string;
+  msg_kind?: string;
+  i18n_key?: string;
+  i18n_params?: Record<string, string | number> | null;
+  created_at?: string;
+  [key: string]: unknown;
 }
 
 export interface ClanChatRow {
@@ -1478,6 +1493,26 @@ export type L2ConfirmFn = {
   ): void;
 };
 
+export interface GlobalChatEngineLite {
+  started: boolean;
+  isCloudSession: () => boolean;
+  paintLocalCacheIfNeeded: (force?: boolean) => void;
+  start: (force?: boolean) => Promise<void>;
+  reconnect: () => Promise<void>;
+  reset: () => void;
+  refresh: (soft?: boolean) => Promise<void>;
+  send: (charName: string, body: string, tier: string, ascTitle: string) => Promise<void>;
+  ingest: (row: GlobalChatRow) => boolean;
+  ingestBroadcast: (payload: {
+    autor: string;
+    mensagem: string;
+    tipo?: string;
+    ascensionTitle?: string;
+    cloudMsgId?: string;
+    createdAt?: string;
+  }) => boolean;
+}
+
 export interface SupabaseApi {
   init: () => Promise<void>;
   client: SupabaseClientLite | null;
@@ -1526,7 +1561,12 @@ export interface SupabaseApi {
     tipo: string,
     canal: string,
     ascensionTitle?: string,
-    opts?: { i18nKey?: string; i18nParams?: Record<string, string | number> },
+    opts?: {
+      i18nKey?: string;
+      i18nParams?: Record<string, string | number>;
+      cloudMsgId?: string | number;
+      createdAt?: string;
+    },
   ) => Promise<boolean>;
   presenceChannel?: SupabasePresenceChannelLite | null;
   fetchClanChatHistory?: (clanId: string | number, limit?: number) => Promise<ClanChatRow[]>;
@@ -1538,6 +1578,32 @@ export interface SupabaseApi {
     tier: string,
     ascensionTitle: string,
   ) => Promise<{ data: unknown; error: unknown }>;
+  fetchGlobalChatHistory?: (limit?: number, days?: number) => Promise<GlobalChatRow[]>;
+  fetchGlobalChatHistoryRpc?: (limit?: number, days?: number) => Promise<GlobalChatRow[]>;
+  subscribeGlobalChat?: (onInsert: (row: GlobalChatRow) => void) => void;
+  unsubscribeGlobalChat?: () => void;
+  insertGlobalChatMessage?: (
+    charName: string,
+    body: string,
+    tier: string,
+    ascensionTitle: string,
+  ) => Promise<{ data: unknown; error: unknown }>;
+  insertGlobalChatSystemMessage?: (
+    body: string,
+    tier?: string,
+    i18nKey?: string,
+    i18nParams?: Record<string, string | number>,
+  ) => Promise<{ data: unknown; error: unknown }>;
+  parseGlobalChatRpcResult?: (r: { data?: unknown; error?: unknown } | null | undefined) => {
+    ok: boolean;
+    id?: string;
+    errorCode?: string;
+    transportError?: boolean;
+  };
+  ensureGlobalChatReady?: () => Promise<void>;
+  _globalChatOnInsert?: ((row: GlobalChatRow) => void) | null;
+  _globalChatPgReady?: boolean;
+  _globalChatSubscribed?: boolean;
   fetchClans?: () => Promise<CloudClanRow[]>;
   fetchClanApplications?: (charName: string) => Promise<CloudClanApplicationRow[]>;
   fetchClanPendingApplicationsForClan?: (clanId: string | number) => Promise<CloudClanApplicationRow[]>;

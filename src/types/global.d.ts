@@ -223,6 +223,16 @@ declare global {
     OlympiadEngine?: OlympiadEngineApi;
     MultiplayerVisuals?: MultiplayerVisualsApi;
     RaidEngine?: RaidEngineApi;
+    CombatFeedback?: {
+      triggerCombatImpact: (options: {
+        rootId: string;
+        tone?: 'damage' | 'crit' | 'deal';
+        severity?: 'light' | 'medium' | 'heavy';
+        shake?: boolean;
+      }) => void;
+      pulseCombatCard: (cardId: string, tone?: 'damage' | 'heal') => void;
+      severityFromDamageRatio: (ratio: number) => 'light' | 'medium' | 'heavy';
+    };
     RankingManager?: RankingManagerApi;
     CastleEngine?: CastleEngineApi;
     RankingSeasons?: RankingSeasonsApi;
@@ -247,6 +257,7 @@ declare global {
     cloudRpcMessage: (code: unknown, options?: { prefix?: string; fallbackKey?: string; keyStyle?: 'error_' | 'dot' }) => string;
     slugRpcErrorCode: (raw: string) => string;
     calcularStatusGlobais: () => void;
+    restorePlayerVitalsIfDowned: () => void;
     calcularStatusGlobaisFromData: (
       saveLike: Partial<CharacterSave>,
     ) => Partial<PlayerStats> | null;
@@ -528,7 +539,9 @@ declare global {
     pularPersistencia?: boolean,
     forcedTimestamp?: number | null,
     ascensionTitle?: string,
+    historyReplay?: boolean,
   ): void;
+  var GlobalChatEngine: import('./game').GlobalChatEngineLite;
   function buscarRankingGlobalReal(): Promise<CloudRankingPlayer[] | null>;
   function formatarTooltipEquipamento(
     base: unknown,
@@ -684,6 +697,8 @@ declare global {
   function renderizarPerfil(): void;
   function iniciarSistemaClans(): void | Promise<void>;
   function iniciarChatAutomatico(): void;
+  function resetChatBootstrap(): void;
+  function scrollChatPanelToBottom(panel: HTMLElement, force?: boolean): void;
   function registrarProgressoMissaoDiaria(tipo: string, qty: number): void;
   function reivindicarMissaoDiaria(index: number): void;
   function reivindicarBonusMissaoDiaria(): void;
