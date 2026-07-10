@@ -73,18 +73,15 @@ function abrirGameSettings(): void {
     }
   }
   window.abrirModal(MODAL_ID);
+  window.syncNavMenuActiveItem?.();
 }
 
 function fecharGameSettings(): void {
   window.fecharModal?.(MODAL_ID);
+  window.syncNavMenuActiveItem?.();
 }
 
 function initHudSettings(): void {
-  const btn = document.getElementById('btn-hud-settings');
-  if (btn && !btn.dataset.bound) {
-    btn.dataset.bound = '1';
-    btn.addEventListener('click', abrirGameSettings);
-  }
   bindLangButtons();
   syncLangActiveState();
 }

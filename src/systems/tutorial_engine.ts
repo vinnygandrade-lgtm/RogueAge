@@ -315,6 +315,7 @@ function tn(key: string, params?: Record<string, string | number>): string {
         try {
             if (typeof window.escreverLog === 'function') {
                 window.escreverLog('<span style="color:#34d399;font-weight:bold;">' + tn('game.tutorial.celebrate') + '</span>');
+                window.escreverLog('<span style="color:#94a3b8;">' + tn('game.tutorial.menuHintAfter') + '</span>');
             }
             // Efeito visual de celebração
             var overlay = document.createElement('div');
@@ -430,6 +431,9 @@ function tn(key: string, params?: Record<string, string | number>): string {
         }
         if (s === 9) {
             return { label: tn('game.tutorial.next'), fn: function () { setStep(10); } };
+        }
+        if (s === 10) {
+            return { label: tn('game.tutorial.done'), fn: function () { setStep(DONE_STEP); } };
         }
         return { label: tn('game.tutorial.done'), fn: function () { setStep(DONE_STEP); } };
     }
@@ -565,6 +569,16 @@ function tn(key: string, params?: Record<string, string | number>): string {
         },
 
         afterCharacterLoad: function () {
+            var p = getProg();
+            // Saves presos no passo 11 (MENU removido): fecha o tour como concluído.
+            if (p.active && !p.completed && p.step >= DONE_STEP) {
+                p.active = false;
+                p.completed = true;
+                persistSilent();
+                hidePanel();
+                clearHighlights();
+                return;
+            }
             if (!isRunning()) {
                 hidePanel();
                 return;

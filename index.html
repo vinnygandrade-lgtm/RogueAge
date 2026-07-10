@@ -77,30 +77,66 @@
         <div class="nav-menu-sheet__handle" aria-hidden="true"></div>
         <div class="nav-menu-sheet__title" data-i18n="navMenu.title">QUICK MENU</div>
         <div class="nav-menu-sheet__grid">
-            <button type="button" class="nav-menu-item" onclick="navMenuGo('social')">
-                <span class="nav-menu-item__icon" aria-hidden="true">🏛️</span>
-                <span data-i18n="navMenu.social">Community Hub</span>
-            </button>
-            <button type="button" class="nav-menu-item" onclick="navMenuGo('market')">
-                <span class="nav-menu-item__icon" aria-hidden="true">⚖️</span>
-                <span data-i18n="navMenu.marketplace">Marketplace</span>
-            </button>
-            <button type="button" class="nav-menu-item" onclick="navMenuGo('clans')">
-                <span class="nav-menu-item__icon" aria-hidden="true">🛡️</span>
-                <span data-i18n="navMenu.clanHall">Clan Hall</span>
-            </button>
-            <button type="button" class="nav-menu-item" onclick="navMenuGo('mailbox')">
-                <span class="nav-menu-item__icon" aria-hidden="true">✉️</span>
-                <span data-i18n="navMenu.mailbox">Mailbox</span>
-            </button>
-            <button type="button" class="nav-menu-item" onclick="navMenuGo('missions')">
-                <span class="nav-menu-item__icon" aria-hidden="true">📜</span>
-                <span data-i18n="navMenu.missions">Daily Missions</span>
-            </button>
-            <button type="button" class="nav-menu-item" onclick="navMenuGo('settings')">
-                <span class="nav-menu-item__icon" aria-hidden="true">⚙️</span>
-                <span data-i18n="navMenu.settings">Settings</span>
-            </button>
+            <div class="nav-menu-group">
+                <div class="nav-menu-group__label" data-i18n="navMenu.groupSocial">SOCIAL</div>
+                <div class="nav-menu-group__items">
+                    <button type="button" class="nav-menu-item" id="nav-menu-social" onclick="navMenuGo('social')">
+                        <span class="nav-menu-item__glyph nav-menu-item__glyph--social" aria-hidden="true"></span>
+                        <span data-i18n="navMenu.social">Community Hub</span>
+                    </button>
+                    <button type="button" class="nav-menu-item" id="nav-menu-market" onclick="navMenuGo('market')">
+                        <span class="nav-menu-item__glyph nav-menu-item__glyph--market" aria-hidden="true"></span>
+                        <span data-i18n="navMenu.marketplace">Marketplace</span>
+                    </button>
+                    <button type="button" class="nav-menu-item" id="nav-menu-clans" onclick="navMenuGo('clans')">
+                        <span class="nav-menu-item__glyph nav-menu-item__glyph--clans" aria-hidden="true"></span>
+                        <span data-i18n="navMenu.clanHall">Clan Hall</span>
+                    </button>
+                </div>
+            </div>
+            <div class="nav-menu-group">
+                <div class="nav-menu-group__label" data-i18n="navMenu.groupProgress">PROGRESS</div>
+                <div class="nav-menu-group__items">
+                    <button type="button" class="nav-menu-item" id="nav-menu-missions" onclick="navMenuGo('missions')">
+                        <span class="nav-menu-item__icon-wrap">
+                            <span class="nav-menu-item__glyph nav-menu-item__glyph--missions" aria-hidden="true"></span>
+                            <span id="nav-notif-missions" class="nav-notif nav-notif--missions" hidden></span>
+                        </span>
+                        <span class="nav-menu-item__label" data-i18n="navMenu.missions">Daily Missions</span>
+                    </button>
+                    <button type="button" class="nav-menu-item" id="nav-menu-olympiad" onclick="navMenuGo('olympiad')">
+                        <span class="nav-menu-item__icon-wrap">
+                            <span class="nav-menu-item__glyph nav-menu-item__glyph--olympiad" aria-hidden="true"></span>
+                            <span id="nav-notif-olympiad" class="nav-notif nav-notif--olympiad" hidden></span>
+                        </span>
+                        <span class="nav-menu-item__label" data-i18n="navMenu.olympiad">Grand Olympiad</span>
+                    </button>
+                    <button type="button" class="nav-menu-item" id="nav-menu-clanwar" hidden onclick="navMenuGo('clanwar')">
+                        <span class="nav-menu-item__icon-wrap">
+                            <span class="nav-menu-item__glyph nav-menu-item__glyph--clanwar" aria-hidden="true"></span>
+                            <span id="nav-notif-clanwar" class="nav-notif nav-notif--clanwar nav-notif--dot" hidden></span>
+                        </span>
+                        <span class="nav-menu-item__label" data-i18n="navMenu.clanWar">Clan War</span>
+                    </button>
+                </div>
+            </div>
+            <div class="nav-menu-group">
+                <div class="nav-menu-group__label" data-i18n="navMenu.groupAccount">ACCOUNT</div>
+                <div class="nav-menu-group__items">
+                    <button type="button" class="nav-menu-item" id="nav-menu-mailbox" onclick="navMenuGo('mailbox')">
+                        <span class="nav-menu-item__icon-wrap">
+                            <span class="nav-menu-item__glyph nav-menu-item__glyph--mail" aria-hidden="true"></span>
+                            <span id="nav-notif-mail" class="nav-notif nav-notif--mail" hidden></span>
+                            <span id="nav-notif-rewards" class="nav-notif nav-notif--rewards nav-notif--rewards-slot" hidden></span>
+                        </span>
+                        <span class="nav-menu-item__label" data-i18n="navMenu.mailbox">Mailbox</span>
+                    </button>
+                    <button type="button" class="nav-menu-item" id="nav-menu-settings" onclick="navMenuGo('settings')">
+                        <span class="nav-menu-item__glyph nav-menu-item__glyph--settings" aria-hidden="true"></span>
+                        <span data-i18n="navMenu.settings">Settings</span>
+                    </button>
+                </div>
+            </div>
         </div>
         <button type="button" class="nav-menu-sheet__close btn-l2" data-i18n="navMenu.close" onclick="fecharNavMenu()">CLOSE</button>
     </div>
@@ -1156,41 +1192,18 @@
                 </div>
             </div>
 
-            <!-- Actions Row: realm status, settings, EXP, mail -->
+            <!-- Actions Row: realm status + EXP -->
             <div class="hud-actions-row">
                 <div class="hud-actions-left">
                     <div id="multiplayer-status" class="hud-mp-status" role="status" aria-live="polite">
                         <div id="multiplayer-dot"></div>
                         <span id="multiplayer-text" data-i18n="game.multiplayer.offline">OFFLINE</span>
                     </div>
-                    <button type="button" id="btn-hud-settings" class="hud-settings-btn" data-i18n-title="game.settings.openTitle" title="Settings" aria-haspopup="dialog" aria-controls="janela-game-settings">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.75"/>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </button>
                 </div>
 
                 <div id="hud-exp-wrap" class="hud-exp-container hud-exp-container--grow" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Experience">
                     <div id="exp-fill" class="hud-exp-fill"></div>
                     <span id="hud-exp-text" class="hud-exp-text"></span>
-                </div>
-
-                <div class="hud-system-btns">
-                    <button type="button" id="btn-hud-missoes" class="hud-mail-btn hud-missions-btn" onclick="abrirMissoesDiarias()" data-i18n-title="hud.missionsTitle" title="Daily Missions">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <rect x="9" y="3" width="6" height="4" rx="1" stroke="#ca8a04" stroke-width="2"/>
-                            <path d="M9 12h6M9 16h4" stroke="#ca8a04" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <div id="missoes-notif-badge" class="notif-badge notif-badge--missions"></div>
-                    </button>
-                    <div id="btn-sistema-notificacoes" onclick="abrirJanelaCorreio()" class="hud-mail-btn" data-i18n-title="hud.mailboxTitle" title="Mailbox">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 8L10.8906 13.2604C11.5624 13.7083 12.4376 13.7083 13.1094 13.2604L21 8M5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19Z" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <div id="notif-badge" class="notif-badge"></div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1202,7 +1215,31 @@
             <button id="btn-tab-cidade" class="btn-travel" data-i18n="nav.town" onclick="irPara('cidade')">TOWN</button>
             <button id="btn-tab-world" class="btn-travel btn-travel--accent" data-i18n="nav.world" onclick="irPara('world')">WORLD</button>
             <button id="btn-tab-inventario" class="btn-travel" data-i18n="nav.bag" onclick="irPara('inventario')">BAG</button>
-            <button id="btn-tab-menu" class="btn-travel" data-i18n="nav.menu" onclick="abrirNavMenu()">MENU</button>
+            <button id="btn-tab-menu" class="btn-travel btn-travel--menu" onclick="abrirNavMenu()">
+                <span class="btn-travel__icon-wrap">
+                    <span class="btn-travel__glyph btn-travel__glyph--menu" aria-hidden="true"></span>
+                    <span id="nav-notif-tab" class="nav-notif nav-notif--tab" hidden aria-hidden="true"></span>
+                </span>
+                <span class="btn-travel__label" data-i18n="nav.menu">MENU</span>
+            </button>
+        </div>
+
+        <div id="nav-menu-town-coach" class="nav-menu-town-coach nav-menu-town-coach--hidden" role="dialog" aria-labelledby="nav-menu-town-coach-title" aria-hidden="true">
+            <div class="nav-menu-town-coach__card">
+                <div class="nav-menu-town-coach__badge" data-i18n="navCoach.badge">TIP</div>
+                <h3 id="nav-menu-town-coach-title" class="nav-menu-town-coach__title" data-i18n="navCoach.menuTownTitle">Quick Menu</h3>
+                <p class="nav-menu-town-coach__body" data-i18n="navCoach.menuTownBody">Tap MENU for mailbox, missions, marketplace, Olympiad, and more.</p>
+                <button type="button" class="btn-l2 nav-menu-town-coach__btn" data-i18n="navCoach.gotIt" onclick="dismissNavMenuTownCoach()">GOT IT</button>
+            </div>
+        </div>
+
+        <div id="nav-coach-toast" class="nav-menu-town-coach nav-menu-town-coach--hidden" role="dialog" aria-labelledby="nav-coach-toast-title" aria-hidden="true" hidden>
+            <div class="nav-menu-town-coach__card">
+                <div class="nav-menu-town-coach__badge" data-i18n="navCoach.badge">TIP</div>
+                <h3 id="nav-coach-toast-title" class="nav-menu-town-coach__title"></h3>
+                <p id="nav-coach-toast-body" class="nav-menu-town-coach__body"></p>
+                <button type="button" class="btn-l2 nav-menu-town-coach__btn" data-i18n="navCoach.gotIt" onclick="dismissNavCoachToast()">GOT IT</button>
+            </div>
         </div>
 
         <div class="game-viewport" id="game-viewport">
@@ -1322,6 +1359,7 @@
                     <!-- Clan War - Full Width (Exclusive for Clan Leaders) -->
                     <div id="card-clan-war-world" class="adv-card adv-card--full clan-war" onclick="ClanWarEngine.abrirLobby()" style="display: none; background: linear-gradient(135deg, #450a0a 0%, #991b1b 100%); border: 2px solid #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);">
                         <span class="adv-badge" style="background: #ef4444; color: #fff;" data-i18n="game.world.badgeNew">NEW</span>
+                        <span id="world-notif-clanwar" class="adv-notif-pill adv-notif-pill--clanwar adv-notif-pill--dot" hidden aria-hidden="true"></span>
                         <i style="color: #fff; text-shadow: 0 0 10px #ef4444;">⚔️</i>
                         <div class="adv-info">
                             <h3 style="color: #fff; font-family: 'Cinzel', serif;" data-i18n="game.war.hubTitle">WAR COMMAND CENTER</h3>
@@ -1350,8 +1388,9 @@
                     </div>
 
                     <!-- Olympiad (X1) -->
-                    <div class="adv-card olympiad" onclick="abrirOlympiad()">
+                    <div class="adv-card olympiad" id="card-olympiad-world" onclick="abrirOlympiad()">
                         <span class="adv-badge" data-i18n="game.world.badgeLive">LIVE</span>
+                        <span id="world-notif-olympiad" class="adv-notif-pill adv-notif-pill--olympiad" hidden aria-hidden="true"></span>
                         <i>⚔️</i>
                         <div class="adv-info">
                             <h3 data-i18n="game.world.cardOlympiadTitle">Olympiad</h3>
@@ -1688,9 +1727,20 @@
                         </div>
                     </div>
 
+                    <div id="oly-claim-banner" class="oly-claim-banner oly-claim-banner--hidden" hidden role="status" aria-live="polite">
+                        <div class="oly-claim-banner__top">
+                            <span class="oly-claim-banner__icon" aria-hidden="true">🎁</span>
+                            <p id="oly-claim-banner-msg" class="oly-claim-banner__msg"></p>
+                        </div>
+                        <button type="button" class="oly-claim-banner__btn" data-i18n="olympiad.unclaimedBannerBtn" onclick="OlympiadEngine.abrirModalRecompensas()">OPEN LIST</button>
+                    </div>
+
                     <div class="oly-tab-strip">
                         <button type="button" id="btn-oly-tab-battle" class="oly-tab-btn active" data-i18n="olympiad.tabBattle" onclick="OlympiadEngine.mudarAbaLobby('battle')">BATTLE</button>
-                        <button type="button" id="btn-oly-tab-ranking" class="oly-tab-btn" data-i18n="olympiad.tabRanking" onclick="OlympiadEngine.mudarAbaLobby('ranking')">RANKING</button>
+                        <button type="button" id="btn-oly-tab-ranking" class="oly-tab-btn" onclick="OlympiadEngine.mudarAbaLobby('ranking')">
+                            <span class="oly-tab-btn__label" data-i18n="olympiad.tabRanking">RANKING</span>
+                            <span id="oly-tab-notif-ranking" class="oly-tab-notif" hidden aria-hidden="true"></span>
+                        </button>
                         <button type="button" id="btn-oly-tab-rewards" class="oly-tab-btn" data-i18n="olympiad.tabRewards" onclick="OlympiadEngine.mudarAbaLobby('rewards')">REWARDS</button>
                         <button type="button" id="btn-oly-tab-history" class="oly-tab-btn" data-i18n="olympiad.tabHistory" onclick="OlympiadEngine.mudarAbaLobby('history')">HISTORY</button>
                         <button type="button" id="btn-oly-tab-rules" class="oly-tab-btn" data-i18n="olympiad.tabRules" onclick="OlympiadEngine.mudarAbaLobby('rules')">RULES</button>
@@ -2102,6 +2152,10 @@
                 <div id="btn-tab-chat" class="log-tab" onclick="switchLogTab('chat')">GLOBAL CHAT</div>
                 <div id="btn-tab-clan" class="log-tab" onclick="switchLogTab('clan')">CLAN</div>
                 <button type="button" id="btn-log-collapse" class="log-collapse-btn" onclick="toggleChatCollapse()" data-i18n-title="chat.toggleCollapse" title="Show/hide chat" aria-expanded="true">▾</button>
+            </div>
+            <div id="log-collapsed-preview" class="log-collapsed-preview" hidden role="button" tabindex="0" data-i18n-aria-label="chat.collapsedPreview" aria-label="Expand chat" onclick="toggleChatCollapse()">
+                <span id="log-collapsed-preview-tag" class="log-collapsed-preview__tag" aria-hidden="true"></span>
+                <span id="log-collapsed-preview-text" class="log-collapsed-preview__text"></span>
             </div>
             <div id="log" class="log-content active" data-i18n="game.core.welcomeLog">Welcome to the Rogue Age.</div>
             <div id="chat-global" class="log-content"></div>

@@ -82,6 +82,7 @@ function prepararTelaCacada() {
         clearForestPlayerThreats();
         hideMobTypeLegend();
         window.monstrosAtivos.length = 0;
+        if (typeof window.setChatCollapsedForCombat === 'function') window.setChatCollapsedForCombat(false);
         const texto = document.getElementById('texto-procurando');
         if (texto) texto.style.display = 'none';
         const mobs = document.getElementById('mobs-container');
@@ -360,6 +361,7 @@ function spawnMonstros() {
     renderMobTypeLegend();
     renderizarMonstros();
     if (typeof window.syncAllForestMobHpBars === 'function') window.syncAllForestMobHpBars();
+    if (typeof window.setChatCollapsedForCombat === 'function') window.setChatCollapsedForCombat(true);
 }
 
 function renderizarMonstros() {
@@ -477,6 +479,7 @@ window.dispararAnimacaoCooldown = function dispararAnimacaoCooldown(nome: string
 /** Loot + modal de vitória quando não restam mobs (um único lugar para evitar softlock). */
 function iniciarFechamentoVitoriaCacada() {
     pararAtaqueMonstro();
+    if (typeof window.setChatCollapsedForCombat === 'function') window.setChatCollapsedForCombat(false);
     setTimeout(() => {
         let mobsContainer = document.getElementById('mobs-container');
         if (mobsContainer) mobsContainer.innerHTML = '';

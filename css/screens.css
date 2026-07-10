@@ -1135,6 +1135,51 @@ button.hud-mail-btn {
     z-index: 5;
 }
 
+.adv-notif-pill {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.65em;
+    font-weight: 800;
+    line-height: 18px;
+    text-align: center;
+    color: #fff;
+    border: 2px solid #1a1410;
+    z-index: 6;
+    pointer-events: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.45);
+}
+.adv-notif-pill[hidden] {
+    display: none !important;
+}
+.adv-notif-pill--olympiad {
+    background: #7c3aed;
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.7);
+}
+.adv-notif-pill--clanwar.adv-notif-pill--dot {
+    min-width: 12px;
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    border-radius: 50%;
+    background: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.8);
+}
+.adv-card--has-notif {
+    box-shadow: 0 0 14px rgba(124, 58, 237, 0.22), var(--l2-shadow-deep, 0 4px 12px rgba(0,0,0,0.5));
+}
+.adv-card.clan-war.adv-card--has-notif {
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.35), 0 0 15px rgba(239, 68, 68, 0.2);
+}
+.adv-card.olympiad.adv-card--has-notif {
+    border-color: rgba(168, 85, 247, 0.55);
+}
+
 .adv-card--full {
     grid-column: span 2;
     flex-direction: row;

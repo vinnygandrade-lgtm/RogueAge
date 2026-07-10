@@ -513,20 +513,8 @@ function contarPendenciasMissoesHud(): number {
 }
 
 function aplicarHudMissoesBadge(): void {
-  const btn = document.getElementById('btn-hud-missoes');
-  const badge = document.getElementById('missoes-notif-badge');
-  if (!btn || !badge) return;
-
   const n = contarPendenciasMissoesHud();
-  if (n > 0) {
-    btn.classList.add('notif-icon-flashing');
-    badge.style.display = 'flex';
-    badge.innerText = n > 9 ? '9+' : String(n);
-  } else {
-    btn.classList.remove('notif-icon-flashing');
-    badge.style.display = 'none';
-    badge.innerText = '';
-  }
+  window.refreshNavMenuNotifications?.({ missions: n });
 }
 
 function reivindicarMissaoDiaria(index: number): void {
@@ -706,10 +694,12 @@ function abrirMissoesDiarias(): void {
     try { window.I18n.refreshDom(root); } catch { /* ignore */ }
   }
   window.abrirModal('janela-missoes-diarias', 1500);
+  window.syncNavMenuActiveItem?.();
 }
 
 function fecharMissoesDiarias(): void {
   window.fecharModal('janela-missoes-diarias');
+  window.syncNavMenuActiveItem?.();
 }
 
 window.inicializarMissoesDiarias = inicializarMissoesDiarias;

@@ -358,7 +358,23 @@ declare global {
     abrirNavMenu?: () => void;
     fecharNavMenu?: () => void;
     navMenuGo?: (dest: string) => void;
+    refreshNavMenuNotifications?: (partial?: {
+        mail?: number;
+        rewards?: number;
+        missions?: number;
+        olympiad?: number;
+        clanWar?: number;
+    }) => void;
+    syncNavMenuActiveItem?: () => void;
+    pingNavMailNotif?: () => void;
+    uiCoachFlags?: { menuTownSeen?: boolean; mailboxTipSeen?: boolean; missionsTipSeen?: boolean };
+    maybeShowMenuTownCoach?: () => void;
+    dismissNavMenuTownCoach?: () => void;
+    maybeShowNavCoachToasts?: (mailUnread: number, missionsPending: number) => void;
+    dismissNavCoachToast?: () => void;
     toggleChatCollapse?: () => void;
+    setChatCollapsedForCombat?: (inCombat: boolean) => void;
+    refreshLogCollapsedPreview?: () => void;
     abrirJanelaCorreio?: () => void;
     abrirMissoesDiarias?: () => void;
     abrirMenuSocial?: (menu: string) => void;

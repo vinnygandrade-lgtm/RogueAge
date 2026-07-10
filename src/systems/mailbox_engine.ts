@@ -626,10 +626,6 @@ const enviarMail: EnviarMailFn = async (
  * Usado no loop de UI (`atualizar`) e após `checkRewards` — evita sobrescrever o número só com recompensas.
  */
 function aplicarNotifBadgeVisual() {
-    const btn = document.getElementById('btn-sistema-notificacoes');
-    const badge = document.getElementById('notif-badge');
-    if (!btn || !badge) return;
-
     const cloudMailActive = !!(window.SupabaseAPI && window.SupabaseAPI.getUser());
     const mailUnread = cloudMailActive
         ? (mailboxDados.inbox || []).length
@@ -637,19 +633,11 @@ function aplicarNotifBadgeVisual() {
     const rewardN = (window.RewardEngine && Array.isArray(window.RewardEngine.rewards))
         ? window.RewardEngine.rewards.length
         : 0;
-    const total = mailUnread + rewardN;
 
-    if (total > 0) {
-        btn.classList.add('notif-icon-flashing');
-        badge.style.display = rewardN > 0 ? 'flex' : 'block';
-        badge.innerText = total > 99 ? '99+' : String(total);
-        if (rewardN > 0) badge.classList.add('notif-badge--rewards');
-        else badge.classList.remove('notif-badge--rewards');
-    } else {
-        btn.classList.remove('notif-icon-flashing');
-        badge.style.display = 'none';
-        badge.classList.remove('notif-badge--rewards');
-    }
+    window.refreshNavMenuNotifications?.({
+        mail: mailUnread,
+        rewards: rewardN,
+    });
 }
 
 /** Fecha o correio e abre o Global Rewards (mesmo número no badge pode ser staff reward). */
@@ -664,9 +652,6 @@ function abrirRewardHubFechandoCorreio() {
  * Atualiza o badge e animação do ícone de mail no HUD
  */
 async function atualizarIconeMailbox() {
-    const btn = document.getElementById('btn-sistema-notificacoes');
-    if (!btn) return;
-
     await carregarMailbox();
     aplicarNotifBadgeVisual();
 }
@@ -684,6 +669,7 @@ async function abrirJanelaCorreio() {
     // Reset visual dos botões
     mudarAbaMailbox('inbox');
     window.abrirModal('janela-mailbox', 2000);
+    window.syncNavMenuActiveItem?.();
     await atualizarIconeMailbox();
 }
 

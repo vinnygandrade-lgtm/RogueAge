@@ -206,17 +206,14 @@ export const RewardEngine: RewardEngineApi = {
   },
 
   updateBadge() {
-    const badge = document.getElementById('notif-badge');
     const n = this.rewards.length;
     const prev = this.lastPendingCount;
     this.lastPendingCount = n;
 
     window.aplicarNotifBadgeVisual?.();
 
-    if (badge && n > prev && n > 0) {
-      badge.classList.remove('reward-badge--ping');
-      void badge.offsetWidth;
-      badge.classList.add('reward-badge--ping');
+    if (n > prev && n > 0) {
+      window.pingNavMailNotif?.();
     }
   },
 
