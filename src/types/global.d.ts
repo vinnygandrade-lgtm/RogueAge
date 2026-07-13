@@ -358,12 +358,28 @@ declare global {
     _inventarioFiltroDocBound?: boolean;
     catalogJewelIconPath?: (jewelId: string) => string;
     catalogArmorIconPath?: (armorId: string) => string;
+    armorMatchesClass?: (armor: import('./game').ItemCatalogBase | null | undefined, isMage: boolean) => boolean;
+    formatArmorLineLabel?: (archetype: 'fighter' | 'mage', weight: 'heavy' | 'medium' | 'light', style?: string) => string;
+    weaponMatchesClass?: (item: import('./game').ItemCatalogBase | null | undefined, isMage: boolean) => boolean;
+    isMageExclusiveWeapon?: (item: import('./game').ItemCatalogBase | null | undefined) => boolean;
     catalogWeaponIconPath?: (weaponId: string) => string;
     toggleModalBackdrop?: (id: string, show: boolean, zIndex?: number) => void;
     nomeEquipDisplay?: (fullItem: EquipInstance | null | undefined) => string;
     buildCombatStatsHeroBlockHtml?: (placement: 'profile' | 'modal') => string;
     renderPainelStatsDetalhado?: () => void;
     PwaInstall?: { isStandalone: () => boolean; refreshUi: () => void };
+    LayoutMode?: {
+      STORAGE_KEY: string;
+      getPreference: () => import('./game').UiLayoutMode;
+      getEffective: () => 'portrait' | 'landscape';
+      setPreference: (mode: unknown, opts?: { persistSave?: boolean }) => import('./game').UiLayoutMode;
+      applyFromSave: (mode: unknown) => void;
+      refresh: () => 'portrait' | 'landscape';
+      init: () => void;
+      syncSettingsButtons: () => void;
+      bindSettingsButtons: () => void;
+      normalizePreference: (raw: unknown) => import('./game').UiLayoutMode;
+    };
     refreshGameSettingsUi?: () => void;
     abrirGameSettings?: () => void;
     abrirNavMenu?: () => void;

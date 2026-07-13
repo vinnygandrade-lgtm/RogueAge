@@ -39,12 +39,16 @@
     --l2-glow-gold: 0 0 15px rgba(179, 138, 77, 0.2);
     --l2-focus-ring: #facc15;
 
-    /* Shell (moldura oficial — ver css/shell.css e docs/ui-shell-spec.md) */
+    /* Shell (moldura oficial — ver css/shell.css, css/shell-landscape.css e docs/ui-shell-spec.md)
+       Portrait (default): 9∶19.5 / 450px. Landscape: tokens overridden by html[data-l2-layout="landscape"]. */
     --l2-shell-max-width: 450px;
     --l2-design-canvas-width: 390px;
     --l2-design-canvas-height: 844px;
     --l2-aspect-w: 9;
     --l2-aspect-h: 19.5;
+    --l2-landscape-max-width: 1280px;
+    --l2-landscape-aspect-w: 16;
+    --l2-landscape-aspect-h: 9;
     --l2-safe-top: env(safe-area-inset-top, 0px);
     --l2-safe-right: env(safe-area-inset-right, 0px);
     --l2-safe-bottom: env(safe-area-inset-bottom, 0px);

@@ -2,12 +2,20 @@
 
 Só a **descrição visual** de cada arma — detalhada para colares no teu prompt.  
 Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.  
-**IDs:** `js/db_items.js` → `catalogoArmas` · **Spec:** `docs/paperdoll-art-spec.md`
+**IDs:** `src/db/db_items.ts` + `src/db/weapon_mage_expansion.ts` · **Spec:** `docs/paperdoll-art-spec.md`
 
 **Paperdoll (palco):** `assets/paperdolls/<preset>/equips/<id>.png` + `equips/<id>_grip.png` — **1080×984**.  
 **Ícone (bolsa/loja/slots):** `assets/armas/<id>.png` — **256×256** (ficheiro **diferente**; ver `assets/armas/README.md`).
 
-**Tipos no jogo:** Sword · Dagger · Bow · Mace · Magic Sword (staff/varinha) · Fist (punhos/garras equipados).
+**Tipos no jogo:** Sword · Dagger · Bow · Mace · **Wand** · **Scepter** · Magic Sword (channel staff) · Fist (punhos/garras equipados).
+
+**Mage — 3 silhuetas por grade (obrigatório distinguir):**
+
+| Linha | Tipo catálogo | Forma | Empunhadura paperdoll |
+|-------|---------------|-------|------------------------|
+| **Focus · Wand** | `Wand` | Haste **curta** (antebraço–ombro); topo cristal/runas; **uma mão** | Vertical ou 10°; grip curto em `_grip.png` |
+| **Channel · Staff** | `Magic Sword` | Bastão **longo** (acima da cabeça); haste fina-média; **duas mãos** | Terço inferior em `_grip.png`; haste+topo em `<id>.png` |
+| **Dominion · Scepter** | `Scepter` | Haste **média-grossa**; topo **ornamental** (orb, coroa, bloco rúnico); uma ou duas mãos | Mais “pesado” que wand; mais **curto** que staff |
 
 **Progressão visual geral:**
 
@@ -45,23 +53,21 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 ---
 
-### `wpn_ng_trainee_focus` — Basic Staff (partida mage)
+### `wpn_ng_trainee_focus` — Novice Wand (partida mage)
 
-**Grade / tipo:** No-Grade · Magic Sword (staff) · **arma inicial de todo mage** (preco 0)
+**Grade / tipo:** No-Grade · **Wand** · **arma inicial de todo mage** (preco 0) · linha Focus
 
-**Paleta:** madeira castanha `#8B6914`; couro escuro no grip; sem cristal — topo de madeira ou metal oxidado.
+**Paleta:** madeira castanha `#8B6914`; couro escuro no grip; bronze oxidado no anel do topo; **sem** cristal brilhante.
 
-**Silhueta:** bastão reto longo; mais alto que personagem no overlay (extensão acima da cabeça); esguio.
+**Silhueta:** varinha **curta** — comprimento visual ~antebraço a ombro (muito mais curta que staff); haste fina.
 
-**Haste:** madeira torneada simples; nós naturais discretos; diâmetro médio constante.
+**Haste:** madeira torneada; diâmetro fino constante; anel de bronze simples sob o foco.
 
-**Topo / foco:** bloco de madeira ou ferragem de bronze fosco; **sem** orb brilhante; runa gravada rasa opcional (original).
+**Topo / foco:** pequeno bloco de madeira ou ferragem bronze; runa gravada rasa; **não** orb luminoso.
 
-**Base:** ponta de madeira com capa de ferro gasto ou borracha de couro.
+**Empunhadura:** **uma mão** no punho; varinha vertical ou inclinada ~10°; alinhada à mão direita do mage preset.
 
-**Empunhadura:** uma ou duas mãos no terço inferior; bastão vertical ou inclinado 10°; alinhado às mãos do mage preset.
-
-**Acabamento:** acólito de estrada; zero glow; mate.
+**Acabamento:** acólito de estrada; zero glow; mate. **Não** desenhar como bastão longo — distinto de Channel Staff.
 
 ---
 
@@ -133,19 +139,37 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 ---
 
-### `wpn_ng_magic` — Magic Staff
+### `wpn_ng_magic` — Channel Staff
 
-**Grade / tipo:** No-Grade · Magic Sword (staff) · mage loja NG
+**Grade / tipo:** No-Grade · Magic Sword (channel staff) · mage loja NG · linha Channel
 
 **Paleta:** madeira escura `#5C4033`; bronze no anel do topo; cristal opaco cinza-claro minúsculo.
+
+**Silhueta:** bastão **longo** (extensão acima da cabeça); haste esguia — **claramente mais alto** que Novice Wand.
 
 **Haste:** madeira escura reta; anéis de bronze a cada terço.
 
 **Topo:** garra de bronze segurando cristal **pequeno** opaco; brilho interno quase nulo.
 
-**Empunhadura:** duas mãos possíveis; staff vertical.
+**Empunhadura:** duas mãos possíveis; staff vertical; terço inferior em `_grip.png`.
 
-**Acabamento:** superior ao Basic Staff; primeiro staff “comprado”.
+**Acabamento:** primeiro staff “comprado”; equilibrado entre wand curta e scepter.
+
+---
+
+### `wpn_ng_m_scepter` — Bronze Scepter
+
+**Grade / tipo:** No-Grade · **Scepter** · linha Dominion
+
+**Paleta:** bronze `#CD7F32`; madeira escura no grip; couro marrom.
+
+**Silhueta:** haste **média** (entre wand e staff); diâmetro **mais grosso** que wand; topo **ornamental** (orb bronze ou coroa de runas).
+
+**Topo:** esfera ou bloco bronze com runas; sem glow forte; peso visual “regal”.
+
+**Empunhadura:** uma mão no punho grosso; scepter vertical; `_grip.png` = punho couro enrolado.
+
+**Acabamento:** battle mage NG; distinto da wand fina e do staff alto.
 
 ---
 
@@ -239,9 +263,9 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 ---
 
-### `wpn_d_wizard_staff` — Wizard Staff
+### `wpn_d_wizard_staff` — Wizard Channel Staff
 
-**Grade / tipo:** D · Magic Sword (staff)
+**Grade / tipo:** D · Magic Sword (channel staff) · linha Channel
 
 **Paleta:** madeira negra `#2F2F2F`; prata nos anéis; cristal azul pálido pequeno.
 
@@ -249,7 +273,35 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 **Topo:** cristal azul **facetado médio**; setting prateado; glow interno **suave**.
 
-**Acabamento:** mage D-grade; mais imponente que NG Magic Staff.
+**Acabamento:** mage D-grade channel; bastão longo — mais imponente que NG Channel Staff.
+
+---
+
+### `wpn_d_m_wand` — Crystal Wand
+
+**Grade / tipo:** D · **Wand** · linha Focus
+
+**Paleta:** cristal azul pálido `#A8C8E8`; prata no anel; haste madeira negra fina.
+
+**Silhueta:** varinha curta D; cristal facetado **médio** no topo; haste fina.
+
+**Topo:** cristal azul com glow interno suave; setting prateado minimalista.
+
+**Empunhadura:** uma mão; vertical; distinto do staff longo ao lado.
+
+---
+
+### `wpn_d_m_scepter` — Iron Scepter
+
+**Grade / tipo:** D · **Scepter** · linha Dominion
+
+**Paleta:** ferro fosco `#4A4A4A`; bronze nos anéis; couro escuro no grip.
+
+**Silhueta:** haste grossa média; topo bloco de ferro com **coroa de runas** ou orb metálico.
+
+**Topo:** peso visual; sem cristal grande — autoridade física.
+
+**Empunhadura:** punho largo; uma mão; mais curto que wizard staff.
 
 ---
 
@@ -325,9 +377,9 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 ---
 
-### `wpn_c_sorcerer_staff` — Sorcerer Staff
+### `wpn_c_sorcerer_staff` — Sorcerer Channel Staff
 
-**Grade / tipo:** C · Magic Sword (staff)
+**Grade / tipo:** C · Magic Sword (channel staff) · linha Channel
 
 **Paleta:** madeira roxo-escuro `#3D2B4F`; prata; cristal violeta `#8B5CF6`.
 
@@ -335,11 +387,33 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 **Topo:** cristal violeta **médio-grande**; glow interno médio; coroa prateada de quatro pontas **original**.
 
-**Acabamento:** mago de campo C; sheen satinado na haste.
+**Acabamento:** mago de campo C; bastão longo channel; sheen satinado na haste.
 
 ---
 
-## B-Grade
+### `wpn_c_m_wand` — Aether Wand
+
+**Grade / tipo:** C · **Wand** · linha Focus
+
+**Paleta:** violeta `#8B5CF6`; prata; haste escura fina.
+
+**Silhueta:** varinha C; cristal violeta médio; haste **curta** — contraste claro com Sorcerer Channel Staff alto.
+
+**Topo:** cristal aether facetado; glow médio; anel prateado.
+
+**Empunhadura:** uma mão; `_grip.png` = punho couro violeta escuro.
+
+---
+
+### `wpn_c_m_scepter` — War Scepter
+
+**Grade / tipo:** C · **Scepter** · linha Dominion
+
+**Paleta:** aço campanha `#8A8A98`; bronze; couro marrom.
+
+**Silhueta:** haste grossa; topo **bloco de guerra** com runas — orb metálico ou coroa de quatro pontas **diferente** do cristal do staff.
+
+**Acabamento:** frontline caster C; mais curto e pesado que channel staff.
 
 ### `wpn_b_damascus` — Sword of Damascus
 
@@ -423,21 +497,41 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 ---
 
-### `wpn_b_parasword` — Parasword
+### `wpn_b_parasword` — Parasword Channel Staff
 
-**Grade / tipo:** B · Magic Sword · espada arcana mage B
+**Grade / tipo:** B · Magic Sword (channel staff) · linha Channel
 
 **Paleta:** prata `#C0C0C0`; azul arcana `#2563EB`; cabo azul escuro.
 
-**Silhueta:** espada de mago — lâmina **estreita** com runas; guarda cruzada fina; perfil spellblade.
+**Silhueta:** staff-channel híbrido spellblade — haste com **lâmina estreita integrada** no topo ou lateral; perfil **longo** (channel); runas azul glow.
 
-**Lâmina:** canal de runas azul glow suave; fio prata; ponta fina.
+**Haste / lâmina:** canal de runas azul; fio prata na protrusão blade; mais alto que wand/scepter B.
 
-**Cabo:** couro azul; pommel com cristal plano.
+**Cabo:** couro azul; pommel com cristal plano; terço inferior em `_grip.png`.
 
 ---
 
-## A-Grade
+### `wpn_b_m_wand` — Shadow Wand
+
+**Grade / tipo:** B · **Wand** · linha Focus
+
+**Paleta:** obsidiana `#1A1A22`; carmesim `#6B1F1F` no cristal; prata fosca.
+
+**Silhueta:** varinha B sombria; cristal carmesim pequeno-médio; haste fina curta.
+
+**Topo:** glow fraco carmesim; perfil assassino arcano — **não** espada longa.
+
+---
+
+### `wpn_b_m_scepter` — Rune Scepter
+
+**Grade / tipo:** B · **Scepter** · linha Dominion
+
+**Paleta:** aço escuro; runas carmesim gravadas; ouro fosco no topo.
+
+**Silhueta:** haste média grossa; topo **bloco rúnico** angular; runas brilham fraco.
+
+**Acabamento:** dominion B; peso visual entre parasword (longo) e shadow wand (curto).
 
 ### `wpn_a_tallum` — Tallum Blade
 
@@ -523,19 +617,39 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 ---
 
-### `wpn_a_arcana_mace` — Arcana Mace
+### `wpn_a_arcana_mace` — Arcana Channel Staff
 
-**Grade / tipo:** A · Magic Sword (staff/mace mage A)
+**Grade / tipo:** A · Magic Sword (channel staff) · linha Channel
 
 **Paleta:** prata; violeta `#7C3AED`; cristal grande violeta.
 
-**Forma:** bastão-maça arcano — topo com **orb violeta** em gaiola prateada; haste torneada com runas; entre staff e mace (bloco orbital no topo).
+**Forma:** bastão channel longo — topo com **orb violeta** em gaiola prateada; haste torneada com runas; bloco orbital (entre staff clássico e mace).
 
-**Glow:** médio-forte violeta no orb; runas luminosas.
+**Glow:** médio-forte violeta no orb; runas luminosas; **altura staff** acima da cabeça.
 
 ---
 
-## S-Grade
+### `wpn_a_m_wand` — Star Wand
+
+**Grade / tipo:** A · **Wand** · linha Focus
+
+**Paleta:** prata polida; cristal estrela azul-branco; ouro nos anéis.
+
+**Silhueta:** varinha A nobre; cristal em forma de **estrela** ou cometa no topo; haste curta fina.
+
+**Topo:** glow médio branco-azul; filigrana ouro no anel — distinto do orb grande do channel staff.
+
+---
+
+### `wpn_a_m_scepter` — Titan Scepter
+
+**Grade / tipo:** A · **Scepter** · linha Dominion
+
+**Paleta:** titânio prateado; ouro; gemas no topo.
+
+**Silhueta:** haste grossa A; topo **coroa de titã** — orb em gaiola massiva de metal, não cristal fino de wand.
+
+**Acabamento:** frontline arcanist A; autoridade e peso visual.
 
 ### `wpn_s_infinity_sword` — Infinity Sword
 
@@ -595,21 +709,41 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 ---
 
-### `wpn_s_imperial_staff` — Imperial Staff
+### `wpn_s_imperial_staff` — Imperial Channel Staff
 
-**Grade / tipo:** S · Magic Sword (staff) · mage S
+**Grade / tipo:** S · Magic Sword (channel staff) · linha Channel
 
 **Paleta:** branco marfim; ouro; cristal imperial grande azul ou dourado.
 
-**Haste:** torneada marfim/branco com filigrana ouro; anéis gem-set.
+**Haste:** torneada marfim/branco com filigrana ouro; anéis gem-set; bastão **longo** lendário.
 
 **Topo:** **cristal imperial grande** multifacetado; coroa ouro; glow forte azul-dourado.
 
-**Acabamento:** staff de imperador arcano; máximo prestígio mage S.
+**Acabamento:** channel staff de imperador arcano; máximo prestígio mage S (loja).
 
 ---
 
-### `wpn_s_tyrants_fist` — Tyrant Fist
+### `wpn_s_m_wand` — Eclipse Wand
+
+**Grade / tipo:** S · **Wand** · linha Focus
+
+**Paleta:** negro eclipse `#1A1020`; borda dourada `#D4AF37`; cristal escuro com halo dourado.
+
+**Silhueta:** varinha S; cristal eclipse (escuro com anel luminoso); haste curta ébano/ouro.
+
+**Topo:** glow forte no halo; **curta** — contraste máximo com Imperial Channel Staff.
+
+---
+
+### `wpn_s_m_scepter` — Void Scepter
+
+**Grade / tipo:** S · **Scepter** · linha Dominion
+
+**Paleta:** void violeta `#2D0A31`; prata; energia magenta/ciano nas runas.
+
+**Silhueta:** haste grossa S; topo **bloco void** com fissuras de energia; orb em gaiola fechada.
+
+**Acabamento:** dominion S shop; mais massivo que eclipse wand; mais curto que imperial staff.
 
 **Grade / tipo:** S · Fist · orc/brawler S
 
@@ -707,7 +841,36 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 **Glow:** intenso ciano/magenta nas fissuras; acumen/mana visual.
 
-**Acabamento:** ultimate arcane Vesper; mais energia que Imperial Staff.
+**Acabamento:** ultimate arcane Vesper channel; mais energia que Imperial Channel Staff.
+
+---
+
+## Mage — checklist paperdoll (18 presets × 3 linhas)
+
+Para **cada** ID mage abaixo, em **cada** preset `*_mage` / `*_mage_female` (e opcionalmente outros presets se o corpo equipar):
+
+| Ficheiro | Conteúdo |
+|----------|----------|
+| `equips/<id>.png` | Haste superior + topo (wand cristal / staff alto / scepter ornamental) — enchant +4 |
+| `equips/<id>_grip.png` | Punho / terço inferior — **sem** enchant |
+
+**IDs por grade (3 cada):**
+
+| Grade | Wand (Focus) | Channel Staff | Scepter (Dominion) |
+|-------|--------------|---------------|---------------------|
+| NG | `wpn_ng_trainee_focus` | `wpn_ng_magic` | `wpn_ng_m_scepter` |
+| D | `wpn_d_m_wand` | `wpn_d_wizard_staff` | `wpn_d_m_scepter` |
+| C | `wpn_c_m_wand` | `wpn_c_sorcerer_staff` | `wpn_c_m_scepter` |
+| B | `wpn_b_m_wand` | `wpn_b_parasword` | `wpn_b_m_scepter` |
+| A | `wpn_a_m_wand` | `wpn_a_arcana_mace` | `wpn_a_m_scepter` |
+| S | `wpn_s_m_wand` | `wpn_s_imperial_staff` | `wpn_s_m_scepter` |
+| S Vesper | — | `wpn_s_vesper_buster` | — |
+
+**Ícones globais (256×256):** `assets/armas/<id>.png` — um ficheiro por ID, todas as raças.
+
+**Prioridade arte:** `human_mage` + `human_mage_female` → elf/dark_elf/orc mage presets.
+
+**Regra crítica:** na mesma grade, os **três PNGs devem ser claramente distinguíveis** — wand **curta**, staff **alta**, scepter **média grossa**.
 
 ---
 
@@ -717,14 +880,18 @@ Combina com corpo, mãos (`hands.png` ou `_hands`), estilo, etc.
 
 | Ficheiro | Conteúdo | Enchant |
 |----------|----------|---------|
-| `equips/<id>.png` | Lâmina, haste superior, topo de staff, arco, etc. | **Sim** (+4) |
+| `equips/<id>.png` | Lâmina, haste superior, topo de staff/wand/scepter, arco, etc. | **Sim** (+4) |
 | `equips/<id>_grip.png` | Cabo, punho, couro na empunhadura, guarda junto à mão | **Não** |
 
-Stack: corpo → armadura → **lâmina** → **cabo** → mãos. O brilho de enchant fica só na lâmina para não “sujar” as mãos.
+Stack: corpo → armadura → **lâmina** → **cabo** → mãos. O brilho de enchant fica só na lâmina/haste superior para não “sujar” as mãos.
 
 **Empunhadura padrão human fighter (espada / adaga / maça):** mão direita no punho; lâmina para baixo-esquerda ~15° ou vertical; punho/cabo em `_grip.png`; lâmina sem punho em `<id>.png`.
 
-**Staff:** terço inferior (couro/grip) em `_grip.png`; haste + topo em `<id>.png`. Eixo vertical; topo pode ultrapassar cabeça.
+**Channel staff:** terço inferior (couro/grip) em `_grip.png`; haste + topo em `<id>.png`. Eixo vertical; topo pode ultrapassar cabeça.
+
+**Wand:** haste **curta**; punho inteiro ou terço inferior em `_grip.png`; cristal/topo em `<id>.png`. Uma mão.
+
+**Scepter:** haste média; punho grosso em `_grip.png`; topo ornamental (orb/coroa) em `<id>.png`. Mais curto que staff.
 
 **Bow:** padrão único por projeto — recomendado **vertical** ao lado direito do corpo, mão esquerda no grip; manter igual em todos os tiers.
 
@@ -732,10 +899,10 @@ Stack: corpo → armadura → **lâmina** → **cabo** → mãos. O brilho de en
 
 **Armas de partida (prioridade arte human):**
 
-| ID | Preset típico |
-|----|----------------|
-| `wpn_ng_trainee_blade` | `human_fighter` |
-| `wpn_ng_trainee_focus` | `human_mage` |
+| ID | Nome | Preset típico |
+|----|------|----------------|
+| `wpn_ng_trainee_blade` | Wooden Sword | `human_fighter` |
+| `wpn_ng_trainee_focus` | Novice Wand | `human_mage` |
 
 ---
 
@@ -747,5 +914,7 @@ Stack: corpo → armadura → **lâmina** → **cabo** → mãos. O brilho de en
 | **Dagger** | knife brilhante → stiletto → dark screamer → kris ondulada → soul separator → angel slayer → vesper shaper púrpura |
 | **Bow** | training madeira → hunter long → akat → haken composto → carnage heavy → draconic scale → vesper energy |
 | **Mace** | apprentice → war hammer → demon splinter → forgotten → dragon hammer → vesper avenger rubi |
-| **Staff** | basic wood → wizard → sorcerer → parasword blade → arcana orb → imperial → vesper buster fissuras |
+| **Staff (channel)** | channel wood → wizard → sorcerer → parasword → arcana → imperial → vesper buster |
+| **Wand (focus)** | novice wood → crystal D → aether C → shadow B → star A → eclipse S |
+| **Scepter (dominion)** | bronze NG → iron D → war C → rune B → titan A → void S |
 | **Fist** | iron knuckle → battle → spiked grapple → steel typhoon → tyrant fist → vesper fighter claws |

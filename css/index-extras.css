@@ -5578,6 +5578,51 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     color: var(--l2-text-primary);
 }
 
+.settings-layout-lead {
+    margin: 0 0 10px;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    color: var(--l2-text-muted, #9a8a78);
+}
+
+.settings-layout-row {
+    display: flex;
+    gap: 8px;
+}
+
+.settings-layout-btn {
+    flex: 1;
+    min-height: 44px;
+    padding: 8px 6px;
+    border-radius: 10px;
+    border: 1px solid var(--l2-border-soft);
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--l2-text-secondary);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s, color 0.2s;
+}
+
+.settings-layout-btn:hover {
+    border-color: var(--l2-accent-gold);
+    background: rgba(179, 138, 77, 0.08);
+}
+
+.settings-layout-btn--active {
+    border-color: var(--l2-accent-gold);
+    background: rgba(179, 138, 77, 0.18);
+    color: var(--l2-text-primary);
+    box-shadow: var(--l2-glow-gold);
+}
+
+.settings-layout-btn:focus-visible {
+    outline: 2px solid var(--l2-focus-ring, #facc15);
+    outline-offset: 2px;
+}
+
 .settings-section--meta {
     padding-top: 10px;
     border-top: 1px solid rgba(255, 255, 255, 0.08);

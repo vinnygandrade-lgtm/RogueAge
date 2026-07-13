@@ -158,9 +158,15 @@ const OlympiadBots = {
         const catalogoJoiasList = olyJewelCatalog();
 
         if (catalogoArmasList.length > 0 && !visualRival.weaponId) {
-            const armasValidas = catalogoArmasList.filter(
-                (a) => a.grade === gradeBot && (isMage ? a.tipo === 'Magic Sword' || a.tipo === 'Mace' : a.tipo !== 'Magic Sword'),
-            );
+            const armasValidas = catalogoArmasList.filter((a) => {
+                if (a.grade !== gradeBot) return false;
+                if (typeof window.weaponMatchesClass === 'function') {
+                    return window.weaponMatchesClass(a, isMage);
+                }
+                return isMage
+                    ? (a.tipo === 'Magic Sword' || a.tipo === 'Wand' || a.tipo === 'Scepter')
+                    : a.tipo !== 'Magic Sword' && a.tipo !== 'Wand' && a.tipo !== 'Scepter';
+            });
             if (armasValidas.length > 0) {
                 armaBot = armasValidas[Math.floor(Math.random() * armasValidas.length)] as Record<string, unknown>;
                 visualRival.weaponId = armaBot.id;
@@ -170,11 +176,25 @@ const OlympiadBots = {
         }
 
         if (catalogoArmadurasList.length > 0 && !visualRival.armorId) {
-            let tipoArmadura = isMage ? 'Robe' : Math.random() > 0.5 ? 'Heavy' : 'Light';
-            if (classeBot.includes('Knight') || classeBot.includes('Paladin') || classeBot.includes('Avenger')) tipoArmadura = 'Heavy';
-            if (classeBot.includes('Rogue') || classeBot.includes('Ranger') || classeBot.includes('Assassin')) tipoArmadura = 'Light';
+            const weights = ['heavy', 'medium', 'light'] as const;
+            let weightPick = weights[Math.floor(Math.random() * weights.length)];
+            if (classeBot.includes('Knight') || classeBot.includes('Paladin') || classeBot.includes('Avenger')) weightPick = 'heavy';
+            if (classeBot.includes('Rogue') || classeBot.includes('Ranger') || classeBot.includes('Assassin')) weightPick = 'light';
 
-            const armadurasValidas = catalogoArmadurasList.filter((a) => a.grade === gradeBot && a.tipo === tipoArmadura);
+            const armadurasValidas = catalogoArmadurasList.filter((a) => {
+                if (a.grade !== gradeBot || Number(a.preco) === 0) return false;
+                if (typeof window.armorMatchesClass === 'function') {
+                    return window.armorMatchesClass(a, isMage);
+                }
+                const arch = a.armorArchetype as string | undefined;
+                if (arch) return isMage ? arch === 'mage' : arch === 'fighter';
+                return isMage ? a.tipo === 'Robe' || a.tipo === 'Mage Light' || a.tipo === 'Mage Heavy' : a.tipo !== 'Robe' && a.tipo !== 'Mage Light' && a.tipo !== 'Mage Heavy';
+            }).filter((a) => {
+                const w = a.armorWeight as string | undefined;
+                if (w) return w === weightPick;
+                if (isMage) return weightPick === 'medium' ? a.tipo === 'Robe' : (weightPick === 'light' ? a.tipo === 'Mage Light' : a.tipo === 'Mage Heavy');
+                return weightPick === 'heavy' ? a.tipo === 'Heavy' : (weightPick === 'light' ? a.tipo === 'Light' : a.tipo === 'Medium');
+            });
             if (armadurasValidas.length > 0) {
                 armaduraBot = armadurasValidas[Math.floor(Math.random() * armadurasValidas.length)] as Record<string, unknown>;
                 visualRival.armorId = armaduraBot.id;

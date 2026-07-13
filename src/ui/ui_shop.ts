@@ -537,6 +537,12 @@ function mudarAbaLoja(tipo: ShopEquipTab): void {
 
     let itensFiltrados = catalogo.filter(item => item.grade === lojaGradeAtual && _invNum(item.preco) > 0);
 
+    if (tipo === 'armor' && typeof window.armorMatchesClass === 'function' && typeof window.isClasseMagica === 'function') {
+        const isMage = window.isClasseMagica(window.charClass);
+        itensFiltrados = itensFiltrados.filter((item) => window.armorMatchesClass!(item, isMage));
+    }
+    // Armas: todas as classes veem o catálogo completo da grade (wand/staff/scepter + físicas).
+
     if (itensFiltrados.length === 0) {
         grid.innerHTML = '<span style="color:#aaa; font-size:0.8em; grid-column: span 4; text-align:center; padding-top: 10px;">' + shopT('game.shop.comingSoon') + '</span>';
     } else {
@@ -577,9 +583,30 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
             reqLinha = `<br>${shopT('game.shop.labelReqLevel')} <span style="color:${corReq}; font-weight:bold;">${vReq.nivelMinimo}</span> <span style="color:#94a3b8;">${shopT('game.shop.youLevelHint', { level: vReq.nivelAtual })}</span>`;
         }
         
-        // Lê o tipo de armadura e dá uma cor
-        let corTipo = itemSelecionado.tipo === 'Heavy' ? '#ef4444' : (itemSelecionado.tipo === 'Light' ? '#10b981' : '#3b82f6');
-        let tipoTxt = itemSelecionado.tipo ? `<br>${shopT('game.shop.labelType')} <span style="color:${corTipo}; font-weight:bold;">${itemSelecionado.tipo}</span>` : '';
+        // Lê linha de armadura (fighter/mage × heavy/medium/light)
+        let corTipo = '#94a3b8';
+        let tipoTxt = '';
+        const lineLabel = typeof itemSelecionado.armorLineLabel === 'string'
+            ? itemSelecionado.armorLineLabel
+            : (typeof window.formatArmorLineLabel === 'function' && itemSelecionado.armorArchetype && itemSelecionado.armorWeight
+                ? window.formatArmorLineLabel(
+                    itemSelecionado.armorArchetype as 'fighter' | 'mage',
+                    itemSelecionado.armorWeight as 'heavy' | 'medium' | 'light',
+                    typeof itemSelecionado.armorStyle === 'string' ? itemSelecionado.armorStyle : undefined,
+                )
+                : String(itemSelecionado.tipo || ''));
+        if (lineLabel) {
+            if (String(itemSelecionado.armorArchetype || '') === 'mage' || itemSelecionado.tipo === 'Robe' || itemSelecionado.tipo === 'Mage Light' || itemSelecionado.tipo === 'Mage Heavy') {
+                corTipo = '#3b82f6';
+            } else if (itemSelecionado.tipo === 'Light' || itemSelecionado.armorWeight === 'light') {
+                corTipo = '#10b981';
+            } else if (itemSelecionado.tipo === 'Medium' || itemSelecionado.armorWeight === 'medium') {
+                corTipo = '#f59e0b';
+            } else {
+                corTipo = '#ef4444';
+            }
+            tipoTxt = `<br>${shopT('game.shop.labelType')} <span style="color:${corTipo}; font-weight:bold;">${lineLabel}</span>`;
+        }
         
         // Verifica e adiciona os bônus ocultos que criamos
         if (itemSelecionado.bonusHp) infoExtra += `<br>${shopT('game.shop.labelMaxHp')} <span style="color:#10b981">+${itemSelecionado.bonusHp}</span>`;
@@ -597,6 +624,10 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
         if (!itemSelecionado) return; 
         let infoExtra = "";
         let tipoArma = itemSelecionado.tipo ? `<br>${shopT('game.shop.labelType')} <span style="color:#f59e0b; font-weight:bold;">${itemSelecionado.tipo}</span>` : '';
+        const weaponLine = typeof itemSelecionado.weaponLineLabel === 'string' ? itemSelecionado.weaponLineLabel : '';
+        if (weaponLine) {
+            tipoArma += `<br>${shopT('game.shop.labelWeaponLine')} <span style="color:#60a5fa; font-weight:bold;">${weaponLine}</span>`;
+        }
         let reqLinha = '';
         if (typeof window.validarEquipPorGrade === 'function') {
             let vReq = window.validarEquipPorGrade(itemSelecionado);
@@ -631,9 +662,13 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
         if (itemSelecionado.bonusCrit) infoJoia += `<br>${shopT('game.shop.labelCritRate')} <span style="color:#ef4444">+${itemSelecionado.bonusCrit}%</span>`;
         if (itemSelecionado.pAtk) infoJoia += `<br>${shopT('game.shop.labelPAtk')} <span style="color:#ef4444">+${itemSelecionado.pAtk}</span>`;
         if (itemSelecionado.mAtk) infoJoia += `<br>${shopT('game.shop.labelMAtk')} <span style="color:#3b82f6">+${itemSelecionado.mAtk}</span>`;
+        const jewelSetLabel = typeof itemSelecionado.jewelSetLabel === 'string' ? itemSelecionado.jewelSetLabel : '';
+        const jewelSetRow = jewelSetLabel
+            ? `<br>${shopT('game.shop.labelJewelSet')} <span style="color:#c084fc; font-weight:bold;">${jewelSetLabel}</span>`
+            : '';
         if (itemSelecionado.desc) infoJoia += `<br><br><span style="color:#c4b5fd; font-style:italic;">"${itemSelecionado.desc}"</span>`;
         const precoJ = effectiveShopUnitForCatalogItem(itemSelecionado);
-        document.getElementById('detalhe-texto').innerHTML = `<b style="color:white; font-size:1.1em;">${itemSelecionado.nome}</b><br><br>${shopT('game.shop.labelType')} <span style="color:#a855f7; text-transform:capitalize;">${itemSelecionado.tipoItem}</span><br>${_shopGradeDetailRow(itemSelecionado.grade)}${reqLinha}<br>${shopT('game.shop.labelMDef')} <span style="color:#a855f7">+${itemSelecionado.mDef}</span>${infoJoia}`; 
+        document.getElementById('detalhe-texto').innerHTML = `<b style="color:white; font-size:1.1em;">${itemSelecionado.nome}</b><br><br>${shopT('game.shop.labelType')} <span style="color:#a855f7; text-transform:capitalize;">${itemSelecionado.tipoItem}</span>${jewelSetRow}<br>${_shopGradeDetailRow(itemSelecionado.grade)}${reqLinha}<br>${shopT('game.shop.labelMDef')} <span style="color:#a855f7">+${itemSelecionado.mDef}</span>${infoJoia}`; 
         btnBuy.onclick = function() { confirmarCompraJewel(); };
     }
     

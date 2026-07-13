@@ -44,6 +44,26 @@
     <link rel="stylesheet" href="css/expedition-portrait-fit.css">
     <link rel="stylesheet" href="css/auth-flow.css">
     <link rel="stylesheet" href="css/inventory-grid.css">
+    <!-- Landscape PC: DEVE ficar por último para vencer auth-flow / screens -->
+    <link rel="stylesheet" href="css/shell-landscape.css">
+    <script>
+      /* Early layout hint — before modules boot (PC CSS needs data-l2-layout=landscape) */
+      (function () {
+        try {
+          var pref = localStorage.getItem('l2mini_layout') || 'auto';
+          var w = window.innerWidth || 0;
+          var h = Math.max(window.innerHeight || 1, 1);
+          var fine = window.matchMedia && window.matchMedia('(pointer: fine)').matches
+            && !(window.matchMedia('(pointer: coarse)').matches);
+          var land = window.matchMedia && window.matchMedia('(orientation: landscape)').matches;
+          var wide = w >= 900 && (fine || land || w / h >= 1.2);
+          var mode = pref === 'landscape' || pref === 'portrait'
+            ? pref
+            : (wide ? 'landscape' : 'portrait');
+          document.documentElement.setAttribute('data-l2-layout', mode);
+        } catch (e) { /* ignore */ }
+      })();
+    </script>
     <!-- Supabase Client Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Socket.io Client -->
@@ -315,6 +335,15 @@
                         <img src="https://flagcdn.com/w40/br.png" width="28" height="20" alt="" class="settings-lang-btn__flag">
                         <span class="settings-lang-btn__label" data-i18n="game.settings.languagePt">Português</span>
                     </button>
+                </div>
+            </section>
+            <section class="settings-section" aria-labelledby="settings-layout-heading">
+                <h3 id="settings-layout-heading" class="settings-section__title" data-i18n="game.settings.layout.title">Layout</h3>
+                <p class="settings-layout-lead" data-i18n="game.settings.layout.lead">Auto follows your screen size. Mobile keeps the tall phone layout; PC uses a wide view.</p>
+                <div class="settings-layout-row" role="group" aria-labelledby="settings-layout-heading">
+                    <button type="button" class="settings-layout-btn" data-layout-pref="auto" data-i18n="game.settings.layout.auto">Auto</button>
+                    <button type="button" class="settings-layout-btn" data-layout-pref="portrait" data-i18n="game.settings.layout.mobile">Mobile</button>
+                    <button type="button" class="settings-layout-btn" data-layout-pref="landscape" data-i18n="game.settings.layout.pc">PC</button>
                 </div>
             </section>
             <section id="settings-pwa-section" class="settings-section settings-section--pwa" aria-labelledby="settings-pwa-heading">

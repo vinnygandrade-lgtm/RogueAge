@@ -6,8 +6,8 @@
 import type { EquipBodySlot, EquipInstance, EquipRawInput, ItemCatalogBase } from '../types/game';
 
 const JEWEL_TYPES = ['neck', 'ear', 'ring'] as const;
-const WEAPON_TYPES = ['Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword', 'weapon'] as const;
-const ARMOR_TYPES = ['Heavy', 'Light', 'Robe', 'armor'] as const;
+const WEAPON_TYPES = ['Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword', 'Wand', 'Scepter', 'weapon'] as const;
+const ARMOR_TYPES = ['Heavy', 'Light', 'Medium', 'Robe', 'Mage Light', 'Mage Heavy', 'armor'] as const;
 
 function catalogFromItem(item: EquipInstance | EquipRawInput | null): ItemCatalogBase | null {
   if (!item) return null;
@@ -197,6 +197,21 @@ window.InventoryManager = {
     }
 
     if (!slot) return false;
+
+    if (slot === 'armor' && typeof window.armorMatchesClass === 'function') {
+      const base = catalogFromItem(item) ?? ({} as ItemCatalogBase);
+      const isMage = typeof window.isClasseMagica === 'function' && window.isClasseMagica(window.charClass);
+      if (!window.armorMatchesClass(base, isMage)) {
+        if (typeof window.mostrarAviso === 'function') {
+          window.mostrarAviso(
+            typeof window.t === 'function'
+              ? window.t('game.inventory.wrongArmorArchetype')
+              : 'This armor does not match your class archetype.',
+          );
+        }
+        return false;
+      }
+    }
 
     const itemParaEquipar = window.inventarioEquips.splice(indexBolsa, 1)[0];
     this.desequiparGarantido(slot);

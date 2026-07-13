@@ -44,6 +44,8 @@ async function bootGame(): Promise<void> {
 
   await import('./core/core_globals');
   await import('./ui/grade_ui');
+  // Layout mode early — sets html[data-l2-layout] before heavy UI so PC CSS applies
+  await import('./ui/ui_layout_mode');
   await import('./i18n/i18n');
   await import('./i18n/locales_bundle');
   await import('./runtime/cloud_rpc_message');

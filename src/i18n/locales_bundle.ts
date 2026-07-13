@@ -565,7 +565,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 inventory: {
                     needLevelToEquip: 'You need level {level} to equip this item.',
-                    levelRequired: 'Level {level} required.'
+                    levelRequired: 'Level {level} required.',
+                    wrongArmorArchetype: 'This armor line is for another class archetype (Fighter vs Mage).',
+                    wrongWeaponArchetype: 'This weapon is for another class archetype (Fighter vs Mage).',
                 },
                 craft: {
                     notEnoughMaterials: 'Not enough materials to craft!',
@@ -677,6 +679,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     bagFlash: '✓ IN BAG!',
                     labelGrade: 'Grade:',
                     labelType: 'Type:',
+                    labelJewelSet: 'Set:',
+                    labelWeaponLine: 'Line:',
                     labelPrice: 'Price:',
                     labelPDef: 'P. Def:',
                     labelPAtkBase: 'P. Atk (Base):',
@@ -2294,6 +2298,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     languagePt: 'Português',
                     version: 'Client version',
                     closeBtn: 'CLOSE',
+                    layout: {
+                        title: 'Layout',
+                        lead: 'Auto follows your screen size. Mobile keeps the tall phone layout; PC uses a wide view.',
+                        auto: 'Auto',
+                        mobile: 'Mobile',
+                        pc: 'PC'
+                    },
                     pwa: {
                         title: 'Install app',
                         lead: 'Open without browser tabs for more screen space on mobile.',
@@ -2981,7 +2992,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 inventory: {
                     needLevelToEquip: 'Você precisa ser nível {level} para equipar este item.',
-                    levelRequired: 'Nível {level} necessário.'
+                    levelRequired: 'Nível {level} necessário.',
+                    wrongArmorArchetype: 'Esta linha de armadura é de outro arquétipo (Fighter vs Mage).',
+                    wrongWeaponArchetype: 'Esta arma é de outro arquétipo (Fighter vs Mage).',
                 },
                 craft: {
                     notEnoughMaterials: 'Materiais insuficientes para craftar!',
@@ -3093,6 +3106,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     bagFlash: '✓ NA BOLSA!',
                     labelGrade: 'Grade:',
                     labelType: 'Tipo:',
+                    labelJewelSet: 'Conjunto:',
+                    labelWeaponLine: 'Linha:',
                     labelPrice: 'Preço:',
                     labelPDef: 'Def. F.:',
                     labelPAtkBase: 'Atk. F. (base):',
@@ -4710,6 +4725,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     languagePt: 'Português',
                     version: 'Versão do cliente',
                     closeBtn: 'FECHAR',
+                    layout: {
+                        title: 'Layout',
+                        lead: 'Automático segue o tamanho do ecrã. Celular mantém o layout vertical; PC usa a vista larga.',
+                        auto: 'Auto',
+                        mobile: 'Celular',
+                        pc: 'PC'
+                    },
                     pwa: {
                         title: 'Instalar app',
                         lead: 'Abre sem abas do navegador e ganha mais espaço no celular.',

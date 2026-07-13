@@ -689,10 +689,19 @@ const OlympiadEngine = {
 
         // Atualiza conteúdos
         document.querySelectorAll('.oly-tab-content').forEach(cont => {
-            (cont as HTMLElement).style.display = 'none';
+            const el = cont as HTMLElement;
+            el.style.display = 'none';
+            el.classList.remove('oly-tab-content--visible');
         });
         const contentEl = document.getElementById(`oly-content-${aba}`);
-        if (contentEl) contentEl.style.display = 'block';
+        if (contentEl) {
+            const isLandscape =
+                typeof document !== 'undefined' &&
+                document.documentElement.getAttribute('data-l2-layout') === 'landscape';
+            const useGrid = aba === 'ranking' && isLandscape;
+            contentEl.style.display = useGrid ? 'grid' : 'block';
+            contentEl.classList.add('oly-tab-content--visible');
+        }
 
         // Controle de visibilidade da barra de atalhos no lobby
         const barraGlobal = document.getElementById('barra-de-atalhos-dinamica');

@@ -10,7 +10,7 @@ const LEGACY_STATIC_PREFIXES = ['/js/', '/db/', '/css/', '/assets/'];
 
 /** Em dev/preview, serve pastas estáticas legadas a partir da raiz do repo. */
 function legacyStaticDirsPlugin() {
-  const serve = sirv(repoRoot, { dev: true, etag: true, single: false });
+  const serve = sirv(repoRoot, { dev: true, etag: false, single: false });
 
   const attach = (server: ViteDevServer | PreviewServer) => {
     server.middlewares.use((req, res, next) => {
@@ -18,6 +18,10 @@ function legacyStaticDirsPlugin() {
       if (!LEGACY_STATIC_PREFIXES.some((prefix) => url.startsWith(prefix))) {
         next();
         return;
+      }
+      // Dev: always revalidate CSS/static so shell-landscape edits show up
+      if (url.startsWith('/css/')) {
+        res.setHeader('Cache-Control', 'no-store');
       }
       serve(req, res, next);
     });

@@ -33,8 +33,14 @@ function bindLangButtons(): void {
   }
 }
 
+function syncLayoutSettings(): void {
+  window.LayoutMode?.bindSettingsButtons?.();
+  window.LayoutMode?.syncSettingsButtons?.();
+}
+
 function refreshGameSettingsUi(): void {
   syncLangActiveState();
+  syncLayoutSettings();
   if (window.PwaInstall?.refreshUi) {
     try {
       window.PwaInstall.refreshUi();
@@ -57,6 +63,7 @@ function abrirGameSettings(): void {
   if (typeof window.abrirModal !== 'function') return;
   bindLangButtons();
   syncLangActiveState();
+  syncLayoutSettings();
   if (window.PwaInstall?.refreshUi) {
     try {
       window.PwaInstall.refreshUi();
@@ -84,6 +91,7 @@ function fecharGameSettings(): void {
 function initHudSettings(): void {
   bindLangButtons();
   syncLangActiveState();
+  syncLayoutSettings();
 }
 
 window.abrirGameSettings = abrirGameSettings;

@@ -9,8 +9,8 @@ type CreateOverrides = Partial<EquipInstance> & {
   enchantJewel?: number;
 };
 
-const WEAPON_TYPES = ['weapon', 'Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword'];
-const ARMOR_TYPES = ['armor', 'Heavy', 'Light', 'Robe'];
+const WEAPON_TYPES = ['weapon', 'Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword', 'Wand', 'Scepter'];
+const ARMOR_TYPES = ['armor', 'Heavy', 'Light', 'Medium', 'Robe', 'Mage Light', 'Mage Heavy'];
 const JEWEL_TYPES = ['jewel', 'neck', 'ear', 'ring'];
 
 function uidPrefixFor(tipo: string, base: ItemCatalogBase): string {

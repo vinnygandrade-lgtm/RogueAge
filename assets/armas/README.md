@@ -30,6 +30,21 @@ Coloca estes quatro ícones aqui:
 
 As outras armas NG no catálogo ainda usam placeholders legados até teres ícone próprio.
 
+## Mage — 3 linhas por grade (ícones `assets/armas/`)
+
+Cada ID = **`assets/armas/<id>.png`** (256×256). Paperdoll separado por preset (ver acima).
+
+| Grade | Wand (Focus) | Channel Staff | Scepter (Dominion) |
+|-------|--------------|---------------|---------------------|
+| NG | `wpn_ng_trainee_focus` ✓ | `wpn_ng_magic` ✓ | `wpn_ng_m_scepter` |
+| D | `wpn_d_m_wand` | `wpn_d_wizard_staff` ✓ | `wpn_d_m_scepter` |
+| C | `wpn_c_m_wand` | `wpn_c_sorcerer_staff` ✓ | `wpn_c_m_scepter` |
+| B | `wpn_b_m_wand` | `wpn_b_parasword` (placeholder) | `wpn_b_m_scepter` |
+| A | `wpn_a_m_wand` | `wpn_a_arcana_mace` (placeholder) | `wpn_a_m_scepter` |
+| S | `wpn_s_m_wand` | `wpn_s_imperial_staff` (placeholder) | `wpn_s_m_scepter` |
+
+✓ = PNG já no repo. Restantes: criar ícone + paperdoll. Prompts: `docs/paperdoll-weapon-image-prompts.md`.
+
 ## C-Grade — ícones (`assets/armas/`)
 
 | Arma | ID | Ficheiro |

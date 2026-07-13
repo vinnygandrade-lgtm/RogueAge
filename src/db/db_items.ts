@@ -8,6 +8,21 @@ import type {
   ItemCatalogBase,
   ShopCatalogItem,
 } from '../types/game';
+import {
+  applyArmorCatalogMeta,
+  armorMatchesClass,
+  buildExpansionArmors,
+  buildExpansionJewels,
+  EXPANSION_ARMOR_ICON_SLUGS,
+  formatArmorLineLabel,
+  tagMediumJewelSets,
+} from './armor_jewel_expansion';
+import {
+  applyMageWeaponMeta,
+  buildExpansionMageWeapons,
+  isMageExclusiveWeapon,
+  weaponMatchesClass,
+} from './weapon_mage_expansion';
 
 // ==========================================
 // BANCO DE DADOS - ITENS, LOJAS E SCROLLS
@@ -68,7 +83,8 @@ function catalogArmorIconPath(armorId: string): string {
         a18: 'set_major_arcana_s',
         arm_s_vesper_heavy: 'vesper_heavy',
         arm_s_vesper_light: 'vesper_light',
-        arm_s_vesper_robe: 'vesper_robe'
+        arm_s_vesper_robe: 'vesper_robe',
+        ...EXPANSION_ARMOR_ICON_SLUGS,
     };
     var slug = slugs[String(armorId || '')];
     return slug ? ('assets/itens/' + slug + '.png') : 'assets/itens/item_generic.png';
@@ -77,36 +93,36 @@ if (typeof window !== 'undefined') {
     window.catalogArmorIconPath = catalogArmorIconPath;
 }
 
-const catalogoArmaduras: ItemCatalogBase[] = [
+const catalogoArmadurasBase: ItemCatalogBase[] = [
     // NO-GRADE
     { id: 'a1', nome: 'Wooden Set', grade: 'No-Grade', pDef: 30, bonusHp: 50, tipo: 'Heavy', preco: 800, img: catalogArmorIconPath('a1'), desc: 'Simple reinforced wood armor. A first bulwark against chaos.' },
     { id: 'a2', nome: 'Leather Set', grade: 'No-Grade', pDef: 22, bonusSpd: 10, bonusCrit: 1, tipo: 'Light', preco: 800, img: catalogArmorIconPath('a2'), desc: 'Light leather for nimble adventurers. Ideal for quick hunts.' },
-    { id: 'a3', nome: 'Devotion Set', grade: 'No-Grade', pDef: 15, bonusMp: 50, bonusMDef: 10, tipo: 'Robe', preco: 800, img: catalogArmorIconPath('a3'), desc: 'Novice acolyte robes. Boosts basic arcane focus.' },
+    { id: 'a3', nome: 'Devotion Vestments', grade: 'No-Grade', pDef: 15, bonusMp: 50, bonusMDef: 10, tipo: 'Robe', preco: 800, img: catalogArmorIconPath('a3'), desc: 'Novice mage vestments (medium weave). Boosts basic arcane focus.' },
 
     // D-GRADE
     { id: 'a4', nome: 'Brigandine Set', grade: 'D', pDef: 80, bonusHp: 150, tipo: 'Heavy', preco: 25000, img: catalogArmorIconPath('a4'), desc: 'Sturdy frontier plates. Built to endure brutal charges.' },
     { id: 'a5', nome: 'Manticore Set', grade: 'D', pDef: 60, bonusSpd: 20, bonusCrit: 2, tipo: 'Light', preco: 25000, img: catalogArmorIconPath('a5'), desc: 'Treated Manticore leather. Mobility and precision in combat.' },
-    { id: 'a6', nome: 'Knowledge Set', grade: 'D', pDef: 40, bonusMp: 150, bonusMDef: 25, tipo: 'Robe', preco: 25000, img: catalogArmorIconPath('a6'), desc: 'Arcane library vestments. Great for mages on the rise.' },
+    { id: 'a6', nome: 'Knowledge Vestments', grade: 'D', pDef: 40, bonusMp: 150, bonusMDef: 25, tipo: 'Robe', preco: 25000, img: catalogArmorIconPath('a6'), desc: 'Scholar vestments (medium weave). Great for mages on the rise.' },
 
     // C-GRADE
     { id: 'a7', nome: 'Composite Set', grade: 'C', pDef: 150, bonusHp: 300, tipo: 'Heavy', preco: 120000, img: catalogArmorIconPath('a7'), desc: 'Campaign armor for veterans. Solid endurance in long fights.' },
     { id: 'a8', nome: 'Plated Leather', grade: 'C', pDef: 110, bonusSpd: 35, bonusCrit: 4, tipo: 'Light', preco: 120000, img: catalogArmorIconPath('a8'), desc: 'Plated leather for duelists. Fast strikes with calculated risk.' },
-    { id: 'a9', nome: 'Karmian Set', grade: 'C', pDef: 75, bonusMp: 300, bonusMDef: 45, tipo: 'Robe', preco: 120000, img: catalogArmorIconPath('a9'), desc: 'Classic mage robes. Efficient MP channeling and defense.' },
+    { id: 'a9', nome: 'Karmian Vestments', grade: 'C', pDef: 75, bonusMp: 300, bonusMDef: 45, tipo: 'Robe', preco: 120000, img: catalogArmorIconPath('a9'), desc: 'Field mage vestments (medium weave). Efficient MP channeling and defense.' },
 
     // B-GRADE
     { id: 'a10', nome: 'Doom Plate', grade: 'B', pDef: 240, bonusHp: 500, tipo: 'Heavy', preco: 450000, img: catalogArmorIconPath('a10'), desc: 'Elite dark steel. A bastion for heavy raids.' },
     { id: 'a11', nome: 'Doom Leather', grade: 'B', pDef: 180, bonusSpd: 50, bonusCrit: 6, tipo: 'Light', preco: 450000, img: catalogArmorIconPath('a11'), desc: 'Elite hunter gear. Tempo and lethality above the norm.' },
-    { id: 'a12', nome: 'Avadon Robe', grade: 'B', pDef: 125, bonusMp: 500, bonusMDef: 70, tipo: 'Robe', preco: 450000, img: catalogArmorIconPath('a12'), desc: 'Avadon ritual robe. Refined M. Def. for long duels.' },
+    { id: 'a12', nome: 'Avadon Vestments', grade: 'B', pDef: 125, bonusMp: 500, bonusMDef: 70, tipo: 'Robe', preco: 450000, img: catalogArmorIconPath('a12'), desc: 'Ritual vestments (medium weave). Refined M. Def. for long duels.' },
 
     // A-GRADE
     { id: 'a13', nome: 'Dark Crystal', grade: 'A', pDef: 350, bonusHp: 800, tipo: 'Heavy', preco: 1500000, img: catalogArmorIconPath('a13'), desc: 'Tempered black crystals. Frontline defense at its finest.' },
     { id: 'a14', nome: 'Majestic Leather', grade: 'A', pDef: 260, bonusSpd: 75, bonusCrit: 8, tipo: 'Light', preco: 1500000, img: catalogArmorIconPath('a14'), desc: 'Majestic elite set. Top-tier speed and precision.' },
-    { id: 'a15', nome: 'Tallum Robe', grade: 'A', pDef: 180, bonusMp: 800, bonusMDef: 110, tipo: 'Robe', preco: 1500000, img: catalogArmorIconPath('a15'), desc: 'Tallum arcane robe. Magical mastery for large-scale war.' },
+    { id: 'a15', nome: 'Tallum Vestments', grade: 'A', pDef: 180, bonusMp: 800, bonusMDef: 110, tipo: 'Robe', preco: 1500000, img: catalogArmorIconPath('a15'), desc: 'War arcanist vestments (medium weave). Magical mastery for large-scale war.' },
 
     // S-GRADE
     { id: 'a16', nome: 'Imperial Crusader', grade: 'S', pDef: 500, bonusHp: 1500, tipo: 'Heavy', preco: 5000000, img: catalogArmorIconPath('a16'), desc: 'Legendary imperial breastplate. Brutal resilience for S-Grade champions.' },
     { id: 'a17', nome: 'Draconic Leather', grade: 'S', pDef: 380, bonusSpd: 100, bonusCrit: 12, tipo: 'Light', preco: 5000000, img: catalogArmorIconPath('a17'), desc: 'Rare draconic leather. Assassin mobility with high crit damage.' },
-    { id: 'a18', nome: 'Major Arcana', grade: 'S', pDef: 260, bonusMp: 1500, bonusMDef: 180, tipo: 'Robe', preco: 5000000, img: catalogArmorIconPath('a18'), desc: 'Supreme arcane vestments. Peak MP and magic defense for endgame.' },
+    { id: 'a18', nome: 'Major Arcana Vestments', grade: 'S', pDef: 260, bonusMp: 1500, bonusMDef: 180, tipo: 'Robe', preco: 5000000, img: catalogArmorIconPath('a18'), desc: 'Supreme mage vestments (medium weave). Peak MP and magic defense for endgame.' },
      
     // --- ELITE S-GRADE (CRAFT EXCLUSIVO - SET VESPER) ---
     { 
@@ -129,6 +145,11 @@ const catalogoArmaduras: ItemCatalogBase[] = [
     }
 ];
 
+const catalogoArmaduras: ItemCatalogBase[] = [
+    ...catalogoArmadurasBase.map(applyArmorCatalogMeta),
+    ...buildExpansionArmors(catalogArmorIconPath),
+];
+
 // --- JOIAS (ACESSÓRIOS) ---
 /** Ícone UI global (só bolsa/loja/slots — sem layer no paperdoll): assets/joias/<jewelId>.png — 256×256 */
 function catalogJewelIconPath(jewelId: string): string {
@@ -138,7 +159,7 @@ if (typeof window !== 'undefined') {
     window.catalogJewelIconPath = catalogJewelIconPath;
 }
 
-const catalogoJoias: ItemCatalogBase[] = [
+const catalogoJoiasBase: ItemCatalogBase[] = [
     // --- NO-GRADE ---
     { id: 'j_ng_neck', nome: 'Wooden Necklace', tipoItem: 'neck', grade: 'No-Grade', preco: 300, mDef: 12, bonusHp: 15, bonusMp: 10, desc: 'Rustic jewelry. Grants a small vitality boost.', img: catalogJewelIconPath('j_ng_neck') },
     { id: 'j_ng_ear', nome: 'Wooden Earring', tipoItem: 'ear', grade: 'No-Grade', preco: 200, mDef: 9, bonusHp: 10, bonusMp: 5, desc: 'Simple earrings. Slightly improves resistance.', img: catalogJewelIconPath('j_ng_ear') },
@@ -181,6 +202,11 @@ const catalogoJoias: ItemCatalogBase[] = [
     
 ];
 
+const catalogoJoias: ItemCatalogBase[] = [
+    ...tagMediumJewelSets(catalogoJoiasBase),
+    ...buildExpansionJewels(catalogJewelIconPath),
+];
+
 
 
 // --- ARMAS ---
@@ -192,7 +218,7 @@ if (typeof window !== 'undefined') {
     window.catalogWeaponIconPath = catalogWeaponIconPath;
 }
 
-const catalogoArmas: ItemCatalogBase[] = [ 
+const catalogoArmasBase: ItemCatalogBase[] = [ 
     // ======================
     // NO-GRADE
     // ======================
@@ -203,7 +229,7 @@ const catalogoArmas: ItemCatalogBase[] = [
     { id: 'wpn_ng_dagger', nome: 'Shining Knife', grade: 'No-Grade', tipo: 'Dagger', preco: 520, atk: 18, bonusCrit: 2, bonusSpd: 10, img: catalogWeaponIconPath('wpn_ng_dagger'), desc: 'Light dagger for fast strikes and frequent crits.' },
     { id: 'wpn_ng_bow', nome: 'Training Bow', grade: 'No-Grade', tipo: 'Bow', preco: 560, atk: 24, bonusCrit: 3, img: catalogWeaponIconPath('wpn_ng_bow'), desc: 'Training bow with solid accuracy for early farming.' },
     { id: 'wpn_ng_mace', nome: 'Apprentice Mace', grade: 'No-Grade', tipo: 'Mace', preco: 600, atk: 20, matk: 17, bonusMp: 40, img: catalogWeaponIconPath('wpn_ng_mace'), desc: 'Hybrid mace for physical classes with light magic support.' },
-    { id: 'wpn_ng_magic', nome: 'Magic Staff', grade: 'No-Grade', tipo: 'Magic Sword', preco: 620, atk: 14, matk: 32, bonusMp: 80, img: catalogWeaponIconPath('wpn_ng_magic'), desc: 'Basic arcane focus for novice mages.' },
+    { id: 'wpn_ng_magic', nome: 'Channel Staff', grade: 'No-Grade', tipo: 'Magic Sword', preco: 620, atk: 14, matk: 32, bonusMp: 80, img: catalogWeaponIconPath('wpn_ng_magic'), desc: 'Balanced channel staff for novice mages. Reliable M. Atk and MP.' },
 
     // ======================
     // D-GRADE
@@ -301,6 +327,11 @@ const catalogoArmas: ItemCatalogBase[] = [
         desc: '[SA: Acumen & Mana] Ultimate arcane focus. +2000 MP and incredibly fast spellcasting.', 
         img: 'assets/itens/vesper_buster.png' 
     }
+];
+
+const catalogoArmas: ItemCatalogBase[] = [
+    ...catalogoArmasBase.map(applyMageWeaponMeta),
+    ...buildExpansionMageWeapons(catalogWeaponIconPath),
 ];
 
 const precosVenda: Record<string, number> = { "Animal Skin": 13, "Animal Bone": 18, "Coal": 24, "Charcoal": 30, "Iron Ore": 38 };
@@ -500,6 +531,10 @@ window.catalogoMateriais = catalogoMateriais;
 window.catalogoArmas = catalogoArmas;
 window.catalogoArmaduras = catalogoArmaduras;
 window.catalogoJoias = catalogoJoias;
+window.armorMatchesClass = armorMatchesClass;
+window.formatArmorLineLabel = formatArmorLineLabel;
+window.weaponMatchesClass = weaponMatchesClass;
+window.isMageExclusiveWeapon = isMageExclusiveWeapon;
 window.catalogoReceitas = catalogoReceitas;
 window.precosVenda = precosVenda;
 

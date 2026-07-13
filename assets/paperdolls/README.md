@@ -77,7 +77,7 @@ assets/paperdolls/<preset_id>/
 | Quem **recebe no create** | ID | Nome |
 |-------------|-----|------|
 | Fighter (incl. Dwarf) | `wpn_ng_trainee_blade` | Wooden Sword |
-| Mage | `wpn_ng_trainee_focus` | Basic Staff |
+| Mage | `wpn_ng_trainee_focus` | Novice Wand |
 
 Lógica: `createStarterWeaponInstance()` em `js/core_globals.js` · equip no boot: `iniciarJogo()` em `js/core.js`.
 
@@ -92,6 +92,29 @@ Lógica: `createStarterWeaponInstance()` em `js/core_globals.js` · equip no boo
 **Regra de arte:** mesmo **ID** de ficheiro (`wpn_ng_trainee_focus.png`, `wpn_ng_trainee_blade.png`, …) em **cada pasta de preset** onde esse corpo pode aparecer — **18 pastas** no total. O **design** da arma é o mesmo; a **posição no canvas 1080×984** muda conforme `body.png` / mãos daquele preset.
 
 Prioridade prática: human fighter M/F + human mage M/F → depois as outras raças.
+
+## Expansão — armaduras novas (6×6)
+
+**18 sets** em `src/db/armor_jewel_expansion.ts` — cada um precisa de **`equips/<id>.png`** + **`equips/<id>_hands.png`** em cada preset relevante.
+
+| Linha | IDs (exemplo) | Presets prioritários |
+|-------|---------------|----------------------|
+| Fighter Chain | `arm_ng_f_chain` … `arm_s_f_chain` | `*_fighter` / `*_fighter_female` / dwarf |
+| Mage Weave | `arm_ng_m_woven` … `arm_s_m_woven` | `*_mage` / `*_mage_female` |
+| Mage Warden | `arm_ng_m_warden` … `arm_s_m_warden` | `*_mage` / `*_mage_female` |
+
+Brief: `docs/paperdoll-armor-art-brief.md` · Prompts IA: `docs/paperdoll-armor-image-prompts.md` § Expansão 6×6.
+
+## Expansão — armas mage (3 linhas × grade)
+
+**Wand + Channel Staff + Scepter** por grade — cada ID: `equips/<id>.png` + `equips/<id>_grip.png`.
+
+| Grade | Wand | Staff | Scepter |
+|-------|------|-------|---------|
+| NG | `wpn_ng_trainee_focus` | `wpn_ng_magic` | `wpn_ng_m_scepter` |
+| D–S | `wpn_*_m_wand` | staffs legados | `wpn_*_m_scepter` |
+
+Lista completa: `docs/paperdoll-weapon-image-prompts.md` § Mage checklist.
 
 ## Ícones de armas (bolsa / loja) — globais
 

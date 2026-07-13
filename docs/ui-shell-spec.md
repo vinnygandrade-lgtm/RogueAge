@@ -2,27 +2,58 @@
 
 Contrato de layout para o jogo parecer **o mesmo** em telemóveis diferentes (proporção e largura máxima), sem altura fixa em pixels que quebre em notch / barra de gestos.
 
+Suporta **dois modos efectivos**: **portrait** (telemóvel) e **landscape** (PC / ecrã largo).
+
 ## Implementação
 
 | Ficheiro | Papel |
 |----------|--------|
-| `css/base.css` | Tokens `:root` (`--l2-shell-max-width`, safe areas, paddings, modais) |
-| `css/shell.css` | Cálculo de `--l2-shell-w` / `--l2-shell-h` em `.game-container` |
+| `css/base.css` | Tokens `:root` (`--l2-shell-max-width`, safe areas, paddings, modais; refs landscape) |
+| `css/shell.css` | Cálculo de `--l2-shell-w` / `--l2-shell-h` em `.game-container` (portrait / contain) |
+| `css/shell-landscape.css` | Overrides sob `html[data-l2-layout="landscape"]` — **carregar por último** no `index.html` (depois de auth-flow / inventory-grid) |
 | `css/layout.css` | Estrutura interna (viewport, hotbar, tabs) |
 | `css/index-extras.css` | Expedição base, floresta, modais extra |
 | `css/expedition-portrait-fit.css` | Expedição — caber no shell portrait (depois de `index-extras`) |
+| `src/ui/ui_layout_mode.ts` | Preferência `auto` / `portrait` / `landscape` + `data-l2-layout` |
 
 ## Números oficiais
 
+### Portrait (default)
+
 | Token | Valor | Uso |
 |-------|--------|-----|
-| `--l2-shell-max-width` | **450px** | Largura máxima do jogo no browser / PC |
+| `--l2-shell-max-width` | **450px** | Largura máxima do jogo no browser / preview portrait |
 | `--l2-design-canvas-width` × height | **390 × 844** | Referência Figma / arte (não forçar no runtime) |
 | `--l2-aspect-w` : `--l2-aspect-h` | **9 : 19.5** | Proporção portrait da moldura (iPhone-like) |
 | `--l2-screen-padding-x` / `y` | 14px / 12px | `.screen-content` |
 | `--l2-modal-max-width` | 420px | `.store-window` e modais largos |
 | `--l2-modal-narrow-max-width` | 380px | `.l2-modal` (alert/confirm) |
 | `--l2-panel-narrow-max-width` | 320px | Login, criação de personagem |
+
+### Landscape (`html[data-l2-layout="landscape"]`)
+
+Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
+
+| Token / regra | Valor | Uso |
+|---------------|--------|-----|
+| Modo shell | **fill** | Janela completa |
+| `--l2-shell-max-width` | **1920px** | Valor numérico para `min()` em modais |
+| `--l2-landscape-stage` | **1080px** | Largura máx. do painel de conteúdo (centrado) |
+| `--l2-landscape-card` | **200px** | Largura fixa de NPC cards (grelha centrada) |
+| `--l2-pd-profile-w` / max-h | **440px / 420px** | Paperdoll perfil — **mesmas regras de arte** (360∶328), sem stretch |
+| `--l2-landscape-chat-w` / `h` | **420×260** | Chat **janela flutuante** canto inferior esquerdo (estilo MMO clássico) |
+
+**Grelha in-game:** HUD → viewport → hotbar → tabs. Chat **não** entra no grid — é painel absoluto no canto inferior esquerdo, acima da hotbar. Hotbar slots **52px** centrados. **Nunca** `width: 100%` no paperdoll.
+
+**Arenas full-bleed (Olympiad / Raid / Clan War):** em landscape **não** aplicar `--l2-landscape-stage` nem `margin-inline: auto` no `#tela-*` absoluto — isso deixa a coluna colada à esquerda. A arena ocupa **100%** do shell; o conteúdo do lobby (season, tabs, scroll) centra com `max-width` ~960px por dentro.
+
+## Preferência do jogador
+
+- Settings → **Layout**: `Auto` / `Mobile` (portrait) / `PC` (landscape).
+- Device: `localStorage` chave `l2mini_layout`.
+- Personagem: campo `uiLayoutMode` no save (`auto` \| `portrait` \| `landscape`).
+- **Auto:** landscape se largura útil ≥ **900px** e (orientação landscape **ou** ratio largura/altura ≥ **1.2**); senão portrait.
+- Runtime aplica `data-l2-layout="portrait|landscape"` no `<html>` e escuta `resize` / `orientationchange`.
 
 ## Comportamento no telemóvel
 
@@ -31,14 +62,25 @@ Contrato de layout para o jogo parecer **o mesmo** em telemóveis diferentes (pr
 1. Modo **`fill`** (`css/shell.css`): o shell ocupa **100%** da área útil do `body` (já descontadas safe areas).
 2. **Sem** letterbox por proporção 9∶19.5 — o layout interno (flex + scroll) adapta-se à altura real do aparelho.
 3. Media: `(orientation: portrait) and (max-width: 768px)` ou touch `(pointer: coarse)` em portrait até 900px.
+4. Se `data-l2-layout="landscape"` estiver activo, **não** usar fill — `shell-landscape.css` força contain 16∶9.
 
 ### Desktop / landscape / preview centrado
 
-1. Modo **`contain`**: largura = `min(450px, largura útil, altura útil × 9/19.5)`.
-2. Altura = `min(altura útil, largura × 19.5/9)`.
+1. Com `data-l2-layout="landscape"`: modo **`fill`** — o shell ocupa **100%** da área útil (sem letterbox 16∶9).
+2. Com portrait no desktop (force Mobile / janela estreita): modo **`contain`** 9∶19.5 / max 450px, centrado.
 3. `body` usa `viewport-fit=cover` + `env(safe-area-inset-*)` para notch e home indicator.
-4. Ecrãs mais altos que a proporção: jogo **centrado** com margem preta (letterbox).
-5. Ecrãs mais baixos: largura encolhe para caber — hotbar e tabs mantêm-se na mesma coluna.
+4. Landscape HUD: chat lateral; grelhas de cidade/world com mais colunas; login em duas colunas.
+
+### HUD landscape (PC client)
+
+Sob `data-l2-layout="landscape"` e `#screen-game` (classe `game-ingame` no `.game-container`):
+
+- Shell full-width; `#screen-game` continua **flex** (não grid — evita partir a largura).
+- Tabs reordenadas para baixo via `order`.
+- **Chat** = janela flutuante canto inferior esquerdo (420×260).
+- Hotbar centrada; inventário/perfil com tamanhos ideais.
+
+Social / Olimpíada / Guerra / Expedição: usáveis na moldura larga; stack interno vertical (sem redesign dedicado no v1).
 
 ## Regras para novos ecrãs / modais
 
@@ -46,6 +88,7 @@ Contrato de layout para o jogo parecer **o mesmo** em telemóveis diferentes (pr
 - Modais com `abrirModal`: `max-width` via `--l2-modal-max-width`, não valores soltos em px.
 - Não definir `height: 800px` fixo no shell; usar `% do shell ou `dvh` com teto `85dvh` em modais.
 - Arte full-screen (paperdoll 1080×984, ícones 256×256) é **asset**, não tamanho de ecrã.
+- Overrides landscape: preferir seletores sob `html[data-l2-layout="landscape"]` em `shell-landscape.css` (ou ficheiro de ecrã), não alterar tokens portrait globais.
 
 ## Expedição (portrait fit)
 
@@ -59,4 +102,6 @@ Não alterar tokens `--l2-shell-*` para remendar expedição — ajustar só est
 
 ## Ajuste fino
 
-Para moldura um pouco mais alta/baixa, alterar só `--l2-aspect-h` (ex. `20` ou `19`) em `base.css` e validar perfil + combate + mercado.
+Para moldura portrait um pouco mais alta/baixa, alterar só `--l2-aspect-h` (ex. `20` ou `19`) em `base.css` e validar perfil + combate + mercado.
+
+Para landscape, ajustar `--l2-landscape-*` em `base.css` e os overrides em `shell-landscape.css`.

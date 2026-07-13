@@ -531,3 +531,139 @@ Combina com pose, estilo, personagem base, etc.
 | `a13` | altos angulares | cristais glow | gótico |
 | `a16` | massivos | filigrana ouro + brasão | imperial |
 | `arm_s_vesper_heavy` | máximo | gemas grandes + tripla placa | Vesper |
+
+---
+
+## Expansão 6×6 — sets novos (fighter Chain + mage Weave/Warden)
+
+**Catálogo:** `src/db/armor_jewel_expansion.ts` · **Brief curto:** `docs/paperdoll-armor-art-brief.md` § Expansão.
+
+**Contrato:** `equips/<id>.png` + `equips/<id>_hands.png` em **cada** `assets/paperdolls/<preset>/` (18 pastas). Mesmos pés **(540, 984)**.
+
+**Como desenhar a série:** mantém a **progressão de grade** da secção principal (NG madeira/bronze → D ferro → C campanha → B sombrio → A nobre/cristal → S lendário). Dentro da mesma grade, **Chain** fica visualmente **entre** Heavy e Light fighter; **Weave** é o mage **mais leve**; **Warden** é mage com **placas rúnicas** (mais pesado que Vestment `a3`…`a18`).
+
+---
+
+### `arm_ng_f_chain` — Bronze Chain Set (Fighter Medium)
+
+**Grade / linha:** No-Grade · Fighter · Medium · Chain
+
+**Paleta:** bronze `#8B6914` e `#CD7F32`; anéis mail bege `#C4A882`; couro marrom `#6B4423`; gambesão linho `#E8DCC8`.
+
+**Silhueta:** ombros **médios** (entre a1 largo e a2 estreito); peito com volume de mail, não tábuas de madeira.
+
+**Peito / torso:** cota de anéis bronze visível no peito e flancos; **duas placas retangulares de bronze** sobre o peito (não full plate); gambesão por baixo nas axilas; rebites grandes nos ombros.
+
+**Ombros:** pauldrons baixos de couro com **sobreposição de anéis**; sem pontas agressivas.
+
+**Braços / pernas:** mangas de mail até cotovelo; braceletes de anéis nos antebraços; grevas de couro com tiras de mail nas canelas.
+
+**Acabamento:** mate; primeiro “meio-termo” fighter NG; funcional.
+
+**Mãos (_hands):** meio-gauntlet couro + anéis bronze no dorso; dedos livres; punho até metade do antebraço.
+
+---
+
+### `arm_ng_m_woven` — Spellweave Set (Mage Light)
+
+**Grade / linha:** No-Grade · Mage · Light · Weave
+
+**Paleta:** tecido off-white `#F5F0E6`; fios arcanos pálidos `#E8D4FF` (glow mínimo); faixa bege `#D9CAB3`.
+
+**Silhueta:** **mais esguia** que a3 Devotion; cintura fina; ombros baixos; tecido cola ao corpo.
+
+**Peito / torso:** túnica curta-média com **padrão de weave** (linhas diagonais luminosas discretas no tecido); gola alta fina; **sem placa**; símbolo bordado pequeno no peito (runa original).
+
+**Mangas:** justas; punhos finos; fios brilham só nas costuras.
+
+**Acabamento:** leve, MP/velocidade visual; contraste com Warden da mesma grade.
+
+**Mãos (_hands):** punhos de tecido com fio luminoso no pulso; dedos descobertos ou luva de seda fina.
+
+---
+
+### `arm_ng_m_warden` — Runic Warden Set (Mage Heavy)
+
+**Grade / linha:** No-Grade · Mage · Heavy · Warden
+
+**Paleta:** spellcloth bege `#D9CAB3`; placas bronze `#8B6914`; runas marrom escuro `#5C4033`.
+
+**Silhueta:** ombros **médios-altos** para mage; peitoral com placa; entre weave leve e robe a3.
+
+**Peito / torso:** túnica de acólito com **placa peitoral de bronze rúnica** central; ombreiras de bronze curvadas pequenas; spellcloth visível nas frestas.
+
+**Cintura:** cinto largo couro com pingente de runa.
+
+**Acabamento:** battle mage iniciante; primeira linha “tanque arcano”.
+
+**Mãos (_hands):** luvas spellcloth + placa bronze no dorso; runas gravadas; sem gauntlet de ferro completo.
+
+---
+
+### D-Grade — expansão (`arm_d_f_chain`, `arm_d_m_woven`, `arm_d_m_warden`)
+
+**Tom geral D:** ferro fosco, primeiro metal sério — evoluir NG mantendo silhueta de cada linha.
+
+| ID | Peito / foco visual | Ombros vs NG | Mãos (_hands) |
+|----|---------------------|--------------|---------------|
+| `arm_d_f_chain` Half-Plate | Mail cinza + **placas ferro** peito/ombros; rebites; gambesão escuro | +10% vs NG chain | Gauntlets segmentados ferro+mail |
+| `arm_d_m_woven` Arcane Loom | Seda azul-vinho; **sigilos bordados** geométricos; cristais minúsculos nas costuras | baixos, tecido fluido | Luvas seda; anel de foco no polegar |
+| `arm_d_m_warden` Sanctum Guard | Robe azul escuro + **placas ward** ferro nos ombros; runas prateadas peito | médios, placas angulares | Spellcloth + placa ward no dorso |
+
+---
+
+### C-Grade — expansão (`arm_c_f_chain`, `arm_c_m_woven`, `arm_c_m_warden`)
+
+**Tom geral C:** aço claro, bronze, veterano de campanha.
+
+| ID | Peito / foco visual | Detalhe chave | Mãos (_hands) |
+|----|---------------------|---------------|---------------|
+| `arm_c_f_chain` Campaign Chain | Mail campanha + placas bronze ombros; cinturão couro com fivelas | volume entre a7 e a8 | Gauntlets mail até antebraço; filete bronze |
+| `arm_c_m_woven` Mystic Thread | Vestment violeta; **fios de cristal** entretecidos; ombreiras tecido leve | brilho satinado | Punhos com cristais minúsculos |
+| `arm_c_m_warden` Aegis Rite | Placas escuras sobre robe carmesim; **aegis** gravado no peito | glow runa fraco | Placas rúnicas nos punhos |
+
+---
+
+### B-Grade — expansão (`arm_b_f_chain`, `arm_b_m_woven`, `arm_b_m_warden`)
+
+**Tom geral B:** aço negro, carmesim, raid sombrio.
+
+| ID | Peito / foco visual | Detalhe chave | Mãos (_hands) |
+|----|---------------------|---------------|---------------|
+| `arm_b_f_chain` Doom Chain | Mail negro + placas angulares; elos com accent carmesim | entre a10 e a11 | Gauntlets escuros; rebites carmesim |
+| `arm_b_m_woven` Shadow Loom | Shadow-silk preto-roxo; fios sombrios; capa assimétrica curta | zero placa | Luvas tecido escuro; runas mínimas |
+| `arm_b_m_warden` Obsidian Ward | Placas **obsidiana** sobre spellcloth; runas carmesim | bulwark duelista | Obsidiana no dorso; glow runas |
+
+---
+
+### A-Grade — expansão (`arm_a_f_chain`, `arm_a_m_woven`, `arm_a_m_warden`)
+
+**Tom geral A:** prata, ouro, cristal, nobreza.
+
+| ID | Peito / foco visual | Detalhe chave | Mãos (_hands) |
+|----|---------------------|---------------|---------------|
+| `arm_a_f_chain` Crystal Chain | Mail prateado; **elos com inlay de cristal**; placas polidas ombros | filetes ouro | Gauntlets prata; cristais no dorso |
+| `arm_a_m_woven` Starweave | Tecido azul royal com **pontos de luz** (constelação); túnica longa fluida | máximo weave | Punhos estrelados; cristais nos dedos |
+| `arm_a_m_warden` Titan Rite | Placas prateadas massivas sobre robe branco-ouro; runas grandes | frontline arcanist | Gauntlets titânio rúnico; gemas nos nós |
+
+---
+
+### S-Grade — expansão (`arm_s_f_chain`, `arm_s_m_woven`, `arm_s_m_warden`)
+
+**Tom geral S:** lendário imperial; branco/ouro ou void/eclipse.
+
+| ID | Peito / foco visual | Detalhe chave | Mãos (_hands) |
+|----|---------------------|---------------|---------------|
+| `arm_s_f_chain` Sentinel Chain | Mail prata-branco + placas imperiais; **emblema RogueAge** no peito | entre a16 e a17 | Gauntlets imperiais; filigrana ouro |
+| `arm_s_m_woven` Eclipse Weave | Tecido negro; **fios eclipse** (anel dourado, centro escuro); capa longa | cast tempo visual | Punhos eclipse; glow nos fios |
+| `arm_s_m_warden` Void Warden | Placas void negro-violeta; runas luminosas; bulwark mage S máximo | energia contida | Gauntlets void; glow no pulso |
+
+---
+
+### Progressão expansão (referência cruzada)
+
+| Linha | NG → S (evolução) |
+|-------|-------------------|
+| **Chain** | bronze mail → half-plate → campaign mail → doom mail → crystal links → sentinel imperial |
+| **Weave** | spellweave fios pálidos → arcane loom → mystic thread → shadow loom → starweave → eclipse |
+| **Warden** | bronze runic plates → sanctum ward → aegis rite → obsidian ward → titan rite → void plates |

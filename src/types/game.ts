@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 12 as const;
+export const L2MINI_SAVE_VERSION = 13 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -28,6 +28,9 @@ export interface InventarioRecentEntry {
 }
 
 export type UiLocale = 'en' | 'pt-BR';
+
+/** Shell preference: Auto follows viewport; portrait = mobile; landscape = PC. */
+export type UiLayoutMode = 'auto' | 'portrait' | 'landscape';
 
 /** Slug normalizado de grade de item (NG → S). */
 export type GradeSlug = 'ng' | 'd' | 'c' | 'b' | 'a' | 's';
@@ -673,6 +676,8 @@ export interface CharacterSave {
   lastSeasonData?: LastSeasonData;
   endgame?: EndgameData;
   uiLocale?: UiLocale;
+  /** Shell layout preference (auto / portrait / landscape). */
+  uiLayoutMode?: UiLayoutMode;
   tutorial?: TutorialProgress;
   uiCoach?: UiCoachSave;
   playerClanId?: number | string | null;

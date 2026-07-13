@@ -1,6 +1,6 @@
 # Paperdoll — brief visual dos sets de armadura (por grade)
 
-**Autoridade de IDs/nomes:** `js/db_items.js` → `catalogoArmaduras`.  
+**Autoridade de IDs/nomes:** `src/db/db_items.ts` → `catalogoArmaduras` (+ `src/db/armor_jewel_expansion.ts`).  
 **Contrato técnico:** `docs/paperdoll-art-spec.md`, `assets/paperdolls/README.md`.  
 **Regras de identidade:** `.cursor/rules/l2mini-project-rules.mdc` §11 — nomes e visual **próprios** (inspirado no género MMORPG clássico, sem copiar sets oficiais de terceiros).
 
@@ -11,10 +11,14 @@ Guia para desenhar overlays **1080×984** em `assets/paperdolls/<preset>/equips/
 ## Regras gerais de paperdoll
 
 - Mesmo corpo base, **mesmos pés (540, 984)** em todas as camadas do preset.
-- Três linhas por grade: **Heavy** (guerreiro/tanque), **Light** (ágil/crit), **Robe** (mago/clérigo).
-- **Heavy:** ombros largos, peitoral grosso — silhueta mais “larga” a cada grade.
-- **Light:** cintura marcada, menos placa, couro/placas pontuais.
-- **Robe:** túnica/manto, menos metal, mais tecido e símbolos arcanos.
+- **Seis linhas por grade (loja):** 3 **Fighter** (Heavy / Medium / Light) + 3 **Mage** (Heavy Warden / Medium Vestment / Light Weave).
+- Campos de catálogo: `armorArchetype` (`fighter`|`mage`), `armorWeight` (`heavy`|`medium`|`light`), `armorStyle` (`Plate`, `Chain`, `Leather`, `Vestment`, `Weave`, `Warden`, …).
+- **Fighter Heavy / Light:** ombros largos ou silhueta ágil (como antes).
+- **Fighter Medium:** chain mail / half-plate — entre plate e leather.
+- **Mage Medium (Robe legado `a3`…`a18`):** vestments / túnica ritual.
+- **Mage Light (Weave):** tecido fino, pouca placa, foco em MP/velocidade.
+- **Mage Heavy (Warden):** placas rúnicas sobre spellcloth — bulwark arcano.
+- **Joias:** 3 conjuntos universais por grade — **Light**, **Medium** (sets `j_*` legados), **Heavy** (`j_*_lt_*`, `j_*_hv_*`).
 - Cada armadura = **dois PNGs:** corpo do set + mãos (`_hands`) com luvas/gauntlets coerentes e pose de empunhar arma.
 
 ---
@@ -128,3 +132,88 @@ Vesper → ornamento máximo + gemas / luz
 3. **Armas:** ficheiros separados `equips/wpn_….png`; `_hands` devem casar com a empunhadura da espada do tier.
 
 Ao adaptar para **outro preset** (elf, orc, …): mesmos IDs e mesma progressão de grade; muda só proporção/silhueta racial no `body.png` e posição fina do equip na pasta desse preset.
+
+---
+
+## Expansão 6×6 — IDs novos (fighter medium + mage light/heavy)
+
+| Grade | Fighter Medium (`Chain`) | Mage Light (`Weave`) | Mage Heavy (`Warden`) |
+|-------|--------------------------|----------------------|------------------------|
+| NG | `arm_ng_f_chain` Bronze Chain | `arm_ng_m_woven` Spellweave | `arm_ng_m_warden` Runic Warden |
+| D | `arm_d_f_chain` Half-Plate | `arm_d_m_woven` Arcane Loom | `arm_d_m_warden` Sanctum Guard |
+| C | `arm_c_f_chain` Campaign Chain | `arm_c_m_woven` Mystic Thread | `arm_c_m_warden` Aegis Rite |
+| B | `arm_b_f_chain` Doom Chain | `arm_b_m_woven` Shadow Loom | `arm_b_m_warden` Obsidian Ward |
+| A | `arm_a_f_chain` Crystal Chain | `arm_a_m_woven` Starweave | `arm_a_m_warden` Titan Rite |
+| S | `arm_s_f_chain` Sentinel Chain | `arm_s_m_woven` Eclipse Weave | `arm_s_m_warden` Void Warden |
+
+**Ícones de bolsa:** `assets/itens/set_<slug>.png` (ver `EXPANSION_ARMOR_ICON_SLUGS` em `armor_jewel_expansion.ts`).  
+**Paperdoll:** `assets/paperdolls/<preset>/equips/<id>.png` + `equips/<id>_hands.png` — **18 presets**, mesmo ID em cada pasta.
+
+**Prompts longos (IA):** `docs/paperdoll-armor-image-prompts.md` § Expansão 6×6.
+
+### Silhueta por linha (referência rápida)
+
+| Linha | Silhueta | Entre… |
+|-------|----------|--------|
+| **Fighter Chain** | Mail + placas parciais; ombros médios; cintura definida | Heavy plate e Light leather da mesma grade |
+| **Mage Weave** | Túnica fina, fios/cristais; ombros baixos; sem placa pesada | Vestment (`a3`…) e Warden da mesma grade |
+| **Mage Warden** | Placas rúnicas sobre spellcloth; ombros médios-altos; bulwark arcano | Weave (leve) e Vestment (tecido médio) |
+
+---
+
+### No-Grade — expansão
+
+| ID | Brief visual | Mãos (_hands) |
+|----|--------------|---------------|
+| `arm_ng_f_chain` | Cota de anéis bronze sobre gambesão bege; placas retangulares nos ombros e peito; rebites visíveis; tom canela/bronze — **entre** Wooden (a1) e Leather (a2). | Meio-gauntlet de couro com anéis no dorso; dedos livres. |
+| `arm_ng_m_woven` | Túnica leve com **fios luminosos** discretos no tecido; capuz curto ou gola alta fina; faixa ritual; quase zero metal — **mais ágil** que Devotion (a3). | Punhos de tecido fino; fios brilhantes no pulso; sem placa. |
+| `arm_ng_m_warden` | Spellcloth bege com **placas de bronze rúnicas** no peito e ombros; cinto de couro com talismã; bulwark de acólito de batalha — **entre** weave e robe. | Luvas de tecido + placa bronze no dorso; runas gravadas. |
+
+### D-Grade — expansão
+
+| ID | Brief visual | Mãos (_hands) |
+|----|--------------|---------------|
+| `arm_d_f_chain` | Half-plate: mail cinza + placas ferro nos ombros/peito; rebites; perfil de soldado híbrido — **entre** Brigandine (a4) e Manticore (a5). | Gauntlets segmentados mail+ferro; couro no interior. |
+| `arm_d_m_woven` | Manto de seda azul-vinho com **sigilos bordados**; tecido fluido; cristais minúsculos nas costuras; silhueta esguia. | Luvas de seda com anel de foco; punho bordado. |
+| `arm_d_m_warden` | Vestments azul escuro + **placas de ward** ferro nas juntas; runas prateadas no peito; capa curta — tanque arcano D. | Gauntlets de spellcloth com placa de ward no dorso. |
+
+### C-Grade — expansão
+
+| ID | Brief visual | Mãos (_hands) |
+|----|--------------|---------------|
+| `arm_c_f_chain` | Mail de campanha aço claro + placas bronze nos ombros; cinturão de couro com fivelas; volume **médio** entre Composite (a7) e Plated Leather (a8). | Gauntlets mail até antebraço; filete bronze. |
+| `arm_c_m_woven` | Vestment violeta com **fios de cristal** entretecidos; ombreiras de tecido leve; brilho satinado discreto. | Punhos com cristais minúsculos; tecido longo. |
+| `arm_c_m_warden` | Harness rúnico: placas escuras sobre robe carmesim; **aegis** gravado no peito; ombros de ward angulares. | Luvas com placas rúnicas e glow fraco no pulso. |
+
+### B-Grade — expansão
+
+| ID | Brief visual | Mãos (_hands) |
+|----|--------------|---------------|
+| `arm_b_f_chain` | Mail aço **negro** + placas angulares; accent carmesim nos elos; silhueta raid **média** entre Doom Plate (a10) e Doom Leather (a11). | Gauntlets escuros segmentados; rebites carmesim. |
+| `arm_b_m_woven` | Shadow-silk preto-roxo; fios sombrios no tecido; capa assimétrica curta; **zero placa** — caster rápido B. | Luvas de sombra (tecido escuro); runas mínimas. |
+| `arm_b_m_warden` | Placas **obsidiana** sobre spellcloth; runas carmesim; ombros de bulwark; perfil duelista arcano pesado. | Gauntlets obsidiana + spellcloth; glow fraco nas runas. |
+
+### A-Grade — expansão
+
+| ID | Brief visual | Mãos (_hands) |
+|----|--------------|---------------|
+| `arm_a_f_chain` | Mail prateado com **elos de cristal**; placas polidas nos ombros; filetes ouro — entre Dark Crystal (a13) e Majestic (a14). | Gauntlets prata com cristais no dorso. |
+| `arm_a_m_woven` | Tecido **estrelado** (pontos de luz no weave); azul royal + prata; túnica longa fluida; máximo MP visual. | Punhos com constelações bordadas; cristais nos dedos. |
+| `arm_a_m_warden` | Harness titânico: placas prateadas massivas sobre robe branco-ouro; runas grandes; **frontline arcanist**. | Gauntlets titânio rúnico; gemas no knuckle. |
+
+### S-Grade — expansão
+
+| ID | Brief visual | Mãos (_hands) |
+|----|--------------|---------------|
+| `arm_s_f_chain` | Mail lendário prata-branco + placas imperiais; emblema RogueAge no peito; **entre** Crusader (a16) e Draconic (a17). | Gauntlets imperiais mail+placa; filigrana ouro. |
+| `arm_s_m_woven` | Eclipse weave: tecido negro com **fios de eclipse** (borda dourada, centro escuro); capa longa luminosa; silhueta esguia S. | Punhos com anel de eclipse; glow suave nos fios. |
+| `arm_s_m_warden` | Placas **void** (negro-violeta) sobre spellcloth; runas luminosas; bulwark máximo mage S — **entre** weave e Major Arcana (a18). | Gauntlets void com energia no pulso; placas nos nós. |
+
+### Checklist paperdoll — armaduras novas
+
+Para **cada** ID acima, em **cada** preset onde o arquétipo equipa:
+
+- [ ] `equips/<id>.png` (1080×984)
+- [ ] `equips/<id>_hands.png` (1080×984, par da armadura)
+
+**Prioridade:** `human_mage` / `human_mage_female` (Weave + Warden) · `human_fighter` / `human_fighter_female` (Chain) → depois elf, dark elf, orc.

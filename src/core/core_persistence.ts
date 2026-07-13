@@ -138,7 +138,7 @@ window.enrichEquipBaseFromCatalogIfNeeded = function enrichEquipBaseFromCatalogI
     }
     if (!(item as LooseEquip).base) return item;
     var b = (item as LooseEquip).base!;
-    var looksArmor = b.tipo && ['Heavy', 'Light', 'Robe', 'armor'].indexOf(b.tipo) >= 0;
+    var looksArmor = b.tipo && ['Heavy', 'Light', 'Medium', 'Robe', 'Mage Light', 'Mage Heavy', 'armor'].indexOf(b.tipo) >= 0;
     var looksJewel = b.tipoItem && ['neck', 'ear', 'ring'].indexOf(b.tipoItem) >= 0;
     var hasStats =
         b.atk != null || b.matk != null || b.mAtk != null ||
@@ -209,7 +209,7 @@ window.coerceInspectEquipItem = function coerceInspectEquipItem(
 ): EquipInstance | null {
     if (!item || typeof item !== 'object') return null;
     let row = item as LooseEquip;
-    var armorTipo = ['Heavy', 'Light', 'Robe', 'armor'];
+    var armorTipo = ['Heavy', 'Light', 'Medium', 'Robe', 'Mage Light', 'Mage Heavy', 'armor'];
     var isArmorishTop = row.tipo && armorTipo.indexOf(String(row.tipo)) >= 0;
     var isJewelTop = row.tipoItem && ['neck', 'ear', 'ring'].indexOf(String(row.tipoItem)) >= 0;
     var hasWeaponStat = row.atk != null || row.matk != null || row.mAtk != null;
@@ -489,6 +489,14 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 12;
     }
 
+    if (v < 13) {
+        const layoutRaw = data.uiLayoutMode;
+        if (layoutRaw !== 'auto' && layoutRaw !== 'portrait' && layoutRaw !== 'landscape') {
+            data.uiLayoutMode = 'auto';
+        }
+        v = 13;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -547,6 +555,9 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
         endgame: window.endgameData && typeof window.endgameData === 'object' ? window.endgameData : undefined,
         uiLocale: (typeof window.I18n !== 'undefined' && typeof window.I18n.getLocale === 'function')
             ? window.I18n.getLocale() : undefined,
+        uiLayoutMode: (typeof window.LayoutMode !== 'undefined' && typeof window.LayoutMode.getPreference === 'function')
+            ? window.LayoutMode.getPreference()
+            : 'auto',
         tutorial:
             window.tutorialProgress && typeof window.tutorialProgress === 'object'
                 ? {
@@ -843,6 +854,10 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             window.I18n.applyFromSave(data.uiLocale);
         } else if (typeof window.atualizar === 'function') {
             window.atualizar();
+        }
+
+        if (typeof window.LayoutMode !== 'undefined' && typeof window.LayoutMode.applyFromSave === 'function') {
+            window.LayoutMode.applyFromSave(data.uiLayoutMode);
         }
 
         // --- SINCRONIZAÇÃO DE MAILBOX (OFFLINE REWARDS) ---

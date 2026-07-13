@@ -414,7 +414,7 @@ function ativarNovaTela(target: HTMLElement, id: string) {
     }
 
     target.classList.add('active-screen', 'screen-transition-enter');
-    target.style.setProperty('display', 'flex', 'important'); 
+    target.style.setProperty('display', 'flex', 'important');
     target.style.zIndex = "100";
 
     // Limpa classe de animação após terminar

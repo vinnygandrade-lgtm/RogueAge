@@ -489,8 +489,8 @@ function formatarTooltipEquipamento(
 
     let tipo = 'misc';
     if (['neck', 'ear', 'ring', 'jewel', 'ear1', 'ear2', 'ring1', 'ring2'].includes(tipoOriginal)) tipo = 'jewel';
-    else if (['Heavy', 'Light', 'Robe', 'armor'].includes(tipoOriginal)) tipo = 'armor';
-    else if (['Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword', 'weapon'].includes(tipoOriginal)) tipo = 'weapon';
+    else if (['Heavy', 'Light', 'Medium', 'Robe', 'Mage Light', 'Mage Heavy', 'armor'].includes(tipoOriginal)) tipo = 'armor';
+    else if (['Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword', 'Wand', 'Scepter', 'weapon'].includes(tipoOriginal)) tipo = 'weapon';
 
     let basePAtk = _invNum(base.atk ?? base.pAtk);
     let baseMAtk = _invNum(base.matk ?? base.mAtk);
@@ -598,7 +598,7 @@ function abrirAcaoInventario(index: number, slotPerfilPref?: string): void {
     }
     
     let nivelEnchant = 0;
-    if (['weapon', 'Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword'].includes(tipoBruto)) {
+    if (['weapon', 'Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword', 'Wand', 'Scepter'].includes(tipoBruto)) {
         nivelEnchant = _invNum(equip.enchant ?? itemBase.enchant);
     } else if (['neck', 'ear', 'ring', 'jewel', 'ear1', 'ear2', 'ring1', 'ring2'].includes(tipoBruto)) {
         nivelEnchant = _invNum(equip.enchantJewel ?? itemBase.enchantJewel ?? equip.enchant ?? itemBase.enchant);
