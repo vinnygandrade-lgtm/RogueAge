@@ -287,6 +287,144 @@ html[data-l2-layout="landscape"] #aug-res-btn {
     max-width: 280px;
 }
 
+/* ========================================= */
+/* SHOP / SELL — PC merchant counter         */
+/* Layout: [catalog grid] | [details + buy]  */
+/* ========================================= */
+
+html[data-l2-layout="landscape"] #janela-loja.store-window,
+html[data-l2-layout="landscape"] #janela-venda.store-window {
+    width: min(1000px, 94vw);
+    max-width: min(1000px, 94vw);
+    max-height: min(84vh, 720px);
+}
+
+html[data-l2-layout="landscape"] #janela-loja .store-header,
+html[data-l2-layout="landscape"] #janela-venda .store-header {
+    padding: 14px 18px;
+    letter-spacing: 0.12em;
+}
+
+html[data-l2-layout="landscape"] #janela-loja .store-header span,
+html[data-l2-layout="landscape"] #janela-venda .store-header span {
+    font-size: 1.05rem;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #store-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(0, 0, 0, 0.55);
+    border-bottom: 1px solid rgba(90, 70, 52, 0.65);
+    flex-shrink: 0;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #store-tabs .btn-l2 {
+    flex: 1 1 0;
+    min-height: 44px;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    padding: 10px 8px;
+}
+
+html[data-l2-layout="landscape"] #janela-loja .store-body,
+html[data-l2-layout="landscape"] #janela-venda .store-body {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.95fr);
+    gap: 16px 18px;
+    padding: 16px 18px 18px;
+    overflow: hidden;
+    min-height: min(58vh, 500px);
+    flex: 1 1 auto;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #loja-itens.store-items-grid,
+html[data-l2-layout="landscape"] #janela-venda #venda-itens.store-items-grid {
+    max-height: none;
+    height: 100%;
+    min-height: 0;
+    align-self: stretch;
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    gap: 10px;
+    padding: 14px;
+    border-radius: 10px;
+    align-content: start;
+    overflow-y: auto;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #loja-itens .store-item-slot,
+html[data-l2-layout="landscape"] #janela-venda #venda-itens .store-item-slot {
+    aspect-ratio: 1;
+    width: 100%;
+    min-height: 72px;
+    border-radius: 10px;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #loja-detalhes.store-info-panel,
+html[data-l2-layout="landscape"] #janela-venda #venda-detalhes.store-info-panel {
+    min-height: 0;
+    height: 100%;
+    align-self: stretch;
+    padding: 14px 16px 16px;
+    font-size: 0.88em;
+    border-radius: 10px;
+    gap: 4px;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #loja-detalhes .loja-section-title,
+html[data-l2-layout="landscape"] #janela-venda #venda-detalhes .venda-section-title {
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    margin-bottom: 8px;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #detalhe-texto,
+html[data-l2-layout="landscape"] #janela-venda #venda-detalhe-texto {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #compra-qtd-container,
+html[data-l2-layout="landscape"] #janela-venda #venda-qtd-container {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 8px 0;
+    padding: 12px;
+}
+
+html[data-l2-layout="landscape"] #janela-loja .shop-checkout-summary,
+html[data-l2-layout="landscape"] #janela-venda .shop-checkout-summary {
+    margin-top: 8px;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #loja-detalhes .loja-buy-actions,
+html[data-l2-layout="landscape"] #janela-venda .venda-sell-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+html[data-l2-layout="landscape"] #janela-loja #btn-comprar-item,
+html[data-l2-layout="landscape"] #janela-loja .btn-loja-back,
+html[data-l2-layout="landscape"] #janela-venda .venda-sell-actions .btn-l2 {
+    flex: 1 1 0;
+    width: auto;
+    min-height: 46px;
+    height: auto;
+    margin: 0;
+    font-size: 0.88em;
+}
+
+html[data-l2-layout="landscape"] #janela-loja .btn-loja-back {
+    background: #333;
+    border-color: #555;
+}
+
 @media (max-width: 1100px) {
     html[data-l2-layout="landscape"] #janela-enchant.store-window,
     html[data-l2-layout="landscape"] #janela-augment.store-window {
@@ -304,6 +442,23 @@ html[data-l2-layout="landscape"] #aug-res-btn {
     html[data-l2-layout="landscape"] #janela-enchant .enchant-box .store-item-slot,
     html[data-l2-layout="landscape"] #janela-augment .enchant-box .store-item-slot {
         min-height: 76px;
+    }
+
+    html[data-l2-layout="landscape"] #janela-loja.store-window,
+    html[data-l2-layout="landscape"] #janela-venda.store-window {
+        width: min(900px, 94vw);
+        max-width: min(900px, 94vw);
+    }
+
+    html[data-l2-layout="landscape"] #janela-loja .store-body,
+    html[data-l2-layout="landscape"] #janela-venda .store-body {
+        grid-template-columns: minmax(0, 1.2fr) minmax(260px, 1fr);
+        min-height: min(54vh, 440px);
+    }
+
+    html[data-l2-layout="landscape"] #janela-loja #loja-itens.store-items-grid,
+    html[data-l2-layout="landscape"] #janela-venda #venda-itens.store-items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
     }
 }
 
@@ -1050,11 +1205,57 @@ html[data-l2-layout="landscape"] #tela-cidade .npc-menu .btn-l2--npc {
     min-height: 44px;
 }
 
-html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .btn-l2--npc {
-    flex: 1 1 calc(33.333% - 10px);
-    width: auto;
-    max-width: calc(33.333% - 10px);
-    min-width: 120px;
+/* Equipment / grocer hub — slightly wider merchant desk */
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment,
+html[data-l2-layout="landscape"] #tela-cidade #menu-grocer {
+    max-width: 780px;
+    padding: 24px 28px;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment .btn-l2--npc:last-child,
+html[data-l2-layout="landscape"] #tela-cidade #menu-grocer .btn-l2--npc:last-child {
+    flex: 1 1 100%;
+    max-width: 280px;
+}
+
+/* Grade picker — portrait+dialog on top, 3×2 grade grid, back centered */
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades.npc-menu {
+    /* no display:!important — JS toggles display none/flex */
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    max-width: 820px;
+    padding: 24px 28px;
+    gap: 12px 14px;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .npc-menu-img {
+    flex: 0 0 100px;
+    width: 100px;
+    height: 100px;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .npc-dialog {
+    /* Fill the rest of the first row so grade buttons wrap below */
+    flex: 1 1 calc(100% - 120px);
+    width: calc(100% - 120px);
+    max-width: none;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .btn-grade-pick {
+    flex: 1 1 calc(33.333% - 12px);
+    width: auto !important;
+    max-width: none !important;
+    min-width: 140px;
+    min-height: 48px;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .btn-l2--npc:not(.btn-grade-pick) {
+    flex: 1 1 100%;
+    max-width: 260px !important;
+    width: 100% !important;
+    min-width: 0;
 }
 
 html[data-l2-layout="landscape"] #tela-olympiad-arena,
@@ -1520,14 +1721,7 @@ html[data-l2-layout="landscape"] .npc-menu .btn-l2--npc {
     width: min(100%, 360px);
 }
 
-html[data-l2-layout="landscape"] #menu-equipment-grades {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 140px));
-    justify-content: center;
-    gap: 10px;
-    max-width: 720px;
-    margin-inline: auto;
-}
+/* Grade picker layout lives under #tela-cidade rules above — do not re-grid here */
 
 html[data-l2-layout="landscape"] #menu-social-market .market-header-tabs {
     display: flex;

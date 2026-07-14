@@ -56,6 +56,8 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Enchant / Augment (landscape):** `#janela-enchant` / `#janela-augment` usam modal largo (~980px) com layout de oficina — grelha de equipamento | preview + botões | grelha de scrolls/pedras (`display: contents` no `.enchant-split`). Em ≤1100px o anvil central desce para 190px. Sub-modais `#janela-augment-acao` / `#janela-augment-resultado` ~420px.
 
+**Lojas NPC (landscape):** `#janela-loja` / `#janela-venda` ~1000px em balcão — grelha de catálogo (esquerda) | painel de detalhes + checkout + Comprar/Back em fila (direita). Tabs de armas/armadura/joias só no mega-loja de equipamentos (escondidas no grocer). Menus `#menu-equipment` / `#menu-grocer` um pouco mais largos; `#menu-equipment-grades` em grelha 3×2 de grades sob o diálogo (sem `display:!important`, para o JS poder esconder).
+
 ## Preferência do jogador
 
 - Settings → **Layout**: `Auto` / `Mobile` (portrait) / `PC` (landscape).
