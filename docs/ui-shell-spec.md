@@ -40,10 +40,17 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 | `--l2-shell-max-width` | **1920px** | Valor numérico para `min()` em modais |
 | `--l2-landscape-stage` | **1080px** | Largura máx. do painel de conteúdo (centrado) |
 | `--l2-landscape-card` | **200px** | Largura fixa de NPC cards (grelha centrada) |
-| `--l2-pd-profile-w` / max-h | **440px / 420px** | Paperdoll perfil — **mesmas regras de arte** (360∶328), sem stretch |
-| `--l2-landscape-chat-w` / `h` | **420×260** | Chat **janela flutuante** canto inferior esquerdo (estilo MMO clássico) |
+| `--l2-pd-profile-w` / max-h | **520px / 480px** (base) | Paperdoll perfil — **mesmas regras de arte** (360∶328), sem stretch |
+| `--l2-landscape-side` | **380px** (base) | Coluna lateral do perfil (Atributos de Combate) |
+| `--l2-landscape-chat-w` / `h` | **420×240** (base) | Chat **janela flutuante** canto inferior esquerdo (estilo MMO clássico) |
+
+**Tiers responsivos (landscape):** `≥1600px` sobe perfil/chat (`560/520`, side `400`, chat `460×260`); `≤1440px` **ou** altura `≤800px` desce (`460/420`, side `340`, chat `360×190`) e o `#tela-perfil` ganha `padding-left` = largura do chat para o dock não cobrir o paperdoll/botões; `≤1100px` e `≤980px` mantêm os fallbacks existentes.
 
 **Grelha in-game:** HUD → viewport → hotbar → tabs. Chat **não** entra no grid — é painel absoluto no canto inferior esquerdo, acima da hotbar. Hotbar slots **52px** centrados. **Nunca** `width: 100%` no paperdoll.
+
+**HUD (landscape):** uma única faixa equilibrada — cluster esquerdo (avatar → nome → barras), **XP flexível a preencher o meio** (`flex: 1`), cluster direito (pill de moedas horizontais + status online). **Não** voltar a fixar a XP em largura pequena com `margin-left: auto` — era isso que deixava um buraco vazio no meio da barra.
+
+**Perfil (tela inicial, landscape):** `#tela-perfil.screen-content` centra verticalmente (`justify-content: center`); `.profile-scroll-pane` é grid 2 colunas — paperdoll (col 1) + card de stats (col 2, `align-self: stretch`, grid interno `space-evenly`, nota de rodapé com `margin-top: auto`) — e os botões de ação (Spellbook / Apuração / Save) numa **linha horizontal centrada** sob as duas colunas.
 
 **Arenas full-bleed (Olympiad / Raid / Clan War):** em landscape **não** aplicar `--l2-landscape-stage` nem `margin-inline: auto` no `#tela-*` absoluto — isso deixa a coluna colada à esquerda. A arena ocupa **100%** do shell; o conteúdo do lobby (season, tabs, scroll) centra com `max-width` ~960px por dentro.
 

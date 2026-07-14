@@ -24,15 +24,15 @@ html[data-l2-layout="landscape"] {
     --l2-screen-padding-x: 20px;
     --l2-screen-padding-y: 14px;
     /* Floating chat — true bottom-left corner (above tab bar only) */
-    --l2-landscape-chat-w: 400px;
-    --l2-landscape-chat-h: 220px;
-    --l2-landscape-chat-bottom: 58px; /* just above .travel-menu */
+    --l2-landscape-chat-w: 420px;
+    --l2-landscape-chat-h: 240px;
+    --l2-landscape-chat-bottom: 56px; /* just above .travel-menu */
     --l2-landscape-stage: 1080px;
     --l2-landscape-card: 200px;
     --l2-landscape-hud-pad: 16px;
-    --l2-pd-profile-w: 440px;
-    --l2-pd-profile-max-h: 420px;
-    --l2-landscape-side: 340px;
+    --l2-pd-profile-w: 520px;
+    --l2-pd-profile-max-h: 480px;
+    --l2-landscape-side: 380px;
 }
 
 /* —— Full window —— */
@@ -234,22 +234,23 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .tra
 html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .log-container {
     position: absolute !important;
     order: 0;
-    left: 8px;
+    left: 12px;
     right: auto;
     bottom: var(--l2-landscape-chat-bottom);
     top: auto;
     width: var(--l2-landscape-chat-w) !important;
-    max-width: calc(100% - 16px);
+    max-width: calc(100% - 24px);
     height: var(--l2-landscape-chat-h) !important;
     max-height: var(--l2-landscape-chat-h);
     margin: 0 !important;
     flex: none !important;
     align-self: auto !important;
-    border: 1px solid rgba(90, 70, 52, 0.75);
-    border-radius: 6px 6px 0 0;
-    background: rgba(8, 7, 6, 0.92) !important;
+    border: 1px solid rgba(90, 70, 52, 0.55);
+    border-radius: 8px;
+    background: rgba(10, 9, 7, 0.82) !important;
+    backdrop-filter: blur(4px);
     box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.7),
+        0 8px 28px rgba(0, 0, 0, 0.6),
         inset 0 1px 0 rgba(230, 194, 138, 0.06);
     display: flex !important;
     flex-direction: column;
@@ -291,13 +292,15 @@ html[data-l2-layout="landscape"] .game-container.game-ingame.expedition-run-lock
     display: none !important;
 }
 
-/* —— HUD: compact PC top bar (no stretch) —— */
+/* —— HUD: one balanced desk bar ——
+ * [avatar | name | bars]  ——— XP (fills middle) ———  [coins | online]
+ */
 html[data-l2-layout="landscape"] #hud-top-bar {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 14px 18px;
+    gap: 14px;
     padding: 8px 20px;
     border-bottom: 1px solid var(--l2-border-strong, #5a4634);
     background: linear-gradient(180deg, #161310 0%, #0e0c0a 100%);
@@ -346,14 +349,36 @@ html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.hp { height: 16px
 html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.mp,
 html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.cp { height: 11px; }
 
-html[data-l2-layout="landscape"] #hud-top-bar .hud-currency-row {
+/* XP fills the middle — no dead space between clusters */
+html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-container,
+html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-container--grow {
     order: 4;
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+    min-width: 160px;
+    height: 20px;
+    margin: 0 10px;
+}
+
+html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-text {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+}
+
+/* Right cluster: coins side by side + realm status */
+html[data-l2-layout="landscape"] #hud-top-bar .hud-currency-row {
+    order: 5;
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
     flex: 0 0 auto;
-    margin-left: 4px;
+    margin: 0;
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(90, 70, 52, 0.45);
+    border-radius: 6px;
 }
 
 html[data-l2-layout="landscape"] #hud-top-bar .hud-currency-item {
@@ -361,32 +386,15 @@ html[data-l2-layout="landscape"] #hud-top-bar .hud-currency-item {
     align-items: center;
     gap: 6px;
     white-space: nowrap;
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     line-height: 1;
 }
 
 html[data-l2-layout="landscape"] #hud-top-bar .hud-currency-row .coin-icon--hud {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
     flex-shrink: 0;
     margin-left: 0;
-}
-
-html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-container,
-html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-container--grow {
-    order: 5;
-    flex: 0 0 200px;
-    width: 200px;
-    max-width: 200px;
-    min-width: 160px;
-    height: 18px;
-    margin: 0;
-    margin-left: auto; /* push exp + status toward the right */
-}
-
-html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-text {
-    font-size: 10px;
-    letter-spacing: 0.03em;
 }
 
 html[data-l2-layout="landscape"] #hud-top-bar .hud-mp-status {
@@ -394,8 +402,8 @@ html[data-l2-layout="landscape"] #hud-top-bar .hud-mp-status {
     flex: 0 0 auto;
     max-width: none;
     min-width: 0;
-    padding: 5px 10px;
-    font-size: 0.58rem;
+    padding: 6px 12px;
+    font-size: 0.6rem;
 }
 
 html[data-l2-layout="landscape"] #buffs-ativos-container:empty,
@@ -1397,70 +1405,156 @@ html[data-l2-layout="landscape"] #market-seletor-grid.inventory-grid {
 /* PROFILE — paperdoll fixed + stats beside  */
 /* ========================================= */
 
+/* Screen shell: center the profile block vertically in the viewport */
+html[data-l2-layout="landscape"] #game-viewport > #tela-perfil.screen-content {
+    justify-content: center;
+}
+
 html[data-l2-layout="landscape"] #tela-perfil .profile-scroll-pane {
     display: grid !important;
     grid-template-columns: var(--l2-pd-profile-w) var(--l2-landscape-side);
     grid-template-rows: auto auto auto auto;
     justify-content: center;
-    column-gap: 28px;
-    row-gap: 12px;
+    column-gap: 32px;
+    row-gap: 14px;
     align-items: start;
-    max-width: calc(var(--l2-pd-profile-w) + var(--l2-landscape-side) + 28px);
+    max-width: calc(var(--l2-pd-profile-w) + var(--l2-landscape-side) + 32px);
     margin-inline: auto;
     width: 100%;
     box-sizing: border-box;
     padding: 8px 0 16px;
+    flex: 0 1 auto !important;
+    max-height: 100%;
+    overflow-y: auto;
 }
 
 html[data-l2-layout="landscape"] #tela-perfil .profile-char-title {
     grid-column: 1 / -1;
     grid-row: 1;
     text-align: center;
-    margin: 0 0 4px;
+    margin: 0 0 2px;
+    font-size: 1.35em;
+    letter-spacing: 3px;
 }
 
 html[data-l2-layout="landscape"] #tela-perfil #profile-endgame-ascension {
     grid-column: 1 / -1;
     grid-row: 2;
     max-width: 100%;
-    margin-inline: 0;
+    margin: 0;
 }
 
 html[data-l2-layout="landscape"] #tela-perfil .l2-paperdoll--profile {
     grid-column: 1;
-    grid-row: 3 / 5;
+    grid-row: 3;
     width: var(--l2-pd-profile-w) !important;
     max-width: var(--l2-pd-profile-w) !important;
     max-height: var(--l2-pd-profile-max-h) !important;
     aspect-ratio: 360 / 328 !important;
     margin: 0 !important;
-    --pd-char-layer-max-w: min(96%, 320px);
+    --pd-char-layer-max-w: min(96%, 380px);
+    align-self: center;
+}
+
+/* Side column: stats card grows, action buttons pinned below it */
+html[data-l2-layout="landscape"] #tela-perfil .profile-stats-preview,
+html[data-l2-layout="landscape"] #tela-perfil .paperdoll-actions {
+    width: var(--l2-landscape-side);
+    max-width: var(--l2-landscape-side) !important;
+    margin: 0 !important;
+    box-sizing: border-box;
 }
 
 html[data-l2-layout="landscape"] #tela-perfil .profile-stats-preview {
     grid-column: 2;
     grid-row: 3;
-    width: var(--l2-landscape-side);
-    max-width: var(--l2-landscape-side) !important;
-    margin-inline: 0 !important;
-    padding: 12px 14px;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 16px 14px;
     background: rgba(12, 10, 8, 0.78);
     border: 1px solid rgba(90, 70, 52, 0.5);
     border-radius: 10px;
-    box-sizing: border-box;
+}
+
+html[data-l2-layout="landscape"] #tela-perfil .profile-stats-preview .combat-stats-hero--profile {
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
+}
+
+html[data-l2-layout="landscape"] #tela-perfil .profile-stats-preview .combat-stats-hero__grid {
+    flex: 1;
+    width: 100%;
+    align-content: space-evenly;
+}
+
+html[data-l2-layout="landscape"] #tela-perfil .profile-stats-preview .combat-stats-hero__cell {
+    padding: 10px 8px;
+}
+
+html[data-l2-layout="landscape"] #tela-perfil .profile-stats-preview .profile-stats-preview__trust {
+    margin-top: auto;
+    padding-top: 10px;
 }
 
 html[data-l2-layout="landscape"] #tela-perfil .paperdoll-actions {
-    grid-column: 2;
+    grid-column: 1 / -1;
     grid-row: 4;
-    width: var(--l2-landscape-side);
-    max-width: var(--l2-landscape-side) !important;
-    margin-inline: 0 !important;
-    gap: 8px;
+    width: 100%;
+    max-width: none !important;
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
 }
 
 html[data-l2-layout="landscape"] #tela-perfil .paperdoll-actions .btn-l2 {
-    min-height: 44px;
+    min-height: 46px;
+    flex: 0 1 280px;
+    width: auto;
+}
+
+/* ========================================= */
+/* WIDE DESK (≥1600px) — scale up gently     */
+/* ========================================= */
+
+@media (min-width: 1600px) {
+    html[data-l2-layout="landscape"] {
+        --l2-pd-profile-w: 560px;
+        --l2-pd-profile-max-h: 520px;
+        --l2-landscape-side: 400px;
+        --l2-landscape-chat-w: 460px;
+        --l2-landscape-chat-h: 260px;
+    }
+
+    html[data-l2-layout="landscape"] #hud-top-bar .hud-stat-bars-container {
+        flex: 0 1 360px;
+        width: 360px;
+        max-width: 380px;
+    }
+
+    html[data-l2-layout="landscape"] #hud-top-bar .hud-char-name {
+        max-width: 200px;
+    }
+}
+
+/* ========================================= */
+/* LAPTOP DESK (≤1440px / short) — shrink    */
+/* ========================================= */
+
+@media (max-width: 1440px), (max-height: 800px) {
+    html[data-l2-layout="landscape"] {
+        --l2-pd-profile-w: 460px;
+        --l2-pd-profile-max-h: 420px;
+        --l2-landscape-side: 340px;
+        --l2-landscape-chat-w: 360px;
+        --l2-landscape-chat-h: 190px;
+    }
+
+    /* Chat would overlap the sheet here — reserve its column on the screen shell */
+    html[data-l2-layout="landscape"] #game-viewport > #tela-perfil.screen-content {
+        padding-left: calc(var(--l2-landscape-chat-w) + 32px);
+    }
 }
 
 /* ========================================= */
