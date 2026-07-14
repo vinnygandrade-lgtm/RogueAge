@@ -58,6 +58,8 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Lojas NPC (landscape):** `#janela-loja` / `#janela-venda` ~1000px em balcão — grelha de catálogo (esquerda) | painel de detalhes + checkout + Comprar/Back em fila (direita). Tabs de armas/armadura/joias só no mega-loja de equipamentos (escondidas no grocer). Menus `#menu-equipment` / `#menu-grocer` um pouco mais largos; `#menu-equipment-grades` em grelha 3×2 de grades sob o diálogo (sem `display:!important`, para o JS poder esconder).
 
+**World hub (landscape):** `#tela-world .world-container` ~1240–1320px em grelha `title | gatekeeper + adventure`. Zonas da Clarissa como “bilhetes” (nome + pill de custo) em 2 colunas; aventuras em board 2×2 com cards altos. Em ≤1440px / altura baixa: `padding-left` para o chat; em ≤1100px empilha as colunas.
+
 ## Preferência do jogador
 
 - Settings → **Layout**: `Auto` / `Mobile` (portrait) / `PC` (landscape).
