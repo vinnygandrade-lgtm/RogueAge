@@ -1872,12 +1872,11 @@ html[data-l2-layout="landscape"] #menu-social-market.npc-menu {
 /*
  * Market open: chat becomes a glass dock over the stage corner —
  * market stays centered; chat stays usable without shoving the desk.
+ * Height only when expanded — never fight .log-container--collapsed.
  */
 html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container,
 html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container {
     width: min(var(--l2-landscape-chat-w), 380px) !important;
-    height: min(var(--l2-landscape-chat-h), 200px) !important;
-    max-height: min(var(--l2-landscape-chat-h), 200px);
     background: rgba(8, 7, 6, 0.42) !important;
     backdrop-filter: blur(12px) saturate(1.05);
     -webkit-backdrop-filter: blur(12px) saturate(1.05);
@@ -1885,6 +1884,18 @@ html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-ma
     box-shadow:
         0 10px 28px rgba(0, 0, 0, 0.45),
         inset 0 1px 0 rgba(230, 194, 138, 0.08);
+}
+
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container:not(.log-container--collapsed),
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container:not(.log-container--collapsed) {
+    height: min(var(--l2-landscape-chat-h), 200px) !important;
+    max-height: min(var(--l2-landscape-chat-h), 200px);
+}
+
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container--collapsed,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container--collapsed {
+    height: auto !important;
+    max-height: none !important;
 }
 
 html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container .log-tabs,
@@ -2241,6 +2252,10 @@ html[data-l2-layout="landscape"] #janela-market-seletor .btn-market-back {
     html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container,
     html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container {
         width: min(var(--l2-landscape-chat-w), 320px) !important;
+    }
+
+    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container:not(.log-container--collapsed),
+    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container:not(.log-container--collapsed) {
         height: min(var(--l2-landscape-chat-h), 170px) !important;
         max-height: min(var(--l2-landscape-chat-h), 170px);
     }
