@@ -64,6 +64,8 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Expedition battle BG:** portrait `assets/zones/battle_<slug>.webp` (1080×2340); PC `battle_<slug>_wide.webp` (1920×1080). Cliente em `src/ui/ui_forest_battle_bg.ts` — landscape tenta wide, senão crop do portrait; evento `l2-layout-change` refresca a meio do combate. Ver `assets/zones/README.md`.
 
+**Town Square (landscape):** `#praca-cidade` balcão centrado ~1180–1240px (grelha 3 cols + Master | Craft banner). Cards maiores; menus NPC ~820–900px. Com `#tela-cidade` aberta, chat em dock de vidro (como o mercado). Em ≤1100px a grelha passa a 2 cols.
+
 ## Preferência do jogador
 
 - Settings → **Layout**: `Auto` / `Mobile` (portrait) / `PC` (landscape).
