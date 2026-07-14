@@ -54,6 +54,8 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Arenas full-bleed (Olympiad / Raid / Clan War):** em landscape **não** aplicar `--l2-landscape-stage` nem `margin-inline: auto` no `#tela-*` absoluto — isso deixa a coluna colada à esquerda. A arena ocupa **100%** do shell; o conteúdo do lobby (season, tabs, scroll) centra com `max-width` ~960px por dentro.
 
+**Enchant / Augment (landscape):** `#janela-enchant` / `#janela-augment` usam modal largo (~980px) com layout de oficina — grelha de equipamento | preview + botões | grelha de scrolls/pedras (`display: contents` no `.enchant-split`). Em ≤1100px o anvil central desce para 190px. Sub-modais `#janela-augment-acao` / `#janela-augment-resultado` ~420px.
+
 ## Preferência do jogador
 
 - Settings → **Layout**: `Auto` / `Mobile` (portrait) / `PC` (landscape).
