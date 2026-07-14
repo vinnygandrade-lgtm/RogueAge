@@ -5913,7 +5913,10 @@ html.l2-standalone .settings-section--pwa {
     box-sizing: border-box;
 }
 
-/* Zone battle scenery — assets/zones/battle_<grade>.png */
+/* Zone battle scenery — assets/zones/README.md
+ * Portrait: battle_<slug>.webp (1080×2340)
+ * PC wide:  battle_<slug>_wide.webp (1920×1080)
+ */
 .forest-battle-bg {
     position: absolute;
     inset: 0;
@@ -5938,6 +5941,13 @@ html.l2-standalone .settings-section--pwa {
         rgba(0, 0, 0, 0.48) 100%
     );
     pointer-events: none;
+}
+/* Portrait art on a wide screen (fallback until _wide.webp exists) */
+.forest-battle-bg[data-battle-bg-aspect="portrait"] {
+    background-position: center 58%;
+}
+.forest-battle-bg[data-battle-bg-aspect="wide"] {
+    background-position: center center;
 }
 .forest-battle-bg--visible {
     opacity: 1;

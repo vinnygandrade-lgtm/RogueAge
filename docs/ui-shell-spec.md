@@ -62,6 +62,8 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Marketplace (landscape):** `#menu-social-market` balcão centrado ~1180–1220px (não o stage 1080 genérico). Tabs a largura total; aba Buy em grelha `search | filters` numa linha + lista densa; Sell com label + “Register” na mesma fila; modais `#janela-market-registrar` (~760px, item | preço) e `#janela-market-seletor` (~820px, grelha 8 cols). Com o mercado aberto, o chat vira dock de vidro (mais transparente + blur) no canto — sem empurrar o balcão; em ≤1100px empilha toolbar e registo.
 
+**Expedition battle BG:** portrait `assets/zones/battle_<slug>.webp` (1080×2340); PC `battle_<slug>_wide.webp` (1920×1080). Cliente em `src/ui/ui_forest_battle_bg.ts` — landscape tenta wide, senão crop do portrait; evento `l2-layout-change` refresca a meio do combate. Ver `assets/zones/README.md`.
+
 ## Preferência do jogador
 
 - Settings → **Layout**: `Auto` / `Mobile` (portrait) / `PC` (landscape).

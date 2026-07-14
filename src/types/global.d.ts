@@ -494,7 +494,8 @@ declare global {
   function prepararTelaCacada(): void;
   function procurarMonstros(): void;
   function applyForestBattleBackground(show: boolean, grade?: string): void;
-  function battleBgUrlForGrade(grade: string): string;
+  function battleBgUrlForGrade(grade: string, wide?: boolean): string;
+  function refreshForestBattleBackgroundForLayout(): void;
   function tentarFugir(): void;
   function fecharVitoriaEProcurar(): void;
   function fecharVitoriaEVoltar(): void;

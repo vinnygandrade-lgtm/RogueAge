@@ -63,12 +63,22 @@ function resolveEffective(pref: UiLayoutPreference): UiLayoutEffective {
 }
 
 function applyDom(next: UiLayoutEffective): void {
+  const prev = effective;
   effective = next;
   document.documentElement.setAttribute(ATTR, next);
   const shell = document.querySelector('.game-container');
   if (shell) {
     shell.classList.toggle('l2-layout-landscape', next === 'landscape');
     shell.classList.toggle('l2-layout-portrait', next === 'portrait');
+  }
+  if (prev !== next) {
+    try {
+      window.dispatchEvent(
+        new CustomEvent('l2-layout-change', { detail: { layout: next, previous: prev } }),
+      );
+    } catch {
+      /* ignore */
+    }
   }
 }
 
