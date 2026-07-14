@@ -1003,9 +1003,9 @@ html[data-l2-layout="landscape"] #game-viewport > #tela-clan-war.screen-content 
 }
 
 /* Hub panels — composed card, capped width, centered */
+/* Marketplace has its own wider exchange-desk rules below */
 html[data-l2-layout="landscape"] #praca-social,
 html[data-l2-layout="landscape"] #tela-inventario,
-html[data-l2-layout="landscape"] #menu-social-market,
 html[data-l2-layout="landscape"] #menu-social-clans {
     width: 100%;
     max-width: var(--l2-landscape-stage);
@@ -1825,7 +1825,6 @@ html[data-l2-layout="landscape"] .npc-menu {
     box-sizing: border-box;
 }
 
-html[data-l2-layout="landscape"] #menu-social-market.npc-menu,
 html[data-l2-layout="landscape"] #menu-social-clans.npc-menu {
     max-width: var(--l2-landscape-stage);
 }
@@ -1836,31 +1835,421 @@ html[data-l2-layout="landscape"] .npc-menu .btn-l2--npc {
 
 /* Grade picker layout lives under #tela-cidade rules above — do not re-grid here */
 
+/* ========================================= */
+/* MARKETPLACE — PC exchange desk            */
+/* Toolbar row + dense listing board         */
+/* ========================================= */
+
+html[data-l2-layout="landscape"] #game-viewport > #tela-social.screen-content,
+html[data-l2-layout="landscape"] .active-screen:has(#menu-social-market[style*="display: flex"]) #tela-social,
+html[data-l2-layout="landscape"] .active-screen:has(#menu-social-clans[style*="display: flex"]) #tela-social {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Beat layout.css padding:10px !important; clear floating chat dock */
+    padding: 14px 28px 18px !important;
+    padding-left: calc(var(--l2-landscape-chat-w) + 28px) !important;
+    overflow: auto;
+    min-height: 0;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market.npc-menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: min(1240px, 100%);
+    min-height: min(68vh, 600px);
+    max-height: min(78vh, 720px);
+    margin-inline: auto;
+    padding: 16px 20px 14px;
+    gap: 0;
+    background: rgba(12, 10, 8, 0.82);
+    border: 1px solid rgba(90, 70, 52, 0.55);
+    border-radius: 10px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.42);
+    box-sizing: border-box;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-window-title {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    letter-spacing: 0.14em;
+    text-align: center;
+    flex-shrink: 0;
+}
+
 html[data-l2-layout="landscape"] #menu-social-market .market-header-tabs {
     display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 12px;
+    width: 100%;
+    gap: 6px;
+    margin-bottom: 14px;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(61, 43, 31, 0.9);
+    border-radius: 8px;
+    box-sizing: border-box;
 }
 
 html[data-l2-layout="landscape"] #menu-social-market .market-tab-btn {
-    min-width: 120px;
-    min-height: 40px;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 42px;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    padding: 10px 12px;
 }
 
-html[data-l2-layout="landscape"] #menu-social-market .market-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    overflow-x: visible;
-    justify-content: center;
-    margin-bottom: 8px;
+/* Buy board: search | filters on one row
+   (only when JS shows the tab — do not override display:none) */
+html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy[style*="display: flex"],
+html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy[style*="display:flex"] {
+    display: grid !important;
+    grid-template-columns: minmax(260px, 1fr) max-content;
+    grid-template-rows: auto auto 1fr;
+    gap: 10px 16px;
+    align-content: stretch;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
 }
 
 html[data-l2-layout="landscape"] #menu-social-market .market-search-wrap {
-    max-width: 480px;
-    margin-inline: auto;
+    grid-column: 1;
+    grid-row: 1;
+    max-width: 560px;
     width: 100%;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    justify-self: stretch;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market #market-search-input {
+    height: 42px;
+    font-size: 0.9em;
+    border-radius: 8px;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-search-icon {
+    top: 12px;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy > .market-filters {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    overflow-x: visible;
+    align-self: center;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-filter-btn {
+    min-height: 36px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 0.72em;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market #market-subfilters-equips {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding: 0 0 8px;
+    margin: 0 0 2px;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market #market-list {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    min-height: 0;
+    padding-right: 6px;
+    gap: 0;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-card {
+    min-height: 64px;
+    padding: 10px 14px;
+    gap: 12px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-card:hover {
+    border-color: rgba(202, 138, 4, 0.55);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(179, 138, 77, 0.12);
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-card-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-card-name {
+    font-size: 0.95em;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-card-seller {
+    font-size: 0.78em;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-card-price {
+    font-size: 1.02em;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-buy-btn,
+html[data-l2-layout="landscape"] #menu-social-market .market-cancel-btn {
+    min-height: 36px;
+    padding: 8px 16px;
+    font-size: 0.74em;
+    border-radius: 6px;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-empty-msg {
+    padding: 48px 24px;
+    font-size: 0.95em;
+}
+
+/* Sell — label + register on one header row */
+html[data-l2-layout="landscape"] #menu-social-market #market-tab-sell[style*="display: flex"],
+html[data-l2-layout="landscape"] #menu-social-market #market-tab-sell[style*="display:flex"] {
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    gap: 12px 16px;
+    align-items: center;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market #market-tab-sell .btn-register-market {
+    grid-column: 2;
+    grid-row: 1;
+    width: auto;
+    min-width: min(320px, 42vw);
+    min-height: 44px;
+    margin: 0;
+    padding: 0 20px;
+    font-size: 0.78em;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-your-listings-label {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    text-align: left;
+    margin: 0;
+    font-size: 0.82em;
+    letter-spacing: 0.1em;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market #market-my-listings {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: 0;
+}
+
+/* History */
+html[data-l2-layout="landscape"] #menu-social-market #market-tab-history {
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    gap: 10px;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .market-history-filters {
+    justify-content: flex-start;
+    margin: 0;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market #market-history-list {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+html[data-l2-layout="landscape"] #menu-social-market .btn-market-hub-back {
+    width: auto;
+    min-width: 220px;
+    align-self: center;
+    margin-top: 12px;
+    min-height: 42px;
+    padding: 0 28px;
+}
+
+/* Register + item picker modals */
+html[data-l2-layout="landscape"] #janela-market-registrar.store-window {
+    width: min(760px, 92vw);
+    max-width: min(760px, 92vw);
+    max-height: min(84vh, 640px);
+}
+
+html[data-l2-layout="landscape"] #janela-market-registrar .store-header {
+    padding: 14px 18px;
+    letter-spacing: 0.12em;
+}
+
+html[data-l2-layout="landscape"] #janela-market-registrar .market-reg-inner {
+    display: grid;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(280px, 1.15fr);
+    gap: 14px 16px;
+    padding: 16px 18px 18px;
+    box-sizing: border-box;
+}
+
+html[data-l2-layout="landscape"] #janela-market-registrar .market-reg-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 16px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+html[data-l2-layout="landscape"] #janela-market-registrar .market-reg-meta {
+    text-align: left;
+}
+
+html[data-l2-layout="landscape"] #market-reg-slot.market-card-icon {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+}
+
+html[data-l2-layout="landscape"] #janela-market-registrar .market-reg-price-panel {
+    padding: 14px 16px;
+    height: 100%;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+html[data-l2-layout="landscape"] #janela-market-registrar #market-reg-qtd-container {
+    grid-column: 1 / -1;
+}
+
+html[data-l2-layout="landscape"] #janela-market-registrar .market-reg-actions {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+}
+
+html[data-l2-layout="landscape"] #janela-market-registrar .btn-market-confirm,
+html[data-l2-layout="landscape"] #janela-market-registrar .btn-market-cancel {
+    min-height: 48px;
+    height: auto;
+    flex: 1 1 0;
+    width: auto;
+}
+
+html[data-l2-layout="landscape"] #janela-market-seletor.store-window {
+    width: min(820px, 94vw);
+    max-width: min(820px, 94vw);
+    height: auto;
+    max-height: min(82vh, 700px);
+    padding: 0 14px 14px;
+}
+
+html[data-l2-layout="landscape"] #janela-market-seletor .store-header {
+    padding: 14px 10px;
+    letter-spacing: 0.12em;
+}
+
+html[data-l2-layout="landscape"] #janela-market-seletor #market-seletor-grid.inventory-grid {
+    --l2-inv-cols: 8;
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    border-radius: 8px;
+}
+
+html[data-l2-layout="landscape"] #janela-market-seletor .btn-market-back {
+    width: auto;
+    min-width: 160px;
+    align-self: center;
+    margin-top: 12px;
+    min-height: 42px;
+}
+
+@media (min-width: 1600px) {
+    html[data-l2-layout="landscape"] #menu-social-market.npc-menu {
+        max-width: min(1280px, 100%);
+        min-height: min(70vh, 640px);
+        padding: 18px 24px 16px;
+    }
+}
+
+@media (max-width: 1440px), (max-height: 800px) {
+    html[data-l2-layout="landscape"] #game-viewport > #tela-social.screen-content {
+        justify-content: flex-start;
+        padding-top: 12px;
+    }
+
+    html[data-l2-layout="landscape"] #menu-social-market.npc-menu {
+        min-height: 0;
+        max-height: min(76vh, 640px);
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 1100px) {
+    html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy[style*="display: flex"],
+    html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy[style*="display:flex"] {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto 1fr;
+    }
+
+    html[data-l2-layout="landscape"] #menu-social-market .market-search-wrap,
+    html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy > .market-filters,
+    html[data-l2-layout="landscape"] #menu-social-market #market-subfilters-equips {
+        grid-column: 1;
+    }
+
+    html[data-l2-layout="landscape"] #menu-social-market .market-search-wrap { grid-row: 1; }
+    html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy > .market-filters {
+        grid-row: 2;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+    html[data-l2-layout="landscape"] #menu-social-market #market-subfilters-equips { grid-row: 3; }
+    html[data-l2-layout="landscape"] #menu-social-market #market-list { grid-row: 4; }
+
+    html[data-l2-layout="landscape"] #menu-social-market #market-tab-sell[style*="display: flex"],
+    html[data-l2-layout="landscape"] #menu-social-market #market-tab-sell[style*="display:flex"] {
+        grid-template-columns: 1fr;
+    }
+
+    html[data-l2-layout="landscape"] #menu-social-market #market-tab-sell .btn-register-market {
+        grid-column: 1;
+        width: 100%;
+        min-width: 0;
+    }
+
+    html[data-l2-layout="landscape"] #menu-social-market .market-your-listings-label {
+        grid-column: 1;
+        text-align: center;
+    }
+
+    html[data-l2-layout="landscape"] #janela-market-registrar .market-reg-inner {
+        grid-template-columns: 1fr;
+    }
+
+    html[data-l2-layout="landscape"] #janela-market-registrar .market-reg-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    html[data-l2-layout="landscape"] #janela-market-registrar .market-reg-meta {
+        text-align: center;
+    }
 }
 
 html[data-l2-layout="landscape"] #menu-social-clans .btn-clan-hall-back {
@@ -1917,10 +2306,7 @@ html[data-l2-layout="landscape"] #tela-inventario .inv-filter-trigger {
     max-width: 220px;
 }
 
-html[data-l2-layout="landscape"] #market-seletor-grid.inventory-grid {
-    --l2-inv-cols: 8;
-    max-width: 600px;
-}
+/* market selector grid width is set under MARKETPLACE modals above */
 
 /* ========================================= */
 /* PROFILE — paperdoll fixed + stats beside  */

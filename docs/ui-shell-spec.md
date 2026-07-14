@@ -60,6 +60,8 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **World hub (landscape):** `#tela-world .world-container` ~1240–1320px em grelha `title | gatekeeper + adventure`. Zonas da Clarissa como “bilhetes” (nome + pill de custo) em 2 colunas; aventuras em board 2×2 com cards altos. Em ≤1440px / altura baixa: `padding-left` para o chat; em ≤1100px empilha as colunas.
 
+**Marketplace (landscape):** `#menu-social-market` balcão ~1240–1280px (não o stage 1080 genérico). Tabs a largura total; aba Buy em grelha `search | filters` numa linha + lista densa; Sell com label + “Register” na mesma fila; modais `#janela-market-registrar` (~760px, item | preço) e `#janela-market-seletor` (~820px, grelha 8 cols). `#tela-social` reserva sempre `padding-left` para o chat flutuante; em ≤1100px empilha toolbar e registo.
+
 ## Preferência do jogador
 
 - Settings → **Layout**: `Auto` / `Mobile` (portrait) / `PC` (landscape).
