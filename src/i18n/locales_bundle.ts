@@ -105,13 +105,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 marketplace: 'Marketplace',
                 clanHall: 'Clan Hall',
                 mailbox: 'Mailbox',
-                missions: 'Daily Missions',
+                missions: 'Missions',
+                achievements: 'Achievements',
                 olympiad: 'Grand Olympiad',
                 clanWar: 'Clan War',
                 settings: 'Settings',
                 close: 'CLOSE',
                 notifMail: '{count} mailbox',
                 notifMissions: '{count} missions',
+                notifAchievements: '{count} achievements',
                 notifRewards: '{count} rewards',
                 notifOlympiad: '{count} olympiad rewards',
                 notifClanWar: 'Clan War available',
@@ -1062,7 +1064,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 daily: {
                     modalTitle: 'DAILY MISSIONS',
-                    modalHint: 'Three goals per day — claim each reward, then unlock the legendary bonus. Resets at midnight.',
+                    modalHint: 'Three goals per day — claim each reward, then unlock the legendary bonus. Skip once per mission to reroll. Resets at midnight.',
                     progressLine: '{done}/{total} complete · {pending} ready to claim',
                     claimPendingFirst: 'CLAIM MISSION REWARDS FIRST',
                     toastMissionComplete: 'Mission complete: {title}! Open Missions to claim.',
@@ -1096,6 +1098,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             desc: 'Slay golden champions in hunting zones.',
                             hint: 'Champions spawn randomly — watch for the golden glow.'
                         },
+                        zone_ranger: {
+                            title: 'Zone Ranger',
+                            desc: 'Clear a long hunt — defeat many common mobs.',
+                            hint: 'Stay in a hunting zone and keep clearing packs.'
+                        },
                         coin_collector: {
                             title: 'Ancient Hoard',
                             desc: 'Gather Ancient Coins in battle.',
@@ -1111,10 +1118,25 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             desc: 'Earn Adena from combat and events.',
                             hint: 'Any Adena you earn counts — hunting, sales, duels.'
                         },
+                        enchant_seeker: {
+                            title: 'Scroll Seeker',
+                            desc: 'Attempt to enchant gear at the Blacksmith.',
+                            hint: 'Menu / Town NPCs → Enchant — each attempt counts.'
+                        },
+                        craft_hand: {
+                            title: 'Forge Hand',
+                            desc: 'Craft items at the forge.',
+                            hint: 'Open Craft and forge any recipe.'
+                        },
                         arena_blood: {
                             title: 'Blood on the Sand',
                             desc: 'Win Grand Olympiad duels.',
                             hint: 'World tab → Grand Olympiad → win a duel.'
+                        },
+                        olympiad_grinder: {
+                            title: 'Arena Grinder',
+                            desc: 'Win several Grand Olympiad duels this period.',
+                            hint: 'Keep dueling in Grand Olympiad until the target is met.'
                         },
                         daily_boss_slayer: {
                             title: 'Lord of the Day',
@@ -1125,8 +1147,71 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             title: 'Battle Alchemist',
                             desc: 'Use potions in combat to stay alive.',
                             hint: 'Tap HP or Mana potions on your hotbar during fights.'
+                        },
+                        skill_sparks: {
+                            title: 'Skill Sparks',
+                            desc: 'Cast class skills in combat.',
+                            hint: 'Use skills from your hotbar while hunting or fighting.'
                         }
                     }
+                },
+                missions: {
+                    modalTitle: 'MISSIONS',
+                    tabDaily: 'Daily',
+                    tabWeekly: 'Weekly',
+                    skipBtn: 'SKIP',
+                    skipUsed: 'SKIPPED',
+                    skipConfirm: 'Skip "{title}" and replace it with another mission from the same group? You can only do this once per mission.',
+                    skipNoAlternative: 'No alternative mission is available in this group right now.',
+                    logSkipped: '[Missions] Skipped: {title}. A new goal was rolled.'
+                },
+                weekly: {
+                    modalTitle: 'WEEKLY MISSIONS',
+                    modalHint: 'Three harder goals per ISO week — bigger Adena, scrolls and potions. Skip once per mission. Resets Monday (ISO week).',
+                    progressLine: '{done}/{total} complete · {pending} ready · {week}',
+                    claimPendingFirst: 'CLAIM MISSION REWARDS FIRST',
+                    toastMissionComplete: 'Weekly mission complete: {title}! Open Missions to claim.',
+                    finalBonusTitle: 'WEEKLY FINAL BONUS',
+                    activeGradeLine: 'Active grade: {grade} (tiers: {tiers})',
+                    bonusPreviewExtras: 'Enchant scrolls ({grade}) + potions (no Ancient Coins)',
+                    historyGradeChange: 'Last safe grade change: {prev} → {next}',
+                    historyNone: 'No grade change logged this week.',
+                    bonusClaimed: 'BONUS CLAIMED',
+                    claimFinalBonus: 'CLAIM WEEKLY BONUS',
+                    completeAllMissions: 'Complete all weekly missions',
+                    logRewardClaimed: '[Weekly] Reward claimed: {title}',
+                    logBonusClaimed: '[Weekly] Legendary weekly bonus claimed!',
+                    logMissionComplete: '[Weekly] Mission complete: {title}!',
+                    logSafetyAutoClaim: '[Weekly] Safety: {count} completed mission(s) were auto-claimed before your grade changed.',
+                    logGradeUpdated: '[Weekly] Grade updated: {prev} → {next}. New weekly missions unlocked.'
+                },
+                achievements: {
+                    modalTitle: 'ACHIEVEMENTS',
+                    modalHint: 'Tap a level to open its reward. Gold tiles are milestones (every 10). Dark = not reached yet.',
+                    claimModalTitle: 'LEVEL REWARD',
+                    progressLine: '{claimed}/{total} claimed · Lv.{current} · {pending} ready',
+                    claim: 'CLAIM',
+                    claimed: 'CLAIMED',
+                    claimAll: 'CLAIM ALL',
+                    reward: 'Reward:',
+                    rowAdena: 'Adena',
+                    rowAc: 'Ancient Coins',
+                    levelTitle: 'Level {level}',
+                    milestoneTitle: 'Milestone Lv.{level}',
+                    milestoneBadge: 'MILESTONE',
+                    statusLocked: 'Locked — reach level {level}',
+                    statusPreview: 'Preview only — reach level {level} to claim',
+                    statusClaimable: 'Ready to claim',
+                    statusClaimed: 'Already claimed',
+                    closeBtn: 'CLOSE',
+                    toastUnlocked: 'Level {level} reward unlocked — open Achievements to claim.',
+                    logUnlocked: '[Achievements] Level {level} reward is ready to claim!',
+                    logClaimed: '[Achievements] Claimed: {title}',
+                    logClaimAll: '[Achievements] Claimed {count} level reward(s)!'
+                },
+                rewards: {
+                    previewAmount: 'In this reward:',
+                    tapIconHint: 'Tap icon for item details'
                 },
                 core: {
                     welcomeLog: 'Welcome to the Rogue Age.',
@@ -2532,13 +2617,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 marketplace: 'Mercado',
                 clanHall: 'Salão do Clã',
                 mailbox: 'Correio',
-                missions: 'Missões Diárias',
+                missions: 'Missões',
+                achievements: 'Conquistas',
                 olympiad: 'Grand Olympiad',
                 clanWar: 'Guerra de Clãs',
                 settings: 'Configurações',
                 close: 'FECHAR',
                 notifMail: '{count} no correio',
                 notifMissions: '{count} missões',
+                notifAchievements: '{count} conquistas',
                 notifRewards: '{count} recompensas',
                 notifOlympiad: '{count} recompensas da Olimpíada',
                 notifClanWar: 'Guerra de Clãs disponível',
@@ -3489,7 +3576,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 daily: {
                     modalTitle: 'MISSÕES DIÁRIAS',
-                    modalHint: 'Três metas por dia — resgate cada prêmio e desbloqueie o bônus lendário. Reinicia à meia-noite.',
+                    modalHint: 'Três metas por dia — resgate cada prêmio e desbloqueie o bônus lendário. Pule uma vez por missão para trocar. Reinicia à meia-noite.',
                     progressLine: '{done}/{total} concluídas · {pending} para resgatar',
                     claimPendingFirst: 'RESGATE AS MISSÕES PRIMEIRO',
                     toastMissionComplete: 'Missão concluída: {title}! Abra Missões para resgatar.',
@@ -3523,6 +3610,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             desc: 'Abata campeões dourados nas zonas de caça.',
                             hint: 'Campeões aparecem ao acaso — procure o brilho dourado.'
                         },
+                        zone_ranger: {
+                            title: 'Patrulheiro de Zona',
+                            desc: 'Faça uma caçada longa — derrote muitos monstros comuns.',
+                            hint: 'Fique numa zona de caça e continue limpando packs.'
+                        },
                         coin_collector: {
                             title: 'Tesouro Ancestral',
                             desc: 'Colete Moedas Ancestrais em batalha.',
@@ -3538,10 +3630,25 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             desc: 'Ganhe Adena em combate e eventos.',
                             hint: 'Qualquer Adena ganha vale — caça, vendas, duelos.'
                         },
+                        enchant_seeker: {
+                            title: 'Buscador de Pergaminhos',
+                            desc: 'Tente encantar equipamentos no ferreiro.',
+                            hint: 'Menu / NPCs da cidade → Encantar — cada tentativa conta.'
+                        },
+                        craft_hand: {
+                            title: 'Mão da Forja',
+                            desc: 'Crie itens na forja.',
+                            hint: 'Abra o Craft e forje qualquer receita.'
+                        },
                         arena_blood: {
                             title: 'Sangue na Arena',
                             desc: 'Vença duelos na Grande Olimpíada.',
                             hint: 'Aba Mundo → Grande Olimpíada → vença um duelo.'
+                        },
+                        olympiad_grinder: {
+                            title: 'Moedor da Arena',
+                            desc: 'Vença vários duelos na Grande Olimpíada neste período.',
+                            hint: 'Continue duelando na Grande Olimpíada até bater a meta.'
                         },
                         daily_boss_slayer: {
                             title: 'Senhor do Dia',
@@ -3552,8 +3659,71 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             title: 'Alquimista de Batalha',
                             desc: 'Use poções em combate para sobreviver.',
                             hint: 'Use poções de HP ou Mana na barra durante lutas.'
+                        },
+                        skill_sparks: {
+                            title: 'Faíscas de Habilidade',
+                            desc: 'Use skills da classe em combate.',
+                            hint: 'Use skills da barra durante a caça ou lutas.'
                         }
                     }
+                },
+                missions: {
+                    modalTitle: 'MISSÕES',
+                    tabDaily: 'Diárias',
+                    tabWeekly: 'Semanais',
+                    skipBtn: 'PULAR',
+                    skipUsed: 'PULADA',
+                    skipConfirm: 'Pular "{title}" e trocar por outra missão do mesmo grupo? Só pode fazer isso uma vez por missão.',
+                    skipNoAlternative: 'Não há outra missão disponível neste grupo agora.',
+                    logSkipped: '[Missões] Pulada: {title}. Nova meta sorteada.'
+                },
+                weekly: {
+                    modalTitle: 'MISSÕES SEMANAIS',
+                    modalHint: 'Três metas mais difíceis por semana ISO — mais Adena, pergaminhos e poções. Pule uma vez por missão. Reinicia na segunda (semana ISO).',
+                    progressLine: '{done}/{total} concluídas · {pending} para resgatar · {week}',
+                    claimPendingFirst: 'RESGATE AS MISSÕES PRIMEIRO',
+                    toastMissionComplete: 'Missão semanal concluída: {title}! Abra Missões para resgatar.',
+                    finalBonusTitle: 'BÔNUS FINAL SEMANAL',
+                    activeGradeLine: 'Grade ativa: {grade} (tiers: {tiers})',
+                    bonusPreviewExtras: 'Pergaminhos de enchant ({grade}) + poções (sem Moedas Ancestrais)',
+                    historyGradeChange: 'Última troca segura de grade: {prev} → {next}',
+                    historyNone: 'Nenhuma troca de grade registrada nesta semana.',
+                    bonusClaimed: 'BÔNUS RESGATADO',
+                    claimFinalBonus: 'RESGATAR BÔNUS SEMANAL',
+                    completeAllMissions: 'Complete todas as missões semanais',
+                    logRewardClaimed: '[Semanal] Recompensa resgatada: {title}',
+                    logBonusClaimed: '[Semanal] Bônus semanal lendário resgatado!',
+                    logMissionComplete: '[Semanal] Missão concluída: {title}!',
+                    logSafetyAutoClaim: '[Semanal] Segurança: {count} missão(ões) concluída(s) foram resgatadas automaticamente antes da mudança de grade.',
+                    logGradeUpdated: '[Semanal] Grade atualizada: {prev} → {next}. Novas missões semanais desbloqueadas.'
+                },
+                achievements: {
+                    modalTitle: 'CONQUISTAS',
+                    modalHint: 'Toque num nível para abrir o prémio. Quadrados dourados são marcos (a cada 10). Escuros = ainda não alcançou.',
+                    claimModalTitle: 'PRÉMIO DE NÍVEL',
+                    progressLine: '{claimed}/{total} resgatados · Nv.{current} · {pending} prontos',
+                    claim: 'RESGATAR',
+                    claimed: 'RESGATADO',
+                    claimAll: 'RESGATAR TUDO',
+                    reward: 'Recompensa:',
+                    rowAdena: 'Adena',
+                    rowAc: 'Moedas Ancestrais',
+                    levelTitle: 'Nível {level}',
+                    milestoneTitle: 'Marco Nv.{level}',
+                    milestoneBadge: 'MARCO',
+                    statusLocked: 'Bloqueado — alcance o nível {level}',
+                    statusPreview: 'Só visualização — alcance o nível {level} para resgatar',
+                    statusClaimable: 'Pronto para resgatar',
+                    statusClaimed: 'Já resgatado',
+                    closeBtn: 'FECHAR',
+                    toastUnlocked: 'Prêmio do nível {level} desbloqueado — abra Conquistas para resgatar.',
+                    logUnlocked: '[Conquistas] Prêmio do nível {level} pronto para resgatar!',
+                    logClaimed: '[Conquistas] Resgatado: {title}',
+                    logClaimAll: '[Conquistas] Resgatou {count} prêmio(s) de nível!'
+                },
+                rewards: {
+                    previewAmount: 'Neste prêmio:',
+                    tapIconHint: 'Toque no ícone para ver o item'
                 },
                 core: {
                     welcomeLog: 'Bem-vindo à Era Rogue.',

@@ -122,7 +122,14 @@
                             <span class="nav-menu-item__glyph nav-menu-item__glyph--missions" aria-hidden="true"></span>
                             <span id="nav-notif-missions" class="nav-notif nav-notif--missions" hidden></span>
                         </span>
-                        <span class="nav-menu-item__label" data-i18n="navMenu.missions">Daily Missions</span>
+                        <span class="nav-menu-item__label" data-i18n="navMenu.missions">Missions</span>
+                    </button>
+                    <button type="button" class="nav-menu-item" id="nav-menu-achievements" onclick="navMenuGo('achievements')">
+                        <span class="nav-menu-item__icon-wrap">
+                            <span class="nav-menu-item__glyph nav-menu-item__glyph--achievements" aria-hidden="true"></span>
+                            <span id="nav-notif-achievements" class="nav-notif nav-notif--achievements" hidden></span>
+                        </span>
+                        <span class="nav-menu-item__label" data-i18n="navMenu.achievements">Achievements</span>
                     </button>
                     <button type="button" class="nav-menu-item" id="nav-menu-olympiad" onclick="navMenuGo('olympiad')">
                         <span class="nav-menu-item__icon-wrap">
@@ -861,13 +868,51 @@
     </div>
 
     <div id="janela-missoes-diarias" class="store-window">
-        <div class="store-header"><span data-i18n="game.daily.modalTitle">DAILY MISSIONS</span></div>
-        <div class="missoes-hint" data-i18n="game.daily.modalHint">Three goals per day — claim rewards, then unlock the legendary bonus. Resets at midnight.</div>
-        <div id="missoes-progress-summary" class="missoes-progress-summary" aria-live="polite"></div>
-        <div id="missoes-diarias-container"></div>
-        <div id="missoes-bonus-box"></div>
+        <div class="store-header"><span data-i18n="game.missions.modalTitle">MISSIONS</span></div>
+        <div class="missoes-hub-tabs" role="tablist" aria-label="Missions">
+            <button type="button" id="missoes-tab-daily" class="missoes-hub-tab missoes-hub-tab--active" role="tab" aria-selected="true" data-i18n="game.missions.tabDaily" onclick="setMissoesHubTab('daily')">Daily</button>
+            <button type="button" id="missoes-tab-weekly" class="missoes-hub-tab" role="tab" aria-selected="false" data-i18n="game.missions.tabWeekly" onclick="setMissoesHubTab('weekly')">Weekly</button>
+        </div>
+        <div id="missoes-hub-hint" class="missoes-hint" data-i18n="game.daily.modalHint">Three goals per day — claim rewards, then unlock the legendary bonus. Resets at midnight.</div>
+        <div id="missoes-panel-daily" class="missoes-hub-panel" style="display:flex;">
+            <div id="missoes-progress-summary" class="missoes-progress-summary" aria-live="polite"></div>
+            <div id="missoes-diarias-container"></div>
+            <div id="missoes-bonus-box"></div>
+        </div>
+        <div id="missoes-panel-weekly" class="missoes-hub-panel" style="display:none;">
+            <div id="missoes-progress-summary-weekly" class="missoes-progress-summary" aria-live="polite"></div>
+            <div id="missoes-semanais-container"></div>
+            <div id="missoes-bonus-box-weekly"></div>
+        </div>
         <div class="store-footer store-footer--missoes">
             <button type="button" class="btn-l2 btn-missoes-close" data-i18n="game.daily.closeBtn" onclick="fecharMissoesDiarias()">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="janela-level-rewards" class="store-window">
+        <div class="store-header"><span data-i18n="game.achievements.modalTitle">ACHIEVEMENTS</span></div>
+        <div class="level-rewards-hint" data-i18n="game.achievements.modalHint">Tap a level to open its reward. Gold tiles are milestones (every 10). Dark = not reached yet.</div>
+        <div class="level-rewards-top">
+            <div id="level-rewards-summary" class="level-rewards-summary" aria-live="polite"></div>
+            <button type="button" id="btn-level-rewards-claim-all" class="btn-l2 level-rewards-claim-all" data-i18n="game.achievements.claimAll" onclick="reivindicarTodasRecompensasNivel()">CLAIM ALL</button>
+        </div>
+        <div id="level-rewards-grid" class="level-rewards-grid" role="list" aria-label="Level rewards"></div>
+        <div class="store-footer store-footer--level-rewards">
+            <button type="button" class="btn-l2 btn-level-rewards-close" data-i18n="game.achievements.closeBtn" onclick="fecharLevelRewards()">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="janela-level-reward-claim" class="store-window store-window--level-claim">
+        <div class="store-header store-header--level-claim">
+            <span id="level-claim-modal-title" data-i18n="game.achievements.claimModalTitle">LEVEL REWARD</span>
+            <button type="button" class="fechar-store fechar-store--level-claim" onclick="fecharLevelRewardClaimModal()" aria-label="Close">&times;</button>
+        </div>
+        <div class="store-body store-body--level-claim">
+            <div id="level-claim-modal-root" class="level-claim-modal-root" aria-live="polite"></div>
+        </div>
+        <div class="store-footer store-footer--level-claim">
+            <button type="button" id="btn-level-claim-modal-primary" class="btn-l2 btn-level-claim-primary" style="display:none" onclick="reivindicarRecompensaNivelFromModal()">CLAIM</button>
+            <button type="button" class="btn-l2 btn-level-claim-close" data-i18n="game.achievements.closeBtn" onclick="fecharLevelRewardClaimModal()">CLOSE</button>
         </div>
     </div>
 

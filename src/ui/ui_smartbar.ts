@@ -62,7 +62,17 @@ function findCatalogRow(nome: string): CatalogRow | undefined {
   return smartbarCatalogRows(true).find((i) => i.nome === nome || i.id === nome);
 }
 
-function abrirAcaoItemGeral(nome: string): void {
+function abrirAcaoItemGeral(
+  nome: string,
+  opts?: { previewQty?: number; previewOnly?: boolean },
+): void {
+  try {
+    const parent = document.getElementById('btn-acao-item')?.parentElement;
+    if (parent) {
+      parent.querySelectorAll('.btn-acao-extra').forEach((btn) => btn.remove());
+    }
+  } catch { /* noop */ }
+
   if (typeof window.abrirModal === 'function') window.abrirModal('janela-item-acao', 2100);
   else {
     const janela = document.getElementById('janela-item-acao');
@@ -75,7 +85,12 @@ function abrirAcaoItemGeral(nome: string): void {
   const btnAcao = document.getElementById('btn-acao-item') as HTMLButtonElement | null;
   if (!titulo || !desc || !img || !btnAcao) return;
 
-  titulo.innerText = smartbarT('game.smartbar.itemOptions');
+  const previewOnly = !!opts?.previewOnly;
+  const previewQty = opts?.previewQty;
+
+  titulo.innerText = previewOnly
+    ? (typeof window.t === 'function' ? window.t('game.inventoryUi.itemInfoTitle') : 'ITEM INFO')
+    : smartbarT('game.smartbar.itemOptions');
 
   const kAd = window.L2MINI_CURRENCY_BAG_KEYS?.adena || 'Adena';
   const kAc = window.L2MINI_CURRENCY_BAG_KEYS?.ancient || 'Ancient Coin';
@@ -108,14 +123,17 @@ function abrirAcaoItemGeral(nome: string): void {
 
   const qtyLabel = smartbarT('game.smartbar.quantity');
   let extraBag = '';
-  if (isCurrency) {
+  if (isCurrency && !previewOnly) {
     extraBag = `<div style="color:#94a3b8;font-size:0.78em;margin-top:8px;text-align:center;">${smartbarT('game.smartbar.currencyNoShortcut')}</div>`;
   }
   const owned = window.inventario[nome] ?? 0;
-  desc.innerHTML = `<b style="color:#fff">${displayName}</b><br><span style="color:#aaa; font-size:0.9em;">${qtyLabel} ${owned}</span>${descricao}${extraBag}`;
+  const qtyLine = previewQty != null
+    ? `<span style="color:#fde68a; font-size:0.9em;">${typeof window.t === 'function' ? window.t('game.rewards.previewAmount') : 'In this reward:'} <b>${Number(previewQty).toLocaleString()}</b></span>`
+    : `<span style="color:#aaa; font-size:0.9em;">${qtyLabel} ${owned}</span>`;
+  desc.innerHTML = `<b style="color:#fff">${displayName}</b><br>${qtyLine}${descricao}${extraBag}`;
 
   btnAcao.style.display = 'block';
-  if (isCurrency) {
+  if (isCurrency || previewOnly) {
     btnAcao.innerText = smartbarT('game.smartbar.closeDetails');
     btnAcao.style.background = 'linear-gradient(180deg, #404040 0%, #262626 100%)';
     btnAcao.style.borderColor = '#737373';

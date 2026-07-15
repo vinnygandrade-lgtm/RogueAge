@@ -100,6 +100,14 @@ function syncNavMenuActiveItem(): void {
 
     }
 
+    if (modalIsOpen('janela-level-rewards')) {
+
+        document.getElementById('nav-menu-achievements')?.classList.add('nav-menu-item--active');
+
+        return;
+
+    }
+
     if (modalIsOpen('janela-game-settings')) {
 
         document.getElementById('nav-menu-settings')?.classList.add('nav-menu-item--active');
@@ -428,6 +436,12 @@ function navMenuGo(dest: string): void {
         case 'missions':
 
             if (typeof window.abrirMissoesDiarias === 'function') window.abrirMissoesDiarias();
+
+            break;
+
+        case 'achievements':
+
+            if (typeof window.abrirLevelRewards === 'function') window.abrirLevelRewards();
 
             break;
 

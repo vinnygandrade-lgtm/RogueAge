@@ -100,7 +100,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
-    host: 'localhost',
+    host: true,
     watch: {
       ignored: [
         '**/node_modules/**',

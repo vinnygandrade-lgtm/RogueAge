@@ -170,10 +170,25 @@ import type { I18nLocaleTree, I18nParams, I18nSetLocaleOptions, UiLocale } from 
         /* ignore */
       }
     }
-    if (typeof window.renderizarMissoesDiarias === 'function') {
+    if (typeof window.renderizarMissoesHub === 'function') {
+      try {
+        const dm = document.getElementById('janela-missoes-diarias');
+        if (dm && dm.style.display === 'flex') window.renderizarMissoesHub();
+      } catch {
+        /* ignore */
+      }
+    } else if (typeof window.renderizarMissoesDiarias === 'function') {
       try {
         const dm = document.getElementById('janela-missoes-diarias');
         if (dm && dm.style.display === 'flex') window.renderizarMissoesDiarias();
+      } catch {
+        /* ignore */
+      }
+    }
+    if (typeof window.renderizarLevelRewards === 'function') {
+      try {
+        const lr = document.getElementById('janela-level-rewards');
+        if (lr && lr.style.display === 'flex') window.renderizarLevelRewards();
       } catch {
         /* ignore */
       }

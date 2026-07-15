@@ -1,16 +1,16 @@
 /* ========================================= */
-/* SHELL — landscape (PC client)             */
+/* SHELL ? landscape (PC client)             */
 /* Same game, desktop desk. Reference:       */
 /* classic fantasy MMO windowed client.      */
 /*                                           */
-/*  ┌──────────── HUD ────────────────┐      */
-/*  │           Viewport              │      */
-/*  │  [Chat window]                  │      */
-/*  │         Hotbar (center)         │      */
-/*  └──────── Tabs (full width) ──────┘      */
+/*  ????????????? HUD ?????????????????      */
+/*  ?           Viewport              ?      */
+/*  ?  [Chat window]                  ?      */
+/*  ?         Hotbar (center)         ?      */
+/*  ????????? Tabs (full width) ???????      */
 /*                                           */
 /* Chat = floating bottom-left (L2-style).   */
-/* Paperdoll: 360∶328 / 440px.               */
+/* Paperdoll: 360?328 / 440px.               */
 /* Load LAST. docs/ui-shell-spec.md          */
 /* ========================================= */
 
@@ -23,7 +23,7 @@ html[data-l2-layout="landscape"] {
     --l2-panel-narrow-max-width: 420px;
     --l2-screen-padding-x: 20px;
     --l2-screen-padding-y: 14px;
-    /* Floating chat — true bottom-left corner (above tab bar only) */
+    /* Floating chat ? true bottom-left corner (above tab bar only) */
     --l2-landscape-chat-w: 420px;
     --l2-landscape-chat-h: 240px;
     --l2-landscape-chat-bottom: 56px; /* just above .travel-menu */
@@ -35,7 +35,7 @@ html[data-l2-layout="landscape"] {
     --l2-landscape-side: 380px;
 }
 
-/* —— Full window —— */
+/* ?? Full window ?? */
 html[data-l2-layout="landscape"] body {
     align-items: stretch;
     justify-content: flex-start;
@@ -94,7 +94,7 @@ html[data-l2-layout="landscape"] #janela-status-detalhado.store-window {
 }
 
 /* ========================================= */
-/* ENCHANT / AUGMENT — PC forge workshop     */
+/* ENCHANT / AUGMENT ? PC forge workshop     */
 /* Layout: [gear] | [anvil + actions] | [mat] */
 /* ========================================= */
 
@@ -248,7 +248,7 @@ html[data-l2-layout="landscape"] #janela-augment .btn-aug-cancel {
     font-size: 0.85em;
 }
 
-/* Select / result sub-modals — desk sized, not phone strips */
+/* Select / result sub-modals ? desk sized, not phone strips */
 html[data-l2-layout="landscape"] #janela-augment-acao.store-window,
 html[data-l2-layout="landscape"] #janela-augment-resultado.store-window {
     width: min(420px, 90vw);
@@ -288,7 +288,7 @@ html[data-l2-layout="landscape"] #aug-res-btn {
 }
 
 /* ========================================= */
-/* SHOP / SELL — PC merchant counter         */
+/* SHOP / SELL ? PC merchant counter         */
 /* Layout: [catalog grid] | [details + buy]  */
 /* ========================================= */
 
@@ -463,7 +463,7 @@ html[data-l2-layout="landscape"] #janela-loja .btn-loja-back {
 }
 
 /* ========================================= */
-/* AUTH — keep the side-by-side that works   */
+/* AUTH ? keep the side-by-side that works   */
 /* ========================================= */
 
 html[data-l2-layout="landscape"] #screen-login .auth-flow-main.login-main {
@@ -559,7 +559,7 @@ html[data-l2-layout="landscape"] #screen-char-select .char-select-dock #btn-new-
 }
 
 /* ========================================= */
-/* IN-GAME — classic MMO desk                */
+/* IN-GAME ? classic MMO desk                */
 /* Chat = floating window, bottom-left       */
 /* (traditional MMORPG chat panel)           */
 /* ========================================= */
@@ -575,7 +575,7 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game.active
     align-items: stretch;
 }
 
-/* DOM has travel before viewport — push tabs to bottom via order */
+/* DOM has travel before viewport ? push tabs to bottom via order */
 html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > #hud-top-bar { order: 1; flex-shrink: 0; width: 100%; }
 html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > #buffs-ativos-container { order: 2; flex-shrink: 0; width: 100%; }
 html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > #game-viewport {
@@ -598,7 +598,7 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .tra
 
 /*
  * Traditional MMORPG chat: floating panel, bottom-left corner,
- * above hotbar + tabs — does NOT own a grid column.
+ * above hotbar + tabs ? does NOT own a grid column.
  */
 html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .log-container {
     position: absolute !important;
@@ -661,8 +661,8 @@ html[data-l2-layout="landscape"] .game-container.game-ingame.expedition-run-lock
     display: none !important;
 }
 
-/* —— HUD: one balanced desk bar ——
- * [avatar | name | bars]  ——— XP (fills middle) ———  [coins | online]
+/* ?? HUD: one balanced desk bar ??
+ * [avatar | name | bars]  ??? XP (fills middle) ???  [coins | online]
  */
 html[data-l2-layout="landscape"] #hud-top-bar {
     display: flex;
@@ -718,7 +718,7 @@ html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.hp { height: 16px
 html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.mp,
 html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.cp { height: 11px; }
 
-/* XP fills the middle — no dead space between clusters */
+/* XP fills the middle ? no dead space between clusters */
 html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-container,
 html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-container--grow {
     order: 4;
@@ -789,7 +789,7 @@ html[data-l2-layout="landscape"] #buffs-ativos-container[style*="display:flex"] 
     padding: 4px var(--l2-landscape-hud-pad);
 }
 
-/* —— Chat dock polish —— */
+/* ?? Chat dock polish ?? */
 html[data-l2-layout="landscape"] .log-container .log-tabs {
     flex-shrink: 0;
     background: #161310;
@@ -828,7 +828,7 @@ html[data-l2-layout="landscape"] .log-container .btn-chat-send {
     padding: 0 12px;
 }
 
-/* —— Hotbar: full-width strip, slots centered —— */
+/* ?? Hotbar: full-width strip, slots centered ?? */
 html[data-l2-layout="landscape"] #hotbar-home-anchor {
     display: flex;
     justify-content: center;
@@ -873,7 +873,7 @@ html[data-l2-layout="landscape"] #olympiad-atalhos-hook #barra-de-atalhos-dinami
     margin-inline: auto !important;
 }
 
-/* —— Travel tabs: horizontal bottom bar (same tabs, PC scale) —— */
+/* ?? Travel tabs: horizontal bottom bar (same tabs, PC scale) ?? */
 html[data-l2-layout="landscape"] .travel-menu {
     flex-direction: row;
     justify-content: center;
@@ -945,7 +945,7 @@ html[data-l2-layout="landscape"] #btn-tab-menu .btn-travel__label {
     display: inline !important;
 }
 
-/* Quick Menu — floating panel */
+/* Quick Menu ? floating panel */
 html[data-l2-layout="landscape"] .nav-menu-sheet {
     left: 50%;
     bottom: auto;
@@ -976,7 +976,7 @@ html[data-l2-layout="landscape"] .nav-menu-town-coach__card {
 }
 
 /* ========================================= */
-/* CONTENT — readable stage (ideal sizes)    */
+/* CONTENT ? readable stage (ideal sizes)    */
 /* ========================================= */
 
 html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > #game-viewport {
@@ -995,14 +995,14 @@ html[data-l2-layout="landscape"] #game-viewport > .screen-content {
     box-sizing: border-box;
 }
 
-/* Full-bleed arenas — no hub padding / stage cap */
+/* Full-bleed arenas ? no hub padding / stage cap */
 html[data-l2-layout="landscape"] #game-viewport > #tela-olympiad-arena.screen-content,
 html[data-l2-layout="landscape"] #game-viewport > #tela-raid-arena.screen-content,
 html[data-l2-layout="landscape"] #game-viewport > #tela-clan-war.screen-content {
     padding: 0;
 }
 
-/* Hub panels — composed card, capped width, centered */
+/* Hub panels ? composed card, capped width, centered */
 /* Marketplace has its own wider exchange-desk rules below */
 html[data-l2-layout="landscape"] #praca-social,
 html[data-l2-layout="landscape"] #tela-inventario,
@@ -1019,7 +1019,7 @@ html[data-l2-layout="landscape"] #menu-social-clans {
 }
 
 /* ========================================= */
-/* TOWN SQUARE — PC plaza desk               */
+/* TOWN SQUARE ? PC plaza desk               */
 /* Wide board like World / Marketplace       */
 /* ========================================= */
 
@@ -1231,7 +1231,7 @@ html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[st
     border-top-color: rgba(90, 70, 52, 0.28);
 }
 
-/* NPC talk menus — readable PC dialog */
+/* NPC talk menus ? readable PC dialog */
 html[data-l2-layout="landscape"] #tela-cidade .npc-menu {
     width: 100%;
     max-width: min(820px, 92%);
@@ -1275,7 +1275,7 @@ html[data-l2-layout="landscape"] #tela-cidade .npc-menu .btn-l2--npc {
     min-height: 46px;
 }
 
-/* Equipment / grocer hub — merchant desk */
+/* Equipment / grocer hub ? merchant desk */
 html[data-l2-layout="landscape"] #tela-cidade #menu-equipment,
 html[data-l2-layout="landscape"] #tela-cidade #menu-grocer {
     max-width: min(880px, 92%);
@@ -1288,9 +1288,9 @@ html[data-l2-layout="landscape"] #tela-cidade #menu-grocer .btn-l2--npc:last-chi
     max-width: 280px;
 }
 
-/* Grade picker — portrait+dialog on top, 3×2 grade grid, back centered */
+/* Grade picker ? portrait+dialog on top, 3?2 grade grid, back centered */
 html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades.npc-menu {
-    /* no display:!important — JS toggles display none/flex */
+    /* no display:!important ? JS toggles display none/flex */
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -1395,7 +1395,7 @@ html[data-l2-layout="landscape"] #tela-clan-war {
 }
 
 /* ========================================= */
-/* OLYMPIAD — PC desk                        */
+/* OLYMPIAD ? PC desk                        */
 /* Full-bleed arena; content column centered */
 /* ========================================= */
 
@@ -1473,7 +1473,7 @@ html[data-l2-layout="landscape"] #olympiad-lobby .btn-oly-exit {
     min-height: 44px;
 }
 
-/* Battle list — roomier challenge rows */
+/* Battle list ? roomier challenge rows */
 html[data-l2-layout="landscape"] #oly-challenge-list {
     gap: 10px;
     max-width: 720px;
@@ -1486,7 +1486,7 @@ html[data-l2-layout="landscape"] #oly-content-battle p {
     margin-bottom: 16px;
 }
 
-/* Ranking — rank card + world ladder side by side */
+/* Ranking ? rank card + world ladder side by side */
 html[data-l2-layout="landscape"] #oly-content-ranking.oly-tab-content--visible,
 html[data-l2-layout="landscape"] #oly-content-ranking[style*="display: block"],
 html[data-l2-layout="landscape"] #oly-content-ranking[style*="display:block"] {
@@ -1510,7 +1510,7 @@ html[data-l2-layout="landscape"] #oly-global-ranking-list {
     max-height: min(52vh, 520px);
 }
 
-/* Rewards / history / rules — readable column */
+/* Rewards / history / rules ? readable column */
 html[data-l2-layout="landscape"] #oly-content-rewards,
 html[data-l2-layout="landscape"] #oly-content-history,
 html[data-l2-layout="landscape"] #oly-content-rules {
@@ -1528,7 +1528,7 @@ html[data-l2-layout="landscape"] #olympiad-resultado .oly-result-card {
     width: min(480px, 92%);
 }
 
-/* Combat stage — use the desk width */
+/* Combat stage ? use the desk width */
 html[data-l2-layout="landscape"] #oly-combate-topo {
     padding: 12px 28px;
 }
@@ -1627,8 +1627,8 @@ html[data-l2-layout="landscape"] .npc-card--clan-wide {
 }
 
 /* ========================================= */
-/* WORLD — PC harmony                        */
-/* World hub — travel desk + adventure board */
+/* WORLD ? PC harmony                        */
+/* World hub ? travel desk + adventure board */
 /* ========================================= */
 
 html[data-l2-layout="landscape"] #tela-world.screen-content {
@@ -1687,7 +1687,7 @@ html[data-l2-layout="landscape"] #tela-world .world-section-title::after {
     border-radius: 1px;
 }
 
-/* Gatekeeper — hunting zones (left column) */
+/* Gatekeeper ? hunting zones (left column) */
 html[data-l2-layout="landscape"] #tela-world .world-gatekeeper {
     grid-area: gk;
     display: flex;
@@ -1895,7 +1895,7 @@ html[data-l2-layout="landscape"] #tela-world .adv-card--full {
     }
 }
 
-/* Laptop / short — clear the floating chat */
+/* Laptop / short ? clear the floating chat */
 @media (max-width: 1440px), (max-height: 800px) {
     html[data-l2-layout="landscape"] #tela-world.screen-content {
         padding-left: calc(var(--l2-landscape-chat-w) + 28px);
@@ -1959,10 +1959,10 @@ html[data-l2-layout="landscape"] .npc-menu .btn-l2--npc {
     width: min(100%, 360px);
 }
 
-/* Grade picker layout lives under #tela-cidade rules above — do not re-grid here */
+/* Grade picker layout lives under #tela-cidade rules above ? do not re-grid here */
 
 /* ========================================= */
-/* MARKETPLACE — PC exchange desk            */
+/* MARKETPLACE ? PC exchange desk            */
 /* Toolbar row + dense listing board         */
 /* ========================================= */
 
@@ -1972,7 +1972,7 @@ html[data-l2-layout="landscape"] .active-screen:has(#menu-social-clans[style*="d
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* Centered desk — beat layout.css padding:10px !important */
+    /* Centered desk ? beat layout.css padding:10px !important */
     padding: 14px 32px 16px !important;
     overflow: auto;
     min-height: 0;
@@ -1996,9 +1996,9 @@ html[data-l2-layout="landscape"] #menu-social-market.npc-menu {
 }
 
 /*
- * Market open: chat becomes a glass dock over the stage corner —
+ * Market open: chat becomes a glass dock over the stage corner ?
  * market stays centered; chat stays usable without shoving the desk.
- * Height only when expanded — never fight .log-container--collapsed.
+ * Height only when expanded ? never fight .log-container--collapsed.
  */
 html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container,
 html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container {
@@ -2072,7 +2072,7 @@ html[data-l2-layout="landscape"] #menu-social-market .market-tab-btn {
 }
 
 /* Buy board: search | filters on one row
-   (only when JS shows the tab — do not override display:none) */
+   (only when JS shows the tab ? do not override display:none) */
 html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy[style*="display: flex"],
 html[data-l2-layout="landscape"] #menu-social-market #market-tab-buy[style*="display:flex"] {
     display: grid !important;
@@ -2190,7 +2190,7 @@ html[data-l2-layout="landscape"] #menu-social-market .market-empty-msg {
     font-size: 0.95em;
 }
 
-/* Sell — label + register on one header row */
+/* Sell ? label + register on one header row */
 html[data-l2-layout="landscape"] #menu-social-market #market-tab-sell[style*="display: flex"],
 html[data-l2-layout="landscape"] #menu-social-market #market-tab-sell[style*="display:flex"] {
     display: grid !important;
@@ -2449,7 +2449,7 @@ html[data-l2-layout="landscape"] #global-ranking-list {
     max-height: min(52vh, 480px);
 }
 
-/* Forest / expedition battle — PC scenery */
+/* Forest / expedition battle ? PC scenery */
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #forest-battle-bg[data-battle-bg-aspect="wide"] {
     background-size: cover;
     background-position: center center;
@@ -2515,7 +2515,7 @@ html[data-l2-layout="landscape"] .forest-flee-success-panel {
     max-width: 360px;
 }
 
-/* Inventory — 8 cols, comfortable width */
+/* Inventory ? 8 cols, comfortable width */
 html[data-l2-layout="landscape"] #tela-inventario .inventory-grid,
 html[data-l2-layout="landscape"] .inventory-grid {
     --l2-inv-cols: 8;
@@ -2537,7 +2537,7 @@ html[data-l2-layout="landscape"] #tela-inventario .inv-filter-trigger {
 /* market selector grid width is set under MARKETPLACE modals above */
 
 /* ========================================= */
-/* PROFILE — paperdoll fixed + stats beside  */
+/* PROFILE ? paperdoll fixed + stats beside  */
 /* ========================================= */
 
 /* Screen shell: center the profile block vertically in the viewport */
@@ -2650,7 +2650,7 @@ html[data-l2-layout="landscape"] #tela-perfil .paperdoll-actions .btn-l2 {
 }
 
 /* ========================================= */
-/* WIDE DESK (≥1600px) — scale up gently     */
+/* WIDE DESK (?1600px) ? scale up gently     */
 /* ========================================= */
 
 @media (min-width: 1600px) {
@@ -2674,7 +2674,7 @@ html[data-l2-layout="landscape"] #tela-perfil .paperdoll-actions .btn-l2 {
 }
 
 /* ========================================= */
-/* LAPTOP DESK (≤1440px / short) — shrink    */
+/* LAPTOP DESK (?1440px / short) ? shrink    */
 /* ========================================= */
 
 @media (max-width: 1440px), (max-height: 800px) {
@@ -2686,7 +2686,7 @@ html[data-l2-layout="landscape"] #tela-perfil .paperdoll-actions .btn-l2 {
         --l2-landscape-chat-h: 190px;
     }
 
-    /* Chat would overlap the sheet here — reserve its column on the screen shell */
+    /* Chat would overlap the sheet here ? reserve its column on the screen shell */
     html[data-l2-layout="landscape"] #game-viewport > #tela-perfil.screen-content {
         padding-left: calc(var(--l2-landscape-chat-w) + 32px);
     }
@@ -2765,4 +2765,369 @@ html[data-l2-layout="landscape"] #tela-perfil .paperdoll-actions .btn-l2 {
         width: 100%;
         max-width: var(--l2-pd-profile-w) !important;
     }
+}
+
+/* ========================================= */
+/* MISSIONS HUB ? PC quest board             */
+/* Cards in a row + bonus strip              */
+/* ========================================= */
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias.store-window {
+    width: min(960px, 94vw);
+    max-width: min(960px, 94vw);
+    max-height: min(86vh, 720px);
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .store-header {
+    padding: 14px 20px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .store-header span {
+    font-size: 1.08rem;
+    letter-spacing: 0.14em;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .missoes-hub-tabs,
+html[data-l2-layout="landscape"] #janela-missoes-diarias .missoes-hint,
+html[data-l2-layout="landscape"] #janela-missoes-diarias .missoes-progress-summary,
+html[data-l2-layout="landscape"] #janela-missoes-diarias #missoes-diarias-container,
+html[data-l2-layout="landscape"] #janela-missoes-diarias #missoes-semanais-container,
+html[data-l2-layout="landscape"] #janela-missoes-diarias #missoes-bonus-box,
+html[data-l2-layout="landscape"] #janela-missoes-diarias #missoes-bonus-box-weekly {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .missoes-hub-tabs {
+    gap: 10px;
+    margin-bottom: 10px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .missoes-hub-tab {
+    min-height: 42px;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .missoes-hint {
+    font-size: 0.88em;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .missoes-progress-summary {
+    font-size: 0.78rem;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .missoes-hub-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+html[data-l2-layout="landscape"] #missoes-diarias-container,
+html[data-l2-layout="landscape"] #missoes-semanais-container {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    max-height: none;
+    overflow: visible;
+    flex: 0 0 auto;
+    padding: 0 20px 4px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 200px;
+    padding: 14px;
+    border-radius: 10px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    flex: 1;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__title {
+    font-size: 0.98em;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__desc {
+    font-size: 0.8em;
+    line-height: 1.4;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__hint {
+    font-size: 0.74em;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__reward {
+    font-size: 0.78em;
+    gap: 8px 10px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .mission-reward-icon__frame {
+    width: 38px;
+    height: 38px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .mission-reward-icon__frame .inv-icon-frame {
+    width: 38px;
+    height: 38px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .mission-reward-icon__frame .inv-img {
+    width: 34px;
+    height: 34px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__btn,
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__skip {
+    min-height: 38px;
+    font-size: 0.68em;
+    padding: 6px 12px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__bar {
+    margin-top: auto;
+    height: 10px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__nums {
+    font-size: 0.76em;
+}
+
+html[data-l2-layout="landscape"] #missoes-bonus-box,
+html[data-l2-layout="landscape"] #missoes-bonus-box-weekly {
+    margin-top: 14px;
+    margin-bottom: 4px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 0.88em;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "title title"
+        "pips pips"
+        "grade btn"
+        "preview btn"
+        "history btn";
+    gap: 6px 16px;
+    align-items: center;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-bonus__title {
+    grid-area: title;
+    font-size: 0.95em;
+    margin-bottom: 0;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-bonus-pips {
+    grid-area: pips;
+    justify-content: flex-start;
+    margin-bottom: 2px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-bonus__grade {
+    grid-area: grade;
+    margin-bottom: 0;
+    font-size: 0.82em;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-bonus__preview {
+    grid-area: preview;
+    margin-bottom: 0;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-bonus__history {
+    grid-area: history;
+    margin-bottom: 0;
+    font-size: 0.78em;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-bonus__btn {
+    grid-area: btn;
+    width: auto;
+    min-width: 200px;
+    min-height: 48px;
+    align-self: center;
+    justify-self: end;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .store-footer--missoes {
+    padding: 12px 20px 16px;
+}
+
+html[data-l2-layout="landscape"] #janela-missoes-diarias .store-footer--missoes .btn-missoes-close {
+    max-width: 320px;
+}
+
+@media (max-width: 1100px) {
+    html[data-l2-layout="landscape"] #janela-missoes-diarias.store-window {
+        width: min(860px, 94vw);
+        max-width: min(860px, 94vw);
+    }
+
+    html[data-l2-layout="landscape"] #missoes-diarias-container,
+    html[data-l2-layout="landscape"] #missoes-semanais-container {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+}
+
+@media (max-width: 900px) {
+    html[data-l2-layout="landscape"] #missoes-diarias-container,
+    html[data-l2-layout="landscape"] #missoes-semanais-container {
+        grid-template-columns: 1fr;
+        max-height: 42vh;
+        overflow-y: auto;
+    }
+
+    html[data-l2-layout="landscape"] #missoes-bonus-box,
+    html[data-l2-layout="landscape"] #missoes-bonus-box-weekly {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "title"
+            "pips"
+            "grade"
+            "preview"
+            "history"
+            "btn";
+    }
+
+    html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-bonus__btn {
+        width: 100%;
+        justify-self: stretch;
+    }
+}
+
+/* ========================================= */
+/* ACHIEVEMENTS ? PC 80-tile board           */
+/* ========================================= */
+
+html[data-l2-layout="landscape"] #janela-level-rewards.store-window {
+    width: min(760px, 90vw);
+    max-width: min(760px, 90vw);
+    max-height: min(90vh, 800px);
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .store-header {
+    padding: 14px 22px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .store-header span {
+    font-size: 1.08rem;
+    letter-spacing: 0.14em;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-rewards-hint,
+html[data-l2-layout="landscape"] #janela-level-rewards .level-rewards-top,
+html[data-l2-layout="landscape"] #janela-level-rewards #level-rewards-grid {
+    padding-left: 22px;
+    padding-right: 22px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-rewards-hint {
+    font-size: 0.86em;
+    max-width: 560px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-rewards-top {
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-rewards-summary {
+    font-size: 0.74rem;
+    padding: 11px 14px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-rewards-claim-all {
+    min-width: 140px;
+    min-height: 44px;
+    font-size: 0.72em;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-rewards-grid {
+    gap: 7px;
+    padding-bottom: 10px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-tile {
+    border-radius: 9px;
+    font-size: 0.84rem;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-tile--milestone {
+    font-size: 0.92rem;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .level-tile__dot {
+    width: 7px;
+    height: 7px;
+    top: 5px;
+    right: 5px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-reward-claim.store-window {
+    width: min(400px, 42vw);
+    max-width: min(400px, 42vw);
+}
+
+html[data-l2-layout="landscape"] #janela-level-reward-claim .level-claim-hero__ring {
+    width: 72px;
+    height: 72px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-reward-claim .level-claim-hero__lvl {
+    font-size: 1.6rem;
+}
+
+html[data-l2-layout="landscape"] #janela-level-reward-claim .level-claim-row {
+    font-size: 0.84em;
+    padding: 10px 12px;
+    gap: 12px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-reward-claim .level-claim-row__icon {
+    width: 44px;
+    height: 44px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-reward-claim .level-claim-row__icon .inv-icon-frame {
+    width: 44px;
+    height: 44px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-reward-claim .level-claim-row__icon .inv-img {
+    width: 40px;
+    height: 40px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .store-footer--level-rewards {
+    padding: 12px 22px 16px;
+}
+
+html[data-l2-layout="landscape"] #janela-level-rewards .store-footer--level-rewards .btn-level-rewards-close {
+    max-width: 320px;
 }

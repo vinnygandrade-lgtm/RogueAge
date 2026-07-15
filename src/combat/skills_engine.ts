@@ -64,8 +64,11 @@ function usarSkill(nomeSkill: string) {
 
     window.globalCooldownAtivo = Date.now() + 1200; 
     window.playerMP -= mpCost;
-    window.dispararAnimacaoCooldown?.(nomeSkill, skill.cd); 
-    
+    window.dispararAnimacaoCooldown?.(nomeSkill, skill.cd);
+    if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+        window.registrarProgressoMissaoDiaria('usar_skills', 1);
+    }
+
     if(typeof tocarSom === 'function') tocarSom('enchant');
     window.atualizar();
 

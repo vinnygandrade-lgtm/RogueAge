@@ -476,6 +476,9 @@ async function executarEnchant(): Promise<void> {
     _enchantInProgress = true;
     btnAcaoEnchant.innerText = (typeof window.t === 'function') ? window.t('game.enchantUi.enchanting') : 'ENCHANTING...';
     btnAcaoEnchant.style.background = "#ca8a04";
+    if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+        window.registrarProgressoMissaoDiaria('tentar_enchant', 1);
+    }
 
     // MODO MULTIPLAYER (SUPABASE)
     if (window.SupabaseAPI && window.SupabaseAPI.getUser() && window.charName && targetEquipObj.uid) {

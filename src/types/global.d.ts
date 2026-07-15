@@ -389,6 +389,7 @@ declare global {
         mail?: number;
         rewards?: number;
         missions?: number;
+        achievements?: number;
         olympiad?: number;
         clanWar?: number;
     }) => void;
@@ -404,6 +405,30 @@ declare global {
     refreshLogCollapsedPreview?: () => void;
     abrirJanelaCorreio?: () => void;
     abrirMissoesDiarias?: () => void;
+    abrirMissoes?: () => void;
+    abrirLevelRewards?: () => void;
+    fecharLevelRewards?: () => void;
+    reivindicarRecompensaNivel?: (level: number) => boolean;
+    reivindicarTodasRecompensasNivel?: () => void;
+    onLevelTileClick?: (level: number) => void;
+    selecionarNivelAchievement?: (level: number) => void;
+    abrirLevelRewardClaimModal?: (level: number) => void;
+    fecharLevelRewardClaimModal?: () => void;
+    reivindicarRecompensaNivelFromModal?: () => void;
+    renderizarLevelRewards?: () => void;
+    inicializarLevelRewards?: () => void;
+    aplicarHudLevelRewardsBadge?: () => void;
+    contarPendenciasLevelRewards?: () => number;
+    onLevelRewardReached?: (level: number) => void;
+    aplicarLevelRewardsFromSave?: (raw: import('./game').LevelRewardsSave | null | undefined) => void;
+    getLevelRewardsSavePayload?: () => import('./game').LevelRewardsSave;
+    pularMissaoDiaria?: (index: number) => void;
+    pularMissaoSemanal?: (index: number) => void;
+    reivindicarMissaoSemanal?: (index: number) => void;
+    reivindicarBonusMissaoSemanal?: () => void;
+    setMissoesHubTab?: (tab: 'daily' | 'weekly') => void;
+    renderizarMissoesSemanais?: () => void;
+    inicializarMissoesSemanais?: () => void;
     abrirMenuSocial?: (menu: string) => void;
     _l2InvIconFrameHtml?: (src: string, imgClass?: string) => string;
     _l2AppendInvGridSlot?: (
@@ -677,7 +702,11 @@ declare global {
   function iniciarToqueAtalho(index: number): void;
   function soltarToqueAtalho(index: number): void;
   function cancelarToqueAtalho(): void;
-  function abrirAcaoItemGeral(nome: string): void;
+  function abrirAcaoItemGeral(
+    nome: string,
+    opts?: { previewQty?: number; previewOnly?: boolean },
+  ): void;
+  function abrirPreviewPremioRecompensa(catalogKey: string, previewQty?: number): void;
   function abrirSeletorAtalhoGlobal(nomeItem: string, callback: (index: number) => void): void;
   function fecharSeletorGlobal(): void;
   function fecharGameSettings(): void;
@@ -716,9 +745,15 @@ declare global {
   function iniciarChatAutomatico(): void;
   function resetChatBootstrap(): void;
   function scrollChatPanelToBottom(panel: HTMLElement, force?: boolean): void;
-  function registrarProgressoMissaoDiaria(tipo: string, qty: number): void;
+  function registrarProgressoMissaoDiaria(tipo: string, qty?: number): void;
+  function registrarProgressoMissao(tipo: string, qty?: number): void;
   function reivindicarMissaoDiaria(index: number): void;
   function reivindicarBonusMissaoDiaria(): void;
+  function reivindicarMissaoSemanal(index: number): void;
+  function reivindicarBonusMissaoSemanal(): void;
+  function pularMissaoDiaria(index: number): void;
+  function pularMissaoSemanal(index: number): void;
+  function setMissoesHubTab(tab: 'daily' | 'weekly'): void;
   function dispararAnimacaoCooldown(nome: string, tempoMs: number): void;
   function usarPocao(): void;
   function usarPocaoMP(nomeDaPocao: string): void;
@@ -741,9 +776,27 @@ declare global {
   function craftOnVesperVariantChange(idBase: string): void;
   function buscarBaseDoEquipamento(idBase: string): import('./game').ItemCatalogBase | null;
   function inicializarMissoesDiarias(): void;
+  function inicializarMissoesSemanais(): void;
   function abrirMissoesDiarias(): void;
+  function abrirMissoes(): void;
   function renderizarMissoesDiarias(): void;
+  function renderizarMissoesSemanais(): void;
+  function renderizarMissoesHub(): void;
   function fecharMissoesDiarias(): void;
+  function abrirLevelRewards(): void;
+  function fecharLevelRewards(): void;
+  function reivindicarRecompensaNivel(level: number): boolean;
+  function reivindicarTodasRecompensasNivel(): void;
+  function onLevelTileClick(level: number): void;
+  function selecionarNivelAchievement(level: number): void;
+  function abrirLevelRewardClaimModal(level: number): void;
+  function fecharLevelRewardClaimModal(): void;
+  function reivindicarRecompensaNivelFromModal(): void;
+  function renderizarLevelRewards(): void;
+  function inicializarLevelRewards(): void;
+  function aplicarHudLevelRewardsBadge(): void;
+  function contarPendenciasLevelRewards(): number;
+  function onLevelRewardReached(level: number): void;
   function aplicarHudMissoesBadge(): void;
   function atualizarWorldDailyBossUI(): void;
   function iniciarSistemaMercado(): void;

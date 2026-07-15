@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 13 as const;
+export const L2MINI_SAVE_VERSION = 14 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -637,6 +637,11 @@ export interface UiCoachSave {
   missionsTipSeen?: boolean;
 }
 
+/** Claimed level milestone rewards (Achievements hub). */
+export interface LevelRewardsSave {
+  claimed: number[];
+}
+
 /** Payload persistido (localStorage + characters.data JSONB). */
 export interface CharacterSave {
   saveVersion?: number;
@@ -680,6 +685,8 @@ export interface CharacterSave {
   uiLayoutMode?: UiLayoutMode;
   tutorial?: TutorialProgress;
   uiCoach?: UiCoachSave;
+  /** Level milestone rewards — claimed level numbers (1..N). */
+  levelRewards?: LevelRewardsSave;
   playerClanId?: number | string | null;
   mailboxCloud?: unknown[];
   inventarioRecentLog?: InventarioRecentEntry[];
@@ -1041,11 +1048,17 @@ export type CraftRecipeCatalog = Record<string, CraftRecipe[]>;
 export type DailyMissionId =
   | 'hunt_pack'
   | 'champion_hunter'
+  | 'zone_ranger'
   | 'forge_minter'
   | 'adena_farmer'
+  | 'coin_collector'
+  | 'enchant_seeker'
+  | 'craft_hand'
   | 'arena_blood'
+  | 'olympiad_grinder'
   | 'daily_boss_slayer'
-  | 'battle_alchemist';
+  | 'battle_alchemist'
+  | 'skill_sparks';
 
 export type DailyMissionGroup = 'farm' | 'economy' | 'challenge';
 
@@ -1054,9 +1067,13 @@ export type DailyMissionEventType =
   | 'matar_champions'
   | 'tentar_mint'
   | 'ganhar_adena'
+  | 'coletar_coins'
   | 'vencer_olympiad'
   | 'derrotar_daily_boss'
-  | 'usar_pocoes';
+  | 'usar_pocoes'
+  | 'usar_skills'
+  | 'tentar_enchant'
+  | 'craft_item';
 
 export type DailyMissionRewardPackage = 'base' | 'farm' | 'champion' | 'arena' | 'pocao';
 
@@ -1074,12 +1091,16 @@ export interface DailyMissionTemplate {
   alvo: number;
   recompensa: DailyMissionReward;
   icone: string;
+  grupo?: DailyMissionGroup;
 }
 
 export interface DailyMissionInstance extends DailyMissionTemplate {
   progresso: number;
   concluida: boolean;
   reivindicada: boolean;
+  /** True after this slot used its one allowed skip/reroll. */
+  skippedOnce?: boolean;
+  grupo?: DailyMissionGroup;
 }
 
 export interface DailyMissionRotationRecord {
@@ -1096,6 +1117,16 @@ export interface DailyMissionsSaveData {
   missoes: DailyMissionInstance[];
   historicoEncerrado: DailyMissionRotationRecord[];
 }
+
+export interface WeeklyMissionsSaveData {
+  weekKey: string;
+  gradeRef: DailyBossGradeTier | string;
+  bonusReivindicado: boolean;
+  missoes: DailyMissionInstance[];
+  historicoEncerrado: DailyMissionRotationRecord[];
+}
+
+export type MissionsHubTab = 'daily' | 'weekly';
 
 export interface RaidParticipant {
   nome: string;

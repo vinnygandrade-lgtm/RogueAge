@@ -59,6 +59,7 @@ function iniciarJogo(): void {
     
     if (typeof salvarJogo === 'function') salvarJogo({ silent: true });
     if (typeof window.inicializarMissoesDiarias === 'function') window.inicializarMissoesDiarias();
+    if (typeof window.inicializarLevelRewards === 'function') window.inicializarLevelRewards();
     if (typeof iniciarSistemaMercado === 'function') iniciarSistemaMercado();
     if (typeof RankingSeasons !== 'undefined' && RankingSeasons.init) RankingSeasons.init();
     if (typeof ClanWarEngine !== 'undefined' && ClanWarEngine.init) ClanWarEngine.init();
@@ -223,6 +224,9 @@ function atualizar(): void {
     }
     if (typeof window.aplicarHudMissoesBadge === 'function') {
         window.aplicarHudMissoesBadge();
+    }
+    if (typeof window.aplicarHudLevelRewardsBadge === 'function') {
+        window.aplicarHudLevelRewardsBadge();
     }
 
     // Raid HUD

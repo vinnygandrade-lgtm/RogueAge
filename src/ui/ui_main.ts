@@ -544,6 +544,8 @@ function fecharTopModal() {
     else if (topModalId === 'janela-bloqueio-grade') { if(typeof fecharJanelaBloqueioGrade === 'function') fecharJanelaBloqueioGrade(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-spellbook') { if(typeof fecharSpellbook === 'function') fecharSpellbook(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-missoes-diarias') { if(typeof fecharMissoesDiarias === 'function') fecharMissoesDiarias(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-level-rewards') { if(typeof fecharLevelRewards === 'function') fecharLevelRewards(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-level-reward-claim') { if(typeof fecharLevelRewardClaimModal === 'function') fecharLevelRewardClaimModal(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-daily-boss') { if(typeof window.fecharJanelaDailyBoss === 'function') window.fecharJanelaDailyBoss(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-status-detalhado') { if(typeof fecharStatusDetalhado === 'function') fecharStatusDetalhado(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-game-settings') { if(typeof fecharGameSettings === 'function') fecharGameSettings(); else fecharModal(topModalId); }

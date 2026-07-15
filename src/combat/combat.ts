@@ -225,6 +225,9 @@ function aplicarXpGanhoFloresta(quantia) {
             window.escreverLog(`<span style="color:#ffcc00; font-weight:bold;">${msg}</span>`);
         }
         const nl = window.nivel;
+        if (typeof window.onLevelRewardReached === 'function') {
+            window.onLevelRewardReached(nl);
+        }
         if (nl === 20 || nl === 40 || nl === 76) {
             if (typeof window.escreverLog === 'function') {
                 const hint = (typeof window.t === 'function')

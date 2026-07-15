@@ -102,7 +102,9 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_chat');
   await import('./ui/ui_clans');
   tickBoot(94, bootMsg('loading.phaseUi', 'Preparing interface...'));
+  await import('./ui/ui_reward_icons');
   await import('./ui/ui_daily_missions');
+  await import('./ui/ui_level_rewards');
   await import('./ui/ui_shop');
   await import('./ui/ui_market');
   await import('./ui/ui_enchant');

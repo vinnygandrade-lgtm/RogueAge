@@ -497,6 +497,15 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 13;
     }
 
+    if (v < 14) {
+        if (!data.levelRewards || typeof data.levelRewards !== 'object') {
+            data.levelRewards = { claimed: [] };
+        } else if (!Array.isArray(data.levelRewards.claimed)) {
+            data.levelRewards.claimed = [];
+        }
+        v = 14;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -574,7 +583,10 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
                 mailboxTipSeen: !!window.uiCoachFlags.mailboxTipSeen,
                 missionsTipSeen: !!window.uiCoachFlags.missionsTipSeen,
             }
-            : undefined
+            : undefined,
+        levelRewards: typeof window.getLevelRewardsSavePayload === 'function'
+            ? window.getLevelRewardsSavePayload()
+            : { claimed: [] },
     };
     
     if (!window.charName) return;
@@ -886,6 +898,9 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
         }
         
         if (typeof window.inicializarMissoesDiarias === 'function') window.inicializarMissoesDiarias();
+        if (typeof window.aplicarLevelRewardsFromSave === 'function') {
+            window.aplicarLevelRewardsFromSave(data.levelRewards);
+        }
         if (typeof window.atualizarWorldDailyBossUI === 'function') window.atualizarWorldDailyBossUI();
         if (typeof iniciarSistemaMercado === 'function') iniciarSistemaMercado();
         if (typeof verificarPagamentosPendentes === 'function') verificarPagamentosPendentes();

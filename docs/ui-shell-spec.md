@@ -66,6 +66,10 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Town Square (landscape):** `#praca-cidade` balcão centrado ~1180–1240px (grelha 3 cols + Master | Craft banner). Cards maiores; menus NPC ~820–900px. Com `#tela-cidade` aberta, chat em dock de vidro (como o mercado). Em ≤1100px a grelha passa a 2 cols.
 
+**Missions hub (landscape):** `#janela-missoes-diarias` ~960px — 3 cartas em grelha + faixa de bónus com botão à direita. Em ≤900px as cartas empilham.
+
+**Achievements (landscape):** `#janela-level-rewards` board + `#janela-level-reward-claim` modal (~400px) ao tocar num tile.
+
 ## Preferência do jogador
 
 - Settings → **Layout**: `Auto` / `Mobile` (portrait) / `PC` (landscape).

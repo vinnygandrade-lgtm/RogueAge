@@ -4578,12 +4578,18 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     max-height: 85vh;
     z-index: 260;
     padding-bottom: 0;
+    /* never set display here — .store-window defaults to none until abrirModal */
+    flex-direction: column;
+    min-height: 0;
 }
 
+#janela-missoes-diarias .missoes-hub-tabs,
 #janela-missoes-diarias .missoes-hint,
 #janela-missoes-diarias .missoes-progress-summary,
 #janela-missoes-diarias #missoes-diarias-container,
-#janela-missoes-diarias #missoes-bonus-box {
+#janela-missoes-diarias #missoes-semanais-container,
+#janela-missoes-diarias #missoes-bonus-box,
+#janela-missoes-diarias #missoes-bonus-box-weekly {
     box-sizing: border-box;
     padding-left: 14px;
     padding-right: 14px;
@@ -4591,6 +4597,44 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 #janela-missoes-diarias .store-header span {
     color: #34d399;
 }
+
+.missoes-hub-tabs {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.missoes-hub-tab {
+    flex: 1;
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #a1a1aa;
+    background: rgba(24, 24, 27, 0.9);
+    border: 1px solid #3f3f46;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.missoes-hub-tab--active {
+    color: #ecfdf5;
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.28) 0%, rgba(6, 95, 70, 0.45) 100%);
+    border-color: #34d399;
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+}
+
+.missoes-hub-panel {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    flex-direction: column;
+    overflow: hidden;
+}
+
 .missoes-hint {
     width: 100%;
     color: #a1a1aa;
@@ -4645,6 +4689,14 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     text-align: left;
 }
 
+.daily-mission-card__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+    align-items: stretch;
+}
+
 .daily-mission-card__title {
     font-weight: 700;
     color: #e5e7eb;
@@ -4674,10 +4726,120 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 
 .daily-mission-card__reward {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
     font-size: 0.72em;
     color: #facc15;
-    margin-top: 5px;
+    margin-top: 6px;
     line-height: 1.3;
+}
+.daily-mission-card__reward-label {
+    flex-shrink: 0;
+    font-size: 0.92em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #a8a29e;
+}
+.mission-reward-icons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+.mission-reward-icon {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 36px;
+    max-width: 52px;
+}
+.mission-reward-icon__frame {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+.mission-reward-icon__frame .inv-icon-frame {
+    width: 34px;
+    height: 34px;
+}
+.mission-reward-icon__frame .inv-img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+.mission-reward-icon__frame .l2-coin-img {
+    width: 26px;
+    height: 26px;
+}
+.mission-reward-icon__img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+}
+.mission-reward-icon__img--coin {
+    width: 26px;
+    height: 26px;
+}
+.mission-reward-icon__qty {
+    font-size: 0.78em;
+    font-weight: 800;
+    color: #fde68a;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+button.mission-reward-icon--tap {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+button.mission-reward-icon--tap:focus-visible {
+    outline: 2px solid rgba(52, 211, 153, 0.55);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+button.mission-reward-icon--tap:active {
+    transform: scale(0.96);
+}
+
+.level-claim-row__icon--tap {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    border-radius: 8px;
+}
+
+.level-claim-row__icon--tap:focus-visible {
+    outline: 2px solid rgba(251, 191, 36, 0.55);
+    outline-offset: 2px;
+}
+
+.level-claim-row__icon--tap:active {
+    transform: scale(0.96);
 }
 
 .daily-mission-card__btn {
@@ -4686,6 +4848,22 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     min-height: 36px;
     padding: 6px 10px;
     font-size: 0.62em;
+}
+
+.daily-mission-card__skip {
+    flex-shrink: 0;
+    width: auto;
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 0.58em;
+    background: #27272a;
+    border-color: #52525b;
+    color: #d4d4d8;
+}
+
+.daily-mission-card__skip--used {
+    opacity: 0.55;
+    background: #18181b;
 }
 
 .daily-mission-card__btn--claim {
@@ -4730,6 +4908,11 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     color: #6b7280;
 }
 
+.daily-mission-card__track {
+    width: 100%;
+    margin-top: 8px;
+}
+
 .daily-bonus__title {
     font-weight: 700;
     color: #c084fc;
@@ -4769,7 +4952,23 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 
 .daily-bonus__preview {
     margin-bottom: 8px;
-    color: #facc15;
+    min-height: 0;
+}
+.daily-bonus__preview .mission-reward-icons {
+    justify-content: center;
+    gap: 8px;
+}
+.daily-bonus__preview .mission-reward-icon__frame {
+    width: 38px;
+    height: 38px;
+}
+.daily-bonus__preview .mission-reward-icon__frame .inv-icon-frame {
+    width: 38px;
+    height: 38px;
+}
+.daily-bonus__preview .mission-reward-icon__frame .inv-img {
+    width: 34px;
+    height: 34px;
 }
 
 .daily-bonus__history {
@@ -4793,16 +4992,20 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     background: #374151;
 }
 
-#missoes-diarias-container {
+#missoes-diarias-container,
+#missoes-semanais-container {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 8px;
     overflow-y: auto;
-    max-height: 50vh;
+    flex: 1;
+    min-height: 0;
+    max-height: 42vh;
     padding: 0 4px;
 }
-#missoes-bonus-box {
+#missoes-bonus-box,
+#missoes-bonus-box-weekly {
     width: 100%;
     margin-top: 10px;
     background: rgba(15, 15, 15, 0.8);
@@ -4811,6 +5014,7 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     padding: 10px;
     color: #d4d4d8;
     font-size: 0.8em;
+    flex-shrink: 0;
 }
 #janela-missoes-diarias .store-footer--missoes {
     flex-shrink: 0;
@@ -4825,6 +5029,879 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 
 #janela-missoes-diarias .store-footer--missoes .btn-missoes-close {
+    width: 100%;
+    max-width: 280px;
+    margin: 0;
+    min-height: 44px;
+    background: #444;
+    box-sizing: border-box;
+}
+
+/* Missions Hub — portrait / mobile (fit-all dashboard, no scroll) */
+html[data-l2-layout="portrait"] #janela-missoes-diarias.store-window {
+    width: min(100%, var(--l2-modal-max-width, 420px));
+    height: min(90dvh, calc(100dvh - var(--l2-safe-top, 0px) - var(--l2-safe-bottom, 0px) - 8px));
+    max-height: min(90dvh, calc(100dvh - var(--l2-safe-top, 0px) - var(--l2-safe-bottom, 0px) - 8px));
+    overflow: hidden;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .store-header {
+    padding: 8px 12px;
+    flex-shrink: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .store-header span {
+    font-size: 0.95em;
+    letter-spacing: 0.1em;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hub-tabs,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-progress-summary,
+html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-diarias-container,
+html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-semanais-container,
+html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-bonus-box,
+html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-bonus-box-weekly {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hub-tabs {
+    gap: 6px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hub-tab {
+    min-height: 36px;
+    padding: 6px 8px;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hint {
+    display: none;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-progress-summary {
+    font-size: 0.62rem;
+    padding: 5px 8px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hub-panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+html[data-l2-layout="portrait"] #missoes-diarias-container,
+html[data-l2-layout="portrait"] #missoes-semanais-container {
+    flex: 1 1 0;
+    min-height: 0;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    overflow: hidden;
+    padding: 0 1px 4px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card {
+    flex: 1 1 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(68px, 78px);
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+        "title actions"
+        "desc actions"
+        "rewards rewards"
+        "track track";
+    align-content: start;
+    gap: 3px 6px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__head,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__info {
+    display: contents;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__title {
+    grid-area: title;
+    font-size: 0.72em;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__desc {
+    grid-area: desc;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: 0.62em;
+    line-height: 1.3;
+    margin: 0;
+    color: #9ca3af;
+    min-width: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__hint {
+    display: none !important;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward {
+    grid-area: rewards;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    min-width: 0;
+    overflow: hidden;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward-label {
+    display: none;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icons {
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon {
+    flex: 0 0 auto;
+    min-width: 0;
+    max-width: none;
+    gap: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__frame {
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__frame .inv-icon-frame {
+    width: 26px;
+    height: 26px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__frame .inv-img,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__img {
+    width: 22px;
+    height: 22px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__frame .l2-coin-img,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__img--coin {
+    width: 20px;
+    height: 20px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__qty {
+    display: none;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__actions {
+    grid-area: actions;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
+    align-self: stretch;
+    width: auto;
+    margin: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__btn,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__skip {
+    flex: 1 1 auto;
+    min-height: 26px;
+    max-height: 32px;
+    padding: 3px 5px;
+    font-size: 0.5rem;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__track {
+    grid-area: track;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    min-width: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__bar {
+    flex: 1;
+    min-width: 0;
+    height: 6px;
+    margin: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__nums {
+    flex-shrink: 0;
+    font-size: 0.58em;
+    margin: 0;
+    line-height: 1;
+    white-space: nowrap;
+    color: #cbd5e1;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__pct {
+    color: #6b7280;
+}
+
+html[data-l2-layout="portrait"] #missoes-bonus-box,
+html[data-l2-layout="portrait"] #missoes-bonus-box-weekly {
+    flex-shrink: 0;
+    margin-top: 4px;
+    margin-bottom: 0;
+    padding: 8px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "title pips"
+        "preview btn";
+    gap: 4px 8px;
+    align-items: center;
+    text-align: left;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__grade,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__history {
+    display: none;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__title {
+    grid-area: title;
+    margin: 0;
+    font-size: 0.72em;
+    line-height: 1.2;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus-pips {
+    grid-area: pips;
+    justify-content: flex-end;
+    gap: 5px;
+    margin: 0;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus-pip {
+    width: 9px;
+    height: 9px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview {
+    grid-area: preview;
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icons {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 4px;
+    overflow: hidden;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon__frame {
+    width: 28px;
+    height: 28px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon__frame .inv-icon-frame {
+    width: 28px;
+    height: 28px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon__frame .inv-img {
+    width: 24px;
+    height: 24px;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon__qty {
+    font-size: 0.62em;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__btn {
+    grid-area: btn;
+    width: auto;
+    min-width: 92px;
+    max-width: 120px;
+    min-height: 34px;
+    padding: 4px 8px;
+    font-size: 0.58rem;
+    justify-self: end;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .store-footer--missoes {
+    flex-shrink: 0;
+    padding: 6px 10px calc(6px + var(--l2-safe-bottom, 0px));
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias .store-footer--missoes .btn-missoes-close {
+    min-height: 36px;
+    max-width: none;
+    font-size: 0.72rem;
+}
+
+@media (max-width: 380px) {
+    html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card {
+        grid-template-columns: minmax(0, 1fr) minmax(60px, 70px);
+    }
+
+    html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__btn {
+        min-width: 80px;
+        font-size: 0.52rem;
+    }
+}
+
+@media (max-height: 700px) {
+    html[data-l2-layout="portrait"] #janela-missoes-diarias.store-window {
+        height: min(94dvh, calc(100dvh - var(--l2-safe-top, 0px) - var(--l2-safe-bottom, 0px) - 4px));
+        max-height: min(94dvh, calc(100dvh - var(--l2-safe-top, 0px) - var(--l2-safe-bottom, 0px) - 4px));
+    }
+
+    html[data-l2-layout="portrait"] #missoes-diarias-container,
+    html[data-l2-layout="portrait"] #missoes-semanais-container {
+        gap: 4px;
+    }
+
+    html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card {
+        padding: 5px 7px;
+        gap: 2px 5px;
+    }
+}
+
+/* Level Achievements — never set display here; .store-window defaults to none until abrirModal */
+#janela-level-rewards {
+    width: 94%;
+    height: auto;
+    max-height: 88vh;
+    z-index: 260;
+    padding-bottom: 0;
+    flex-direction: column;
+    min-height: 0;
+}
+#janela-level-rewards .store-header {
+    flex-shrink: 0;
+}
+#janela-level-rewards .store-header span {
+    color: #e8c56a;
+}
+#janela-level-rewards .level-rewards-hint,
+#janela-level-rewards .level-rewards-top,
+#janela-level-rewards #level-rewards-grid {
+    box-sizing: border-box;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+.level-rewards-hint {
+    width: 100%;
+    flex-shrink: 0;
+    color: #a8a29e;
+    font-size: 0.74em;
+    margin: 0 0 8px;
+    text-align: center;
+    line-height: 1.4;
+}
+.level-rewards-top {
+    width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.level-rewards-summary {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #e7d3a2;
+    background: rgba(36, 28, 18, 0.9);
+    border: 1px solid rgba(179, 138, 77, 0.4);
+    border-radius: 8px;
+    line-height: 1.3;
+}
+.level-rewards-claim-all {
+    flex-shrink: 0;
+    width: auto;
+    min-width: 96px;
+    min-height: 40px;
+    padding: 0 12px;
+    font-size: 0.64em;
+    letter-spacing: 0.06em;
+    background: linear-gradient(180deg, #b45309 0%, #92400e 100%);
+    border-color: #d97706;
+    color: #fff7ed;
+}
+.level-rewards-claim-all:disabled {
+    opacity: 0.4;
+    background: #292524;
+    border-color: #44403c;
+    color: #a8a29e;
+}
+
+/* 80-tile board — 10 columns × 8 rows */
+.level-rewards-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 5px;
+    flex: 0 0 auto;
+    padding-bottom: 8px;
+    margin: 0;
+}
+
+.level-tile {
+    position: relative;
+    aspect-ratio: 1;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border-radius: 8px;
+    border: 1px solid #3f3a34;
+    background: #141210;
+    color: #a8a29e;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(0.62rem, 2.8vw, 0.88rem);
+    line-height: 1;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+.level-tile:focus-visible {
+    outline: 2px solid #fbbf24;
+    outline-offset: 1px;
+}
+.level-tile__num {
+    position: relative;
+    z-index: 1;
+    line-height: 1;
+    color: inherit;
+}
+.level-tile__gem {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    background: linear-gradient(135deg, #fde68a 0%, #d97706 100%);
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.55);
+    opacity: 0.9;
+}
+.level-tile__mark {
+    position: absolute;
+    right: 3px;
+    bottom: 2px;
+    font-size: 0.55em;
+    color: #86efac;
+    font-family: system-ui, sans-serif;
+    font-weight: 800;
+    line-height: 1;
+}
+.level-tile__dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fbbf24;
+    box-shadow: 0 0 6px rgba(251, 191, 36, 0.85);
+}
+
+/* Locked — future levels (click = preview only) */
+.level-tile--locked {
+    background: linear-gradient(160deg, #1a1816 0%, #0c0b0a 100%);
+    border-color: #292524;
+    color: #57534e;
+    opacity: 0.82;
+}
+.level-tile--locked:hover {
+    border-color: #44403c;
+    color: #78716c;
+}
+
+/* Claimable — reached, not claimed */
+.level-tile--claimable {
+    background: linear-gradient(160deg, #2a2318 0%, #15120c 100%);
+    border-color: #a16207;
+    color: #fde68a;
+    box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.12);
+}
+.level-tile--claimable:hover {
+    transform: translateY(-1px);
+    border-color: #fbbf24;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.25);
+}
+
+/* Claimed */
+.level-tile--claimed {
+    background: linear-gradient(160deg, #1a2e24 0%, #0e1814 100%);
+    border-color: #3f6b52;
+    color: #86efac;
+}
+.level-tile--claimed:hover {
+    border-color: #4ade80;
+}
+
+/* Milestone (10, 20, … 80) — stronger gold frame */
+.level-tile--milestone {
+    border-width: 2px;
+    font-size: clamp(0.68rem, 3vw, 0.95rem);
+}
+.level-tile--milestone .level-tile__num {
+    font-weight: 800;
+}
+.level-tile--milestone.level-tile--locked {
+    border-color: #57534e;
+    background: linear-gradient(160deg, #1f1a14 0%, #0f0d0a 100%);
+    color: #78716c;
+    box-shadow: inset 0 0 12px rgba(180, 83, 9, 0.08);
+}
+.level-tile--milestone.level-tile--locked .level-tile__gem {
+    opacity: 0.45;
+}
+.level-tile--milestone.level-tile--claimable {
+    background: linear-gradient(160deg, #5c3d0a 0%, #2a1a05 100%);
+    border-color: #f59e0b;
+    color: #fff7ed;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.25), inset 0 0 14px rgba(251, 191, 36, 0.12);
+}
+.level-tile--milestone.level-tile--claimable .level-tile__gem {
+    width: 7px;
+    height: 7px;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.9);
+}
+.level-tile--milestone.level-tile--claimed {
+    background: linear-gradient(160deg, #713f12 0%, #3d2208 100%);
+    border-color: #fbbf24;
+    color: #fef3c7;
+}
+
+.level-tile--selected {
+    z-index: 2;
+    outline: 2px solid #fef3c7;
+    outline-offset: 1px;
+}
+
+/* Level reward claim modal (opens on tile tap) */
+#janela-level-reward-claim.store-window {
+    width: min(92%, 360px);
+    max-width: min(92%, 360px);
+    max-height: 82vh;
+    z-index: 1650;
+    padding-bottom: 0;
+    flex-direction: column;
+    min-height: 0;
+}
+#janela-level-reward-claim .store-header--level-claim {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-right: 10px;
+}
+#janela-level-reward-claim .store-header--level-claim span {
+    color: #e8c56a;
+    font-size: 0.82em;
+    letter-spacing: 0.12em;
+}
+.fechar-store--level-claim {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    line-height: 30px;
+    font-size: 1.4rem;
+    padding: 0;
+}
+.store-body--level-claim {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 12px 14px 10px !important;
+}
+.level-claim-modal-root {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.level-claim-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    padding: 8px 6px 4px;
+}
+.level-claim-hero__ring {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #2a2318 0%, #15120c 100%);
+    border: 2px solid #78716c;
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.45);
+}
+.level-claim-hero__lvl {
+    font-family: 'Cinzel', serif;
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #f5f0e6;
+    line-height: 1;
+}
+.level-claim-hero__title {
+    font-weight: 700;
+    color: #f5f0e6;
+    font-size: 0.92em;
+}
+.level-claim-hero__badge {
+    margin-top: 2px;
+}
+.level-claim-hero--milestone .level-claim-hero__ring {
+    background: linear-gradient(160deg, #92400e 0%, #451a03 100%);
+    border-color: #f59e0b;
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.35), inset 0 0 10px rgba(0, 0, 0, 0.35);
+}
+.level-claim-hero--milestone .level-claim-hero__lvl {
+    color: #fff7ed;
+}
+.level-claim-status {
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.68em;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.level-claim-status--locked { color: #a8a29e; border-color: #44403c; }
+.level-claim-status--claimable {
+    color: #fde68a;
+    border-color: rgba(251, 191, 36, 0.45);
+    background: rgba(120, 53, 15, 0.35);
+}
+.level-claim-status--claimed {
+    color: #86efac;
+    border-color: rgba(74, 222, 128, 0.35);
+    background: rgba(6, 78, 59, 0.28);
+}
+.level-claim-rewards__heading {
+    margin: 0 0 8px;
+    font-size: 0.62em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #a8a29e;
+}
+.level-claim-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.level-claim-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.78em;
+    line-height: 1.25;
+}
+.level-claim-row__icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.level-claim-row__icon .inv-icon-frame {
+    width: 40px;
+    height: 40px;
+}
+.level-claim-row__frame {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.level-claim-row__icon .inv-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+.level-claim-row__icon .l2-coin-img {
+    width: 30px;
+    height: 30px;
+}
+.level-claim-row__img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.level-claim-row__img--coin {
+    width: 30px;
+    height: 30px;
+}
+.level-claim-row__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.level-claim-row__name {
+    color: #d6d3d1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+.level-claim-row__qty {
+    font-weight: 800;
+    color: #f5f0e6;
+    font-variant-numeric: tabular-nums;
+}
+.level-claim-row--adena {
+    border-color: rgba(250, 204, 21, 0.3);
+    background: rgba(120, 53, 15, 0.22);
+}
+.level-claim-row--adena .level-claim-row__qty { color: #fde68a; }
+.level-claim-row--ac {
+    border-color: rgba(167, 139, 250, 0.35);
+    background: rgba(76, 29, 149, 0.22);
+}
+.level-claim-row--ac .level-claim-row__qty { color: #c4b5fd; }
+#janela-level-reward-claim .store-footer--level-claim {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.35));
+}
+.btn-level-claim-primary {
+    width: 100%;
+    min-height: 46px;
+    margin: 0;
+    font-size: 0.78em;
+    letter-spacing: 0.08em;
+    background: linear-gradient(180deg, #ca8a04 0%, #a16207 100%);
+    border-color: #fbbf24;
+    color: #fffbeb;
+}
+.btn-level-claim-close {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    background: #444;
+    box-sizing: border-box;
+}
+
+.level-reward-chip {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    padding: 3px 7px;
+    border-radius: 6px;
+    font-size: 0.66em;
+    line-height: 1.25;
+    color: #d6d3d1;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.level-reward-chip--adena {
+    color: #fde68a;
+    border-color: rgba(250, 204, 21, 0.35);
+}
+.level-reward-chip--ac {
+    color: #c4b5fd;
+    border-color: rgba(167, 139, 250, 0.4);
+    background: rgba(76, 29, 149, 0.25);
+}
+.level-reward-card__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    font-size: 0.58em;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #451a03;
+    background: #fbbf24;
+    border-radius: 999px;
+    line-height: 1.2;
+}
+
+#janela-level-rewards .store-footer--level-rewards {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.35));
+}
+#janela-level-rewards .store-footer--level-rewards .btn-level-rewards-close {
     width: 100%;
     max-width: 280px;
     margin: 0;
@@ -5281,6 +6358,9 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 }
 .nav-menu-item__glyph--missions {
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23d9b97e"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>');
+}
+.nav-menu-item__glyph--achievements {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23d9b97e"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM5 4h2M17 4h2M6 9H4a2 2 0 000 4h1M18 9h2a2 2 0 010 4h-1"/></svg>');
 }
 .nav-menu-item__glyph--settings {
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23d9b97e"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>');

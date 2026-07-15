@@ -584,6 +584,13 @@ const GMEngine: GmEngineApi = {
             /* noop */
         }
         try {
+            if (typeof window.aplicarHudLevelRewardsBadge === 'function') {
+                window.aplicarHudLevelRewardsBadge();
+            }
+        } catch (e) {
+            /* noop */
+        }
+        try {
             if (typeof window.salvarJogo === 'function') window.salvarJogo();
         } catch (e) {
             console.warn('GM nivel local persist:', e);

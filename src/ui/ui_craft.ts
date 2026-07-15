@@ -258,6 +258,13 @@ function registrarProgressoMintMissaoSeAplicavel(): void {
   }
 }
 
+function registrarProgressoCraftMissao(): void {
+  if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+    window.registrarProgressoMissaoDiaria('craft_item', 1);
+  }
+  registrarProgressoMintMissaoSeAplicavel();
+}
+
 function falhaCraftComMateriaisConsumidos(): void {
   if (typeof window.escreverLog === 'function') {
     const logLine = craftT('game.craft.logMintFailed');
@@ -364,7 +371,7 @@ async function executarCraft(): Promise<void> {
         }
         if (typeof window.syncMoedasInventarioComCarteira === 'function') window.syncMoedasInventarioComCarteira();
         fecharJanelaCraft();
-        registrarProgressoMintMissaoSeAplicavel();
+        registrarProgressoCraftMissao();
         falhaCraftComMateriaisConsumidos();
         if (btnExecutar) {
           btnExecutar.disabled = false;
@@ -412,7 +419,7 @@ async function executarCraft(): Promise<void> {
           }
         }
 
-        registrarProgressoMintMissaoSeAplicavel();
+        registrarProgressoCraftMissao();
         fecharJanelaCraft();
         mostrarResultadoCraft(nomeGerado, imgGerada, qtdGerada);
 
@@ -450,7 +457,7 @@ async function executarCraft(): Promise<void> {
   }
 
   consumirIngredientesReceita();
-  registrarProgressoMintMissaoSeAplicavel();
+  registrarProgressoCraftMissao();
 
   if (taxaSucesso < 100 && Math.random() * 100 >= taxaSucesso) {
     if (btnExecutar) {
