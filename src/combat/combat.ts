@@ -228,6 +228,9 @@ function aplicarXpGanhoFloresta(quantia) {
         if (typeof window.onLevelRewardReached === 'function') {
             window.onLevelRewardReached(nl);
         }
+        if (typeof window.RetentionEngine?.onGameEvent === 'function') {
+            window.RetentionEngine.onGameEvent('reach_level', nl);
+        }
         if (nl === 20 || nl === 40 || nl === 76) {
             if (typeof window.escreverLog === 'function') {
                 const hint = (typeof window.t === 'function')

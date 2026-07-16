@@ -2843,6 +2843,9 @@ export class ExpeditionEngine {
         this.syncNavigationLock();
 
         if (success) {
+            if (typeof win.RetentionEngine?.onGameEvent === 'function') {
+                win.RetentionEngine.onGameEvent('expedition_complete', 1);
+            }
             if (!opts?.skipVictoryModal) {
                 if (typeof win.setLootTurno === 'function') {
                     win.setLootTurno(bagSnapshot);

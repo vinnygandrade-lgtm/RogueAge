@@ -6,6 +6,7 @@
 interface NavMenuNotifState {
   mail: number;
   rewards: number;
+  retention: number;
   missions: number;
   achievements: number;
   olympiad: number;
@@ -15,6 +16,7 @@ interface NavMenuNotifState {
 const state: NavMenuNotifState = {
   mail: 0,
   rewards: 0,
+  retention: 0,
   missions: 0,
   achievements: 0,
   olympiad: 0,
@@ -112,6 +114,7 @@ function refreshNavMenuNotifications(partial?: Partial<NavMenuNotifState>): void
   if (partial) {
     if (partial.mail !== undefined) state.mail = Math.max(0, partial.mail);
     if (partial.rewards !== undefined) state.rewards = Math.max(0, partial.rewards);
+    if (partial.retention !== undefined) state.retention = Math.max(0, partial.retention);
     if (partial.missions !== undefined) state.missions = Math.max(0, partial.missions);
     if (partial.achievements !== undefined) state.achievements = Math.max(0, partial.achievements);
     if (partial.olympiad !== undefined) state.olympiad = Math.max(0, partial.olympiad);
@@ -123,12 +126,14 @@ function refreshNavMenuNotifications(partial?: Partial<NavMenuNotifState>): void
 
   const tabBtn = document.getElementById('btn-tab-menu');
   const mailBtn = document.getElementById('nav-menu-mailbox');
+  const retentionBtn = document.getElementById('nav-menu-retention');
   const missBtn = document.getElementById('nav-menu-missions');
   const achBtn = document.getElementById('nav-menu-achievements');
   const olyBtn = document.getElementById('nav-menu-olympiad');
   const cwBtn = document.getElementById('nav-menu-clanwar');
   const tabNotif = document.getElementById('nav-notif-tab');
   const mailNotif = document.getElementById('nav-notif-mail');
+  const retentionNotif = document.getElementById('nav-notif-retention');
   const rewardsNotif = document.getElementById('nav-notif-rewards');
   const missNotif = document.getElementById('nav-notif-missions');
   const achNotif = document.getElementById('nav-notif-achievements');
@@ -136,6 +141,7 @@ function refreshNavMenuNotifications(partial?: Partial<NavMenuNotifState>): void
   const cwNotif = document.getElementById('nav-notif-clanwar');
 
   paintNotifPill(mailNotif, state.mail, 99, 'mail');
+  paintNotifPill(retentionNotif, state.retention, 9, 'missions');
   paintNotifPill(rewardsNotif, state.rewards, 9, 'rewards');
   paintNotifPill(missNotif, state.missions, 9, 'missions');
   paintNotifPill(achNotif, state.achievements, 99, 'achievements');
@@ -143,13 +149,17 @@ function refreshNavMenuNotifications(partial?: Partial<NavMenuNotifState>): void
   paintNotifPill(cwNotif, state.clanWar, 1, 'clanwar');
 
   const tabTotal =
-    state.mail + state.rewards + state.missions + state.achievements + state.olympiad + state.clanWar;
+    state.mail + state.rewards + state.retention + state.missions + state.achievements + state.olympiad + state.clanWar;
   paintNotifPill(tabNotif, tabTotal, 99, 'tab');
 
   if (mailBtn) {
     mailBtn.classList.toggle('nav-menu-item--has-notif', state.mail > 0 || state.rewards > 0);
     mailBtn.classList.toggle('notif-icon-flashing', state.mail > 0);
     mailBtn.classList.toggle('nav-menu-item--has-rewards', state.rewards > 0);
+  }
+  if (retentionBtn) {
+    retentionBtn.classList.toggle('nav-menu-item--has-notif', state.retention > 0);
+    retentionBtn.classList.toggle('notif-icon-flashing', state.retention > 0);
   }
   if (missBtn) {
     missBtn.classList.toggle('nav-menu-item--has-notif', state.missions > 0);

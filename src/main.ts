@@ -70,6 +70,7 @@ async function bootGame(): Promise<void> {
   await import('./systems/market_cloud');
   await import('./systems/gm_engine');
   await import('./systems/reward_engine');
+  await import('./systems/retention_engine');
   await import('./systems/mailbox_engine');
   await import('./systems/cloud_sync');
   await import('./systems/multiplayer_visuals');
@@ -103,8 +104,11 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_clans');
   tickBoot(94, bootMsg('loading.phaseUi', 'Preparing interface...'));
   await import('./ui/ui_reward_icons');
+  await import('./ui/ui_mission_toasts');
   await import('./ui/ui_daily_missions');
   await import('./ui/ui_level_rewards');
+  await import('./ui/ui_retention');
+  await import('./ui/ui_gameplay_achievements');
   await import('./ui/ui_shop');
   await import('./ui/ui_market');
   await import('./ui/ui_enchant');

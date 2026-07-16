@@ -13,6 +13,7 @@ import type {
   InspectionCachePreview,
   PlayerStats,
 } from '../types/game';
+import { buildChatTitlePayload, resolveChatTitleBadge } from './chat_title_resolver';
 
 function chatT(key: string, params?: Record<string, string | number>): string {
     return typeof window.t === 'function' ? window.t(key, params) : key;
@@ -571,12 +572,13 @@ function adicionarMensagemChat(
 
     let ascensionBadge = '';
     if (!isAnnouncement) {
-        let effectiveAsc = typeof ascensionTitle === 'string' ? ascensionTitle.trim() : '';
-        if (!effectiveAsc && ehOMeuPersonagem && window.EndgamePursuits && typeof window.EndgamePursuits.getRenownTitle === 'function') {
-            effectiveAsc = window.EndgamePursuits.getRenownTitle() || '';
+        let badgePayload = typeof ascensionTitle === 'string' ? ascensionTitle.trim() : '';
+        if (!badgePayload && ehOMeuPersonagem && !historyReplay) {
+            badgePayload = buildChatTitlePayload();
         }
-        if (effectiveAsc) {
-            ascensionBadge = `<span style="color:#c084fc;font-size:0.82em;font-weight:700;margin-right:5px;font-family:'Cinzel',serif;">[${escaparHTML(effectiveAsc)}]</span>`;
+        const badge = resolveChatTitleBadge(badgePayload);
+        if (badge) {
+            ascensionBadge = `<span style="color:${badge.color};font-size:0.82em;font-weight:700;margin-right:5px;font-family:'Cinzel',serif;">[${escaparHTML(badge.text)}]</span>`;
         }
     }
 
@@ -588,8 +590,11 @@ function adicionarMensagemChat(
     // Persistência local (Simulando Multiplayer)
     if (!pularPersistencia) {
         const hist: ChatHistoryEntry = { autor, mensagem, tipo, timestamp: Date.now() };
-        const trimmedAsc = typeof ascensionTitle === 'string' ? ascensionTitle.trim() : '';
-        if (trimmedAsc) hist.ascensionTitle = trimmedAsc;
+        let payloadForHist = typeof ascensionTitle === 'string' ? ascensionTitle.trim() : '';
+        if (!payloadForHist && ehOMeuPersonagem) {
+            payloadForHist = buildChatTitlePayload();
+        }
+        if (payloadForHist) hist.ascensionTitle = payloadForHist;
         salvarMensagemNoHistorico(canal, hist);
     }
 
@@ -949,10 +954,7 @@ function enviarMensagemPlayer(): void {
     let rankData = (typeof window.getOlympiadRank === 'function') ? window.getOlympiadRank(window.olympiadPoints) : { nomeCompleto: 'Paper 5' };
     
     const meuNome = typeof window.charName !== 'undefined' ? window.charName : "Player";
-    const ascTitle =
-        (window.EndgamePursuits && typeof window.EndgamePursuits.getRenownTitle === 'function')
-            ? (window.EndgamePursuits.getRenownTitle() || '')
-            : '';
+    const ascTitle = buildChatTitlePayload();
 
     const cloudUser = isCloudChatUser();
     const isClanCloud = canalAtual === 'clan' && cloudUser;
@@ -1132,6 +1134,59 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+function reloadGlobalChatHistoryFromLocal(): void {
+    const panel = document.getElementById('chat-global');
+    if (!panel) return;
+    panel.innerHTML = '';
+    const key = 'l2mini_chat_global_history';
+    try {
+        const saved = localStorage.getItem(key);
+        if (!saved) return;
+        const tresDiasAtras = Date.now() - (CHAT_HISTORY_LIMIT_DAYS * 24 * 60 * 60 * 1000);
+        const history = (JSON.parse(saved) as ChatHistoryEntry[])
+            .filter((m) => m && m.timestamp > tresDiasAtras)
+            .sort((a, b) => a.timestamp - b.timestamp);
+        history.forEach((m) => {
+            adicionarMensagemChat(m.autor, m.mensagem, m.tipo, 'global', true, m.timestamp, m.ascensionTitle || '', true);
+        });
+        if (history.length) scrollChatPanelToBottom(panel, true);
+    } catch (e) {
+        console.warn('reloadGlobalChatHistoryFromLocal:', e);
+    }
+}
+
+function reloadClanChatHistoryFromLocal(): void {
+    const panel = document.getElementById('chat-clan');
+    if (!panel) return;
+    panel.innerHTML = '';
+    const key = 'l2mini_chat_clan_history';
+    try {
+        const saved = localStorage.getItem(key);
+        if (!saved) return;
+        const tresDiasAtras = Date.now() - (CHAT_HISTORY_LIMIT_DAYS * 24 * 60 * 60 * 1000);
+        const history = (JSON.parse(saved) as ChatHistoryEntry[])
+            .filter((m) => m && m.timestamp > tresDiasAtras)
+            .sort((a, b) => a.timestamp - b.timestamp);
+        history.forEach((m) => {
+            adicionarMensagemChat(m.autor, m.mensagem, m.tipo, 'clan', true, m.timestamp, m.ascensionTitle || '', true);
+        });
+        if (history.length) scrollChatPanelToBottom(panel, true);
+    } catch (e) {
+        console.warn('reloadClanChatHistoryFromLocal:', e);
+    }
+}
+
+function refreshChatPanelsI18n(): void {
+    if (window.GlobalChatEngine && typeof window.GlobalChatEngine.repaintI18n === 'function') {
+        window.GlobalChatEngine.repaintI18n();
+    } else {
+        reloadGlobalChatHistoryFromLocal();
+    }
+    if (!isCloudChatUser()) {
+        reloadClanChatHistoryFromLocal();
+    }
+}
+
 window.switchLogTab = switchLogTab;
 window.toggleChatCollapse = toggleChatCollapse;
 window.setChatCollapsedForCombat = setChatCollapsedForCombat;
@@ -1142,5 +1197,6 @@ window.enviarMensagemPlayer = enviarMensagemPlayer;
 window.iniciarChatAutomatico = iniciarChatAutomatico;
 window.resetChatBootstrap = resetChatBootstrap;
 window.adicionarMensagemChat = adicionarMensagemChat;
+window.refreshChatPanelsI18n = refreshChatPanelsI18n;
 
 export {};

@@ -194,6 +194,12 @@ export const GlobalChatEngine = {
         if (cached.length) this.renderEntries(cached);
     },
 
+    /** Re-render global chat badges after locale change (payload → localized text). */
+    repaintI18n(): void {
+        const cached = this.loadLocalCache();
+        this.renderEntries(cached);
+    },
+
     ingest(row: GlobalChatRow, _source?: IngestSource): boolean {
         const entry = rowToEntry(row);
         if (!entry || this.hasSeen(entry)) return false;

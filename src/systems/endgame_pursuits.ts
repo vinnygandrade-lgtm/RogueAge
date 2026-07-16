@@ -133,6 +133,9 @@ function onChampionKill(): void {
     ensureWeekRollover();
     e.weeklyChampionKills = (e.weeklyChampionKills || 0) + 1;
     e.lifetimeChampionKills = (e.lifetimeChampionKills || 0) + 1;
+    if (typeof window.registrarProgressoConquista === 'function') {
+        window.registrarProgressoConquista('elite_champion_kill', 1);
+    }
     refreshPublicAscensionHUD();
 }
 

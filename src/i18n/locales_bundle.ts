@@ -106,6 +106,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 clanHall: 'Clan Hall',
                 mailbox: 'Mailbox',
                 missions: 'Missions',
+                retention: 'Login Rewards',
                 achievements: 'Achievements',
                 olympiad: 'Grand Olympiad',
                 clanWar: 'Clan War',
@@ -113,6 +114,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 close: 'CLOSE',
                 notifMail: '{count} mailbox',
                 notifMissions: '{count} missions',
+                notifRetention: '{count} login rewards',
                 notifAchievements: '{count} achievements',
                 notifRewards: '{count} rewards',
                 notifOlympiad: '{count} olympiad rewards',
@@ -1163,7 +1165,22 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     skipUsed: 'SKIPPED',
                     skipConfirm: 'Skip "{title}" and replace it with another mission from the same group? You can only do this once per mission.',
                     skipNoAlternative: 'No alternative mission is available in this group right now.',
-                    logSkipped: '[Missions] Skipped: {title}. A new goal was rolled.'
+                    logSkipped: '[Missions] Skipped: {title}. A new goal was rolled.',
+                    toastHint: 'Open {destination} to claim.',
+                    sources: {
+                        daily: 'Daily Mission',
+                        weekly: 'Weekly Mission',
+                        retentionJourney: 'Recruit Journey',
+                        retentionLogin: 'Login Rewards',
+                        levelReward: 'Level Reward',
+                        gameplayAchievement: 'Achievement'
+                    },
+                    destinations: {
+                        missions: 'MENU → Missions',
+                        retention: 'MENU → Login Rewards',
+                        achievements: 'MENU → Achievements'
+                    },
+                    hubTabNotifAria: '{count} rewards ready in this tab'
                 },
                 weekly: {
                     modalTitle: 'WEEKLY MISSIONS',
@@ -1187,6 +1204,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 achievements: {
                     modalTitle: 'ACHIEVEMENTS',
+                    tabLevels: 'Levels',
+                    tabJourney: 'Journey',
                     modalHint: 'Tap a level to open its reward. Gold tiles are milestones (every 10). Dark = not reached yet.',
                     claimModalTitle: 'LEVEL REWARD',
                     progressLine: '{claimed}/{total} claimed · Lv.{current} · {pending} ready',
@@ -1209,9 +1228,128 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     logClaimed: '[Achievements] Claimed: {title}',
                     logClaimAll: '[Achievements] Claimed {count} level reward(s)!'
                 },
+                retention: {
+                    modalTitle: 'LOGIN REWARDS',
+                    tabNewbie: 'Novice Week',
+                    tabMonthly: 'Monthly',
+                    tabJourney: 'Recruit Journey',
+                    hintNewbie: 'Claim today with the button below each day. Tap icons to preview items. Missed days are lost. Day 7: pick your +4 weapon.',
+                    hintMonthly: 'One reward per login day — use CLAIM on today\'s row. Tap icons to preview. Missed days cannot be recovered.',
+                    hintJourney: 'Learn every core loop: hunt, enchant, expedition, clan, and more.',
+                    claim: 'CLAIM',
+                    closeBtn: 'CLOSE',
+                    errorNotReady: 'Login rewards are still loading. Try again in a moment.',
+                    newbie: {
+                        progress: 'Day {current}/{total} · {pending} ready · {claimed} claimed',
+                        day7Pick: 'Choose +4 weapon',
+                        claimDay7: 'CHOOSE WEAPON'
+                    },
+                    monthly: {
+                        progress: '{month} · Day {current}/{total} · {pending} ready · {claimed} claimed'
+                    },
+                    journey: {
+                        summary: '{done}/{total} claimed · {pending} ready',
+                        progress: '{current}/{target}',
+                        s1: { title: 'First Blood', desc: 'Defeat 5 monsters in any hunting zone.', hint: 'Use Attack in the Forest tab.' },
+                        s2: { title: 'Champion Slayer', desc: 'Slay 1 golden champion mob.', hint: 'Champions spawn rarely in zones — watch for the glow.' },
+                        s3: { title: 'First Enchant', desc: 'Try enchanting your weapon once.', hint: 'Open Enchant from town. Day 2 calendar gives safe blessed scrolls.' },
+                        s4: { title: 'Expedition Run', desc: 'Complete one Forest Expedition run.', hint: 'World → Expedition — survive and extract your loot.' },
+                        s5: { title: 'Daily Boss', desc: 'Defeat a Daily Boss in the arena.', hint: 'World → Daily Boss when your grade allows.' },
+                        s6: { title: 'Arena Debut', desc: 'Fight one Grand Olympiad duel.', hint: 'MENU → Grand Olympiad → Challenge.' },
+                        s7: { title: 'Market Visit', desc: 'Open the Marketplace once.', hint: 'SOCIAL → Marketplace to browse player listings.' },
+                        s8: { title: 'Clan Member', desc: 'Join or create a clan.', hint: 'SOCIAL → Clan Hall — apply or found a clan.' },
+                        s9: { title: 'First Craft', desc: 'Craft any item once.', hint: 'Town NPCs or craft menu for gear and materials.' },
+                        s10: { title: 'Rising Adventurer', desc: 'Reach level 10.', hint: 'Keep hunting and claiming level rewards.' }
+                    },
+                    tile: {
+                        locked: 'Locked',
+                        claimable: 'Today',
+                        claimed: 'Claimed',
+                        claimedShort: 'Done',
+                        missed: 'Missed',
+                        missedShort: 'Missed',
+                        rewardSoon: '—',
+                        tapIconsHint: 'Tap icons to preview'
+                    },
+                    weaponStyle: {
+                        sword: 'Heavy blade',
+                        dagger: 'Assassin dagger',
+                        bow: 'Hunter bow',
+                        staff: 'Wizard staff'
+                    },
+                    weaponPickTitle: 'CHOOSE YOUR WEAPON',
+                    weaponPickHint: 'Tap a weapon image to preview stats. Select one, then confirm.',
+                    weaponPickCancel: 'CANCEL',
+                    weaponPickConfirm: 'CONFIRM',
+                    clanBannerTitle: 'Join a clan',
+                    clanBannerBody: 'Clans unlock buffs and social play. Bonus reward on your first clan.',
+                    clanBannerGo: 'FIND A CLAN',
+                    clanBannerDismiss: 'LATER',
+                    comeback: {
+                        title: 'WELCOME BACK',
+                        body: 'While you were away (~{hours}h), your camp gathered supplies.',
+                        potions: 'HP & Mana potions',
+                        claim: 'CLAIM',
+                        later: 'LATER'
+                    },
+                    logNewbieClaim: '[Login] Novice day {day} reward claimed!',
+                    logMonthlyClaim: '[Login] Monthly day {day} reward claimed!',
+                    logJourneyClaim: '[Journey] Step {step} reward claimed!',
+                    logDay7Weapon: '[Login] Day 7 weapon delivered (+4)!',
+                    logComeback: '[Login] Welcome-back supplies claimed!'
+                },
                 rewards: {
                     previewAmount: 'In this reward:',
                     tapIconHint: 'Tap icon for item details'
+                },
+                gameplayAchievements: {
+                    modalHint: 'Each goal starts gray (NG) and shifts color as you climb grades. Claim the title to unlock the next tier and harder target.',
+                    summaryLine: '{unlocked} titles · {claimable} ready · {mastered}/{total} mastered',
+                    titleReward: 'Title reward:',
+                    claim: 'CLAIM TITLE',
+                    claimed: 'CLAIMED',
+                    inProgress: 'IN PROGRESS',
+                    mastered: 'MASTERED',
+                    masteredProgress: 'Lifetime: {value}',
+                    logTitleUnlocked: '[Journey] Title unlocked: {title}',
+                    titlesModalTitle: 'TITLES',
+                    titlesModalHint: 'Titles come from Journey achievements. Your equipped title shows in chat with its grade color.',
+                    profileTitlesBtn: 'TITLES',
+                    equippedNow: 'Equipped in chat',
+                    noneEquipped: 'No title equipped — pick one below.',
+                    noTitlesYet: 'No titles yet. Open Achievements → Journey and claim your first title.',
+                    unequip: 'UNEQUIP',
+                    closeBtn: 'CLOSE',
+                    achievements: {
+                        mob_slayer: { title: 'Monster Slayer', desc: 'Defeat monsters across Aden.' },
+                        champion_bane: { title: 'Champion Hunter', desc: 'Slay golden champions in hunting zones.' },
+                        adena_magnate: { title: 'Adena Magnate', desc: 'Earn Adena from loot and rewards.' },
+                        coin_hoarder: { title: 'Ancient Collector', desc: 'Gather Ancient Coins from your adventures.' },
+                        enchant_seeker: { title: 'Enchant Seeker', desc: 'Attempt gear enchantments.' },
+                        forge_hand: { title: 'Artisan', desc: 'Craft items at the forge.' },
+                        skill_weaver: { title: 'Skill Weaver', desc: 'Cast skills in combat.' },
+                        arena_legend: { title: 'Arena Legend', desc: 'Win Grand Olympiad duels.' },
+                        arena_reaper: { title: 'Arena Reaper', desc: 'Slay rivals in Grand Olympiad — every victory is a kill.' },
+                        boss_breaker: { title: 'Boss Breaker', desc: 'Defeat daily raid bosses.' },
+                        battle_alchemist: { title: 'Battle Alchemist', desc: 'Drink HP and MP potions.' },
+                        mint_scholar: { title: 'Mint Scholar', desc: 'Mint items at the coin press.' },
+                        elite_nemesis: { title: 'Elite Nemesis', desc: 'Slay elite champions tracked by Ascension.' }
+                    },
+                    titles: {
+                        mob_slayer_ng: 'Trail Scout', mob_slayer_d: 'Blood Hunter', mob_slayer_c: 'Horde Breaker', mob_slayer_b: 'Field Reaper', mob_slayer_a: 'Cataclysm Slayer', mob_slayer_s: 'Million Souls Ended',
+                        champion_bane_ng: 'Gilded Witness', champion_bane_d: 'Crown Challenger', champion_bane_c: 'Golden Executioner', champion_bane_b: 'Elite Crownbreaker', champion_bane_a: 'Aureate Doom', champion_bane_s: 'Bane of Champions',
+                        adena_magnate_ng: 'Loose Change', adena_magnate_d: 'Coin Courier', adena_magnate_c: 'Market Sovereign', adena_magnate_b: 'Vault Tyrant', adena_magnate_a: 'Gilded Magnate', adena_magnate_s: 'Emperor of Aden',
+                        coin_hoarder_ng: 'Relic Finder', coin_hoarder_d: 'Ancient Keeper', coin_hoarder_c: 'Vault Mystic', coin_hoarder_b: 'Empire Curator', coin_hoarder_a: 'Eternal Archivist', coin_hoarder_s: 'Master of Ancient Gold',
+                        enchant_seeker_ng: 'Spark Hunter', enchant_seeker_d: 'Scroll Gambler', enchant_seeker_c: 'Flame Binder', enchant_seeker_b: 'Rune Forger', enchant_seeker_a: 'Fate Gambler', enchant_seeker_s: 'Binder of Destiny',
+                        forge_hand_ng: 'Ember Smith', forge_hand_d: 'Steel Artisan', forge_hand_c: 'Master Hammer', forge_hand_b: 'Legend Smith', forge_hand_a: 'Myth Forger', forge_hand_s: 'World-Shaping Smith',
+                        skill_weaver_ng: 'Cantrip Adept', skill_weaver_d: 'Arcane Duelist', skill_weaver_c: 'Spellstorm Caller', skill_weaver_b: 'Mystic Cataclysm', skill_weaver_a: 'Grand Arcanist', skill_weaver_s: 'Weaver of Eternity',
+                        arena_legend_ng: 'Sand Initiate', arena_legend_d: 'Arena Blooded', arena_legend_c: 'Grand Duelist', arena_legend_b: 'Olympiad Warlord', arena_legend_a: 'Arena Paragon', arena_legend_s: 'Immortal Legend',
+                        arena_reaper_ng: 'First Blood', arena_reaper_d: 'Arena Cutthroat', arena_reaper_c: 'Rival Slayer', arena_reaper_b: 'Grand Executioner', arena_reaper_a: 'Olympiad Doom', arena_reaper_s: 'Reaper of Rivals',
+                        boss_breaker_ng: 'Raid Novice', boss_breaker_d: 'Boss Breaker', boss_breaker_c: 'Titan Hunter', boss_breaker_b: 'Calamity Hunter', boss_breaker_a: 'World Threat End', boss_breaker_s: 'Godslayer of Raids',
+                        battle_alchemist_ng: 'Vial Drinker', battle_alchemist_d: 'War Alchemist', battle_alchemist_c: 'Brewmaster of War', battle_alchemist_b: 'Elixir Warlord', battle_alchemist_a: 'Panacea Archon', battle_alchemist_s: 'Lord of the Living Flask',
+                        mint_scholar_ng: 'Press Tender', mint_scholar_d: 'Coin Wright', mint_scholar_c: 'Royal Minter', mint_scholar_b: 'Sovereign Forge', mint_scholar_a: 'Golden Chancellor', mint_scholar_s: 'Architect of Coin',
+                        elite_nemesis_ng: 'Elite Tracker', elite_nemesis_d: 'Ascension Stalker', elite_nemesis_c: 'Paragon Hunter', elite_nemesis_b: 'Renown Slayer', elite_nemesis_a: 'Elite Cataclysm', elite_nemesis_s: 'Nemesis of the Ascended'
+                    }
                 },
                 core: {
                     welcomeLog: 'Welcome to the Rogue Age.',
@@ -2618,6 +2756,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 clanHall: 'Salão do Clã',
                 mailbox: 'Correio',
                 missions: 'Missões',
+                retention: 'Recompensas de Login',
                 achievements: 'Conquistas',
                 olympiad: 'Grand Olympiad',
                 clanWar: 'Guerra de Clãs',
@@ -2625,6 +2764,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 close: 'FECHAR',
                 notifMail: '{count} no correio',
                 notifMissions: '{count} missões',
+                notifRetention: '{count} recompensas de login',
                 notifAchievements: '{count} conquistas',
                 notifRewards: '{count} recompensas',
                 notifOlympiad: '{count} recompensas da Olimpíada',
@@ -3675,7 +3815,22 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     skipUsed: 'PULADA',
                     skipConfirm: 'Pular "{title}" e trocar por outra missão do mesmo grupo? Só pode fazer isso uma vez por missão.',
                     skipNoAlternative: 'Não há outra missão disponível neste grupo agora.',
-                    logSkipped: '[Missões] Pulada: {title}. Nova meta sorteada.'
+                    logSkipped: '[Missões] Pulada: {title}. Nova meta sorteada.',
+                    toastHint: 'Abra {destination} para resgatar.',
+                    sources: {
+                        daily: 'Missão Diária',
+                        weekly: 'Missão Semanal',
+                        retentionJourney: 'Jornada do Recruta',
+                        retentionLogin: 'Recompensas de Login',
+                        levelReward: 'Prêmio de Nível',
+                        gameplayAchievement: 'Conquista'
+                    },
+                    destinations: {
+                        missions: 'MENU → Missões',
+                        retention: 'MENU → Recompensas de Login',
+                        achievements: 'MENU → Conquistas'
+                    },
+                    hubTabNotifAria: '{count} prêmios prontos nesta aba'
                 },
                 weekly: {
                     modalTitle: 'MISSÕES SEMANAIS',
@@ -3699,6 +3854,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 achievements: {
                     modalTitle: 'CONQUISTAS',
+                    tabLevels: 'Níveis',
+                    tabJourney: 'Jornada',
                     modalHint: 'Toque num nível para abrir o prémio. Quadrados dourados são marcos (a cada 10). Escuros = ainda não alcançou.',
                     claimModalTitle: 'PRÉMIO DE NÍVEL',
                     progressLine: '{claimed}/{total} resgatados · Nv.{current} · {pending} prontos',
@@ -3721,9 +3878,128 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     logClaimed: '[Conquistas] Resgatado: {title}',
                     logClaimAll: '[Conquistas] Resgatou {count} prêmio(s) de nível!'
                 },
+                retention: {
+                    modalTitle: 'RECOMPENSAS DE LOGIN',
+                    tabNewbie: 'Semana Novato',
+                    tabMonthly: 'Mensal',
+                    tabJourney: 'Jornada do Recruta',
+                    hintNewbie: 'Resgate hoje com o botão em cada dia. Toque nos ícones para ver o item. Dias perdidos não voltam. Dia 7: escolha sua arma +4.',
+                    hintMonthly: 'Um prêmio por dia de login — use RESGATAR na linha de hoje. Toque nos ícones para preview. Dias perdidos não recuperam.',
+                    hintJourney: 'Aprenda cada loop do jogo: caça, enchant, expedição, clã e mais.',
+                    claim: 'RESGATAR',
+                    closeBtn: 'FECHAR',
+                    errorNotReady: 'Recompensas de login ainda carregando. Tente de novo em instantes.',
+                    newbie: {
+                        progress: 'Dia {current}/{total} · {pending} prontos · {claimed} resgatados',
+                        day7Pick: 'Escolha arma +4',
+                        claimDay7: 'ESCOLHER ARMA'
+                    },
+                    monthly: {
+                        progress: '{month} · Dia {current}/{total} · {pending} prontos · {claimed} resgatados'
+                    },
+                    journey: {
+                        summary: '{done}/{total} resgatados · {pending} prontos',
+                        progress: '{current}/{target}',
+                        s1: { title: 'Primeiro Sangue', desc: 'Derrote 5 monstros em qualquer zona.', hint: 'Use Ataque na aba Floresta.' },
+                        s2: { title: 'Caçador de Campeões', desc: 'Abata 1 campeão dourado.', hint: 'Campeões aparecem raramente nas zonas — olhe o brilho.' },
+                        s3: { title: 'Primeiro Enchant', desc: 'Tente encantar sua arma uma vez.', hint: 'Abra Enchant na cidade. O dia 2 do calendário dá pergaminhos abençoados.' },
+                        s4: { title: 'Expedição', desc: 'Complete uma Expedição na Floresta.', hint: 'Mundo → Expedição — sobreviva e extraia o loot.' },
+                        s5: { title: 'Boss Diário', desc: 'Derrote um Boss Diário na arena.', hint: 'Mundo → Boss Diário quando sua grade permitir.' },
+                        s6: { title: 'Estreia na Arena', desc: 'Lute um duelo na Grand Olympiad.', hint: 'MENU → Grand Olympiad → Desafiar.' },
+                        s7: { title: 'Visita ao Mercado', desc: 'Abra o Marketplace uma vez.', hint: 'SOCIAL → Marketplace para ver anúncios.' },
+                        s8: { title: 'Membro de Clã', desc: 'Entre ou crie um clã.', hint: 'SOCIAL → Salão do Clã — candidate-se ou funde um clã.' },
+                        s9: { title: 'Primeiro Craft', desc: 'Crie qualquer item uma vez.', hint: 'NPCs da cidade ou menu de craft.' },
+                        s10: { title: 'Aventureiro em Ascensão', desc: 'Alcance o nível 10.', hint: 'Continue caçando e resgatando prêmios de nível.' }
+                    },
+                    tile: {
+                        locked: 'Bloqueado',
+                        claimable: 'Hoje',
+                        claimed: 'Resgatado',
+                        claimedShort: 'Feito',
+                        missed: 'Perdido',
+                        missedShort: 'Perdido',
+                        rewardSoon: '—',
+                        tapIconsHint: 'Toque nos ícones para ver'
+                    },
+                    weaponStyle: {
+                        sword: 'Espada pesada',
+                        dagger: 'Adaga assassina',
+                        bow: 'Arco de caça',
+                        staff: 'Cajado arcano'
+                    },
+                    weaponPickTitle: 'ESCOLHA SUA ARMA',
+                    weaponPickHint: 'Toque na imagem da arma para ver os stats. Selecione uma e confirme.',
+                    weaponPickCancel: 'CANCELAR',
+                    weaponPickConfirm: 'CONFIRMAR',
+                    clanBannerTitle: 'Entre em um clã',
+                    clanBannerBody: 'Clãs dão buffs e jogatina social. Bônus ao entrar no primeiro clã.',
+                    clanBannerGo: 'BUSCAR CLÃ',
+                    clanBannerDismiss: 'DEPOIS',
+                    comeback: {
+                        title: 'BEM-VINDO DE VOLTA',
+                        body: 'Enquanto você esteve fora (~{hours}h), o acampamento juntou suprimentos.',
+                        potions: 'Poções de HP e MP',
+                        claim: 'RESGATAR',
+                        later: 'DEPOIS'
+                    },
+                    logNewbieClaim: '[Login] Dia novato {day} resgatado!',
+                    logMonthlyClaim: '[Login] Dia mensal {day} resgatado!',
+                    logJourneyClaim: '[Jornada] Etapa {step} resgatada!',
+                    logDay7Weapon: '[Login] Arma do dia 7 entregue (+4)!',
+                    logComeback: '[Login] Suprimentos de retorno resgatados!'
+                },
                 rewards: {
                     previewAmount: 'Neste prêmio:',
                     tapIconHint: 'Toque no ícone para ver o item'
+                },
+                gameplayAchievements: {
+                    modalHint: 'Cada meta começa no cinza (NG) e muda de cor conforme você sobe de grade. Resgate o título para liberar o próximo nível e um alvo mais difícil.',
+                    summaryLine: '{unlocked} títulos · {claimable} prontos · {mastered}/{total} concluídas',
+                    titleReward: 'Título:',
+                    claim: 'RESGATAR TÍTULO',
+                    claimed: 'RESGATADO',
+                    inProgress: 'EM PROGRESSO',
+                    mastered: 'CONCLUÍDA',
+                    masteredProgress: 'Total: {value}',
+                    logTitleUnlocked: '[Jornada] Título desbloqueado: {title}',
+                    titlesModalTitle: 'TÍTULOS',
+                    titlesModalHint: 'Títulos vêm das conquistas da Jornada. O título equipado aparece no chat com a cor da grade.',
+                    profileTitlesBtn: 'TÍTULOS',
+                    equippedNow: 'Equipado no chat',
+                    noneEquipped: 'Nenhum título equipado — escolha um abaixo.',
+                    noTitlesYet: 'Ainda sem títulos. Abra Conquistas → Jornada e resgate o primeiro.',
+                    unequip: 'DESEQUIPAR',
+                    closeBtn: 'FECHAR',
+                    achievements: {
+                        mob_slayer: { title: 'Caçador de Monstros', desc: 'Derrote monstros por Aden.' },
+                        champion_bane: { title: 'Caçador de Campeões', desc: 'Abata campeões dourados nas zonas.' },
+                        adena_magnate: { title: 'Magnata da Adena', desc: 'Ganhe Adena em loot e recompensas.' },
+                        coin_hoarder: { title: 'Colecionador Ancestral', desc: 'Acumule Moedas Ancestrais.' },
+                        enchant_seeker: { title: 'Buscador do Encanto', desc: 'Tente encantar equipamentos.' },
+                        forge_hand: { title: 'Artesão', desc: 'Crie itens na forja.' },
+                        skill_weaver: { title: 'Tecelão de Skills', desc: 'Use habilidades em combate.' },
+                        arena_legend: { title: 'Lenda da Arena', desc: 'Vença duelos na Grand Olympiad.' },
+                        arena_reaper: { title: 'Ceifador da Arena', desc: 'Abata rivais na Grand Olympiad — cada vitória é um kill.' },
+                        boss_breaker: { title: 'Quebrador de Bosses', desc: 'Derrote chefes do raid diário.' },
+                        battle_alchemist: { title: 'Alquimista de Batalha', desc: 'Beba poções de HP e MP.' },
+                        mint_scholar: { title: 'Estudante da Mint', desc: 'Minte itens na prensa de moedas.' },
+                        elite_nemesis: { title: 'Nêmesis Elite', desc: 'Abata campeões elite rastreados pela Ascensão.' }
+                    },
+                    titles: {
+                        mob_slayer_ng: 'Batedor de Trilhas', mob_slayer_d: 'Caçador Sangrento', mob_slayer_c: 'Quebra-Hordas', mob_slayer_b: 'Ceifador de Campo', mob_slayer_a: 'Slayer do Cataclismo', mob_slayer_s: 'Ceifador do Milhão',
+                        champion_bane_ng: 'Testemunha Dourada', champion_bane_d: 'Desafiante da Coroa', champion_bane_c: 'Executor Dourado', champion_bane_b: 'Quebra-Coroa Elite', champion_bane_a: 'Ruína Aureata', champion_bane_s: 'Flagelo dos Campeões',
+                        adena_magnate_ng: 'Troco Solto', adena_magnate_d: 'Mensageiro de Moedas', adena_magnate_c: 'Soberano do Mercado', adena_magnate_b: 'Tirano do Cofre', adena_magnate_a: 'Magnata Dourado', adena_magnate_s: 'Imperador de Aden',
+                        coin_hoarder_ng: 'Caçador de Relíquias', coin_hoarder_d: 'Guardião Ancestral', coin_hoarder_c: 'Místico do Cofre', coin_hoarder_b: 'Curador do Império', coin_hoarder_a: 'Arquivista Eterno', coin_hoarder_s: 'Mestre do Ouro Ancestral',
+                        enchant_seeker_ng: 'Caçador de Faíscas', enchant_seeker_d: 'Apostador de Scrolls', enchant_seeker_c: 'Ligador de Chamas', enchant_seeker_b: 'Forjador de Runas', enchant_seeker_a: 'Apostador do Destino', enchant_seeker_s: 'Ligador do Destino',
+                        forge_hand_ng: 'Ferreiro das Brasas', forge_hand_d: 'Artesão de Aço', forge_hand_c: 'Mestre do Martelo', forge_hand_b: 'Ferreiro Lendário', forge_hand_a: 'Forjador de Mitos', forge_hand_s: 'Ferreiro que Molda Mundos',
+                        skill_weaver_ng: 'Adepto de Truques', skill_weaver_d: 'Duelista Arcano', skill_weaver_c: 'Invocador da Tempestade', skill_weaver_b: 'Cataclismo Místico', skill_weaver_a: 'Arcanista Supremo', skill_weaver_s: 'Tecelão da Eternidade',
+                        arena_legend_ng: 'Iniciado da Areia', arena_legend_d: 'Sangue na Arena', arena_legend_c: 'Grande Duelista', arena_legend_b: 'Senhor da Guerra da Olimpíada', arena_legend_a: 'Paragon da Arena', arena_legend_s: 'Lenda Imortal',
+                        arena_reaper_ng: 'Primeiro Sangue', arena_reaper_d: 'Cortador da Arena', arena_reaper_c: 'Slayer de Rivais', arena_reaper_b: 'Grande Executor', arena_reaper_a: 'Ruína da Olimpíada', arena_reaper_s: 'Ceifador de Rivais',
+                        boss_breaker_ng: 'Novato do Raid', boss_breaker_d: 'Quebra-Boss', boss_breaker_c: 'Caçador de Titãs', boss_breaker_b: 'Caçador da Calamidade', boss_breaker_a: 'Fim da Ameaça', boss_breaker_s: 'Matador de Deuses do Raid',
+                        battle_alchemist_ng: 'Gole do Frasco', battle_alchemist_d: 'Alquimista de Guerra', battle_alchemist_c: 'Mestre Cervejeiro de Guerra', battle_alchemist_b: 'Senhor da Guerra dos Elixires', battle_alchemist_a: 'Arconte da Panaceia', battle_alchemist_s: 'Lorde do Frasco Vivo',
+                        mint_scholar_ng: 'Guardião da Prensa', mint_scholar_d: 'Artífice da Moeda', mint_scholar_c: 'Minter Real', mint_scholar_b: 'Forja Soberana', mint_scholar_a: 'Chanceler Dourado', mint_scholar_s: 'Arquiteto da Moeda',
+                        elite_nemesis_ng: 'Rastreador Elite', elite_nemesis_d: 'Stalker da Ascensão', elite_nemesis_c: 'Caçador do Paragon', elite_nemesis_b: 'Slayer de Renome', elite_nemesis_a: 'Cataclismo Elite', elite_nemesis_s: 'Nêmesis dos Ascendidos'
+                    }
                 },
                 core: {
                     welcomeLog: 'Bem-vindo à Era Rogue.',

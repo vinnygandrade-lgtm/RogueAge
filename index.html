@@ -41,6 +41,7 @@
     <link rel="stylesheet" href="css/char-select.css">
     <!-- Bolsa: inventory-grid.css DEVE ficar depois de index-extras (ver docs/inventory-grid-layout.md) -->
     <link rel="stylesheet" href="css/index-extras.css">
+    <link rel="stylesheet" href="css/retention-hub.css">
     <link rel="stylesheet" href="css/expedition-portrait-fit.css">
     <link rel="stylesheet" href="css/auth-flow.css">
     <link rel="stylesheet" href="css/inventory-grid.css">
@@ -117,6 +118,13 @@
             <div class="nav-menu-group">
                 <div class="nav-menu-group__label" data-i18n="navMenu.groupProgress">PROGRESS</div>
                 <div class="nav-menu-group__items">
+                    <button type="button" class="nav-menu-item nav-menu-item--retention-hub" id="nav-menu-retention" onclick="navMenuGo('retention')">
+                        <span class="nav-menu-item__icon-wrap">
+                            <span class="nav-menu-item__glyph nav-menu-item__glyph--retention" aria-hidden="true"></span>
+                            <span id="nav-notif-retention" class="nav-notif nav-notif--retention" hidden></span>
+                        </span>
+                        <span class="nav-menu-item__label" data-i18n="navMenu.retention">Login Rewards</span>
+                    </button>
                     <button type="button" class="nav-menu-item" id="nav-menu-missions" onclick="navMenuGo('missions')">
                         <span class="nav-menu-item__icon-wrap">
                             <span class="nav-menu-item__glyph nav-menu-item__glyph--missions" aria-hidden="true"></span>
@@ -891,14 +899,95 @@
 
     <div id="janela-level-rewards" class="store-window">
         <div class="store-header"><span data-i18n="game.achievements.modalTitle">ACHIEVEMENTS</span></div>
-        <div class="level-rewards-hint" data-i18n="game.achievements.modalHint">Tap a level to open its reward. Gold tiles are milestones (every 10). Dark = not reached yet.</div>
-        <div class="level-rewards-top">
-            <div id="level-rewards-summary" class="level-rewards-summary" aria-live="polite"></div>
-            <button type="button" id="btn-level-rewards-claim-all" class="btn-l2 level-rewards-claim-all" data-i18n="game.achievements.claimAll" onclick="reivindicarTodasRecompensasNivel()">CLAIM ALL</button>
+        <div class="achievements-hub-tabs" role="tablist" aria-label="Achievements">
+            <button type="button" id="ach-tab-levels" class="achievements-hub-tab achievements-hub-tab--active" role="tab" aria-selected="true" data-i18n="game.achievements.tabLevels" onclick="setAchievementsHubTab('levels')">Levels</button>
+            <button type="button" id="ach-tab-journey" class="achievements-hub-tab" role="tab" aria-selected="false" data-i18n="game.achievements.tabJourney" onclick="setAchievementsHubTab('journey')">Journey</button>
         </div>
-        <div id="level-rewards-grid" class="level-rewards-grid" role="list" aria-label="Level rewards"></div>
+        <p id="ach-hint-levels" class="level-rewards-hint" data-i18n="game.achievements.modalHint">Tap a level to open its reward. Gold tiles are milestones (every 10). Dark = not reached yet.</p>
+        <p id="ach-hint-journey" class="level-rewards-hint" data-i18n="game.gameplayAchievements.modalHint" style="display:none;">Complete goals to unlock chat titles. Higher grades need bigger feats.</p>
+        <div id="ach-panel-levels" class="achievements-hub-panel" style="display:flex;">
+            <div class="level-rewards-top">
+                <div id="level-rewards-summary" class="level-rewards-summary" aria-live="polite"></div>
+                <button type="button" id="btn-level-rewards-claim-all" class="btn-l2 level-rewards-claim-all" data-i18n="game.achievements.claimAll" onclick="reivindicarTodasRecompensasNivel()">CLAIM ALL</button>
+            </div>
+            <div id="level-rewards-grid" class="level-rewards-grid" role="list" aria-label="Level rewards"></div>
+        </div>
+        <div id="ach-panel-journey" class="achievements-hub-panel" style="display:none;">
+            <div id="gameplay-ach-summary" class="gameplay-ach-summary" aria-live="polite"></div>
+            <div id="gameplay-ach-list" class="gameplay-ach-list"></div>
+        </div>
         <div class="store-footer store-footer--level-rewards">
             <button type="button" class="btn-l2 btn-level-rewards-close" data-i18n="game.achievements.closeBtn" onclick="fecharLevelRewards()">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="janela-retention-hub" class="store-window store-window--retention">
+        <div class="store-header"><span data-i18n="game.retention.modalTitle">LOGIN REWARDS</span></div>
+        <div class="retention-hub-tabs" role="tablist" aria-label="Login rewards">
+            <button type="button" id="retention-tab-newbie" class="retention-hub-tab retention-hub-tab--active" role="tab" aria-selected="true" data-i18n="game.retention.tabNewbie" onclick="setRetentionHubTab('newbie')">Novice Week</button>
+            <button type="button" id="retention-tab-monthly" class="retention-hub-tab" role="tab" aria-selected="false" data-i18n="game.retention.tabMonthly" onclick="setRetentionHubTab('monthly')">Monthly</button>
+            <button type="button" id="retention-tab-journey" class="retention-hub-tab" role="tab" aria-selected="false" data-i18n="game.retention.tabJourney" onclick="setRetentionHubTab('journey')">Recruit Journey</button>
+        </div>
+        <p id="retention-hint-newbie" class="retention-hint" data-i18n="game.retention.hintNewbie">7-day calendar for new adventurers. Day 7: pick your +4 D-grade weapon.</p>
+        <p id="retention-hint-monthly" class="retention-hint" style="display:none;" data-i18n="game.retention.hintMonthly">Monthly login track — resets each calendar month. Milestones every 7 days.</p>
+        <p id="retention-hint-journey" class="retention-hint" style="display:none;" data-i18n="game.retention.hintJourney">Learn every core loop: hunt, enchant, expedition, clan, and more.</p>
+        <div id="retention-panel-newbie" class="retention-hub-panel" style="display:flex;">
+            <div id="retention-newbie-summary" class="retention-summary" aria-live="polite"></div>
+            <div id="retention-newbie-grid" class="retention-grid retention-grid--newbie"></div>
+        </div>
+        <div id="retention-panel-monthly" class="retention-hub-panel" style="display:none;">
+            <div id="retention-monthly-summary" class="retention-summary" aria-live="polite"></div>
+            <div id="retention-monthly-grid" class="retention-grid retention-grid--monthly"></div>
+        </div>
+        <div id="retention-panel-journey" class="retention-hub-panel" style="display:none;">
+            <div id="retention-clan-banner" class="retention-clan-banner" hidden>
+                <div class="retention-clan-banner__text">
+                    <strong data-i18n="game.retention.clanBannerTitle">Join a clan</strong>
+                    <span data-i18n="game.retention.clanBannerBody">Clans unlock buffs and social play. Bonus reward on your first clan.</span>
+                </div>
+                <div class="retention-clan-banner__actions">
+                    <button type="button" class="btn-l2" data-i18n="game.retention.clanBannerGo" onclick="retentionGoClanHall()">FIND A CLAN</button>
+                    <button type="button" class="btn-l2 btn-l2--ghost" data-i18n="game.retention.clanBannerDismiss" onclick="dismissRetentionClanPrompt()">LATER</button>
+                </div>
+            </div>
+            <div id="retention-journey-summary" class="retention-summary" aria-live="polite"></div>
+            <div id="retention-journey-list" class="retention-journey-list"></div>
+        </div>
+        <div class="store-footer store-footer--retention">
+            <button type="button" class="btn-l2" data-i18n="game.retention.closeBtn" onclick="fecharRetentionHub()">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="janela-retention-weapon-pick" class="store-window store-window--retention-weapon">
+        <div class="store-header"><span data-i18n="game.retention.weaponPickTitle">CHOOSE YOUR WEAPON</span></div>
+        <p class="retention-hint" data-i18n="game.retention.weaponPickHint">Pick one D-grade weapon at +4 enchant. This is your Day 7 reward.</p>
+        <div id="retention-weapon-pick-grid" class="retention-weapon-pick-grid"></div>
+        <div class="store-footer">
+            <button type="button" class="btn-l2" data-i18n="game.retention.weaponPickCancel" onclick="fecharRetentionWeaponPick()">CANCEL</button>
+            <button type="button" id="retention-weapon-pick-confirm" class="btn-l2" data-i18n="game.retention.weaponPickConfirm" onclick="confirmRetentionWeaponPick()" disabled>CONFIRM</button>
+        </div>
+    </div>
+
+    <div id="janela-retention-comeback" class="store-window store-window--retention-comeback">
+        <div class="store-header"><span data-i18n="game.retention.comeback.title">WELCOME BACK</span></div>
+        <div class="store-body store-body--retention-comeback">
+            <div id="retention-comeback-body"></div>
+        </div>
+        <div class="store-footer">
+            <button type="button" class="btn-l2" data-i18n="game.retention.comeback.claim" onclick="claimRetentionComeback()">CLAIM</button>
+            <button type="button" class="btn-l2 btn-l2--ghost" data-i18n="game.retention.comeback.later" onclick="fecharRetentionComeback()">LATER</button>
+        </div>
+    </div>
+
+    <div id="janela-player-titles" class="store-window">
+        <div class="store-header"><span data-i18n="game.gameplayAchievements.titlesModalTitle">TITLES</span></div>
+        <div class="store-body store-body--player-titles">
+            <p class="player-titles-hint" data-i18n="game.gameplayAchievements.titlesModalHint">Titles unlocked from Journey achievements. Equipped titles appear in chat.</p>
+            <div id="player-titles-equipped" class="player-titles-equipped" aria-live="polite"></div>
+            <div id="player-titles-list" class="player-titles-list"></div>
+        </div>
+        <div class="store-footer store-footer--player-titles">
+            <button type="button" class="btn-l2 btn-player-titles-close" data-i18n="game.gameplayAchievements.closeBtn" onclick="fecharPlayerTitles()">CLOSE</button>
         </div>
     </div>
 
@@ -2184,7 +2273,7 @@
             <div class="paperdoll-actions">
                 <button type="button" class="btn-l2 btn-profile-spellbook" onclick="abrirSpellbook()">SPELLBOOK (SKILLS)</button>
                 <button type="button" class="btn-l2 btn-profile-status" data-i18n="game.inventoryUi.profilePreview.sourcesBtn" onclick="abrirStatusDetalhado()">SOURCES & BREAKDOWN</button>
-                <button type="button" class="btn-l2 btn-profile-save" onclick="salvarJogo()">SAVE GAME</button>
+                <button type="button" class="btn-l2 btn-profile-titles" data-i18n="game.gameplayAchievements.profileTitlesBtn" onclick="abrirPlayerTitles()">TITLES</button>
             </div>
             </div>
         </div>

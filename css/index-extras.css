@@ -4618,6 +4618,43 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     border: 1px solid #3f3f46;
     border-radius: 8px;
     cursor: pointer;
+    position: relative;
+}
+
+.hub-tab-notif {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #f59e0b;
+    color: #1c1917;
+    font-family: system-ui, sans-serif;
+    font-size: 0.58rem;
+    font-weight: 800;
+    line-height: 17px;
+    text-align: center;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.65);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.hub-tab-notif[hidden] {
+    display: none !important;
+}
+
+.missoes-hub-tab--active .hub-tab-notif,
+.achievements-hub-tab--active .hub-tab-notif,
+.retention-hub-tab--active .hub-tab-notif {
+    background: #fde68a;
+    color: #422006;
+    box-shadow: 0 0 8px rgba(253, 230, 138, 0.55);
+}
+
+.hub-tab--has-notif:not(.missoes-hub-tab--active):not(.achievements-hub-tab--active):not(.retention-hub-tab--active) {
+    border-color: rgba(245, 158, 11, 0.45);
 }
 
 .missoes-hub-tab--active {
@@ -5393,6 +5430,44 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .store-footer--missoes .
     }
 }
 
+/* Portrait — achievements hub Journey tab scroll */
+html[data-l2-layout="portrait"] #janela-level-rewards.store-window {
+    max-height: min(90dvh, 720px);
+}
+html[data-l2-layout="portrait"] #janela-level-rewards .achievements-hub-tabs {
+    padding: 0 10px 6px;
+    gap: 5px;
+}
+html[data-l2-layout="portrait"] .achievements-hub-tab {
+    min-height: 38px;
+    font-size: 0.62em;
+    padding: 6px 8px;
+}
+html[data-l2-layout="portrait"] #ach-panel-journey {
+    padding: 0 10px 4px;
+    gap: 6px;
+}
+html[data-l2-layout="portrait"] .gameplay-ach-card {
+    padding: 8px 9px;
+    gap: 6px;
+}
+html[data-l2-layout="portrait"] .gameplay-ach-card__icon {
+    width: 30px;
+    height: 30px;
+    font-size: 1.1rem;
+}
+html[data-l2-layout="portrait"] .gameplay-ach-card__title {
+    font-size: 0.78em;
+}
+html[data-l2-layout="portrait"] .gameplay-ach-card__desc {
+    font-size: 0.66em;
+    -webkit-line-clamp: 2;
+}
+html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
+    min-height: 34px;
+    font-size: 0.6em;
+}
+
 /* Level Achievements — never set display here; .store-window defaults to none until abrirModal */
 #janela-level-rewards {
     width: 94%;
@@ -5908,6 +5983,411 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .store-footer--missoes .
     min-height: 44px;
     background: #444;
     box-sizing: border-box;
+}
+
+/* Achievements hub — Levels + Journey tabs */
+#janela-level-rewards .achievements-hub-tabs {
+    flex-shrink: 0;
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 12px 8px;
+}
+.achievements-hub-tab {
+    flex: 1;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #44403c;
+    background: rgba(0, 0, 0, 0.35);
+    color: #a8a29e;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+    position: relative;
+}
+.achievements-hub-tab--active {
+    color: #fde68a;
+    border-color: #a16207;
+    background: linear-gradient(180deg, rgba(120, 53, 15, 0.45) 0%, rgba(41, 25, 8, 0.65) 100%);
+    box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.12);
+}
+.achievements-hub-panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+#ach-panel-levels {
+    padding-left: 0;
+    padding-right: 0;
+}
+#ach-panel-journey {
+    padding: 0 12px 4px;
+    gap: 8px;
+}
+
+/* Journey — one active tier per goal; card color follows current grade */
+.gameplay-ach-summary {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 7px 10px;
+    border-radius: 8px;
+    font-size: 0.64em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #e7d3a2;
+    background: rgba(36, 28, 18, 0.9);
+    border: 1px solid rgba(179, 138, 77, 0.4);
+    line-height: 1.35;
+    text-align: center;
+}
+
+.gameplay-ach-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.gameplay-ach-card {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 11px;
+    border-radius: 10px;
+    border: 1px solid #44403c;
+    background: rgba(0, 0, 0, 0.35);
+}
+.gameplay-ach-card--grade-ng { border-color: var(--l2-grade-ng-border); background: var(--l2-grade-ng-bg); }
+.gameplay-ach-card--grade-d { border-color: var(--l2-grade-d-border); background: var(--l2-grade-d-bg); }
+.gameplay-ach-card--grade-c { border-color: var(--l2-grade-c-border); background: var(--l2-grade-c-bg); }
+.gameplay-ach-card--grade-b { border-color: var(--l2-grade-b-border); background: var(--l2-grade-b-bg); }
+.gameplay-ach-card--grade-a { border-color: var(--l2-grade-a-border); background: var(--l2-grade-a-bg); }
+.gameplay-ach-card--grade-s { border-color: var(--l2-grade-s-border); background: var(--l2-grade-s-bg); }
+.gameplay-ach-card--claimable {
+    box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.18), inset 0 0 12px rgba(0, 0, 0, 0.25);
+}
+.gameplay-ach-card--claimed {
+    opacity: 0.92;
+}
+.gameplay-ach-card--mastered {
+    box-shadow: 0 0 0 1px rgba(255, 200, 232, 0.2), inset 0 0 16px rgba(0, 0, 0, 0.2);
+}
+
+.gameplay-ach-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+.gameplay-ach-card__icon {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    line-height: 1;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.gameplay-ach-card__info {
+    flex: 1;
+    min-width: 0;
+}
+.gameplay-ach-card__title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.gameplay-ach-card__title {
+    flex: 1;
+    min-width: 0;
+    font-weight: 800;
+    color: #f5f0e6;
+    font-size: 0.82em;
+    line-height: 1.25;
+}
+.gameplay-ach-card__grade {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid currentColor;
+    font-size: 0.58em;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    background: rgba(0, 0, 0, 0.35);
+}
+.gameplay-ach-card__desc {
+    margin-top: 3px;
+    color: #a8a29e;
+    font-size: 0.7em;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.gameplay-ach-card__reward {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+.gameplay-ach-card__reward-label {
+    font-size: 0.58em;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #78716c;
+}
+.gameplay-ach-card__title-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 0.66em;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    background: rgba(0, 0, 0, 0.35);
+}
+.gameplay-ach-card__track {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.gameplay-ach-card__bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+.gameplay-ach-card__bar-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, currentColor 100%);
+    transition: width 0.2s ease;
+}
+.gameplay-ach-card--grade-ng .gameplay-ach-card__bar-fill { color: var(--l2-grade-ng-color); }
+.gameplay-ach-card--grade-d .gameplay-ach-card__bar-fill { color: var(--l2-grade-d-color); }
+.gameplay-ach-card--grade-c .gameplay-ach-card__bar-fill { color: var(--l2-grade-c-color); }
+.gameplay-ach-card--grade-b .gameplay-ach-card__bar-fill { color: var(--l2-grade-b-color); }
+.gameplay-ach-card--grade-a .gameplay-ach-card__bar-fill { color: var(--l2-grade-a-color); }
+.gameplay-ach-card--grade-s .gameplay-ach-card__bar-fill { color: var(--l2-grade-s-color); }
+.gameplay-ach-card__nums {
+    font-size: 0.66em;
+    font-weight: 700;
+    color: #d6d3d1;
+    font-variant-numeric: tabular-nums;
+}
+.gameplay-ach-card__pct {
+    color: #78716c;
+    font-weight: 600;
+}
+.gameplay-ach-card__actions {
+    display: flex;
+}
+.gameplay-ach-card__btn {
+    width: 100%;
+    min-height: 38px;
+    margin: 0;
+    font-size: 0.64em;
+    letter-spacing: 0.06em;
+    background: #292524;
+    border-color: #57534e;
+    color: #a8a29e;
+}
+.gameplay-ach-card__btn--claim {
+    background: linear-gradient(180deg, #ca8a04 0%, #a16207 100%);
+    border-color: #fbbf24;
+    color: #fffbeb;
+}
+.gameplay-ach-card__btn--claimed {
+    background: rgba(6, 78, 59, 0.35);
+    border-color: rgba(74, 222, 128, 0.35);
+    color: #86efac;
+}
+.gameplay-ach-card__btn--mastered {
+    background: rgba(68, 28, 52, 0.45);
+    border-color: var(--l2-grade-s-border);
+    color: var(--l2-grade-s-color);
+}
+
+/* Player titles modal (profile) */
+#janela-player-titles {
+    width: 94%;
+    max-height: 82vh;
+    z-index: 1550;
+    padding-bottom: 0;
+    flex-direction: column;
+    min-height: 0;
+}
+#janela-player-titles .store-header span {
+    color: #e8c56a;
+}
+.store-body--player-titles {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 12px 14px 10px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.player-titles-hint {
+    margin: 0;
+    color: #a8a29e;
+    font-size: 0.74em;
+    line-height: 1.4;
+    text-align: center;
+}
+.player-titles-equipped {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 10px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.player-titles-equipped__label {
+    font-size: 0.62em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #78716c;
+}
+.player-titles-equipped__badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 0.82em;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    background: rgba(0, 0, 0, 0.35);
+}
+.player-titles-equipped__empty {
+    color: #78716c;
+    font-size: 0.78em;
+    text-align: center;
+}
+.player-titles-unequip {
+    width: auto;
+    min-height: 36px;
+    margin: 0;
+    padding: 0 14px;
+    font-size: 0.64em;
+    background: #444;
+    border-color: #57534e;
+}
+.player-titles-list {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.player-titles-empty {
+    margin: 0;
+    padding: 16px 8px;
+    text-align: center;
+    color: #78716c;
+    font-size: 0.78em;
+}
+.player-titles-row {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1px solid #44403c;
+    background: rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.player-titles-row--grade-ng { border-color: var(--l2-grade-ng-border); background: var(--l2-grade-ng-bg); }
+.player-titles-row--grade-d { border-color: var(--l2-grade-d-border); background: var(--l2-grade-d-bg); }
+.player-titles-row--grade-c { border-color: var(--l2-grade-c-border); background: var(--l2-grade-c-bg); }
+.player-titles-row--grade-b { border-color: var(--l2-grade-b-border); background: var(--l2-grade-b-bg); }
+.player-titles-row--grade-a { border-color: var(--l2-grade-a-border); background: var(--l2-grade-a-bg); }
+.player-titles-row--grade-s { border-color: var(--l2-grade-s-border); background: var(--l2-grade-s-bg); }
+.player-titles-row--equipped {
+    outline: 2px solid #fbbf24;
+    outline-offset: 1px;
+}
+.player-titles-row__badge {
+    flex: 1;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 0.72em;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.player-titles-row__grade {
+    flex-shrink: 0;
+    font-size: 0.62em;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #a8a29e;
+}
+#janela-player-titles .store-footer--player-titles {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.35));
+}
+#janela-player-titles .btn-player-titles-close {
+    width: 100%;
+    max-width: 280px;
+    margin: 0;
+    min-height: 44px;
+    background: #444;
 }
 
 /* Reward hub + GM */

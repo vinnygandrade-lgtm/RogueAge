@@ -193,6 +193,20 @@ import type { I18nLocaleTree, I18nParams, I18nSetLocaleOptions, UiLocale } from 
         /* ignore */
       }
     }
+    if (typeof window.refreshGameplayAchievementsI18n === 'function') {
+      try {
+        window.refreshGameplayAchievementsI18n();
+      } catch {
+        /* ignore */
+      }
+    }
+    if (typeof window.refreshChatPanelsI18n === 'function') {
+      try {
+        window.refreshChatPanelsI18n();
+      } catch {
+        /* ignore */
+      }
+    }
     if (typeof window.atualizarWorldDailyBossUI === 'function') {
       try {
         window.atualizarWorldDailyBossUI();

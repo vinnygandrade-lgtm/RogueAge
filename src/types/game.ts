@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 14 as const;
+export const L2MINI_SAVE_VERSION = 16 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -642,6 +642,71 @@ export interface LevelRewardsSave {
   claimed: number[];
 }
 
+/** Lifetime gameplay achievements + chat titles (Journey tab). */
+export interface GameplayAchievementsSave {
+  /** Cumulative counters keyed by achievement stat id. */
+  stats: Record<string, number>;
+  /** Title ids the player has claimed/unlocked. */
+  unlockedTitles: string[];
+  /** Currently equipped title id, or null. */
+  equippedTitleId: string | null;
+}
+
+/** 7-day newbie login calendar + monthly calendar + recruit journey + comeback. */
+export interface RetentionSave {
+  newbie: {
+    startDayKey: string;
+    claimedDays: number[];
+    completed: boolean;
+    day7WeaponId: string | null;
+  };
+  monthly: {
+    monthKey: string;
+    claimedDays: number[];
+    lastClaimDayKey: string;
+  };
+  journey: {
+    completedSteps: number[];
+    claimedSteps: number[];
+    completed: boolean;
+  };
+  comeback: {
+    lastSeenAt: number;
+    lastComebackDayKey: string;
+  };
+  clanPromptDismissed: boolean;
+  clanJoinRewardClaimed: boolean;
+}
+
+export type RetentionHubTab = 'newbie' | 'monthly' | 'journey';
+
+export interface RetentionWeaponChoice {
+  id: string;
+  styleKey: string;
+}
+
+export interface RetentionEngineApi {
+  getSave: () => RetentionSave;
+  afterCharacterLoad: () => void;
+  onGameEvent: (event: string, value?: number) => void;
+  countPending: () => number;
+  getNewbieCurrentDay: () => number;
+  getMonthlyCurrentDay: () => number;
+  canClaimNewbieDay: (day: number) => boolean;
+  canClaimMonthlyDay: (day: number) => boolean;
+  claimNewbieDay: (day: number, weaponId?: string) => boolean;
+  claimMonthlyDay: (day: number) => boolean;
+  claimJourneyStep: (step: number) => boolean;
+  claimComeback: () => boolean;
+  hasComebackReady: () => boolean;
+  shouldShowClanPrompt: () => boolean;
+  dismissClanPrompt: () => void;
+  getWeaponChoices: () => RetentionWeaponChoice[];
+  getJourneyProgress: (step: number) => number;
+  touchLastSeen: () => void;
+  [key: string]: unknown;
+}
+
 /** Payload persistido (localStorage + characters.data JSONB). */
 export interface CharacterSave {
   saveVersion?: number;
@@ -687,6 +752,10 @@ export interface CharacterSave {
   uiCoach?: UiCoachSave;
   /** Level milestone rewards — claimed level numbers (1..N). */
   levelRewards?: LevelRewardsSave;
+  /** Lifetime gameplay achievements + equipped chat title. */
+  gameplayAchievements?: GameplayAchievementsSave;
+  /** Login calendars, recruit journey, comeback rewards. */
+  retention?: RetentionSave;
   playerClanId?: number | string | null;
   mailboxCloud?: unknown[];
   inventarioRecentLog?: InventarioRecentEntry[];
@@ -1069,6 +1138,7 @@ export type DailyMissionEventType =
   | 'ganhar_adena'
   | 'coletar_coins'
   | 'vencer_olympiad'
+  | 'matar_olympiad'
   | 'derrotar_daily_boss'
   | 'usar_pocoes'
   | 'usar_skills'
@@ -1533,6 +1603,7 @@ export interface GlobalChatEngineLite {
   started: boolean;
   isCloudSession: () => boolean;
   paintLocalCacheIfNeeded: (force?: boolean) => void;
+  repaintI18n: () => void;
   start: (force?: boolean) => Promise<void>;
   reconnect: () => Promise<void>;
   reset: () => void;

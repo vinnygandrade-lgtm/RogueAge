@@ -17,6 +17,8 @@ import type {
   WeeklyMissionsSaveData,
 } from '../types/game';
 import { htmlMissionRewardIcons } from './ui_reward_icons';
+import { scrollClaimableIntoView, showMissionReadyToast, sortMissionEntries, paintHubTabNotif } from './ui_mission_toasts';
+import type { MissionSortState } from './ui_mission_toasts';
 
 let missoesDiariasData: DailyMissionsSaveData | null = null;
 let missoesSemanaisData: WeeklyMissionsSaveData | null = null;
@@ -77,6 +79,10 @@ function grupoDaMissao(id: DailyMissionId): DailyMissionGroup | null {
 }
 
 function mostrarToastMissaoConcluida(title: string, weekly = false): void {
+  if (typeof window.showMissionReadyToast === 'function') {
+    window.showMissionReadyToast(weekly ? 'weekly' : 'daily', title || '', 'missions');
+    return;
+  }
   const container = document.getElementById('toast-container');
   if (!container) return;
   if (container.children.length >= 2 && container.firstElementChild) {
@@ -91,6 +97,12 @@ function mostrarToastMissaoConcluida(title: string, weekly = false): void {
   setTimeout(function () {
     if (toast.parentNode) toast.parentNode.removeChild(toast);
   }, 3200);
+}
+
+function missionCardSortState(m: DailyMissionInstance): MissionSortState {
+  if (m.reivindicada) return 'done';
+  if (m.concluida) return 'claimable';
+  return 'progress';
 }
 
 function obterGradeAtualPorNivel(): DailyBossGradeTier {
@@ -711,6 +723,9 @@ function aplicarProgressoEmLista(
 }
 
 function registrarProgressoMissao(tipoEvento: string, valor = 1): void {
+  if (typeof window.registrarProgressoConquista === 'function') {
+    window.registrarProgressoConquista(tipoEvento, valor);
+  }
   aplicarRotacaoPorGradeSeNecessario();
   aplicarRotacaoPorGradeSemanalSeNecessario();
   if (!missoesDiariasData) inicializarMissoesDiarias();
@@ -734,6 +749,10 @@ function registrarProgressoMissao(tipoEvento: string, valor = 1): void {
     aplicarHudMissoesBadge();
     const aberta = document.getElementById('janela-missoes-diarias');
     if (aberta && aberta.style.display === 'flex') renderizarMissoesHub();
+  }
+
+  if (typeof window.RetentionEngine?.onGameEvent === 'function') {
+    window.RetentionEngine.onGameEvent(tipoEvento, valor);
   }
 }
 
@@ -787,7 +806,13 @@ function contarPendenciasMissoesHud(): number {
   return contarPendenciasLista(missoesDiariasData) + contarPendenciasLista(missoesSemanaisData);
 }
 
+function syncMissoesHubTabNotifs(): void {
+  paintHubTabNotif('missoes-tab-daily', contarPendenciasLista(missoesDiariasData));
+  paintHubTabNotif('missoes-tab-weekly', contarPendenciasLista(missoesSemanaisData));
+}
+
 function aplicarHudMissoesBadge(): void {
+  syncMissoesHubTabNotifs();
   const n = contarPendenciasMissoesHud();
   window.refreshNavMenuNotifications?.({ missions: n });
 }
@@ -1060,7 +1085,15 @@ function renderizarListaMissoes(
   const labSkip = dailyMissionT('game.missions.skipBtn');
   const labSkipped = dailyMissionT('game.missions.skipUsed');
 
-  lista.forEach(function (m, idx) {
+  const indexed = lista.map((m, originalIndex) => ({ m, originalIndex }));
+  const sorted = sortMissionEntries(
+    indexed,
+    ({ m }) => missionCardSortState(m),
+    ({ originalIndex }) => originalIndex,
+  );
+
+  sorted.forEach(function ({ m, originalIndex }) {
+    const idx = originalIndex;
     const pct = m.alvo > 0 ? Math.min(100, Math.floor((m.progresso / m.alvo) * 100)) : 0;
     const cardClass = m.reivindicada
       ? 'daily-mission-card daily-mission-card--claimed'
@@ -1220,6 +1253,7 @@ function renderizarMissoesDiarias(): void {
 
   renderizarListaMissoes(container, lista, 'reivindicarMissaoDiaria', 'pularMissaoDiaria', false);
   renderizarBonusBox(bonusBox, missoesDiariasData, false);
+  scrollClaimableIntoView(container, '.daily-mission-card--claimable');
 }
 
 function renderizarMissoesSemanais(): void {
@@ -1244,6 +1278,7 @@ function renderizarMissoesSemanais(): void {
 
   renderizarListaMissoes(container, lista, 'reivindicarMissaoSemanal', 'pularMissaoSemanal', true);
   renderizarBonusBox(bonusBox, missoesSemanaisData, true);
+  scrollClaimableIntoView(container, '.daily-mission-card--claimable');
 }
 
 function renderizarMissoesHub(): void {
@@ -1266,6 +1301,7 @@ function abrirMissoes(): void {
   aplicarRotacaoPorGradeSeNecessario();
   aplicarRotacaoPorGradeSemanalSeNecessario();
   renderizarMissoesHub();
+  aplicarHudMissoesBadge();
   const root = document.getElementById('janela-missoes-diarias');
   if (root && window.I18n && typeof window.I18n.refreshDom === 'function') {
     try { window.I18n.refreshDom(root); } catch { /* ignore */ }
@@ -1284,6 +1320,7 @@ window.inicializarMissoesSemanais = inicializarMissoesSemanais;
 window.registrarProgressoMissaoDiaria = registrarProgressoMissaoDiaria;
 window.registrarProgressoMissao = registrarProgressoMissao;
 window.aplicarHudMissoesBadge = aplicarHudMissoesBadge;
+window.syncMissoesHubTabNotifs = syncMissoesHubTabNotifs;
 window.reivindicarMissaoDiaria = reivindicarMissaoDiaria;
 window.reivindicarBonusMissaoDiaria = reivindicarBonusMissaoDiaria;
 window.reivindicarMissaoSemanal = reivindicarMissaoSemanal;

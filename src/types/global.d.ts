@@ -42,6 +42,9 @@ import type {
   PresenceState,
   RankingSeasonsApi,
   RewardEngineApi,
+  RetentionEngineApi,
+  RetentionSave,
+  RetentionHubTab,
   MarketCloudApi,
   MailboxEngineApi,
   EnviarMailFn,
@@ -219,6 +222,7 @@ declare global {
     I18n: I18nApi;
     GMEngine?: import('./game').GmEngineApi;
     RewardEngine?: RewardEngineApi;
+    RetentionEngine?: RetentionEngineApi;
     MarketCloud?: MarketCloudApi;
     OlympiadEngine?: OlympiadEngineApi;
     MultiplayerVisuals?: MultiplayerVisualsApi;
@@ -388,6 +392,7 @@ declare global {
     refreshNavMenuNotifications?: (partial?: {
         mail?: number;
         rewards?: number;
+        retention?: number;
         missions?: number;
         achievements?: number;
         olympiad?: number;
@@ -407,6 +412,14 @@ declare global {
     abrirMissoesDiarias?: () => void;
     abrirMissoes?: () => void;
     abrirLevelRewards?: () => void;
+    abrirRetentionHub?: (tab?: RetentionHubTab) => void;
+    fecharRetentionHub?: () => void;
+    setRetentionHubTab?: (tab: RetentionHubTab) => void;
+    refreshRetentionHud?: () => void;
+    syncRetentionHubUi?: () => void;
+    contarPendenciasRetention?: () => number;
+    applyRetentionFromSave?: (raw: RetentionSave | null | undefined, nivel?: number) => void;
+    getRetentionSavePayload?: () => RetentionSave;
     fecharLevelRewards?: () => void;
     reivindicarRecompensaNivel?: (level: number) => boolean;
     reivindicarTodasRecompensasNivel?: () => void;
@@ -422,6 +435,21 @@ declare global {
     onLevelRewardReached?: (level: number) => void;
     aplicarLevelRewardsFromSave?: (raw: import('./game').LevelRewardsSave | null | undefined) => void;
     getLevelRewardsSavePayload?: () => import('./game').LevelRewardsSave;
+    setAchievementsHubTab?: (tab: 'levels' | 'journey') => void;
+    onAbrirAchievementsHub?: () => void;
+    refreshAchievementsNavBadge?: () => void;
+    registrarProgressoConquista?: (tipo: string, qty?: number) => void;
+    reivindicarTierConquista?: (achId: string, titleId: string) => boolean;
+    equiparTituloConquista?: (titleId: string | null) => void;
+    abrirPlayerTitles?: () => void;
+    fecharPlayerTitles?: () => void;
+    getEquippedChatTitle?: () => string;
+    getEquippedChatTitlePayload?: () => string;
+    getEquippedChatTitleColor?: () => string;
+    refreshGameplayAchievementsI18n?: () => void;
+    getGameplayAchievementsSavePayload?: () => import('./game').GameplayAchievementsSave;
+    aplicarGameplayAchievementsFromSave?: (raw: import('./game').GameplayAchievementsSave | null | undefined) => void;
+    contarPendenciasGameplayAchievements?: () => number;
     pularMissaoDiaria?: (index: number) => void;
     pularMissaoSemanal?: (index: number) => void;
     reivindicarMissaoSemanal?: (index: number) => void;
@@ -563,6 +591,7 @@ declare global {
   var RankingManager: RankingManagerApi;
   var RankingSeasons: RankingSeasonsApi;
   var RewardEngine: RewardEngineApi;
+  var RetentionEngine: RetentionEngineApi;
   var MarketCloud: MarketCloudApi;
   var dbBotsRanking: import('./game').BotRankingSeed[];
   var dbCastles: CastleDbEntry[];
@@ -583,6 +612,7 @@ declare global {
     ascensionTitle?: string,
     historyReplay?: boolean,
   ): void;
+  function refreshChatPanelsI18n(): void;
   var GlobalChatEngine: import('./game').GlobalChatEngineLite;
   function buscarRankingGlobalReal(): Promise<CloudRankingPlayer[] | null>;
   function formatarTooltipEquipamento(
@@ -745,6 +775,15 @@ declare global {
   function iniciarChatAutomatico(): void;
   function resetChatBootstrap(): void;
   function scrollChatPanelToBottom(panel: HTMLElement, force?: boolean): void;
+  function paintHubTabNotif(tabButtonId: string, count: number, cap?: number): void;
+  function syncRetentionHubTabNotifs(): void;
+  function syncMissoesHubTabNotifs(): void;
+  function syncAchievementsHubTabNotifs(): void;
+  function showMissionReadyToast(
+    source: 'daily' | 'weekly' | 'retention_journey' | 'retention_login' | 'level_reward' | 'gameplay_achievement',
+    title: string,
+    destination?: 'missions' | 'retention' | 'achievements',
+  ): void;
   function registrarProgressoMissaoDiaria(tipo: string, qty?: number): void;
   function registrarProgressoMissao(tipo: string, qty?: number): void;
   function reivindicarMissaoDiaria(index: number): void;
@@ -784,6 +823,31 @@ declare global {
   function renderizarMissoesHub(): void;
   function fecharMissoesDiarias(): void;
   function abrirLevelRewards(): void;
+  function abrirRetentionHub(tab?: RetentionHubTab): void;
+  function fecharRetentionHub(): void;
+  function setRetentionHubTab(tab: RetentionHubTab): void;
+  function refreshRetentionHud(): void;
+  function syncRetentionHubUi(): void;
+  function contarPendenciasRetention(): number;
+  function applyRetentionFromSave(raw: RetentionSave | null | undefined, nivel?: number): void;
+  function getRetentionSavePayload(): RetentionSave;
+  function onRetentionNewbieDayClick(day: number): void;
+  function onRetentionMonthlyDayClick(day: number): void;
+  function claimRetentionJourneyStep(step: number): void;
+  function confirmRetentionWeaponPick(): void;
+  function selectRetentionWeaponPick(weaponId: string): void;
+  function previewRetentionWeaponPick(weaponId: string): void;
+  function fecharRetentionWeaponPick(): void;
+  function abrirRetentionComeback(): void;
+  function claimRetentionComeback(): void;
+  function fecharRetentionComeback(): void;
+  function retentionGoClanHall(): void;
+  function dismissRetentionClanPrompt(): void;
+  function setAchievementsHubTab(tab: 'levels' | 'journey'): void;
+  function reivindicarTierConquista(achId: string, titleId: string): boolean;
+  function equiparTituloConquista(titleId: string | null): void;
+  function abrirPlayerTitles(): void;
+  function fecharPlayerTitles(): void;
   function fecharLevelRewards(): void;
   function reivindicarRecompensaNivel(level: number): boolean;
   function reivindicarTodasRecompensasNivel(): void;

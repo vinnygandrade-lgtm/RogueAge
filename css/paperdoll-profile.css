@@ -166,8 +166,9 @@
     min-height: 48px;
 }
 
-#tela-perfil .paperdoll-actions .btn-profile-save {
-    background: linear-gradient(180deg, #12331f 0%, #091a10 100%);
-    border-color: #205c38;
+#tela-perfil .paperdoll-actions .btn-profile-titles {
+    background: linear-gradient(180deg, #4a2d12 0%, #261508 100%);
+    border-color: #b45309;
     min-height: 48px;
+    color: #fde68a;
 }

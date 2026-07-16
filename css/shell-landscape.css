@@ -3131,3 +3131,46 @@ html[data-l2-layout="landscape"] #janela-level-rewards .store-footer--level-rewa
 html[data-l2-layout="landscape"] #janela-level-rewards .store-footer--level-rewards .btn-level-rewards-close {
     max-width: 320px;
 }
+
+html[data-l2-layout="landscape"] #janela-level-rewards .achievements-hub-tabs {
+    padding: 0 22px 10px;
+    gap: 10px;
+}
+
+html[data-l2-layout="landscape"] .achievements-hub-tab {
+    min-height: 44px;
+    font-size: 0.76em;
+}
+
+html[data-l2-layout="landscape"] #ach-panel-journey {
+    padding: 0 22px 6px;
+    gap: 10px;
+}
+
+html[data-l2-layout="landscape"] .gameplay-ach-summary {
+    font-size: 0.72rem;
+    padding: 9px 12px;
+}
+
+html[data-l2-layout="landscape"] .gameplay-ach-card {
+    padding: 12px 14px;
+    gap: 10px;
+}
+
+html[data-l2-layout="landscape"] .gameplay-ach-card__title {
+    font-size: 0.9em;
+}
+
+html[data-l2-layout="landscape"] .gameplay-ach-card__desc {
+    font-size: 0.78em;
+}
+
+html[data-l2-layout="landscape"] #janela-player-titles.store-window {
+    width: min(420px, 38vw);
+    max-width: min(420px, 38vw);
+}
+
+html[data-l2-layout="landscape"] .player-titles-row {
+    min-height: 48px;
+    padding: 10px 14px;
+}

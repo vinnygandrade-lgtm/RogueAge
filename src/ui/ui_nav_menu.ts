@@ -92,6 +92,14 @@ function syncNavMenuActiveItem(): void {
 
     }
 
+    if (modalIsOpen('janela-retention-hub')) {
+
+        document.getElementById('nav-menu-retention')?.classList.add('nav-menu-item--active');
+
+        return;
+
+    }
+
     if (modalIsOpen('janela-missoes-diarias')) {
 
         document.getElementById('nav-menu-missions')?.classList.add('nav-menu-item--active');
@@ -430,6 +438,12 @@ function navMenuGo(dest: string): void {
         case 'mailbox':
 
             if (typeof window.abrirJanelaCorreio === 'function') window.abrirJanelaCorreio();
+
+            break;
+
+        case 'retention':
+
+            if (typeof window.abrirRetentionHub === 'function') window.abrirRetentionHub('newbie');
 
             break;
 

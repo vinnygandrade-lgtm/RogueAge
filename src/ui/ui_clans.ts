@@ -736,6 +736,9 @@ async function confirmarCriacaoClan(): Promise<void> {
         membros: [window.charName]
     });
     window.playerClanId = novoId;
+    if (typeof window.RetentionEngine?.onGameEvent === 'function') {
+        window.RetentionEngine.onGameEvent('entrar_clan', 1);
+    }
     salvarClans();
     if (typeof window.salvarJogo === 'function') window.salvarJogo();
     window.mostrarAviso(clanT('game.clan.clanCreated', { name: nome }));
@@ -1139,6 +1142,9 @@ async function responderSolicitacao(
             // Se o aceito for o personagem atual, precisamos atualizar o estado dele
             if (nome === window.charName) {
                 window.playerClanId = clan.id;
+                if (typeof window.RetentionEngine?.onGameEvent === 'function') {
+                    window.RetentionEngine.onGameEvent('entrar_clan', 1);
+                }
             }
         }
         window.mostrarAviso(clanT('game.clan.memberJoined', { name: nome }));

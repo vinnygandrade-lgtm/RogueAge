@@ -545,7 +545,11 @@ function fecharTopModal() {
     else if (topModalId === 'janela-spellbook') { if(typeof fecharSpellbook === 'function') fecharSpellbook(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-missoes-diarias') { if(typeof fecharMissoesDiarias === 'function') fecharMissoesDiarias(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-level-rewards') { if(typeof fecharLevelRewards === 'function') fecharLevelRewards(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-retention-hub') { if(typeof fecharRetentionHub === 'function') fecharRetentionHub(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-retention-weapon-pick') { if(typeof fecharRetentionWeaponPick === 'function') fecharRetentionWeaponPick(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-retention-comeback') { if(typeof fecharRetentionComeback === 'function') fecharRetentionComeback(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-level-reward-claim') { if(typeof fecharLevelRewardClaimModal === 'function') fecharLevelRewardClaimModal(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-player-titles') { if(typeof fecharPlayerTitles === 'function') fecharPlayerTitles(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-daily-boss') { if(typeof window.fecharJanelaDailyBoss === 'function') window.fecharJanelaDailyBoss(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-status-detalhado') { if(typeof fecharStatusDetalhado === 'function') fecharStatusDetalhado(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-game-settings') { if(typeof fecharGameSettings === 'function') fecharGameSettings(); else fecharModal(topModalId); }
@@ -625,6 +629,9 @@ function abrirMenuSocial(menuId: string) {
     if (subMenu) subMenu.style.display = 'flex';
     if (menuId === 'market') {
         mudarAbaMarket('buy');
+        if (typeof window.RetentionEngine?.onGameEvent === 'function') {
+            window.RetentionEngine.onGameEvent('abrir_market', 1);
+        }
     } else if (menuId === 'clans') {
         const go = () => { if (typeof window.renderizarClans === 'function') window.renderizarClans(); };
         if (typeof window.iniciarSistemaClans === 'function') {

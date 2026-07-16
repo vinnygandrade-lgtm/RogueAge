@@ -1,6 +1,8 @@
 # Level Achievements (Conquistas)
 
-Progress rewards for reaching character levels. UI: MENU → Progress → **Achievements** (`#janela-level-rewards`).
+Progress rewards for reaching character levels. UI: MENU → Progress → **Achievements** (`#janela-level-rewards`) → tab **Levels**.
+
+**Journey** (lifetime goals + chat titles): see `docs/gameplay-achievements.md`.
 
 ## Board UI
 

@@ -14,6 +14,7 @@ import {
   rewardDisplayName,
   rewardPreviewTapAttrsHtml,
 } from './ui_reward_icons';
+import { scrollClaimableIntoView, showMissionReadyToast } from './ui_mission_toasts';
 
 /** Official progression board size (levels 1–80). */
 const LEVEL_REWARDS_MAX = 80;
@@ -252,6 +253,13 @@ function contarPendenciasLevelRewards(): number {
 }
 
 function aplicarHudLevelRewardsBadge(): void {
+  if (typeof window.syncAchievementsHubTabNotifs === 'function') {
+    window.syncAchievementsHubTabNotifs();
+  }
+  if (typeof window.refreshAchievementsNavBadge === 'function') {
+    window.refreshAchievementsNavBadge();
+    return;
+  }
   const n = contarPendenciasLevelRewards();
   window.refreshNavMenuNotifications?.({ achievements: n });
 }
@@ -268,18 +276,11 @@ function onReachedLevel(level: number): void {
     const msg = lrT('game.achievements.logUnlocked', { level: L });
     window.escreverLog(`<span style="color:#fbbf24; font-weight:bold;">${msg}</span>`);
   }
-  const toastRoot = document.getElementById('toast-container');
-  if (toastRoot) {
-    if (toastRoot.children.length >= 2 && toastRoot.firstElementChild) {
-      toastRoot.removeChild(toastRoot.firstElementChild);
-    }
-    const toast = document.createElement('div');
-    toast.className = 'toast-msg toast-msg--mission';
-    toast.textContent = '🏆 ' + lrT('game.achievements.toastUnlocked', { level: L });
-    toastRoot.appendChild(toast);
-    setTimeout(function () {
-      if (toast.parentNode) toast.parentNode.removeChild(toast);
-    }, 3200);
+  const title = isMilestoneLevel(L)
+    ? lrT('game.achievements.milestoneTitle', { level: L })
+    : lrT('game.achievements.levelTitle', { level: L });
+  if (typeof window.showMissionReadyToast === 'function') {
+    window.showMissionReadyToast('level_reward', title, 'achievements');
   }
 }
 
@@ -488,12 +489,16 @@ function renderizarLevelRewards(): void {
   }
   grid.innerHTML = html;
   grid.classList.add('level-rewards-grid');
+  if (pending > 0) {
+    scrollClaimableIntoView(grid, '.level-tile--claimable');
+  }
 }
 
 function abrirLevelRewards(): void {
   if (!window.charName) return;
   selectedLevel = playerLevelCap();
   renderizarLevelRewards();
+  if (typeof window.onAbrirAchievementsHub === 'function') window.onAbrirAchievementsHub();
   const root = document.getElementById('janela-level-rewards');
   if (root && window.I18n && typeof window.I18n.refreshDom === 'function') {
     try { window.I18n.refreshDom(root); } catch { /* ignore */ }
@@ -525,6 +530,7 @@ window.reivindicarRecompensaNivelFromModal = reivindicarRecompensaNivelFromModal
 window.renderizarLevelRewards = renderizarLevelRewards;
 window.abrirLevelRewards = abrirLevelRewards;
 window.fecharLevelRewards = fecharLevelRewards;
+window.contarPendenciasLevelRewards = contarPendenciasLevelRewards;
 window.inicializarLevelRewards = inicializarLevelRewards;
 window.aplicarHudLevelRewardsBadge = aplicarHudLevelRewardsBadge;
 window.contarPendenciasLevelRewards = contarPendenciasLevelRewards;

@@ -1,0 +1,625 @@
+/* Retention hub — aligned with missions / achievements modals (§5) */
+
+#janela-retention-hub.store-window,
+#janela-retention-weapon-pick.store-window,
+#janela-retention-comeback.store-window {
+    width: min(100%, var(--l2-modal-max-width, 420px));
+    max-height: min(90dvh, calc(100dvh - var(--l2-safe-top, 0px) - var(--l2-safe-bottom, 0px) - 12px));
+    z-index: 260;
+    padding-bottom: 0;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#janela-retention-hub .store-header,
+#janela-retention-weapon-pick .store-header,
+#janela-retention-comeback .store-header {
+    flex-shrink: 0;
+    padding: 10px 14px;
+}
+
+#janela-retention-hub .store-header span {
+    color: #fbbf24;
+    font-size: 0.95em;
+    letter-spacing: 0.12em;
+}
+
+/* Quick menu — full-width featured entry at top of PROGRESS */
+.nav-menu-group__items .nav-menu-item--retention-hub {
+    grid-column: 1 / -1;
+    min-height: 48px;
+    border-color: rgba(251, 191, 36, 0.45);
+    background: linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(20, 16, 12, 0.95) 100%);
+}
+
+.nav-menu-item__glyph--retention {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23fbbf24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>');
+}
+
+.nav-notif--retention {
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.75);
+}
+
+.retention-hub-tabs {
+    flex-shrink: 0;
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 12px 8px;
+}
+
+.retention-hub-tab {
+    flex: 1;
+    min-height: 40px;
+    margin: 0;
+    padding: 8px 6px;
+    border-radius: 8px;
+    border: 1px solid #44403c;
+    background: rgba(0, 0, 0, 0.35);
+    color: #a8a29e;
+    font-family: 'Cinzel', serif;
+    font-size: 0.62em;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    line-height: 1.15;
+    position: relative;
+}
+
+.retention-hub-tab--active {
+    color: #fde68a;
+    border-color: #a16207;
+    background: linear-gradient(180deg, rgba(120, 53, 15, 0.45) 0%, rgba(41, 25, 8, 0.65) 100%);
+    box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.12);
+}
+
+.retention-hint {
+    flex-shrink: 0;
+    width: 100%;
+    margin: 0 0 6px;
+    padding: 0 14px 6px;
+    box-sizing: border-box;
+    font-size: 0.72em;
+    line-height: 1.35;
+    text-align: center;
+    color: #a8a29e;
+}
+
+.retention-hub-panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.retention-summary {
+    flex-shrink: 0;
+    margin: 0 12px 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.64em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #e7d3a2;
+    background: rgba(36, 28, 18, 0.9);
+    border: 1px solid rgba(179, 138, 77, 0.4);
+    line-height: 1.35;
+    text-align: center;
+}
+
+.retention-grid {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: grid;
+    gap: 6px;
+    padding: 0 12px 10px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.retention-grid--monthly {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.retention-grid--newbie {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.retention-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    min-height: 96px;
+    margin: 0;
+    padding: 10px 8px;
+    border-radius: 8px;
+    border: 1px solid #3f3a34;
+    background: #141210;
+    color: #e7e5e4;
+    cursor: default;
+    text-align: left;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.retention-tile--inactive {
+    opacity: 0.55;
+}
+
+.retention-tile--claimable {
+    border-color: #34d399;
+    background: linear-gradient(180deg, rgba(6, 78, 59, 0.35) 0%, rgba(20, 18, 16, 0.95) 100%);
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.15);
+    opacity: 1;
+}
+
+.retention-tile--claimed {
+    border-color: #57534e;
+    opacity: 0.72;
+}
+
+.retention-tile--missed .retention-tile__badge {
+    color: #78716c;
+}
+
+.retention-tile--milestone {
+    border-color: rgba(251, 191, 36, 0.45);
+    background: linear-gradient(160deg, rgba(120, 53, 15, 0.28) 0%, rgba(20, 16, 12, 0.92) 100%);
+}
+
+.retention-tile__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.retention-tile__day {
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #fde68a;
+}
+
+.retention-tile__badge {
+    font-size: 0.52rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.35);
+    color: #a8a29e;
+}
+
+.retention-tile--claimable .retention-tile__badge {
+    color: #6ee7b7;
+    background: rgba(6, 95, 70, 0.45);
+}
+
+.retention-tile--claimed .retention-tile__badge {
+    color: #a8a29e;
+}
+
+.retention-tile__reward {
+    margin: 0;
+    min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 4px;
+    font-size: 0.58rem;
+    line-height: 1.3;
+    color: #d6d3d1;
+}
+
+.retention-tile__reward .mission-reward-icons {
+    flex-wrap: wrap;
+    gap: 3px;
+    justify-content: flex-start;
+}
+
+.retention-tile__reward .mission-reward-icon {
+    min-width: 32px;
+    max-width: 40px;
+}
+
+.retention-tile__reward .mission-reward-icon__frame {
+    width: 32px;
+    height: 32px;
+}
+
+.retention-tile__reward .mission-reward-icon__frame .inv-icon-frame {
+    width: 32px;
+    height: 32px;
+}
+
+.retention-tile__reward .mission-reward-icon__frame .inv-img,
+.retention-tile__reward .mission-reward-icon__img {
+    width: 28px;
+    height: 28px;
+}
+
+.retention-tile__reward .mission-reward-icon__frame .l2-coin-img,
+.retention-tile__reward .mission-reward-icon__img--coin {
+    width: 24px;
+    height: 24px;
+}
+
+.retention-tile__reward .mission-reward-icon__qty {
+    font-size: 0.52rem;
+    max-width: 40px;
+}
+
+.retention-tile__weapon-picks {
+    margin-top: 2px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    width: 100%;
+}
+
+.retention-tile__claim {
+    width: 100%;
+    min-height: 40px;
+    margin: 2px 0 0;
+    padding: 8px 6px;
+    font-size: 0.62em;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+}
+
+.retention-tile__claim:disabled {
+    display: none;
+}
+
+.retention-journey-card__reward .mission-reward-icons {
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.retention-day7-tag {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #fbbf24;
+    line-height: 1.25;
+}
+
+.retention-journey-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.retention-journey-card {
+    border: 1px solid #3f3a34;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: rgba(15, 12, 10, 0.75);
+}
+
+.retention-journey-card--claimable {
+    border-color: #34d399;
+}
+
+.retention-journey-card--claimed {
+    opacity: 0.7;
+}
+
+.retention-journey-card--active {
+    border-color: rgba(251, 191, 36, 0.35);
+}
+
+.retention-journey-card__head {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.retention-journey-card__step {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.78rem;
+    background: rgba(251, 191, 36, 0.18);
+    color: #fde68a;
+    flex-shrink: 0;
+}
+
+.retention-journey-card__title {
+    font-weight: 700;
+    font-size: 0.76rem;
+    color: #fafaf9;
+}
+
+.retention-journey-card__desc {
+    font-size: 0.68rem;
+    color: #a8a29e;
+    margin-top: 2px;
+}
+
+.retention-journey-card__progress {
+    margin-top: 6px;
+    font-size: 0.64rem;
+    font-weight: 700;
+    color: #d6d3d1;
+}
+
+.retention-journey-card__hint {
+    margin-top: 4px;
+    font-size: 0.62rem;
+    color: #78716c;
+    font-style: italic;
+}
+
+.retention-journey-card__reward {
+    margin-top: 6px;
+    min-height: 0;
+}
+
+.retention-journey-card__reward:empty {
+    display: none;
+}
+
+.retention-journey-claim {
+    margin-top: 8px;
+    width: 100%;
+    min-height: 40px;
+    font-size: 0.68em;
+}
+
+.retention-clan-banner {
+    flex-shrink: 0;
+    margin: 0 12px 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(129, 140, 248, 0.35);
+    background: rgba(67, 56, 202, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.retention-clan-banner__text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.72rem;
+    line-height: 1.35;
+}
+
+.retention-clan-banner__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.retention-clan-banner__actions .btn-l2 {
+    flex: 1;
+    min-height: 40px;
+    font-size: 0.65em;
+}
+
+#janela-retention-hub .store-footer--retention,
+#janela-retention-weapon-pick .store-footer,
+#janela-retention-comeback .store-footer {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 10px 14px calc(12px + var(--l2-safe-bottom, 0px));
+    border-top: 1px solid #3f3a34;
+    background: #1c1917;
+    display: flex;
+    gap: 8px;
+}
+
+#janela-retention-hub .store-footer--retention .btn-l2,
+#janela-retention-weapon-pick .store-footer .btn-l2,
+#janela-retention-comeback .store-footer .btn-l2 {
+    flex: 1;
+    min-height: 44px;
+}
+
+.retention-weapon-pick-grid {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 8px 12px 12px;
+    overflow-y: auto;
+}
+
+#janela-retention-weapon-pick.store-window {
+    max-height: 78dvh;
+}
+
+.retention-weapon-pick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    background: rgba(20, 16, 12, 0.85);
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+}
+
+.retention-weapon-pick--selected {
+    border-color: #34d399;
+    box-shadow: 0 0 12px rgba(52, 211, 153, 0.25);
+    background: linear-gradient(180deg, rgba(6, 78, 59, 0.28) 0%, rgba(20, 16, 12, 0.92) 100%);
+}
+
+.retention-weapon-pick__thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 8px;
+    cursor: zoom-in;
+}
+
+.retention-weapon-pick:active {
+    transform: scale(0.98);
+}
+
+.retention-weapon-pick__img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.retention-weapon-pick__name {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.retention-weapon-pick__enchant {
+    font-size: 0.78rem;
+    color: #6ee7b7;
+    font-weight: 800;
+}
+
+.retention-weapon-pick__style {
+    font-size: 0.58rem;
+    color: #a8a29e;
+}
+
+.store-body--retention-comeback {
+    flex: 1;
+    padding: 14px 16px;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    overflow-y: auto;
+}
+
+.retention-comeback-reward {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(251, 191, 36, 0.1);
+    color: #fde68a;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.btn-l2--ghost {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+html[data-l2-layout="portrait"] .retention-grid--monthly,
+html[data-l2-layout="portrait"] .retention-grid--newbie {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile {
+    min-height: unset;
+    padding: 12px;
+    gap: 10px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__head {
+    width: 100%;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__day {
+    font-size: 0.95rem;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__badge {
+    font-size: 0.58rem;
+    padding: 3px 6px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward {
+    width: 100%;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icons {
+    gap: 8px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon {
+    min-width: 40px;
+    max-width: 48px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame {
+    width: 38px;
+    height: 38px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .inv-icon-frame {
+    width: 38px;
+    height: 38px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .inv-img,
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__img {
+    width: 32px;
+    height: 32px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .l2-coin-img,
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__img--coin {
+    width: 28px;
+    height: 28px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__qty {
+    font-size: 0.56rem;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__claim {
+    min-height: 44px;
+    font-size: 0.68em;
+}
+
+html[data-l2-layout="portrait"] .retention-day7-tag {
+    font-size: 0.68rem;
+    margin-bottom: 2px;
+}
+
+html[data-l2-layout="portrait"] .retention-summary {
+    font-size: 0.68em;
+    line-height: 1.45;
+    text-align: left;
+}
+
+html[data-l2-layout="portrait"] .retention-hub-tab {
+    font-size: 0.56em;
+    padding: 7px 4px;
+    min-height: 44px;
+}
+
+html[data-l2-layout="portrait"] .retention-hint {
+    font-size: 0.66em;
+}

@@ -506,6 +506,51 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 14;
     }
 
+    if (v < 15) {
+        if (!data.gameplayAchievements || typeof data.gameplayAchievements !== 'object') {
+            data.gameplayAchievements = { stats: {}, unlockedTitles: [], equippedTitleId: null };
+        } else {
+            if (!data.gameplayAchievements.stats || typeof data.gameplayAchievements.stats !== 'object') {
+                data.gameplayAchievements.stats = {};
+            }
+            if (!Array.isArray(data.gameplayAchievements.unlockedTitles)) {
+                data.gameplayAchievements.unlockedTitles = [];
+            }
+            if (data.gameplayAchievements.equippedTitleId != null
+                && typeof data.gameplayAchievements.equippedTitleId !== 'string') {
+                data.gameplayAchievements.equippedTitleId = null;
+            }
+        }
+        v = 15;
+    }
+
+    if (v < 16) {
+        const legacySkipNewbie = (Number(data.nivel) || 1) >= 10;
+        if (!data.retention || typeof data.retention !== 'object') {
+            data.retention = {
+                newbie: {
+                    startDayKey: '',
+                    claimedDays: [],
+                    completed: legacySkipNewbie,
+                    day7WeaponId: null,
+                },
+                monthly: { monthKey: '', claimedDays: [], lastClaimDayKey: '' },
+                journey: { completedSteps: [], claimedSteps: [], completed: false },
+                comeback: { lastSeenAt: Date.now(), lastComebackDayKey: '' },
+                clanPromptDismissed: legacySkipNewbie,
+                clanJoinRewardClaimed: !!data.playerClanId,
+            };
+        }
+        if (!data.retention.newbie.startDayKey) {
+            const now = new Date();
+            const dk = now.getFullYear() + '-'
+                + String(now.getMonth() + 1).padStart(2, '0') + '-'
+                + String(now.getDate()).padStart(2, '0');
+            data.retention.newbie.startDayKey = dk;
+        }
+        v = 16;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -587,6 +632,12 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
         levelRewards: typeof window.getLevelRewardsSavePayload === 'function'
             ? window.getLevelRewardsSavePayload()
             : { claimed: [] },
+        gameplayAchievements: typeof window.getGameplayAchievementsSavePayload === 'function'
+            ? window.getGameplayAchievementsSavePayload()
+            : { stats: {}, unlockedTitles: [], equippedTitleId: null },
+        retention: typeof window.getRetentionSavePayload === 'function'
+            ? window.getRetentionSavePayload()
+            : undefined,
     };
     
     if (!window.charName) return;
@@ -901,6 +952,12 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
         if (typeof window.aplicarLevelRewardsFromSave === 'function') {
             window.aplicarLevelRewardsFromSave(data.levelRewards);
         }
+        if (typeof window.aplicarGameplayAchievementsFromSave === 'function') {
+            window.aplicarGameplayAchievementsFromSave(data.gameplayAchievements);
+        }
+        if (typeof window.applyRetentionFromSave === 'function') {
+            window.applyRetentionFromSave(data.retention, Number(data.nivel) || 1);
+        }
         if (typeof window.atualizarWorldDailyBossUI === 'function') window.atualizarWorldDailyBossUI();
         if (typeof iniciarSistemaMercado === 'function') iniciarSistemaMercado();
         if (typeof verificarPagamentosPendentes === 'function') verificarPagamentosPendentes();
@@ -919,6 +976,12 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             try {
                 window.TutorialEngine.afterCharacterLoad();
             } catch (eTut) { /* ignore */ }
+        }
+
+        if (typeof window.RetentionEngine !== 'undefined' && typeof window.RetentionEngine.afterCharacterLoad === 'function') {
+            try {
+                window.RetentionEngine.afterCharacterLoad();
+            } catch (eRet) { /* ignore */ }
         }
 
         return true;
