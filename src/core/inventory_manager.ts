@@ -198,21 +198,6 @@ window.InventoryManager = {
 
     if (!slot) return false;
 
-    if (slot === 'armor' && typeof window.armorMatchesClass === 'function') {
-      const base = catalogFromItem(item) ?? ({} as ItemCatalogBase);
-      const isMage = typeof window.isClasseMagica === 'function' && window.isClasseMagica(window.charClass);
-      if (!window.armorMatchesClass(base, isMage)) {
-        if (typeof window.mostrarAviso === 'function') {
-          window.mostrarAviso(
-            typeof window.t === 'function'
-              ? window.t('game.inventory.wrongArmorArchetype')
-              : 'This armor does not match your class archetype.',
-          );
-        }
-        return false;
-      }
-    }
-
     const itemParaEquipar = window.inventarioEquips.splice(indexBolsa, 1)[0];
     this.desequiparGarantido(slot);
 

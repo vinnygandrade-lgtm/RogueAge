@@ -191,6 +191,7 @@ function getPaperdollEquipSrcList(
   if (legacy && legacy !== id) {
     list.push(paperdollPresetFile(legacy, `equips/${cid}.png`));
   }
+  list.push(`assets/equips/${cid}.png`);
   return list;
 }
 
@@ -226,6 +227,7 @@ function getPaperdollArmorHandsSrcList(
   if (legacy && legacy !== id) {
     list.push(paperdollPresetFile(legacy, `equips/${cid}_hands.png`));
   }
+  list.push(`assets/equips/${cid}_hands.png`);
   return list;
 }
 

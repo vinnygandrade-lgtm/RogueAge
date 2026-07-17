@@ -156,10 +156,46 @@ export function buildExpansionArmors(iconPath: (id: string) => string): ItemCata
     });
 }
 
-/** Slugs extras para ícones de armadura nova */
+/** Slugs extras para ícones de armadura nova (destino final em assets/itens/) */
 export const EXPANSION_ARMOR_ICON_SLUGS: Record<string, string> = Object.fromEntries(
     NEW_ARMOR_DEFS.map((d) => [d.id, d.iconSlug]),
 );
+
+/**
+ * Mage NG–C: só 1 linha/grade reutiliza ícone legacy (resto → generic até nova arte).
+ * NG Spellweave · D Knowledge (a6) · C Warden.
+ */
+export const MAGE_ARMOR_AWAITING_SHOP_ICON = new Set([
+    'a3',
+    'arm_ng_m_warden',
+    'arm_d_m_woven',
+    'arm_d_m_warden',
+    'a9',
+    'arm_c_m_woven',
+]);
+
+export const EXPANSION_ARMOR_ICON_FALLBACK: Record<string, string> = {
+    arm_ng_f_chain: 'set_brigandine_d',
+    arm_ng_m_woven: 'set_devotion_ng',
+    arm_d_f_chain: 'set_brigandine_d',
+    arm_c_f_chain: 'set_composite_c',
+    arm_c_m_warden: 'set_karmian_c',
+    arm_b_f_chain: 'set_composite_c',
+    arm_b_m_woven: 'set_karmian_c',
+    arm_b_m_warden: 'set_karmian_c',
+    arm_a_f_chain: 'set_composite_c',
+    arm_a_m_woven: 'set_karmian_c',
+    arm_a_m_warden: 'set_karmian_c',
+    arm_s_f_chain: 'set_composite_c',
+    arm_s_m_woven: 'set_karmian_c',
+    arm_s_m_warden: 'set_karmian_c',
+};
+
+export function resolveExpansionArmorIconSlug(armorId: string): string | null {
+    const id = String(armorId || '');
+    if (MAGE_ARMOR_AWAITING_SHOP_ICON.has(id)) return null;
+    return EXPANSION_ARMOR_ICON_FALLBACK[id] ?? null;
+}
 
 type JewelPiece = 'neck' | 'ear' | 'ring';
 type JewelGradeKey = 'ng' | 'd' | 'c' | 'b' | 'a' | 's';

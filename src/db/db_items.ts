@@ -15,6 +15,8 @@ import {
   buildExpansionJewels,
   EXPANSION_ARMOR_ICON_SLUGS,
   formatArmorLineLabel,
+  MAGE_ARMOR_AWAITING_SHOP_ICON,
+  resolveExpansionArmorIconSlug,
   tagMediumJewelSets,
 } from './armor_jewel_expansion';
 import {
@@ -84,9 +86,14 @@ function catalogArmorIconPath(armorId: string): string {
         arm_s_vesper_heavy: 'vesper_heavy',
         arm_s_vesper_light: 'vesper_light',
         arm_s_vesper_robe: 'vesper_robe',
-        ...EXPANSION_ARMOR_ICON_SLUGS,
     };
-    var slug = slugs[String(armorId || '')];
+    const id = String(armorId || '');
+    if (MAGE_ARMOR_AWAITING_SHOP_ICON.has(id)) {
+        return 'assets/itens/item_generic.png';
+    }
+    const expansionSlug = resolveExpansionArmorIconSlug(id);
+    if (expansionSlug) return 'assets/itens/' + expansionSlug + '.png';
+    var slug = slugs[id];
     return slug ? ('assets/itens/' + slug + '.png') : 'assets/itens/item_generic.png';
 }
 if (typeof window !== 'undefined') {

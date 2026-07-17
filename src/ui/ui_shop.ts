@@ -49,6 +49,21 @@ function shopPlayerLevel(): number {
     return Math.max(1, Math.min(85, Number.isFinite(n) ? Math.floor(n) : 1));
 }
 
+function _sortShopArmorItems(items: ShopCatalogItem[]): ShopCatalogItem[] {
+    const weightOrder: Record<string, number> = { heavy: 0, medium: 1, light: 2 };
+    const archOrder: Record<string, number> = { fighter: 0, mage: 1 };
+    return [...items].sort((a, b) => {
+        const aa = String(a.armorArchetype || '');
+        const bb = String(b.armorArchetype || '');
+        if (aa !== bb) return (archOrder[aa] ?? 2) - (archOrder[bb] ?? 2);
+        const wa = String(a.armorWeight || '');
+        const wb = String(b.armorWeight || '');
+        return (weightOrder[wa] ?? 3) - (weightOrder[wb] ?? 3);
+    });
+}
+
+const SHOP_ITEM_IMG_ONERROR = `onerror="this.onerror=null;this.src='assets/itens/item_generic.png'"`;
+
 function _invNum(v: unknown): number {
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
@@ -537,17 +552,17 @@ function mudarAbaLoja(tipo: ShopEquipTab): void {
 
     let itensFiltrados = catalogo.filter(item => item.grade === lojaGradeAtual && _invNum(item.preco) > 0);
 
-    if (tipo === 'armor' && typeof window.armorMatchesClass === 'function' && typeof window.isClasseMagica === 'function') {
-        const isMage = window.isClasseMagica(window.charClass);
-        itensFiltrados = itensFiltrados.filter((item) => window.armorMatchesClass!(item, isMage));
+    if (tipo === 'armor') {
+        itensFiltrados = _sortShopArmorItems(itensFiltrados);
     }
-    // Armas: todas as classes veem o catálogo completo da grade (wand/staff/scepter + físicas).
+    // Armas: catálogo completo da grade (wand/staff/scepter + físicas).
 
     if (itensFiltrados.length === 0) {
         grid.innerHTML = '<span style="color:#aaa; font-size:0.8em; grid-column: span 4; text-align:center; padding-top: 10px;">' + shopT('game.shop.comingSoon') + '</span>';
     } else {
         itensFiltrados.forEach(item => {
-            grid.innerHTML += `<div class="store-item-slot" onclick="selecionarItemLoja('${item.id}', '${tipo}', this)"><img src="${item.img || ''}" title="${item.nome}"></div>`;
+            const lineHint = String(item.armorLineLabel || item.nome || item.id || '').replace(/"/g, '&quot;');
+            grid.innerHTML += `<div class="store-item-slot" onclick="selecionarItemLoja('${item.id}', '${tipo}', this)" title="${lineHint}"><img src="${item.img || ''}" alt="" ${SHOP_ITEM_IMG_ONERROR}></div>`;
         });
     }
 
@@ -615,7 +630,6 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
         if (itemSelecionado.bonusCrit) infoExtra += `<br>${shopT('game.shop.labelCritRate')} <span style="color:#ef4444">+${itemSelecionado.bonusCrit}%</span>`;
         if (itemSelecionado.bonusMDef) infoExtra += `<br>${shopT('game.shop.labelMDefBonus')} <span style="color:#a855f7">+${itemSelecionado.bonusMDef}</span>`;
         if (itemSelecionado.desc) infoExtra += `<br><br><span style="color:#c4b5fd; font-style:italic;">"${itemSelecionado.desc}"</span>`;
-        const precoEquip = effectiveShopUnitForCatalogItem(itemSelecionado);
         document.getElementById('detalhe-texto').innerHTML = `<b style="color:white; font-size:1.1em;">${itemSelecionado.nome}</b><br><br>${_shopGradeDetailRow(itemSelecionado.grade)}${tipoTxt}${reqLinha}<br>${shopT('game.shop.labelPDef')} <span style="color:#fde047">+${pDefValor}</span>${infoExtra}`; 
         btnBuy.onclick = function() { confirmarCompraArmor(); }; 
     } 
@@ -672,12 +686,15 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
         btnBuy.onclick = function() { confirmarCompraJewel(); };
     }
     
-    btnBuy.style.display = 'block'; btnBuy.innerText = shopT('game.shop.buyItemButton'); btnBuy.disabled = false; btnBuy.style.background = "#15803d"; 
+    btnBuy.style.display = 'block';
+    btnBuy.innerText = shopT('game.shop.buyItemButton');
+    btnBuy.disabled = false;
+    btnBuy.style.background = '#15803d';
     _refreshShopBuyCheckoutSummary();
 }
 
 function confirmarCompraArmor(): void { 
-    if (!itemSelecionado) return; 
+    if (!itemSelecionado) return;
     const preco = effectiveShopUnitForCatalogItem(itemSelecionado);
     if (window.adenas < preco) {
         window.mostrarAviso(shopT('game.shop.insufficientAdena'));
