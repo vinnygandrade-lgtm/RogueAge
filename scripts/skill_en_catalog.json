@@ -15,6 +15,10 @@
     "name": "Aqua Swirl",
     "desc": "Creates a water vortex that strikes the enemy."
   },
+  "arcane_guard": {
+    "name": "Arcane Guard",
+    "desc": "Weave a light ward. Increases Defense by 15% for a short time."
+  },
   "armor_crush": {
     "name": "Armor Crush",
     "desc": "Shatters the enemy’s armor, drastically lowering defense."
@@ -34,6 +38,10 @@
   "backstab": {
     "name": "Backstab",
     "desc": "Sneak attack with extremely high damage."
+  },
+  "battle_focus": {
+    "name": "Battle Focus",
+    "desc": "Sharpen your stance. Increases Attack by 12% for a short time."
   },
   "battle_roar": {
     "name": "Battle Roar",
@@ -202,6 +210,10 @@
   "fatal_strike": {
     "name": "Fatal Strike",
     "desc": "Lethal strike that cleaves the target’s armor."
+  },
+  "firm_strike": {
+    "name": "Firm Strike",
+    "desc": "A steady follow-up blow. Reliable early physical damage."
   },
   "flame_strike": {
     "name": "Flame Strike",
@@ -534,6 +546,10 @@
   "sonic_blaster": {
     "name": "Sonic Blaster",
     "desc": "Fires blade energy."
+  },
+  "spark_bolt": {
+    "name": "Spark Bolt",
+    "desc": "A quick arcane bolt. Solid early magic damage."
   },
   "spoil": {
     "name": "Spoil",

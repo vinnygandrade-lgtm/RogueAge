@@ -528,6 +528,20 @@
     font-size: 0.85rem;
 }
 
+.retention-comeback-banner {
+    margin: 0 12px 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.retention-comeback-banner__reward {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+}
+
 .btn-l2--ghost {
     background: transparent;
     border-color: rgba(255, 255, 255, 0.2);

@@ -551,6 +551,17 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 16;
     }
 
+    if (v < 17) {
+        if (!Array.isArray(data.unseenSkillUnlocks)) {
+            data.unseenSkillUnlocks = [];
+        } else {
+            data.unseenSkillUnlocks = data.unseenSkillUnlocks
+                .filter((id): id is string => typeof id === 'string' && !!id.trim() && id !== 'Attack')
+                .map((id) => id.trim());
+        }
+        v = 17;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -638,6 +649,9 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
         retention: typeof window.getRetentionSavePayload === 'function'
             ? window.getRetentionSavePayload()
             : undefined,
+        unseenSkillUnlocks: typeof window.getUnseenSkillUnlocksSavePayload === 'function'
+            ? window.getUnseenSkillUnlocksSavePayload()
+            : [],
     };
     
     if (!window.charName) return;
@@ -877,6 +891,23 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             if (_encW !== undefined && _encW !== null) {
                 window.enchant = Number(_encW) || 0;
             }
+            // Recover offline augments that kept aug* rolls but lost the `augmented` flag.
+            var _augKeys = ['augPAtk', 'augMAtk', 'augPDef', 'augMDef', 'augSpd', 'augCrit', 'augHp'];
+            var _hasAugRoll = function (obj: Record<string, unknown> | null | undefined): boolean {
+                if (!obj) return false;
+                return _augKeys.some(function (k) {
+                    var v = obj[k];
+                    return typeof v === 'number' && Number.isFinite(v) && v > 0;
+                });
+            };
+            var _armaRec = window.armaEquipadaBase as EquipInstance & Record<string, unknown>;
+            var _baseRec = (_armaRec.base && typeof _armaRec.base === 'object')
+                ? (_armaRec.base as Record<string, unknown>)
+                : null;
+            if (_armaRec.augmented || _hasAugRoll(_armaRec) || _hasAugRoll(_baseRec)) {
+                _armaRec.augmented = true;
+                window.isAugmented = true;
+            }
         }
 
         window.armaduraEquipada = validarEquipado(data.armaduraEquipada, 'armor');
@@ -905,6 +936,22 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             }
         }
         
+        // Combat skill buffs are session-only — never carry Frenzy/etc. across character loads.
+        if (typeof window.clearSkillCombatBuffs === 'function') {
+            window.clearSkillCombatBuffs();
+        }
+
+        // Journey titles must be restored BEFORE combat stats — title flats are applied in calcularStatusGlobais.
+        if (typeof window.aplicarGameplayAchievementsFromSave === 'function') {
+            window.aplicarGameplayAchievementsFromSave(data.gameplayAchievements);
+        }
+        if (typeof window.aplicarLevelRewardsFromSave === 'function') {
+            window.aplicarLevelRewardsFromSave(data.levelRewards);
+        }
+        if (typeof window.applyUnseenSkillUnlocksFromSave === 'function') {
+            window.applyUnseenSkillUnlocksFromSave(data.unseenSkillUnlocks);
+        }
+
         if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
         if (typeof window.restorePlayerVitalsIfDowned === 'function') window.restorePlayerVitalsIfDowned();
         
@@ -949,12 +996,6 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
         }
         
         if (typeof window.inicializarMissoesDiarias === 'function') window.inicializarMissoesDiarias();
-        if (typeof window.aplicarLevelRewardsFromSave === 'function') {
-            window.aplicarLevelRewardsFromSave(data.levelRewards);
-        }
-        if (typeof window.aplicarGameplayAchievementsFromSave === 'function') {
-            window.aplicarGameplayAchievementsFromSave(data.gameplayAchievements);
-        }
         if (typeof window.applyRetentionFromSave === 'function') {
             window.applyRetentionFromSave(data.retention, Number(data.nivel) || 1);
         }

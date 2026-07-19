@@ -56,6 +56,18 @@ export const GAMEPLAY_ACHIEVEMENTS_CATALOG: readonly GameplayAchievementDef[] = 
   tiers('battle_alchemist', 'usar_pocoes', '🧪', [100, 1_000, 10_000, 50_000, 250_000, 1_000_000]),
   tiers('mint_scholar', 'tentar_mint', '📜', [5, 25, 100, 500, 1_500, 5_000]),
   tiers('elite_nemesis', 'elite_champion_kill', '💀', [3, 25, 100, 300, 800, 2_000]),
+  tiers('pathfinder', 'expedition_complete', '🗺️', [2, 12, 50, 200, 600, 1_500]),
+  tiers('enchant_master', 'enchant_success', '💎', [5, 40, 200, 900, 3_500, 10_000]),
+  tiers('rune_binder', 'augment_weapon', '🔮', [2, 12, 50, 200, 600, 1_500]),
+  tiers('exchange_mogul', 'market_trade', '🏪', [1, 8, 40, 150, 500, 1_200]),
+  tiers('war_banner', 'clan_war_win', '🎌', [1, 3, 8, 20, 50, 100]),
+  tiers('level_climber', 'subir_nivel', '📈', [5, 25, 100, 300, 750, 1_500]),
+  tiers('spoils_hunter', 'spoil_kill', '⛏️', [30, 250, 2_000, 12_000, 60_000, 200_000]),
+  tiers('postmaster', 'resgatar_correio', '📬', [3, 20, 100, 400, 1_200, 4_000]),
+  tiers('deep_march', 'expedition_journey', '🌲', [15, 100, 500, 2_500, 10_000, 30_000]),
+  tiers('mission_ace', 'missao_resgatada', '🎯', [5, 25, 100, 350, 800, 2_000]),
+  tiers('duelist_spirit', 'olympiad_duel', '⚔️', [5, 40, 200, 800, 2_000, 5_000]),
+  tiers('world_raider', 'derrotar_raid_mundo', '🐲', [1, 5, 20, 60, 150, 350]),
 ] as const;
 
 const catalogById = new Map<string, GameplayAchievementDef>();

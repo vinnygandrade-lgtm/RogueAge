@@ -508,6 +508,9 @@ async function executarEnchant(): Promise<void> {
                 if (window.inventario[targetScroll] <= 0) delete window.inventario[targetScroll];
 
                 if (rpcData.enchant_success) {
+                    if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+                        window.registrarProgressoMissaoDiaria('enchant_success', 1);
+                    }
                     if (typeof window.tocarSom === 'function') window.tocarSom('enchant');
                     let novoLvl = _invNum(rpcData.new_level);
                     syncTargetEquipEnchantLevel(novoLvl);
@@ -601,6 +604,9 @@ async function executarEnchant(): Promise<void> {
     // Espera 1.5 segundos (1500 ms) antes de revelar o resultado!
     setTimeout(() => {
         if (Math.random() * 100 <= chance) { 
+            if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+                window.registrarProgressoMissaoDiaria('enchant_success', 1);
+            }
             if (typeof window.tocarSom === 'function') window.tocarSom('enchant'); 
             let novoLvl = lvlAtual + 1; 
             syncTargetEquipEnchantLevel(novoLvl);
@@ -1080,6 +1086,9 @@ async function executarAugment(): Promise<void> {
                 }
 
                 if (typeof window.tocarSom === 'function') window.tocarSom('enchant_success');
+                if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+                    window.registrarProgressoMissaoDiaria('augment_weapon', 1);
+                }
                 let augLevel = _invNum(rpcData.aug_level) || 1;
                 let cores = ['#aaa', '#10b981', '#3b82f6', '#ef4444', '#facc15'];
                 let corMsg = cores[augLevel - 1] || '#a855f7';
@@ -1167,28 +1176,52 @@ async function executarAugment(): Promise<void> {
         const stat1 = pool[0];
         const stat2 = pool[1];
 
+        const clearAugRolls = (target: Record<string, unknown>) => {
+            target.augLevel = augLevel;
+            target.augPAtk = 0;
+            target.augMAtk = 0;
+            target.augPDef = 0;
+            target.augMDef = 0;
+            target.augSpd = 0;
+            target.augCrit = 0;
+            target[stat1.prop] = stat1.val;
+            target[stat2.prop] = stat2.val;
+        };
+
         let equipAlvo: AugmentArmaSelection;
         if (augmentIndexArma === 'equipped') {
-            window.armaEquipadaBase = JSON.parse(JSON.stringify(window.armaEquipadaBase)) as EquipInstance;
-            equipAlvo = window.armaEquipadaBase as unknown as AugmentArmaSelection;
+            // Keep the same instance reference (UID/enchant); mark augmented so sincronizarStatus keeps bonuses.
+            const arma = window.armaEquipadaBase as (EquipInstance & Record<string, unknown>) | null;
+            if (!arma) return;
+            if (arma.base && typeof arma.base === 'object') {
+                arma.base = { ...(arma.base as ItemCatalogBase) };
+            }
+            arma.augmented = true;
+            clearAugRolls(arma);
+            if (arma.base && typeof arma.base === 'object') {
+                clearAugRolls(arma.base as ItemCatalogBase & Record<string, unknown>);
+            }
+            window.armaEquipadaBase = arma as EquipInstance;
             window.isAugmented = true;
+            equipAlvo = arma as unknown as AugmentArmaSelection;
         } else if (typeof augmentIndexArma === 'number') {
-            window.inventarioEquips[augmentIndexArma].base = JSON.parse(JSON.stringify(window.inventarioEquips[augmentIndexArma].base)) as ItemCatalogBase;
-            equipAlvo = window.inventarioEquips[augmentIndexArma].base as unknown as AugmentArmaSelection;
-            window.inventarioEquips[augmentIndexArma].augmented = true;
+            const bagItem = window.inventarioEquips[augmentIndexArma] as EquipInstance & { base?: ItemCatalogBase };
+            if (!bagItem) return;
+            bagItem.base = { ...(bagItem.base as ItemCatalogBase) };
+            bagItem.augmented = true;
+            clearAugRolls(bagItem.base as ItemCatalogBase & Record<string, unknown>);
+            // Mirror on instance root for combat/hydration paths that prefer top-level aug*.
+            clearAugRolls(bagItem as unknown as Record<string, unknown>);
+            (bagItem as EquipInstance).augmented = true;
+            equipAlvo = bagItem.base as unknown as AugmentArmaSelection;
         } else {
             return;
         }
 
-        // Zera tudo antes para garantir que não fique lixo de outro nível
-        equipAlvo.augLevel = augLevel;
-        equipAlvo.augPAtk = 0; equipAlvo.augMAtk = 0; equipAlvo.augPDef = 0; equipAlvo.augMDef = 0; equipAlvo.augSpd = 0; equipAlvo.augCrit = 0;
-        
-        // Aplica os dois poderes sorteados
-        equipAlvo[stat1.prop] = stat1.val;
-        equipAlvo[stat2.prop] = stat2.val;
-
         if (typeof window.tocarSom === 'function') window.tocarSom('enchant_success');
+        if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+            window.registrarProgressoMissaoDiaria('augment_weapon', 1);
+        }
         const cores = ['#aaa', '#10b981', '#3b82f6', '#ef4444', '#facc15'];
         const corMsg = cores[augLevel - 1];
 

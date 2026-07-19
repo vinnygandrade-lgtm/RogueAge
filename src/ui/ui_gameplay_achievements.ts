@@ -4,23 +4,31 @@
 
 import type { GameplayAchievementsSave } from '../types/game';
 import {
-  GAMEPLAY_ACH_GRADE_ORDER,
   GAMEPLAY_ACHIEVEMENTS_CATALOG,
+  GAMEPLAY_ACH_GRADE_ORDER,
   getGameplayAchievementDef,
   getGameplayTitleMeta,
   type GameplayAchievementDef,
   type GameplayAchievementGrade,
   type GameplayAchievementTierDef,
 } from '../game/gameplay_achievements_catalog';
+import {
+  getTitleStatBonus,
+  listTitleBonusLines,
+  sumTitleBonusPower,
+  type TitleBonusStatKey,
+  type TitleStatBonus,
+} from '../game/gameplay_title_bonuses';
 import { scrollClaimableIntoView, showMissionReadyToast, sortMissionEntries, paintHubTabNotif } from './ui_mission_toasts';
 import type { MissionSortState } from './ui_mission_toasts';
 
 type AchievementsHubTab = 'levels' | 'journey';
 
-let hubTab: AchievementsHubTab = 'levels';
+let hubTab: AchievementsHubTab = 'journey';
 let stats: Record<string, number> = {};
 let unlockedTitles: Set<string> = new Set();
 let equippedTitleId: string | null = null;
+let selectedTitleId: string | null = null;
 
 function gaT(key: string, params?: Record<string, string | number>): string {
   return typeof window.t === 'function' ? window.t(key, params) : key;
@@ -112,6 +120,38 @@ export function getEquippedChatTitleColor(): string {
   if (!equippedTitleId) return '#c084fc';
   const meta = getGameplayTitleMeta(equippedTitleId);
   return meta ? getGameplayTitleGradeColor(meta.grade) : '#c084fc';
+}
+
+export function getEquippedTitleId(): string | null {
+  return equippedTitleId;
+}
+
+export function getTitleStatBonusForId(titleId: string | null | undefined): TitleStatBonus {
+  if (!titleId) {
+    return { pAtk: 0, mAtk: 0, pDef: 0, mDef: 0, maxHp: 0, maxMp: 0, critRate: 0, atkSpeedMs: 0 };
+  }
+  return getTitleStatBonus(titleId);
+}
+
+function formatTitleBonusLine(key: TitleBonusStatKey, value: number): string {
+  const i18nKey = 'game.gameplayAchievements.titleBonusLine.' + key;
+  const formatted = gaT(i18nKey, { value: key === 'critRate' ? value.toFixed(1) : String(value) });
+  if (formatted !== i18nKey) return formatted;
+  if (key === 'atkSpeedMs') return `−${value} ms`;
+  if (key === 'critRate') return `+${value.toFixed(1)}% Crit`;
+  return `+${value} ${key}`;
+}
+
+function renderTitleBonusChipsHtml(bonus: TitleStatBonus, limit = 0): string {
+  const lines = listTitleBonusLines(bonus);
+  const slice = limit > 0 ? lines.slice(0, limit) : lines;
+  if (slice.length <= 0) {
+    return '<span class="player-titles-bonus-empty">' + escapeGaHtml(gaT('game.gameplayAchievements.titleBonusNone')) + '</span>';
+  }
+  return slice.map((line) => (
+    '<span class="player-titles-bonus-chip player-titles-bonus-chip--' + line.key + '">'
+    + escapeGaHtml(formatTitleBonusLine(line.key, line.value)) + '</span>'
+  )).join('');
 }
 
 /** First unclaimed tier — card color and goal follow this until the title is claimed. */
@@ -241,9 +281,14 @@ function reivindicarTierConquista(achId: string, titleId: string): boolean {
 function equiparTituloConquista(titleId: string | null): void {
   if (titleId == null || titleId === '') {
     equippedTitleId = null;
-  } else if (unlockedTitles.has(titleId)) {
-    equippedTitleId = titleId;
+  } else {
+    const id = String(titleId);
+    if (!unlockedTitles.has(id)) return;
+    equippedTitleId = id;
+    selectedTitleId = id;
   }
+  if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
+  if (typeof window.atualizar === 'function') window.atualizar();
   renderizarPlayerTitles();
   if (typeof window.salvarJogo === 'function') window.salvarJogo({ silent: true });
 }
@@ -260,7 +305,9 @@ function aplicarGameplayAchievementsFromSave(raw: GameplayAchievementsSave | nul
   const norm = normalizeGameplayAchievementsSave(raw);
   stats = norm.stats;
   unlockedTitles = new Set(norm.unlockedTitles);
-  equippedTitleId = norm.equippedTitleId;
+  equippedTitleId = norm.equippedTitleId && unlockedTitles.has(norm.equippedTitleId)
+    ? norm.equippedTitleId
+    : null;
   syncEliteKillStatFromEndgame();
   aplicarHudGameplayBadge();
 }
@@ -376,6 +423,7 @@ function renderizarGameplayAchievements(): void {
       + '<span class="gameplay-ach-card__reward-label">' + escapeGaHtml(gaT('game.gameplayAchievements.titleReward')) + '</span>'
       + '<span class="gameplay-ach-card__title-badge" style="color:' + escapeGaHtml(gradeColor) + ';border-color:' + escapeGaHtml(gradeColor) + '">'
       + escapeGaHtml(titleText) + '</span>'
+      + '<div class="gameplay-ach-card__title-bonus">' + renderTitleBonusChipsHtml(getTitleStatBonus(tier.titleId), 3) + '</div>'
       + '</div>'
       + '<div class="gameplay-ach-card__track">'
       + '<div class="gameplay-ach-card__bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + tier.threshold + '" aria-valuenow="' + progress + '">'
@@ -400,18 +448,37 @@ function renderizarPlayerTitles(): void {
   const listEl = document.getElementById('player-titles-list');
   if (!equippedEl || !listEl) return;
 
-  const equippedText = equippedTitleId ? getGameplayTitleText(equippedTitleId) : '';
-  const equippedColor = equippedTitleId ? getEquippedChatTitleColor() : '#6b7280';
-  equippedEl.innerHTML = equippedTitleId
-    ? '<div class="player-titles-equipped__label">' + escapeGaHtml(gaT('game.gameplayAchievements.equippedNow')) + '</div>'
+  if (equippedTitleId && unlockedTitles.has(equippedTitleId)) {
+    const equippedText = getGameplayTitleText(equippedTitleId);
+    const equippedColor = getEquippedChatTitleColor();
+    const eqBonus = getTitleStatBonus(equippedTitleId);
+    equippedEl.innerHTML = ''
+      + '<div class="player-titles-equipped__label">' + escapeGaHtml(gaT('game.gameplayAchievements.equippedNow')) + '</div>'
+      + '<div class="player-titles-equipped__row">'
       + '<div class="player-titles-equipped__badge" style="color:' + escapeGaHtml(equippedColor) + ';border-color:' + escapeGaHtml(equippedColor) + '">'
       + escapeGaHtml(equippedText) + '</div>'
-      + '<button type="button" class="btn-l2 player-titles-unequip" onclick="equiparTituloConquista(null)">'
+      + '<button type="button" class="btn-l2 player-titles-unequip" id="btn-player-titles-unequip">'
       + escapeGaHtml(gaT('game.gameplayAchievements.unequip')) + '</button>'
-    : '<div class="player-titles-equipped__empty">' + escapeGaHtml(gaT('game.gameplayAchievements.noneEquipped')) + '</div>';
+      + '</div>'
+      + '<div class="player-titles-equipped__bonus">' + renderTitleBonusChipsHtml(eqBonus) + '</div>';
+    const unequipBtn = document.getElementById('btn-player-titles-unequip');
+    if (unequipBtn) {
+      unequipBtn.onclick = function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        equiparTituloConquista(null);
+      };
+    }
+  } else {
+    if (equippedTitleId && !unlockedTitles.has(equippedTitleId)) equippedTitleId = null;
+    equippedEl.innerHTML = '<div class="player-titles-equipped__empty">' + escapeGaHtml(gaT('game.gameplayAchievements.noneEquipped')) + '</div>';
+  }
 
   const ids = Array.from(unlockedTitles);
   ids.sort((a, b) => {
+    const pa = sumTitleBonusPower(getTitleStatBonus(a));
+    const pb = sumTitleBonusPower(getTitleStatBonus(b));
+    if (pa !== pb) return pb - pa;
     const ma = getGameplayTitleMeta(a);
     const mb = getGameplayTitleMeta(b);
     const ga = ma ? GAMEPLAY_ACH_GRADE_ORDER.indexOf(ma.grade) : 0;
@@ -425,6 +492,12 @@ function renderizarPlayerTitles(): void {
     return;
   }
 
+  if (!selectedTitleId || !unlockedTitles.has(selectedTitleId)) {
+    selectedTitleId = equippedTitleId && unlockedTitles.has(equippedTitleId)
+      ? equippedTitleId
+      : ids[0];
+  }
+
   listEl.innerHTML = '';
   ids.forEach((titleId) => {
     const meta = getGameplayTitleMeta(titleId);
@@ -433,16 +506,47 @@ function renderizarPlayerTitles(): void {
     const color = getGameplayTitleGradeColor(grade);
     const text = getGameplayTitleText(titleId);
     const isEquipped = equippedTitleId === titleId;
-    const row = document.createElement('button');
-    row.type = 'button';
-    row.className = 'player-titles-row player-titles-row--grade-' + slug + (isEquipped ? ' player-titles-row--equipped' : '');
-    row.innerHTML = '<span class="player-titles-row__badge" style="color:' + color + ';border-color:' + color + '">'
+    const bonus = getTitleStatBonus(titleId);
+    const power = sumTitleBonusPower(bonus);
+    const achId = meta?.achievementId || '';
+    const achName = achId ? achievementTitle(achId) : '';
+
+    const card = document.createElement('article');
+    card.className = 'player-titles-row player-titles-row--grade-' + slug
+      + (isEquipped ? ' player-titles-row--equipped' : '');
+    card.setAttribute('role', 'listitem');
+
+    const actionsHtml = isEquipped
+      ? '<button type="button" class="btn-l2 player-titles-row__equip player-titles-row__equip--on" disabled>'
+        + escapeGaHtml(gaT('game.gameplayAchievements.titlesEquippedBtn')) + '</button>'
+      : '<button type="button" class="btn-l2 player-titles-row__equip player-titles-row__equip--off" data-title-equip="'
+        + escapeGaHtml(titleId) + '">'
+        + escapeGaHtml(gaT('game.gameplayAchievements.titlesEquipBtn')) + '</button>';
+
+    card.innerHTML = ''
+      + '<div class="player-titles-row__top">'
+      + '<div class="player-titles-row__main">'
+      + '<span class="player-titles-row__badge" style="color:' + color + ';border-color:' + color + '">'
       + escapeGaHtml(text) + '</span>'
-      + '<span class="player-titles-row__grade">' + escapeGaHtml(grade === 'No-Grade' ? 'NG' : grade) + '</span>';
-    row.onclick = function () {
-      equiparTituloConquista(titleId);
-    };
-    listEl.appendChild(row);
+      + '<span class="player-titles-row__grade">' + escapeGaHtml(grade === 'No-Grade' ? 'NG' : grade) + '</span>'
+      + '</div>'
+      + actionsHtml
+      + '</div>'
+      + (achName ? '<div class="player-titles-row__source">' + escapeGaHtml(gaT('game.gameplayAchievements.titlesFromAchievement', { name: achName })) + '</div>' : '')
+      + '<div class="player-titles-row__power">' + escapeGaHtml(gaT('game.gameplayAchievements.titlePowerScore', { score: power })) + '</div>'
+      + '<div class="player-titles-row__bonus-label">' + escapeGaHtml(gaT('game.gameplayAchievements.titleBonusHeading')) + '</div>'
+      + '<div class="player-titles-row__preview">' + renderTitleBonusChipsHtml(bonus) + '</div>';
+
+    const equipBtn = card.querySelector('[data-title-equip]') as HTMLButtonElement | null;
+    if (equipBtn) {
+      equipBtn.onclick = function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        equiparTituloConquista(titleId);
+      };
+    }
+
+    listEl.appendChild(card);
   });
 }
 
@@ -493,6 +597,8 @@ window.onAbrirAchievementsHub = onAbrirAchievementsHub;
 window.contarPendenciasGameplayAchievements = countPendingGameplayClaims;
 window.syncAchievementsHubTabNotifs = syncAchievementsHubTabNotifs;
 window.refreshAchievementsNavBadge = refreshAchievementsNavBadge;
+window.getEquippedTitleId = getEquippedTitleId;
+window.getTitleStatBonusForId = getTitleStatBonusForId;
 window.refreshGameplayAchievementsI18n = refreshGameplayAchievementsI18n;
 
 export {};

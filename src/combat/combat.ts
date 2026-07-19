@@ -209,7 +209,8 @@ function aplicarXpGanhoFloresta(quantia) {
         window.xpNecessario = xpNec;
     }
     while (window.xpAtual >= window.xpNecessario) {
-        window.nivel = (Number(window.nivel) || 1) + 1;
+        const levelBefore = Number(window.nivel) || 1;
+        window.nivel = levelBefore + 1;
         window.xpAtual -= window.xpNecessario;
         window.xpNecessario = window.calcularXpNecessario(window.nivel);
         if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
@@ -224,9 +225,15 @@ function aplicarXpGanhoFloresta(quantia) {
                 : ('LEVEL UP! Level ' + window.nivel + '!');
             window.escreverLog(`<span style="color:#ffcc00; font-weight:bold;">${msg}</span>`);
         }
+        if (typeof window.notifySkillsUnlockedAfterLevelChange === 'function') {
+            window.notifySkillsUnlockedAfterLevelChange(levelBefore, window.nivel);
+        }
         const nl = window.nivel;
         if (typeof window.onLevelRewardReached === 'function') {
             window.onLevelRewardReached(nl);
+        }
+        if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+            window.registrarProgressoMissaoDiaria('subir_nivel', 1);
         }
         if (typeof window.RetentionEngine?.onGameEvent === 'function') {
             window.RetentionEngine.onGameEvent('reach_level', nl);
@@ -591,7 +598,10 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
     let multiplicadorChampion = mobMorto.isChampion ? 5 : 1;
     
     // A MÁGICA DO SPOIL: Se o monstro morrer com o debuff do Spoil, dobra o loot!
-    let multiplicadorSpoil = (mobMorto.debuffs && mobMorto.debuffs.spoil) ? 2 : 1; 
+    let multiplicadorSpoil = (mobMorto.debuffs && mobMorto.debuffs.spoil) ? 2 : 1;
+    if (multiplicadorSpoil > 1 && typeof window.registrarProgressoMissaoDiaria === 'function') {
+        window.registrarProgressoMissaoDiaria('spoil_kill', 1);
+    }
     let msgSpoil = multiplicadorSpoil > 1 ? `<span style="color:#facc15; font-weight:bold;"> ${(typeof window.t === 'function') ? window.t('game.combat.spoiled') : '[SPOILED]'}</span>` : "";
     
     // O Anão passivo já ganha 1.5x de Adena. Com Spoil ele ganha o dobro disso!

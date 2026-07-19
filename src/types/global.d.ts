@@ -276,6 +276,20 @@ declare global {
     spellbookFormatPowerCell?: (skill: Record<string, unknown> | null | undefined) => string;
     spellbookIconInnerHtml?: (iconeHtml: string, px?: number) => string;
     obterSkillsAprendidas?: () => import('./game').LearnedSkillMeta[];
+    /** Spellbook list including locked future skills. */
+    obterSkillsSpellbook?: () => import('./game').LearnedSkillMeta[];
+    /** Spellbook list grouped: Ready / Upcoming / next specialization paths. */
+    obterSkillsSpellbookSections?: () => import('./game').SpellbookSection[];
+    /** Log + toast for skills unlocked by leveling from levelBefore → levelAfter. */
+    notifySkillsUnlockedAfterLevelChange?: (levelBefore: number, levelAfter: number) => void;
+    markSkillsUnseen?: (skillIds: string[]) => void;
+    markSkillUnlockSeen?: (skillId: string) => void;
+    hasUnseenSkillUnlock?: (skillId: string) => boolean;
+    syncSkillUnlockNotifUi?: () => void;
+    countUnseenSkillUnlocks?: () => number;
+    getUnseenSkillUnlocksSavePayload?: () => string[];
+    applyUnseenSkillUnlocksFromSave?: (raw: unknown) => void;
+    clearUnseenSkillUnlocks?: () => void;
     selecionarSkillSpellbook?: (nomeSkill: string) => void;
     mostrarSeletorSlot?: () => void;
     equiparSkillNaBarra?: (indexSlot: number) => void;
@@ -446,6 +460,8 @@ declare global {
     getEquippedChatTitle?: () => string;
     getEquippedChatTitlePayload?: () => string;
     getEquippedChatTitleColor?: () => string;
+    getEquippedTitleId?: () => string | null;
+    getTitleStatBonusForId?: (titleId: string | null | undefined) => import('./game').TitleStatBonus;
     refreshGameplayAchievementsI18n?: () => void;
     getGameplayAchievementsSavePayload?: () => import('./game').GameplayAchievementsSave;
     aplicarGameplayAchievementsFromSave?: (raw: import('./game').GameplayAchievementsSave | null | undefined) => void;
@@ -482,6 +498,9 @@ declare global {
     showLoadingOverlay?: (message?: string) => void;
 
     motorBuffsEspeciais?: { critMult: number; esquiva: number };
+    /** Clears session skill combat buffs (atk/def/spd). */
+    clearSkillCombatBuffs?: () => void;
+    applySkillCombatBuffsToPlayerStats?: () => void;
     motorPet?: ReturnType<typeof setInterval> | null;
     usarSkill?: (nomeSkill: string) => void;
     iniciarAtaqueMonstro?: () => void;

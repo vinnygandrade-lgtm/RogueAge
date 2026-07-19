@@ -497,11 +497,13 @@ function renderizarLevelRewards(): void {
 function abrirLevelRewards(): void {
   if (!window.charName) return;
   selectedLevel = playerLevelCap();
-  renderizarLevelRewards();
   if (typeof window.onAbrirAchievementsHub === 'function') window.onAbrirAchievementsHub();
   const root = document.getElementById('janela-level-rewards');
   if (root && window.I18n && typeof window.I18n.refreshDom === 'function') {
     try { window.I18n.refreshDom(root); } catch { /* ignore */ }
+  }
+  if (typeof window.syncAchievementsHubTabNotifs === 'function') {
+    window.syncAchievementsHubTabNotifs();
   }
   window.abrirModal('janela-level-rewards', 1500);
   window.syncNavMenuActiveItem?.();

@@ -4455,6 +4455,7 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     max-width: 560px;
     z-index: 220;
 }
+/* Landscape width/height owned by css/spellbook.css (two-column spellbook). */
 #spellbook-detail-fulltype {
     display: none;
 }
@@ -6240,10 +6241,11 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
     color: var(--l2-grade-s-color);
 }
 
-/* Player titles modal (profile) */
-#janela-player-titles {
-    width: 94%;
-    max-height: 82vh;
+/* Player titles modal — never set display here; .store-window stays none until abrirModal */
+#janela-player-titles.store-window--player-titles {
+    width: 96%;
+    max-width: var(--l2-modal-max-width, 450px);
+    max-height: 86vh;
     z-index: 1550;
     padding-bottom: 0;
     flex-direction: column;
@@ -6255,11 +6257,11 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
 .store-body--player-titles {
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
+    overflow: hidden;
     padding: 12px 14px 10px !important;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 .player-titles-hint {
     margin: 0;
@@ -6267,17 +6269,17 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
     font-size: 0.74em;
     line-height: 1.4;
     text-align: center;
+    flex-shrink: 0;
 }
 .player-titles-equipped {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 8px;
     padding: 12px 10px;
     border-radius: 10px;
     background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.22);
 }
 .player-titles-equipped__label {
     font-size: 0.62em;
@@ -6285,10 +6287,19 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #78716c;
+    text-align: center;
+}
+.player-titles-equipped__row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 .player-titles-equipped__badge {
     display: inline-flex;
     align-items: center;
+    max-width: 100%;
     padding: 6px 14px;
     border-radius: 999px;
     border: 1px solid currentColor;
@@ -6297,14 +6308,26 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
     letter-spacing: 0.04em;
     background: rgba(0, 0, 0, 0.35);
 }
+.player-titles-equipped__bonus,
+.gameplay-ach-card__title-bonus,
+.player-titles-row__preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.player-titles-equipped__bonus {
+    justify-content: center;
+}
 .player-titles-equipped__empty {
     color: #78716c;
     font-size: 0.78em;
     text-align: center;
+    line-height: 1.4;
 }
 .player-titles-unequip {
-    width: auto;
-    min-height: 36px;
+    width: auto !important;
+    min-width: 0;
+    min-height: 40px;
     margin: 0;
     padding: 0 14px;
     font-size: 0.64em;
@@ -6314,9 +6337,38 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
 .player-titles-list {
     flex: 1;
     min-height: 0;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
+    padding-right: 2px;
+}
+.player-titles-bonus-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 7px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 0.62em;
+    font-weight: 700;
+    color: #e7e5e4;
+    white-space: nowrap;
+}
+.player-titles-bonus-chip--pAtk,
+.player-titles-bonus-chip--mAtk { border-color: rgba(248, 113, 113, 0.35); color: #fecaca; }
+.player-titles-bonus-chip--pDef,
+.player-titles-bonus-chip--mDef { border-color: rgba(96, 165, 250, 0.35); color: #bfdbfe; }
+.player-titles-bonus-chip--maxHp,
+.player-titles-bonus-chip--maxMp { border-color: rgba(74, 222, 128, 0.35); color: #bbf7d0; }
+.player-titles-bonus-chip--critRate { border-color: rgba(251, 191, 36, 0.35); color: #fde68a; }
+.player-titles-bonus-chip--atkSpeedMs { border-color: rgba(192, 132, 252, 0.35); color: #e9d5ff; }
+.player-titles-bonus-empty {
+    font-size: 0.68em;
+    color: #78716c;
+}
+.gameplay-ach-card__title-bonus {
+    margin-top: 4px;
 }
 .player-titles-empty {
     margin: 0;
@@ -6327,19 +6379,17 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
 }
 .player-titles-row {
     width: 100%;
-    min-height: 44px;
     margin: 0;
-    padding: 8px 12px;
+    padding: 10px 12px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    border-radius: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    border-radius: 10px;
     border: 1px solid #44403c;
     background: rgba(0, 0, 0, 0.35);
-    cursor: pointer;
+    box-sizing: border-box;
     text-align: left;
-    transition: border-color 0.15s ease, background 0.15s ease;
 }
 .player-titles-row--grade-ng { border-color: var(--l2-grade-ng-border); background: var(--l2-grade-ng-bg); }
 .player-titles-row--grade-d { border-color: var(--l2-grade-d-border); background: var(--l2-grade-d-bg); }
@@ -6348,18 +6398,32 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
 .player-titles-row--grade-a { border-color: var(--l2-grade-a-border); background: var(--l2-grade-a-bg); }
 .player-titles-row--grade-s { border-color: var(--l2-grade-s-border); background: var(--l2-grade-s-bg); }
 .player-titles-row--equipped {
-    outline: 2px solid #fbbf24;
-    outline-offset: 1px;
+    border-color: rgba(251, 191, 36, 0.65);
+    box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.35);
+}
+.player-titles-row__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+.player-titles-row__main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
 }
 .player-titles-row__badge {
     flex: 1;
     min-width: 0;
     display: inline-flex;
     align-items: center;
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 999px;
     border: 1px solid currentColor;
-    font-size: 0.72em;
+    font-size: 0.74em;
     font-weight: 800;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -6367,10 +6431,54 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
 }
 .player-titles-row__grade {
     flex-shrink: 0;
-    font-size: 0.62em;
+    font-size: 0.64em;
     font-weight: 800;
     letter-spacing: 0.06em;
     color: #a8a29e;
+}
+.player-titles-row__equip {
+    flex-shrink: 0;
+    width: auto !important;
+    min-width: 96px;
+    max-width: 42%;
+    min-height: 40px;
+    margin: 0;
+    padding: 0 12px;
+    font-size: 0.62em;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+.player-titles-row__equip--off {
+    background: linear-gradient(180deg, #15803d 0%, #166534 100%);
+    border-color: #22c55e;
+}
+.player-titles-row__equip--on {
+    background: #3f3f46;
+    border-color: #71717a;
+    color: #d4d4d8;
+    opacity: 0.9;
+    cursor: default;
+}
+.player-titles-row__source {
+    font-size: 0.68em;
+    color: #a8a29e;
+    line-height: 1.35;
+}
+.player-titles-row__power {
+    font-size: 0.68em;
+    font-weight: 700;
+    color: #fbbf24;
+    letter-spacing: 0.04em;
+}
+.player-titles-row__bonus-label {
+    font-size: 0.58em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #78716c;
+}
+.player-titles-row__preview {
+    opacity: 0.95;
 }
 #janela-player-titles .store-footer--player-titles {
     flex-shrink: 0;
@@ -6926,6 +7034,29 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
 }
 .nav-notif--tab.nav-notif--active {
     animation: nav-notif-tab-pulse 1.4s ease-in-out infinite;
+}
+.nav-notif--skills {
+    background: #0ea5e9;
+    box-shadow: 0 0 8px rgba(14, 165, 233, 0.75);
+}
+#btn-tab-perfil .nav-notif--skills {
+    top: 4px;
+    right: 4px;
+}
+#btn-profile-spellbook {
+    position: relative;
+}
+.nav-notif--spellbook-btn {
+    top: 4px;
+    right: 8px;
+    left: auto;
+}
+#btn-profile-spellbook.btn-profile-spellbook--has-notif {
+    border-color: rgba(14, 165, 233, 0.65);
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.25);
+}
+#btn-tab-perfil.btn-travel--has-notif .btn-travel__label {
+    color: #7dd3fc;
 }
 @keyframes nav-notif-tab-pulse {
     0%, 100% { box-shadow: 0 0 6px rgba(239, 68, 68, 0.55); }

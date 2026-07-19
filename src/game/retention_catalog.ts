@@ -159,34 +159,138 @@ export function retentionNewbieReward(day: number): DailyMissionReward | null {
   }
 }
 
-export function retentionMonthlyReward(day: number): DailyMissionReward {
+export function retentionMonthlyReward(
+  day: number,
+  level = 1,
+  isMage = false,
+): DailyMissionReward {
   const d = Math.max(1, Math.min(RETENTION_MONTHLY_DAYS, Math.floor(day)));
+  const lv = Math.max(1, Math.floor(level));
+  const band = retentionGradeBandForLevel(lv);
+  const levelMult = 1 + Math.sqrt(lv) * 0.12 + Math.floor(lv / 25) * 0.15;
+  const shotName = isMage ? `B. Spiritshot (${band})` : `Soulshot (${band})`;
+
   if (d % 7 === 0) {
     const tier = d / 7;
+    const scrollBand = tier >= 3 ? band : tier >= 2 ? (band === 'NG' ? 'D' : band) : 'NG';
     return {
-      adenas: Math.floor(8000 + tier * 6000),
-      ancientCoins: tier >= 3 ? 2 : 1,
+      adenas: Math.floor((8000 + tier * 6000) * levelMult),
+      ancientCoins: Math.min(6, tier >= 3 ? 2 + Math.floor(lv / 40) : 1 + Math.floor(lv / 55)),
       itens: {
-        [`Blessed Enchant Weapon (${tier >= 3 ? 'C' : tier >= 2 ? 'D' : 'NG'})`]: 1,
-        [`Blessed Enchant Armor (${tier >= 3 ? 'C' : tier >= 2 ? 'D' : 'NG'})`]: 1,
-        'HP Potion': 10 + tier * 4,
+        [`Blessed Enchant Weapon (${scrollBand})`]: tier >= 4 && lv >= 52 ? 2 : 1,
+        [`Blessed Enchant Armor (${scrollBand})`]: 1,
+        'HP Potion': 10 + tier * 4 + Math.floor(lv / 15),
+        [shotName]: 60 + tier * 40 + lv * 2,
       },
     };
   }
   if (d % 5 === 0) {
+    const scrollBand = d >= 20 ? band : d >= 12 ? (band === 'NG' ? 'D' : band) : 'NG';
+    const itens: Record<string, number> = {
+      [`Enchant Weapon (${scrollBand})`]: 1,
+      'Mana Potion': 8 + Math.floor(lv / 12),
+      [shotName]: 30 + d * 2,
+    };
+    if (lv >= 30) itens[`Enchant Armor (${scrollBand})`] = 1;
     return {
-      adenas: Math.floor(3500 + d * 120),
-      itens: {
-        [`Enchant Weapon (${d >= 20 ? 'C' : d >= 12 ? 'D' : 'NG'})`]: 1,
-        'Mana Potion': 8,
-      },
+      adenas: Math.floor((3500 + d * 120) * levelMult),
+      ancientCoins: lv >= 40 && d >= 15 ? 1 : undefined,
+      itens,
     };
   }
+  const itens: Record<string, number> = {
+    'HP Potion': 3 + Math.floor(d / 6) + Math.floor(lv / 20),
+    [shotName]: 20 + d * 2 + Math.floor(lv / 5),
+  };
+  if (d % 3 === 0 && lv >= 20) {
+    itens[`Enchant Weapon (${band === 'NG' ? 'D' : band})`] = 1;
+  }
   return {
-    adenas: Math.floor(1200 + d * 180),
-    itens: {
-      'HP Potion': 3 + Math.floor(d / 6),
-      [`Soulshot (${d >= 18 ? 'C' : d >= 10 ? 'D' : 'NG'})`]: 20 + d * 2,
-    },
+    adenas: Math.floor((1200 + d * 180) * levelMult),
+    itens,
+  };
+}
+
+export type RetentionGradeBand = 'NG' | 'D' | 'C' | 'B' | 'A' | 'S';
+
+export type RetentionComebackTier = 'short' | 'mid' | 'long';
+
+export function retentionGradeBandForLevel(level: number): RetentionGradeBand {
+  const lv = Math.max(1, Math.floor(level));
+  if (lv >= 76) return 'S';
+  if (lv >= 61) return 'A';
+  if (lv >= 52) return 'B';
+  if (lv >= 40) return 'C';
+  if (lv >= 20) return 'D';
+  return 'NG';
+}
+
+export function retentionComebackTierKey(hoursAway: number): RetentionComebackTier {
+  const h = Math.max(0, hoursAway);
+  if (h >= 24) return 'long';
+  if (h >= 12) return 'mid';
+  return 'short';
+}
+
+/** Welcome-back chest — scales with absence tier, player level, and grade band. */
+export function computeComebackReward(
+  hoursAway: number,
+  level: number,
+  isMage = false,
+): DailyMissionReward {
+  const hours = Math.min(48, Math.max(4, hoursAway));
+  const lv = Math.max(1, Math.floor(level));
+  const band = retentionGradeBandForLevel(lv);
+  const tier = retentionComebackTierKey(hours);
+  const tierMult = tier === 'long' ? 2.4 : tier === 'mid' ? 1.55 : 1;
+  const levelMult = 1 + Math.sqrt(lv) * 0.38 + Math.floor(lv / 18) * 0.22;
+  const shotName = isMage ? `B. Spiritshot (${band})` : `Soulshot (${band})`;
+
+  const adenaCap = 120000 + lv * 8500;
+  const adenas = Math.min(
+    adenaCap,
+    Math.floor((1800 + hours * 720) * levelMult * tierMult),
+  );
+
+  let ancientCoins = 0;
+  if (tier === 'long') ancientCoins = 1 + Math.floor(lv / 12) + (lv >= 52 ? 2 : 0);
+  else if (tier === 'mid') ancientCoins = lv >= 20 ? 1 + Math.floor(lv / 35) : 0;
+  else if (lv >= 40) ancientCoins = 1;
+
+  const itens: Record<string, number> = {
+    'HP Potion': Math.min(50, 8 + Math.floor(hours / 2) + Math.floor(lv / 8)),
+    'Mana Potion': Math.min(40, 6 + Math.floor(hours / 2.5) + Math.floor(lv / 10)),
+    [shotName]: Math.min(600, 35 + Math.floor(hours * 10) + lv * 4),
+  };
+
+  const scrollBand = band;
+  if (tier === 'short') {
+    if (lv >= 15) itens[`Enchant Weapon (${scrollBand === 'NG' ? 'D' : scrollBand})`] = 1;
+  } else if (tier === 'mid') {
+    itens[`Enchant Weapon (${scrollBand})`] = 1;
+    if (lv >= 25) itens[`Enchant Armor (${scrollBand})`] = 1;
+    if (lv >= 45) itens[`Blessed Enchant Armor (${scrollBand})`] = 1;
+  } else {
+    itens[`Blessed Enchant Weapon (${scrollBand})`] = lv >= 61 ? 2 : 1;
+    itens[`Blessed Enchant Armor (${scrollBand})`] = 1;
+    if (lv >= 40) itens['Life Stone'] = Math.min(4, 1 + Math.floor(lv / 28));
+    if (lv >= 52 && tier === 'long') itens.Steel = Math.min(80, 20 + Math.floor(lv / 4));
+  }
+
+  // Weekend variety: extra consumables on Sat/Sun.
+  const dow = new Date().getDay();
+  if (dow === 0 || dow === 6) {
+    itens['HP Potion'] = (itens['HP Potion'] || 0) + 5;
+    itens[shotName] = (itens[shotName] || 0) + 25;
+  }
+
+  Object.keys(itens).forEach((key) => {
+    if (!itens[key] || itens[key] <= 0) delete itens[key];
+  });
+
+  return {
+    adenas,
+    ancientCoins: ancientCoins > 0 ? ancientCoins : undefined,
+    itens,
   };
 }

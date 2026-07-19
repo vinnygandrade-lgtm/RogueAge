@@ -43,6 +43,21 @@ function iniciarJogo(): void {
     if (typeof window.calcularXpNecessario === 'function') {
         window.xpNecessario = window.calcularXpNecessario(window.nivel);
     }
+
+    // New character: clear Journey title state so a previous character's equipped title cannot leak bonuses.
+    if (typeof window.aplicarGameplayAchievementsFromSave === 'function') {
+        window.aplicarGameplayAchievementsFromSave({
+            stats: {},
+            unlockedTitles: [],
+            equippedTitleId: null,
+        });
+    }
+    if (typeof window.clearSkillCombatBuffs === 'function') {
+        window.clearSkillCombatBuffs();
+    }
+    if (typeof window.clearUnseenSkillUnlocks === 'function') {
+        window.clearUnseenSkillUnlocks();
+    }
     
     if (typeof window.calcularStatusGlobais === 'function') {
         window.calcularStatusGlobais(); 

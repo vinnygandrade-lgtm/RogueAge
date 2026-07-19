@@ -3,7 +3,8 @@
  * Migrado: js/skills.js
  */
 
-import type { LearnedSkillMeta, SkillCatalogEntry, SkillTreeEntry } from '../types/game';
+import { classEvolutionDisplayName } from '../i18n/polish12_display';
+import type { LearnedSkillMeta, SkillCatalogEntry, SkillTreeEntry, SpellbookSection } from '../types/game';
 
 /** Catálogo de skills — chaves repetidas sobrescrevem (última entrada vence, como no JS legado). */
 const bancoDeSkills: Record<string, SkillCatalogEntry> = Object.assign(
@@ -290,19 +291,69 @@ const bancoDeSkills: Record<string, SkillCatalogEntry> = Object.assign(
     "Summon Big Boom": { tipo: "pet", mp: 70, poder: 0, cd: 60000, desc: "[Warsmith Lvl 40] Summons a volatile powder golem that hits incredibly hard.", cor: "#ef4444", icone: '<span style="font-size:24px;">💣</span>' },
     "Wrath": { tipo: "ataque_area", mp: 60, poder: 1.8, cd: 15000, desc: "[Warsmith Lvl 40] Violently spins spear or axe, hitting all monsters.", cor: "#b45309", icone: '<span style="font-size:24px;">🌪️</span>' },
     "Summon Siege Golem": { tipo: "pet", mp: 120, poder: 0, cd: 90000, desc: "[Maestro Lvl 76] Ultimate creation. Summons a colossal siege golem.", cor: "#1e293b", icone: '<span style="font-size:24px;">🏰</span>' },
+
+    // === EARLY STARTER (Lv 5 / 10) — fills the empty 1–19 kit without power-creeping class skills ===
+    "Firm Strike": {
+      tipo: "ataque", mp: 8, poder: 1.25, cd: 3500,
+      desc: "A steady follow-up blow. Reliable early physical damage.",
+      cor: "#f87171",
+      icone: '<img src="assets/skills/mortal_strike.png" style="width: 35px; height: 35px; object-fit: contain; filter: drop-shadow(0 0 3px #000); pointer-events: none;">',
+    },
+    "Battle Focus": {
+      tipo: "buff_atk", mp: 14, poder: 1.12, cd: 40000,
+      desc: "Sharpen your stance. Increases Attack by 12% for a short time.",
+      cor: "#fb923c",
+      icone: '<img src="assets/skills/battle_roar.png" style="width: 35px; height: 35px; object-fit: contain; filter: drop-shadow(0 0 3px #000) hue-rotate(20deg); pointer-events: none;">',
+    },
+    "Spark Bolt": {
+      tipo: "ataque", mp: 10, poder: 1.35, cd: 3500,
+      desc: "A quick arcane bolt. Solid early magic damage.",
+      cor: "#67e8f9",
+      icone: '<img src="assets/skills/aura_burn.png" style="width: 35px; height: 35px; object-fit: contain; filter: drop-shadow(0 0 3px #000) hue-rotate(160deg); pointer-events: none;">',
+    },
+    "Arcane Guard": {
+      tipo: "buff_def", mp: 14, poder: 1.15, cd: 40000,
+      desc: "Weave a light ward. Increases Defense by 15% for a short time.",
+      cor: "#a78bfa",
+      icone: '<img src="assets/skills/iron_will.png" style="width: 35px; height: 35px; object-fit: contain; filter: drop-shadow(0 0 3px #000) hue-rotate(200deg); pointer-events: none;">',
+    },
   }
 );
 // ÁRVORE DE APRENDIZADO
 const arvoreDeSkills: Record<string, SkillTreeEntry[]> = {
-   // === CLASSES BASE (Nível 1) ===
-   "Fighter": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" } ],
-   "Mage": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Wind Strike" } ],
-   "Dark_Fighter": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" } ],
-   "Dark_Mage": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Wind Strike" } ],
-   "Elf_Fighter": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" } ],
-   "Elf_Mage": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Wind Strike" } ],
-   "Orc_Fighter": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" } ],
-   "Orc_Mage": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Wind Strike" } ],
+   // === CLASSES BASE (Nível 1 + early filler 5 / 10) ===
+   "Fighter": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" },
+     { lvl: 5, nome: "Firm Strike" }, { lvl: 10, nome: "Battle Focus" },
+   ],
+   "Mage": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Wind Strike" },
+     { lvl: 5, nome: "Spark Bolt" }, { lvl: 10, nome: "Arcane Guard" },
+   ],
+   "Dark_Fighter": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" },
+     { lvl: 5, nome: "Firm Strike" }, { lvl: 10, nome: "Battle Focus" },
+   ],
+   "Dark_Mage": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Wind Strike" },
+     { lvl: 5, nome: "Spark Bolt" }, { lvl: 10, nome: "Arcane Guard" },
+   ],
+   "Elf_Fighter": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" },
+     { lvl: 5, nome: "Firm Strike" }, { lvl: 10, nome: "Battle Focus" },
+   ],
+   "Elf_Mage": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Wind Strike" },
+     { lvl: 5, nome: "Spark Bolt" }, { lvl: 10, nome: "Arcane Guard" },
+   ],
+   "Orc_Fighter": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" },
+     { lvl: 5, nome: "Firm Strike" }, { lvl: 10, nome: "Battle Focus" },
+   ],
+   "Orc_Mage": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Wind Strike" },
+     { lvl: 5, nome: "Spark Bolt" }, { lvl: 10, nome: "Arcane Guard" },
+   ],
 
    // === ARVORE HUMANOS ===
    "Warrior": [ { lvl: 20, nome: "War Cry" }, { lvl: 20, nome: "Lion Heart" }, { lvl: 20, nome: "Double Strike" }, { lvl: 20, nome: "Focus Attack" } ],
@@ -385,7 +436,10 @@ const arvoreDeSkills: Record<string, SkillTreeEntry[]> = {
    "Dominator": [ { lvl: 76, nome: "Seal of Disease" } ],
    "Doomcryer": [ { lvl: 76, nome: "Magnus' Chant" } ],
    // === ARVORE ANÕES ===
-   "Dwarven Fighter": [ { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" } ],
+   "Dwarven Fighter": [
+     { lvl: 1, nome: "Attack" }, { lvl: 1, nome: "Power Strike" },
+     { lvl: 5, nome: "Firm Strike" }, { lvl: 10, nome: "Battle Focus" },
+   ],
    
    "Scavenger": [ { lvl: 20, nome: "Spoil" }, { lvl: 20, nome: "Sweeper" }, { lvl: 20, nome: "Hammer Crush" }, { lvl: 20, nome: "Vicious Stance" } ],
    "Bounty Hunter": [ { lvl: 40, nome: "Spoil Festival" }, { lvl: 40, nome: "Bounty Luck" }, { lvl: 40, nome: "Whirlwind" }, { lvl: 40, nome: "Fatal Strike" } ],
@@ -566,27 +620,261 @@ window.spellbookIconInnerHtml = function (iconeHtml: string | undefined, px?: nu
 // FUNÇÕES DE GERENCIAMENTO
 let skillSelecionadaSpellbook: LearnedSkillMeta | null = null;
 
+function getDirectChildClasses(parentClass: string): string[] {
+    const parentLin = linhagemClasses[parentClass] || [parentClass];
+    return Object.keys(linhagemClasses).filter((cls) => {
+        if (cls === parentClass) return false;
+        const lin = linhagemClasses[cls];
+        if (!lin || lin.length !== parentLin.length + 1) return false;
+        for (let i = 0; i < parentLin.length; i++) {
+            if (lin[i] !== parentLin[i]) return false;
+        }
+        return true;
+    });
+}
+
+function buildSpellbookSkillEntry(
+    skillName: string,
+    learnLvl: number,
+    classNode: string,
+    locked: boolean,
+): LearnedSkillMeta | null {
+    const raw = bancoDeSkills[skillName];
+    if (!raw) return null;
+    return Object.assign({}, raw, {
+        idNome: skillName,
+        _learnLvl: learnLvl,
+        _locked: locked,
+        _classNode: classNode,
+    }) as LearnedSkillMeta;
+}
+
+/** Learned skills only — used by combat / hotbar consumers. */
 window.obterSkillsAprendidas = function (): LearnedSkillMeta[] {
     const skillsDoChar: LearnedSkillMeta[] = [];
     const linhagem = linhagemClasses[charClass] || [];
-    
-    linhagem.forEach(cls => {
-        if (arvoreDeSkills[cls]) {
-            arvoreDeSkills[cls].forEach(habilidade => {
-                if (nivel >= habilidade.lvl) {
-                    const raw = bancoDeSkills[habilidade.nome];
-                    if (!raw) return;
-                    const dadosSkill = Object.assign({}, raw, {
-                        idNome: habilidade.nome,
-                        _learnLvl: habilidade.lvl
-                    }) as LearnedSkillMeta;
-                    skillsDoChar.push(dadosSkill);
-                }
-            });
-        }
+    const seen = new Set<string>();
+
+    linhagem.forEach((cls) => {
+        if (!arvoreDeSkills[cls]) return;
+        arvoreDeSkills[cls].forEach((habilidade) => {
+            if (nivel < habilidade.lvl) return;
+            if (seen.has(habilidade.nome)) return;
+            const entry = buildSpellbookSkillEntry(habilidade.nome, habilidade.lvl, cls, false);
+            if (!entry) return;
+            seen.add(habilidade.nome);
+            skillsDoChar.push(entry);
+        });
     });
     return skillsDoChar;
 };
+
+function sortSpellbookSkills(list: LearnedSkillMeta[]): LearnedSkillMeta[] {
+    return list.slice().sort((a, b) => {
+        const aLvl = a._learnLvl != null ? a._learnLvl : 0;
+        const bLvl = b._learnLvl != null ? b._learnLvl : 0;
+        if (aLvl !== bLvl) return aLvl - bLvl;
+        return spellbookSkillName(a.idNome).localeCompare(spellbookSkillName(b.idNome));
+    });
+}
+
+/**
+ * Spellbook sections: Ready → Upcoming (current path) → next specialization forks.
+ */
+window.obterSkillsSpellbookSections = function (): SpellbookSection[] {
+    const byName = new Map<string, LearnedSkillMeta>();
+    const playerLvl = typeof nivel === 'number' && !Number.isNaN(nivel) ? nivel : 1;
+    const linhagem = linhagemClasses[charClass] || [];
+    const linhagemSet = new Set(linhagem);
+    const childClasses = getDirectChildClasses(charClass);
+
+    const upsert = (entry: LearnedSkillMeta) => {
+        const prev = byName.get(entry.idNome);
+        if (!prev) {
+            byName.set(entry.idNome, entry);
+            return;
+        }
+        // Prefer unlocked; then current-path over next-spec preview; then earlier unlock level.
+        if (prev._locked && !entry._locked) {
+            byName.set(entry.idNome, entry);
+            return;
+        }
+        if (!prev._locked && entry._locked) return;
+        if (prev._spellbookGroup === 'spec' && entry._spellbookGroup !== 'spec') {
+            byName.set(entry.idNome, entry);
+            return;
+        }
+        if (prev._spellbookGroup !== 'spec' && entry._spellbookGroup === 'spec') return;
+        const prevLvl = prev._learnLvl != null ? prev._learnLvl : 999;
+        const nextLvl = entry._learnLvl != null ? entry._learnLvl : 999;
+        if (nextLvl < prevLvl) byName.set(entry.idNome, entry);
+    };
+
+    linhagem.forEach((cls) => {
+        if (!arvoreDeSkills[cls]) return;
+        arvoreDeSkills[cls].forEach((habilidade) => {
+            const locked = playerLvl < habilidade.lvl;
+            const entry = buildSpellbookSkillEntry(habilidade.nome, habilidade.lvl, cls, locked);
+            if (!entry) return;
+            entry._spellbookGroup = locked ? 'upcoming' : 'ready';
+            upsert(entry);
+        });
+    });
+
+    childClasses.forEach((childCls) => {
+        if (!arvoreDeSkills[childCls]) return;
+        arvoreDeSkills[childCls].forEach((habilidade) => {
+            const entry = buildSpellbookSkillEntry(habilidade.nome, habilidade.lvl, childCls, true);
+            if (!entry) return;
+            entry._spellbookGroup = 'spec';
+            upsert(entry);
+        });
+    });
+
+    const ready: LearnedSkillMeta[] = [];
+    const upcoming: LearnedSkillMeta[] = [];
+    const specByClass = new Map<string, LearnedSkillMeta[]>();
+
+    byName.forEach((skill) => {
+        const group = skill._spellbookGroup
+            || (skill._locked
+                ? (skill._classNode && !linhagemSet.has(skill._classNode) ? 'spec' : 'upcoming')
+                : 'ready');
+        if (group === 'ready') {
+            ready.push(skill);
+            return;
+        }
+        if (group === 'upcoming') {
+            upcoming.push(skill);
+            return;
+        }
+        const node = skill._classNode || 'Unknown';
+        const bucket = specByClass.get(node) || [];
+        bucket.push(skill);
+        specByClass.set(node, bucket);
+    });
+
+    const sections: SpellbookSection[] = [];
+    if (ready.length > 0) {
+        sections.push({ id: 'ready', kind: 'ready', skills: sortSpellbookSkills(ready) });
+    }
+    if (upcoming.length > 0) {
+        sections.push({ id: 'upcoming', kind: 'upcoming', skills: sortSpellbookSkills(upcoming) });
+    }
+    childClasses.forEach((childCls) => {
+        const skills = specByClass.get(childCls);
+        if (!skills || skills.length <= 0) return;
+        const sorted = sortSpellbookSkills(skills);
+        const reqLvl = sorted.reduce((min, s) => {
+            const lvl = s._learnLvl != null ? s._learnLvl : 999;
+            return lvl < min ? lvl : min;
+        }, 999);
+        sections.push({
+            id: 'spec:' + childCls,
+            kind: 'spec',
+            classNode: childCls,
+            reqLvl: reqLvl === 999 ? undefined : reqLvl,
+            skills: sorted,
+        });
+    });
+    return sections;
+};
+
+/** Flat Spellbook list (compat for detail / selection). */
+window.obterSkillsSpellbook = function (): LearnedSkillMeta[] {
+    const sections = typeof window.obterSkillsSpellbookSections === 'function'
+        ? window.obterSkillsSpellbookSections()
+        : [];
+    const flat: LearnedSkillMeta[] = [];
+    sections.forEach((sec) => {
+        sec.skills.forEach((s) => flat.push(s));
+    });
+    return flat;
+};
+
+function spellbookSectionTitle(section: SpellbookSection, tn: (k: string, p?: Record<string, string | number>) => string): string {
+    if (section.kind === 'ready') return tn('game.spellbook.sectionReady');
+    if (section.kind === 'upcoming') return tn('game.spellbook.sectionUpcoming');
+    const rawName = section.classNode || '';
+    const name = classEvolutionDisplayName(rawName);
+    const lvl = section.reqLvl != null ? section.reqLvl : 20;
+    return tn('game.spellbook.sectionSpec', { name, lvl });
+}
+
+function createSpellbookRow(
+    skill: LearnedSkillMeta,
+    opts: { hideClassTag?: boolean },
+    tn: (k: string, p?: Record<string, string | number>) => string,
+    mpSh: string,
+    cdSh: string,
+    secLab: string,
+): HTMLButtonElement {
+    const locked = !!skill._locked;
+    const isNew = !locked
+        && typeof window.hasUnseenSkillUnlock === 'function'
+        && window.hasUnseenSkillUnlock(skill.idNome);
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'spellbook-row'
+        + (locked ? ' spellbook-row--locked' : '')
+        + (isNew ? ' spellbook-row--new' : '');
+    row.setAttribute('role', 'option');
+    row.dataset.skillName = skill.idNome;
+    row.dataset.locked = locked ? '1' : '0';
+
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'spellbook-row__icon';
+    iconWrap.style.borderColor = skill.cor || '#7a664f';
+    iconWrap.innerHTML = window.spellbookIconInnerHtml(skill.icone, 38);
+
+    const body = document.createElement('div');
+    body.className = 'spellbook-row__body';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'spellbook-row__name';
+    if (skill.cor && !locked) nameEl.style.color = skill.cor;
+    nameEl.textContent = spellbookSkillName(skill.idNome);
+
+    const meta = document.createElement('div');
+    meta.className = 'spellbook-row__meta';
+    const mp = skill.mp != null ? skill.mp : 0;
+    const cdSec = ((skill.cd != null ? skill.cd : 0) / 1000);
+    const learnLvl = skill._learnLvl != null ? skill._learnLvl : 1;
+    let metaHtml =
+        `<span class="spellbook-row__tag spellbook-row__tag--mp">${mpSh} ${mp}</span>` +
+        `<span class="spellbook-row__tag spellbook-row__tag--cd">${cdSh} ${cdSec}${secLab}</span>` +
+        `<span class="spellbook-row__tag spellbook-row__tag--type">${window.spellbookTipoLabel(skill.tipo)}</span>`;
+    if (locked) {
+        metaHtml += `<span class="spellbook-row__tag spellbook-row__tag--lock">${tn('game.spellbook.unlockAtLevel', { lvl: learnLvl })}</span>`;
+        if (!opts.hideClassTag && skill._classNode) {
+            const classLabel = classEvolutionDisplayName(skill._classNode);
+            metaHtml += `<span class="spellbook-row__tag spellbook-row__tag--path">${tn('game.spellbook.fromClass', { name: classLabel })}</span>`;
+        }
+    } else if (learnLvl > 1) {
+        metaHtml += `<span class="spellbook-row__tag spellbook-row__tag--ready">${tn('game.spellbook.learnedTag')}</span>`;
+    }
+    meta.innerHTML = metaHtml;
+
+    const descEl = document.createElement('div');
+    descEl.className = 'spellbook-row__desc';
+    descEl.textContent = spellbookSkillDesc(skill.idNome, skill.desc ? String(skill.desc) : '');
+
+    body.appendChild(nameEl);
+    body.appendChild(meta);
+    body.appendChild(descEl);
+    row.appendChild(iconWrap);
+    row.appendChild(body);
+
+    if (isNew) {
+        const newBadge = document.createElement('span');
+        newBadge.className = 'spellbook-row__new';
+        newBadge.textContent = tn('game.spellbook.newBadge');
+        row.appendChild(newBadge);
+    }
+
+    row.addEventListener('click', () => { window.selecionarSkillSpellbook(skill.idNome); });
+    return row;
+}
 
 window.abrirSpellbook = function() {
     const listEl = document.getElementById('spellbook-list');
@@ -602,63 +890,67 @@ window.abrirSpellbook = function() {
         if (typeof window.I18n !== 'undefined' && window.I18n.refreshDom && jw) window.I18n.refreshDom(jw);
     } catch { /* noop */ }
 
-    const skills = window.obterSkillsAprendidas();
+    const sections = typeof window.obterSkillsSpellbookSections === 'function'
+        ? window.obterSkillsSpellbookSections()
+        : [];
+    const totalSkills = sections.reduce((n, s) => n + s.skills.length, 0);
     const secLab = (typeof window.t === 'function') ? window.t('game.spellbook.seconds') : 's';
+    const tn = typeof window.t === 'function' ? window.t : (k: string) => k;
 
-    if (skills.length === 0) {
+    if (totalSkills === 0) {
         hintEl.style.display = 'none';
         detailEl.classList.remove('spellbook-detail--visible');
         btnAssign.classList.remove('spellbook-assign--visible');
-        listEl.innerHTML = `<div class="spellbook-empty">${typeof window.t === 'function' ? window.t('game.spellbook.empty') : 'No skills yet.'}</div>`;
+        listEl.innerHTML = `<div class="spellbook-empty">${tn('game.spellbook.empty')}</div>`;
     } else {
         hintEl.style.display = 'block';
         detailEl.classList.remove('spellbook-detail--visible');
         btnAssign.classList.remove('spellbook-assign--visible');
 
-        const mpSh = typeof window.t === 'function' ? window.t('game.spellbook.mpShort') : 'MP';
-        const cdSh = typeof window.t === 'function' ? window.t('game.spellbook.cdShort') : 'CD';
+        const mpSh = tn('game.spellbook.mpShort');
+        const cdSh = tn('game.spellbook.cdShort');
 
-        skills.forEach(skill => {
-            const row = document.createElement('button');
-            row.type = 'button';
-            row.className = 'spellbook-row';
-            row.setAttribute('role', 'option');
-            row.dataset.skillName = skill.idNome;
+        sections.forEach((section) => {
+            const wrap = document.createElement('section');
+            wrap.className = 'spellbook-section spellbook-section--' + section.kind;
+            wrap.dataset.sectionId = section.id;
 
-            const iconWrap = document.createElement('div');
-            iconWrap.className = 'spellbook-row__icon';
-            iconWrap.style.borderColor = skill.cor || '#7a664f';
-            iconWrap.innerHTML = window.spellbookIconInnerHtml(skill.icone, 38);
+            const head = document.createElement('div');
+            head.className = 'spellbook-section__head';
 
-            const body = document.createElement('div');
-            body.className = 'spellbook-row__body';
+            const title = document.createElement('h4');
+            title.className = 'spellbook-section__title';
+            title.textContent = spellbookSectionTitle(section, tn);
+            head.appendChild(title);
 
-            const nameEl = document.createElement('div');
-            nameEl.className = 'spellbook-row__name';
-            if (skill.cor) nameEl.style.color = skill.cor;
-            nameEl.textContent = spellbookSkillName(skill.idNome);
+            if (section.kind === 'spec') {
+                const hint = document.createElement('p');
+                hint.className = 'spellbook-section__hint';
+                hint.textContent = tn('game.spellbook.sectionSpecHint');
+                head.appendChild(hint);
+            } else if (section.kind === 'upcoming') {
+                const hint = document.createElement('p');
+                hint.className = 'spellbook-section__hint';
+                hint.textContent = tn('game.spellbook.sectionUpcomingHint');
+                head.appendChild(hint);
+            }
 
-            const meta = document.createElement('div');
-            meta.className = 'spellbook-row__meta';
-            const mp = skill.mp != null ? skill.mp : 0;
-            const cdSec = ((skill.cd != null ? skill.cd : 0) / 1000);
-            meta.innerHTML =
-                `<span class="spellbook-row__tag spellbook-row__tag--mp">${mpSh} ${mp}</span>` +
-                `<span class="spellbook-row__tag spellbook-row__tag--cd">${cdSh} ${cdSec}${secLab}</span>` +
-                `<span class="spellbook-row__tag spellbook-row__tag--type">${window.spellbookTipoLabel(skill.tipo)}</span>`;
+            wrap.appendChild(head);
 
-            const descEl = document.createElement('div');
-            descEl.className = 'spellbook-row__desc';
-            descEl.textContent = spellbookSkillDesc(skill.idNome, skill.desc ? String(skill.desc) : '');
-
-            body.appendChild(nameEl);
-            body.appendChild(meta);
-            body.appendChild(descEl);
-            row.appendChild(iconWrap);
-            row.appendChild(body);
-
-            row.addEventListener('click', () => { window.selecionarSkillSpellbook(skill.idNome); });
-            listEl.appendChild(row);
+            const rows = document.createElement('div');
+            rows.className = 'spellbook-section__rows';
+            section.skills.forEach((skill) => {
+                rows.appendChild(createSpellbookRow(
+                    skill,
+                    { hideClassTag: section.kind === 'spec' },
+                    tn,
+                    mpSh,
+                    cdSh,
+                    secLab,
+                ));
+            });
+            wrap.appendChild(rows);
+            listEl.appendChild(wrap);
         });
 
         document.getElementById('spellbook-detail-name')!.textContent = '';
@@ -672,6 +964,9 @@ window.abrirSpellbook = function() {
     }
 
     abrirModal('janela-spellbook', 1500);
+    if (typeof window.syncSkillUnlockNotifUi === 'function') {
+        window.syncSkillUnlockNotifUi();
+    }
     try {
         if (typeof window.TutorialEngine !== 'undefined' && typeof window.TutorialEngine.notifySpellbookOpened === 'function') {
             window.TutorialEngine.notifySpellbookOpened();
@@ -688,7 +983,22 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
     const raw = bancoDeSkills[nomeSkill];
     if (!raw) return;
 
-    skillSelecionadaSpellbook = Object.assign({}, raw, { idNome: nomeSkill }) as LearnedSkillMeta;
+    const bookList = typeof window.obterSkillsSpellbook === 'function'
+        ? window.obterSkillsSpellbook()
+        : window.obterSkillsAprendidas();
+    const meta = bookList.find((s) => s.idNome === nomeSkill);
+    const locked = !!(meta && meta._locked);
+
+    skillSelecionadaSpellbook = Object.assign({}, raw, {
+        idNome: nomeSkill,
+        _learnLvl: meta?._learnLvl,
+        _locked: locked,
+        _classNode: meta?._classNode,
+    }) as LearnedSkillMeta;
+
+    if (!locked && typeof window.markSkillUnlockSeen === 'function') {
+        window.markSkillUnlockSeen(nomeSkill);
+    }
 
     document.querySelectorAll('.spellbook-row').forEach(r => {
         const row = r as HTMLElement;
@@ -698,11 +1008,21 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
     document.getElementById('spellbook-select-hint')!.style.display = 'none';
     const detailEl = document.getElementById('spellbook-detail')!;
     detailEl.classList.add('spellbook-detail--visible');
+    detailEl.classList.toggle('spellbook-detail--locked', locked);
 
-    const learnedMeta = window.obterSkillsAprendidas().find(s => s.idNome === nomeSkill);
     const learnP = document.getElementById('spellbook-detail-learn')!;
-    if (learnedMeta && learnedMeta._learnLvl != null && typeof window.t === 'function') {
-        learnP.textContent = window.t('game.spellbook.learnLevel', { lvl: learnedMeta._learnLvl });
+    const tn = typeof window.t === 'function' ? window.t : (k: string) => k;
+    if (meta && meta._learnLvl != null) {
+        if (locked) {
+            let lockMsg = tn('game.spellbook.lockedDetail', { lvl: meta._learnLvl });
+            if (meta._classNode) {
+                const classLabel = classEvolutionDisplayName(meta._classNode);
+                lockMsg += ' · ' + tn('game.spellbook.fromClass', { name: classLabel });
+            }
+            learnP.textContent = lockMsg;
+        } else {
+            learnP.textContent = tn('game.spellbook.learnLevel', { lvl: meta._learnLvl });
+        }
         learnP.style.display = 'block';
     } else {
         learnP.textContent = '';
@@ -715,18 +1035,23 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
 
     const title = document.getElementById('spellbook-detail-name')!;
     title.textContent = spellbookSkillName(nomeSkill);
-    title.style.color = raw.cor || '';
+    title.style.color = locked ? '' : (raw.cor || '');
 
     document.getElementById('spellbook-stat-mp')!.textContent = String(raw.mp != null ? raw.mp : 0);
     const cdMs = raw.cd != null ? raw.cd : 0;
-    const secLbl = typeof window.t === 'function' ? window.t('game.spellbook.seconds') : 's';
+    const secLbl = tn('game.spellbook.seconds');
     document.getElementById('spellbook-stat-cd')!.textContent = cdMs === 0 ? '—' : ((cdMs / 1000) + secLbl);
     document.getElementById('spellbook-stat-power')!.textContent = window.spellbookFormatPowerCell(raw);
     document.getElementById('spellbook-stat-type')!.textContent = window.spellbookTipoLabel(raw.tipo);
 
     document.getElementById('spellbook-detail-desc')!.textContent = spellbookSkillDesc(nomeSkill, raw.desc ? String(raw.desc) : '');
 
-    document.getElementById('btn-spellbook-assign')!.classList.add('spellbook-assign--visible');
+    const btnAssign = document.getElementById('btn-spellbook-assign')!;
+    if (locked) {
+        btnAssign.classList.remove('spellbook-assign--visible');
+    } else {
+        btnAssign.classList.add('spellbook-assign--visible');
+    }
 
     try {
         detailEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -734,7 +1059,7 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
 };
 
 window.mostrarSeletorSlot = function() {
-    if (!skillSelecionadaSpellbook) return;
+    if (!skillSelecionadaSpellbook || skillSelecionadaSpellbook._locked) return;
 
     abrirSeletorAtalhoGlobal(skillSelecionadaSpellbook.idNome, (index) => {
         barraAtalhos[index] = skillSelecionadaSpellbook!.idNome;
@@ -747,8 +1072,8 @@ window.mostrarSeletorSlot = function() {
             : `Skill [${skillLabel}] assigned to slot ${index + 1}!`;
         escreverLog(`<span style="color:#10b981;">${logLine}</span>`);
         renderizarBarraAtalhos();
-        if(typeof salvarJogo === 'function') salvarJogo();
-        window.fecharSpellbook();
+        if (typeof salvarJogo === 'function') salvarJogo({ silent: true });
+        // Keep Spellbook open so the player can assign more skills; close only via CLOSE.
         try {
             if (typeof window.TutorialEngine !== 'undefined' && typeof window.TutorialEngine.notifySkillAssignedFromSpellbook === 'function') {
                 window.TutorialEngine.notifySkillAssignedFromSpellbook();
@@ -758,7 +1083,7 @@ window.mostrarSeletorSlot = function() {
 };
 
 window.equiparSkillNaBarra = function(indexSlot: number) {
-    if (!skillSelecionadaSpellbook) return;
+    if (!skillSelecionadaSpellbook || skillSelecionadaSpellbook._locked) return;
 
     barraAtalhos[indexSlot] = skillSelecionadaSpellbook.idNome;
     
@@ -773,9 +1098,8 @@ window.equiparSkillNaBarra = function(indexSlot: number) {
     escreverLog(`<span style="color:#10b981;">${logLine}</span>`);
     
     if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
-    if(typeof salvarJogo === 'function') salvarJogo();
-    
-    window.fecharSpellbook();
+    if (typeof salvarJogo === 'function') salvarJogo({ silent: true });
+    // Keep Spellbook open after equip — player closes when done.
     try {
         if (typeof window.TutorialEngine !== 'undefined' && typeof window.TutorialEngine.notifySkillAssignedFromSpellbook === 'function') {
             window.TutorialEngine.notifySkillAssignedFromSpellbook();
@@ -784,6 +1108,7 @@ window.equiparSkillNaBarra = function(indexSlot: number) {
 };
 
 window.refreshSpellbookI18n = function (): void {
+    const tn = typeof window.t === 'function' ? window.t : (k: string) => k;
     document.querySelectorAll('.spellbook-row').forEach((rowEl) => {
         const row = rowEl as HTMLElement;
         const skillKey = row.dataset.skillName;
@@ -791,14 +1116,72 @@ window.refreshSpellbookI18n = function (): void {
         const raw = bancoDeSkills[skillKey];
         const nameEl = row.querySelector('.spellbook-row__name');
         const descEl = row.querySelector('.spellbook-row__desc');
+        const newEl = row.querySelector('.spellbook-row__new');
         if (nameEl) nameEl.textContent = spellbookSkillName(skillKey);
         if (descEl) {
             descEl.textContent = spellbookSkillDesc(skillKey, raw?.desc ? String(raw.desc) : '');
+        }
+        if (newEl && !newEl.hasAttribute('hidden')) {
+            newEl.textContent = tn('game.spellbook.newBadge');
         }
     });
     if (skillSelecionadaSpellbook?.idNome) {
         window.selecionarSkillSpellbook(skillSelecionadaSpellbook.idNome);
     }
+};
+
+function showSkillUnlockToast(message: string): void {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    if (container.children.length >= 3 && container.firstElementChild) {
+        container.removeChild(container.firstElementChild);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast-msg toast-msg--skill-unlock';
+    toast.textContent = message;
+    container.appendChild(toast);
+    window.setTimeout(() => {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 4200);
+}
+
+/**
+ * After a level-up (or multi-level), announce skills that became available
+ * in the (levelBefore, levelAfter] range for the current class lineage.
+ */
+window.notifySkillsUnlockedAfterLevelChange = function (
+    levelBefore: number,
+    levelAfter: number,
+): void {
+    const before = Math.floor(Number(levelBefore) || 0);
+    const after = Math.floor(Number(levelAfter) || 0);
+    if (after <= before) return;
+
+    const learned = typeof window.obterSkillsAprendidas === 'function'
+        ? window.obterSkillsAprendidas()
+        : [];
+    const newly = learned.filter((s) => {
+        if (!s || s.idNome === 'Attack') return false;
+        const req = typeof s._learnLvl === 'number' ? s._learnLvl : 0;
+        return req > before && req <= after;
+    });
+    if (newly.length <= 0) return;
+
+    const ids = newly.map((s) => s.idNome).filter(Boolean);
+    if (typeof window.markSkillsUnseen === 'function') {
+        window.markSkillsUnseen(ids);
+    }
+
+    const names = newly.map((s) => spellbookSkillName(s.idNome));
+    const tn = typeof window.t === 'function' ? window.t : (k: string) => k;
+    const msg = newly.length === 1
+        ? tn('game.combat.skillUnlocked', { skill: names[0] })
+        : tn('game.combat.skillsUnlockedMany', { list: names.join(', ') });
+
+    if (typeof window.escreverLog === 'function') {
+        window.escreverLog(`<span style="color:#67e8f9; font-weight:bold;">📘 ${msg}</span>`);
+    }
+    showSkillUnlockToast(msg);
 };
 
 /** Bridge para módulos TS e scripts legados */

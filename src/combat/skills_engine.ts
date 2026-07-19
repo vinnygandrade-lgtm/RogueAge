@@ -5,6 +5,7 @@
 
 import { petDisplayName, writeSkillLog } from './combat_i18n';
 import { mobDefenseAgainstPlayer } from './mob_combat_stats';
+import { setSkillCombatBuff } from './skill_combat_buffs';
 
 interface ForestMob {
   hp?: number;
@@ -55,6 +56,11 @@ function usarSkill(nomeSkill: string) {
 
     const skill = getBancoDeSkills()?.[nomeSkill];
     if (!skill || (window.cooldownsAtivos[nomeSkill] > Date.now())) return;
+    // Block skills that are only visible as locked spellbook previews.
+    if (typeof window.obterSkillsAprendidas === 'function') {
+        const learned = window.obterSkillsAprendidas();
+        if (!learned.some((s) => s.idNome === nomeSkill)) return;
+    }
     const mpCost = resolveSkillMpCost(skill.mp);
     if (window.playerMP < mpCost) {
         const msg = (typeof window.t === 'function') ? window.t('game.skills.insufficientMana') : 'Not enough MP!';
@@ -188,9 +194,12 @@ function usarSkill(nomeSkill: string) {
         case "buff_spd":
             writeSkillLog('buffSpeedActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
-            window.playerStats.atkSpeed = Math.floor(window.playerStats.atkSpeed / skill.poder);
+            setSkillCombatBuff('spd', {
+                skillName: nomeSkill,
+                atkSpeedMult: 1 / Math.max(0.01, Number(skill.poder) || 1),
+            });
+            if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
             window.atualizar();
-            setTimeout(() => { window.calcularStatusGlobais(); window.atualizar(); }, 30000);
             break;
 
         case "utilidade": 
@@ -281,22 +290,48 @@ function usarSkill(nomeSkill: string) {
         case "buff_def":
             writeSkillLog('buffActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
-            if (nomeSkill === "Ultimate Evasion") { window.motorBuffsEspeciais.esquiva = 40; setTimeout(() => { window.motorBuffsEspeciais.esquiva = 0; }, 30000); }
-            window.playerStats.pDef = Math.floor(window.playerStats.pDef * skill.poder); window.atualizar();
-            setTimeout(() => { window.calcularStatusGlobais(); window.atualizar(); }, 30000);
+            if (nomeSkill === "Ultimate Evasion") {
+                if (!window.motorBuffsEspeciais) window.motorBuffsEspeciais = { critMult: 1, esquiva: 0 };
+                window.motorBuffsEspeciais.esquiva = 40;
+                setTimeout(() => {
+                    if (window.motorBuffsEspeciais) window.motorBuffsEspeciais.esquiva = 0;
+                }, 30000);
+            }
+            setSkillCombatBuff('def', {
+                skillName: nomeSkill,
+                pDefMult: Math.max(0.01, Number(skill.poder) || 1),
+            });
+            if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
+            window.atualizar();
             break;
 
-        case "buff_atk":
+        case "buff_atk": {
             let poderFinal = skill.poder;
             if ((nomeSkill === "Frenzy" || nomeSkill === "Bison Spirit Totem") && (window.playerHP / window.playerStats.maxHp) * 100 <= 30) {
                 poderFinal = 5.0; writeSkillLog('limitBreak', undefined, 'color:#ff0000; font-weight:bold; font-size:1.2em; text-shadow: 1px 1px 0 #000;');
             }
             writeSkillLog('buffActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
-            if (nomeSkill === "Vicious Stance") { let oldMult = window.motorBuffsEspeciais.critMult; window.motorBuffsEspeciais.critMult = 2.5; setTimeout(() => { window.motorBuffsEspeciais.critMult = oldMult; }, 30000); }
-            else { if (isMagico) window.playerStats.mAtk = Math.floor(window.playerStats.mAtk * poderFinal); else window.playerStats.pAtk = Math.floor(window.playerStats.pAtk * poderFinal); if (nomeSkill === "Focus Attack") window.playerStats.atkSpeed = Math.floor(window.playerStats.atkSpeed * 0.85); }
-            window.atualizar(); setTimeout(() => { window.calcularStatusGlobais(); window.atualizar(); }, 30000);
+            if (nomeSkill === "Vicious Stance") {
+                if (!window.motorBuffsEspeciais) window.motorBuffsEspeciais = { critMult: 1, esquiva: 0 };
+                const oldMult = window.motorBuffsEspeciais.critMult;
+                window.motorBuffsEspeciais.critMult = 2.5;
+                setTimeout(() => {
+                    if (window.motorBuffsEspeciais) window.motorBuffsEspeciais.critMult = oldMult;
+                }, 30000);
+            } else {
+                const poder = Math.max(0.01, Number(poderFinal) || 1);
+                setSkillCombatBuff('atk', {
+                    skillName: nomeSkill,
+                    pAtkMult: isMagico ? 1 : poder,
+                    mAtkMult: isMagico ? poder : 1,
+                    atkSpeedMult: nomeSkill === "Focus Attack" ? 0.85 : 1,
+                });
+            }
+            if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
+            window.atualizar();
             break;
+        }
 
        case "cura":
             let hpC = Math.floor(window.playerStats.maxHp * skill.poder);

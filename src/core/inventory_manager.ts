@@ -16,6 +16,22 @@ function catalogFromItem(item: EquipInstance | EquipRawInput | null): ItemCatalo
   return null;
 }
 
+/** True if weapon carries augment rolls (recovers saves that lost the `augmented` flag). */
+function weaponHasAugmentRolls(arma: EquipInstance | null | undefined): boolean {
+  if (!arma) return false;
+  const keys = ['augPAtk', 'augMAtk', 'augPDef', 'augMDef', 'augSpd', 'augCrit', 'augHp'] as const;
+  const hasRolls = (obj: Record<string, unknown> | null | undefined): boolean => {
+    if (!obj) return false;
+    return keys.some((k) => {
+      const v = obj[k];
+      return typeof v === 'number' && Number.isFinite(v) && v > 0;
+    });
+  };
+  if (hasRolls(arma as unknown as Record<string, unknown>)) return true;
+  if (arma.base && hasRolls(arma.base as unknown as Record<string, unknown>)) return true;
+  return false;
+}
+
 function equippedSlots(): Array<EquipInstance | null | undefined> {
   return [
     window.armaEquipadaBase,
@@ -290,8 +306,14 @@ window.InventoryManager = {
   sincronizarStatus(): void {
     window.enchant = window.armaEquipadaBase?.enchant || 0;
     window.enchantArmor = window.armaduraEquipada?.enchant || 0;
-    window.isAugmented =
-      !!(window.armaEquipadaBase && (window.armaEquipadaBase.augmented || window.armaEquipadaBase.augmented === true));
+    const arma = window.armaEquipadaBase;
+    const flagged = !!(arma && arma.augmented);
+    const hasRolls = weaponHasAugmentRolls(arma);
+    window.isAugmented = flagged || hasRolls;
+    // Heal legacy offline augments that wrote rolls but never set `augmented`.
+    if (arma && hasRolls && !arma.augmented) {
+      arma.augmented = true;
+    }
 
     if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
     if (typeof window.atualizar === 'function') window.atualizar();

@@ -507,6 +507,9 @@ const ClanWarEngine = {
     finalizarGuerra() {
         this.ativo = false;
         const vitoria = this.aliadoWins > this.inimigoWins;
+        if (vitoria && typeof window.registrarProgressoMissaoDiaria === 'function') {
+            window.registrarProgressoMissaoDiaria('clan_war_win', 1);
+        }
         
         const container = document.getElementById('war-duel-container');
         container.innerHTML = `

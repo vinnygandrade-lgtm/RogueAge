@@ -3,8 +3,22 @@
  * Migrado: js/core_stats.js
  */
 import type { CharacterSave, EquipInstance, ItemCatalogBase, StatPerLevel } from '../types/game';
+import { getTitleStatBonus, type TitleStatBonus } from '../game/gameplay_title_bonuses';
+import { applySkillCombatBuffsToPlayerStats } from '../combat/skill_combat_buffs';
 
 type StatItem = EquipInstance | ItemCatalogBase | null | undefined;
+
+function resolveEquippedTitleIdForStats(): string | null {
+  const override = (window as unknown as { _calcStatsTitleOverride?: string | null })._calcStatsTitleOverride;
+  if (override !== undefined) {
+    return override && String(override).trim() ? String(override).trim() : null;
+  }
+  if (typeof window.getEquippedTitleId === 'function') {
+    const id = window.getEquippedTitleId();
+    return id && String(id).trim() ? String(id).trim() : null;
+  }
+  return null;
+}
 
 function getItemStat(item: StatItem, stat: string): number {
   if (!item) return 0;
@@ -194,9 +208,15 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     const pDefPerLvl = (typeof pl.pDef === 'number') ? pl.pDef : 1.2;
     const mDefPerLvl = (typeof pl.mDef === 'number') ? pl.mDef : 1;
     const atkSpdMsMenosPorNivel = (typeof pl.atkSpdMs === 'number' && pl.atkSpdMs >= 0) ? pl.atkSpdMs : 0;
+
+    const equippedTitleId = resolveEquippedTitleIdForStats();
+    const titleBonus: TitleStatBonus = equippedTitleId ? getTitleStatBonus(equippedTitleId) : {
+      pAtk: 0, mAtk: 0, pDef: 0, mDef: 0, maxHp: 0, maxMp: 0, critRate: 0, atkSpeedMs: 0,
+    };
     
     let hpBaseDaClasse = Math.floor((baseHp + ((safeNivel - 1) * hpPerLvl) + bonusAugHp) * mod.hp);
-    window.playerStats.maxHp = Math.floor((hpBaseDaClasse + armaduraBonusHp + armaBonusHp + joiasBonusHp) * clanBonusHp); 
+    window.playerStats.maxHp = Math.floor((hpBaseDaClasse + armaduraBonusHp + armaBonusHp + joiasBonusHp) * clanBonusHp);
+    if (titleBonus.maxHp > 0) window.playerStats.maxHp += titleBonus.maxHp;
 
     let multCP = isMage ? 0.4 : 0.6;
     if (race === "Orc") multCP += 0.1;
@@ -205,6 +225,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
 
     let mpBaseDaClasse = Math.floor((baseMp + ((safeNivel - 1) * mpPerLvl)) * mod.mp);
     window.playerStats.maxMp = mpBaseDaClasse + armaduraBonusMp + armaBonusMp + joiasBonusMp;
+    if (titleBonus.maxMp > 0) window.playerStats.maxMp += titleBonus.maxMp;
 
     let atkFisicoBase = isMage ? (base.danoFighter / 2) : base.danoFighter;
     var _bareW = (typeof window.L2MINI_BARE_HAND_WEAPON_ATK === 'number' && window.L2MINI_BARE_HAND_WEAPON_ATK > 0)
@@ -214,21 +235,27 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let bonusEnchantWpnPAtk = Math.floor(atkArma * 0.10 * lvlWpn); 
     let atkTotal = atkFisicoBase + atkArma + bonusEnchantWpnPAtk + bonusAugPAtk + ((safeNivel - 1) * pAtkPerLvl);
     window.playerStats.pAtk = Math.floor(atkTotal * mod.atk * window.buffsAtivos.pAtkMult * clanBonusPAtk * castleBonusPAtk) + atkArmadura + joiasPAtk;
+    if (titleBonus.pAtk > 0) window.playerStats.pAtk += titleBonus.pAtk;
 
     let atkMagicoBase = isMage ? base.danoMage : (base.danoMage / 2);
     let matkArma = (arma == null) ? _bareW : (getStat(arma, 'matk') || 0);
     let bonusEnchantWpnMAtk = Math.floor(matkArma * 0.10 * lvlWpn); 
     let matkTotal = atkMagicoBase + matkArma + bonusEnchantWpnMAtk + bonusAugMAtk + ((safeNivel - 1) * mAtkPerLvl);
     window.playerStats.mAtk = Math.floor(matkTotal * mod.atk * window.buffsAtivos.mAtkMult * clanBonusMAtk * castleBonusMAtk) + matkArmadura + joiasMAtk;
+    if (titleBonus.mAtk > 0) window.playerStats.mAtk += titleBonus.mAtk;
 
     let defTotal = 30 + defArmaduraTotal + ((safeNivel - 1) * pDefPerLvl) + 20 + bonusAugPDef;
     window.playerStats.pDef = Math.floor(defTotal * mod.def * window.buffsAtivos.pDefMult * clanBonusPDef * castleBonusPDef);
+    if (titleBonus.pDef > 0) window.playerStats.pDef += titleBonus.pDef;
 
     let defMagicaBase = 20;
     let mdefTotal = defMagicaBase + joiasMDef + ((safeNivel - 1) * mDefPerLvl) + bonusAugMDef + armaduraBonusMDef + armaduraFlatMDef;
     window.playerStats.mDef = Math.floor(mdefTotal * mod.def * window.buffsAtivos.mDefMult * castleBonusMDef);
+    if (titleBonus.mDef > 0) window.playerStats.mDef += titleBonus.mDef;
     
-    const critRawBeforeCap = Math.floor(base.critico + mod.crit + bonusAugCrit + armaduraBonusCrit + armaBonusCrit + joiasBonusCrit);
+    const critRawBeforeCap = Math.floor(
+      base.critico + mod.crit + bonusAugCrit + armaduraBonusCrit + armaBonusCrit + joiasBonusCrit + titleBonus.critRate,
+    );
     window.playerStats.critRate = (typeof window.applyCritRateCap === 'function')
         ? window.applyCritRateCap(critRawBeforeCap)
         : Math.min(Math.max(0, critRawBeforeCap), 70);
@@ -238,6 +265,8 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     if (buffFighterLigado) spdTotal *= 0.7; 
     if (buffMageLigado) spdTotal *= 0.6; 
     spdTotal -= bonusAugSpd; spdTotal -= armaduraBonusSpd; spdTotal -= armaBonusSpd; spdTotal -= joiasBonusSpd;
+    if (titleBonus.atkSpeedMs > 0) spdTotal -= titleBonus.atkSpeedMs;
+
     window.playerStats.atkSpeed = Math.floor(spdTotal * 1.0);
     const atkSpdFlooredBelowMin = window.playerStats.atkSpeed < 250;
     if (atkSpdFlooredBelowMin) { window.playerStats.atkSpeed = 250; }
@@ -251,6 +280,9 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     ) {
         window.ExpeditionEngine.applyRunBuffsToPlayerStats();
     }
+
+    // Skill combat buffs (Frenzy, Shield, etc.) — re-applied after every full rebuild so equip/level-up cannot wipe them.
+    applySkillCombatBuffsToPlayerStats();
 
     // Auditoria única para a UI "Detailed status"
     const innerPAtk = Math.floor(atkTotal * mod.atk * window.buffsAtivos.pAtkMult * clanBonusPAtk * castleBonusPAtk);
@@ -288,6 +320,17 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             mDef: castleBonusMDef,
             castlesOwned: castleBonusPAtk > 1 ? Math.round((castleBonusPAtk - 1) / 0.01) : 0
         },
+        title: {
+            titleId: equippedTitleId,
+            pAtk: titleBonus.pAtk,
+            mAtk: titleBonus.mAtk,
+            pDef: titleBonus.pDef,
+            mDef: titleBonus.mDef,
+            maxHp: titleBonus.maxHp,
+            maxMp: titleBonus.maxMp,
+            critRate: titleBonus.critRate,
+            atkSpeedMs: titleBonus.atkSpeedMs,
+        },
         hp: {
             raceBaseHp: baseHp,
             hpPerLevels: ((safeNivel - 1) * hpPerLvl),
@@ -298,6 +341,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             weapon: armaBonusHp,
             jewels: joiasBonusHp,
             clanMultOnSum: clanBonusHp,
+            title: titleBonus.maxHp,
             total: window.playerStats.maxHp
         },
         mp: {
@@ -308,6 +352,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             armor: armaduraBonusMp,
             weapon: armaBonusMp,
             jewels: joiasBonusMp,
+            title: titleBonus.maxMp,
             total: window.playerStats.maxMp
         },
         cpMult: multCP,
@@ -322,6 +367,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             afterMultsNoEquip: innerPAtk,
             armorEquip: atkArmadura,
             jewelsEquip: joiasPAtk,
+            title: titleBonus.pAtk,
             total: window.playerStats.pAtk
         },
         mAtk: {
@@ -334,6 +380,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             afterMultsNoEquip: innerMAtk,
             armorEquip: matkArmadura,
             jewelsEquip: joiasMAtk,
+            title: titleBonus.mAtk,
             total: window.playerStats.mAtk
         },
         pDef: {
@@ -344,6 +391,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             augment: bonusAugPDef,
             rawSumBeforeMult: defTotal,
             afterClassBuffClanCastle: innerPDef,
+            title: titleBonus.pDef,
             total: window.playerStats.pDef
         },
         mDef: {
@@ -355,6 +403,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             augment: bonusAugMDef,
             rawSumBeforeMult: mdefTotal,
             afterClassBuffClanCastle: innerMDef,
+            title: titleBonus.mDef,
             total: window.playerStats.mDef
         },
         critRate: window.playerStats.critRate,
@@ -365,6 +414,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             armor: armaduraBonusCrit,
             weapon: armaBonusCrit,
             jewels: joiasBonusCrit,
+            title: titleBonus.critRate,
             rawBeforeCap: critRawBeforeCap,
             cap: (typeof window.L2MINI_CRIT_RATE_CAP === 'number' ? window.L2MINI_CRIT_RATE_CAP : 70),
         },
@@ -377,6 +427,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             reduceArmorMs: armaduraBonusSpd,
             reduceWeaponMs: armaBonusSpd,
             reduceJewelsMs: joiasBonusSpd,
+            reduceTitleMs: titleBonus.atkSpeedMs,
             computedMsBeforeFloor: spdTotal,
             floored250: atkSpdFlooredBelowMin,
             totalMs: window.playerStats.atkSpeed
@@ -439,7 +490,9 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
     var backupKeys = [
         'charRace', 'charGender', 'charClass', 'nivel', 'enchant', 'enchantArmor', 'isAugmented',
         'armaEquipadaBase', 'armaduraEquipada', 'colarEquipado', 'brincoEquipado1', 'brincoEquipado2',
-        'anelEquipado1', 'anelEquipado2', 'tempoFimBuffGuerreiro', 'tempoFimBuffMistico', 'playerClanId'
+        'anelEquipado1', 'anelEquipado2', 'tempoFimBuffGuerreiro', 'tempoFimBuffMistico', 'playerClanId',
+        '_calcStatsTitleOverride',
+        '_calcStatsSkipSkillBuffs',
     ];
     var backup: Record<string, unknown> = {};
     for (var bi = 0; bi < backupKeys.length; bi++) {
@@ -447,6 +500,7 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
     }
 
     try {
+        (window as unknown as { _calcStatsSkipSkillBuffs?: boolean })._calcStatsSkipSkillBuffs = true;
         window.charRace = saveLike.charRace || 'Human';
         window.charClass = saveLike.charClass || 'Fighter';
         if (saveLike.charGender) window.charGender = saveLike.charGender;
@@ -480,6 +534,12 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
         window.tempoFimBuffMistico = saveLike.tempoFimBuffMistico || 0;
         (window as unknown as Record<string, unknown>).playerClanId =
             saveLike.playerClanId !== undefined ? saveLike.playerClanId : null;
+
+        const gaRaw = saveLike.gameplayAchievements;
+        (window as unknown as { _calcStatsTitleOverride?: string | null })._calcStatsTitleOverride =
+            gaRaw && typeof gaRaw.equippedTitleId === 'string' && gaRaw.equippedTitleId.trim()
+                ? gaRaw.equippedTitleId.trim()
+                : null;
 
         if (typeof window.calcularStatusGlobais !== 'function') return null;
         window.calcularStatusGlobais();

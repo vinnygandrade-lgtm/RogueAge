@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 16 as const;
+export const L2MINI_SAVE_VERSION = 17 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -212,6 +212,17 @@ export interface PlayerStatBreakdown {
     mDef: number;
     castlesOwned?: number;
   };
+  title?: {
+    titleId: string | null;
+    pAtk: number;
+    mAtk: number;
+    pDef: number;
+    mDef: number;
+    maxHp: number;
+    maxMp: number;
+    critRate: number;
+    atkSpeedMs: number;
+  };
   hp: StatBreakdownSection & {
     total: number;
     clanMultOnSum?: number;
@@ -223,6 +234,7 @@ export interface PlayerStatBreakdown {
     armor?: number;
     weapon?: number;
     jewels?: number;
+    title?: number;
   };
   mp: StatBreakdownSection & {
     total: number;
@@ -233,6 +245,7 @@ export interface PlayerStatBreakdown {
     armor?: number;
     weapon?: number;
     jewels?: number;
+    title?: number;
   };
   pAtk: StatBreakdownSection & {
     total: number;
@@ -246,6 +259,7 @@ export interface PlayerStatBreakdown {
     armorEquip?: number;
     jewelsEquip?: number;
     rawSumBeforeMult?: number;
+    title?: number;
   };
   mAtk: StatBreakdownSection & {
     total: number;
@@ -258,6 +272,7 @@ export interface PlayerStatBreakdown {
     afterMultsNoEquip?: number;
     armorEquip?: number;
     jewelsEquip?: number;
+    title?: number;
   };
   pDef: StatBreakdownSection & {
     total: number;
@@ -267,6 +282,8 @@ export interface PlayerStatBreakdown {
     levelPts?: number;
     augment?: number;
     rawSumBeforeMult?: number;
+    afterClassBuffClanCastle?: number;
+    title?: number;
   };
   mDef: StatBreakdownSection & {
     total: number;
@@ -278,9 +295,10 @@ export interface PlayerStatBreakdown {
     augment?: number;
     rawSumBeforeMult?: number;
     afterClassBuffClanCastle?: number;
+    title?: number;
   };
-  critParts: StatBreakdownSection & { rawBeforeCap?: number; cap?: number };
-  atkSpeed: StatBreakdownSection & { totalMs: number; floored250?: boolean };
+  critParts: StatBreakdownSection & { rawBeforeCap?: number; cap?: number; title?: number };
+  atkSpeed: StatBreakdownSection & { totalMs: number; floored250?: boolean; reduceTitleMs?: number };
   joiasPorStat?: Array<{ value?: number; stat?: string; nome?: string; slot?: string }>;
 }
 
@@ -493,6 +511,23 @@ export interface SkillTreeEntry {
 export interface LearnedSkillMeta extends SkillCatalogEntry {
   idNome: string;
   _learnLvl?: number;
+  /** Spellbook-only: skill visible but not yet unlocked. */
+  _locked?: boolean;
+  /** Class node that grants this skill (for locked preview labels). */
+  _classNode?: string;
+  /** Spellbook section bucket (ready / current-path upcoming / next-spec preview). */
+  _spellbookGroup?: 'ready' | 'upcoming' | 'spec';
+}
+
+/** Grouped Spellbook list for sectioned UI. */
+export interface SpellbookSection {
+  id: string;
+  kind: 'ready' | 'upcoming' | 'spec';
+  /** Internal class id for specialization preview sections. */
+  classNode?: string;
+  /** Display level shown in section header (min learn / transfer req). */
+  reqLvl?: number;
+  skills: LearnedSkillMeta[];
 }
 
 export type ChatLogTab = 'combat' | 'chat' | 'clan';
@@ -642,6 +677,9 @@ export interface LevelRewardsSave {
   claimed: number[];
 }
 
+/** Flat combat bonuses granted by an equipped Journey title. */
+export type { TitleStatBonus } from '../game/gameplay_title_bonuses';
+
 /** Lifetime gameplay achievements + chat titles (Journey tab). */
 export interface GameplayAchievementsSave {
   /** Cumulative counters keyed by achievement stat id. */
@@ -697,8 +735,11 @@ export interface RetentionEngineApi {
   claimNewbieDay: (day: number, weaponId?: string) => boolean;
   claimMonthlyDay: (day: number) => boolean;
   claimJourneyStep: (step: number) => boolean;
-  claimComeback: () => boolean;
   hasComebackReady: () => boolean;
+  claimComeback: () => boolean;
+  getComebackPreview?: () => DailyMissionReward | null;
+  getComebackTierKey?: () => string;
+  getComebackHoursAway?: () => number;
   shouldShowClanPrompt: () => boolean;
   dismissClanPrompt: () => void;
   getWeaponChoices: () => RetentionWeaponChoice[];
@@ -756,6 +797,8 @@ export interface CharacterSave {
   gameplayAchievements?: GameplayAchievementsSave;
   /** Login calendars, recruit journey, comeback rewards. */
   retention?: RetentionSave;
+  /** Skill ids unlocked but not yet inspected in the Spellbook (UI badges). */
+  unseenSkillUnlocks?: string[];
   playerClanId?: number | string | null;
   mailboxCloud?: unknown[];
   inventarioRecentLog?: InventarioRecentEntry[];

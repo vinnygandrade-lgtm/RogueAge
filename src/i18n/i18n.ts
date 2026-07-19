@@ -343,7 +343,9 @@ import type { I18nLocaleTree, I18nParams, I18nSetLocaleOptions, UiLocale } from 
       } else if (htmlEl.hasAttribute('data-i18n-html')) {
         htmlEl.innerHTML = val;
       } else {
+        const hubNotif = htmlEl.querySelector('.hub-tab-notif');
         htmlEl.textContent = val;
+        if (hubNotif) htmlEl.appendChild(hubNotif);
       }
     } catch {
       /* one bad node must not break refresh */

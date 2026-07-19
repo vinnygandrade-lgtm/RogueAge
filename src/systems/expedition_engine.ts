@@ -1423,6 +1423,9 @@ export class ExpeditionEngine {
         }
 
         this.state.journey += 1;
+        if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+            window.registrarProgressoMissaoDiaria('expedition_journey', 1);
+        }
         this.state.journeyTrait = this.state.nextJourneyTrait;
         this.state.nextJourneyTrait = this.rollJourneyTrait();
         this.state.currentPath = null;
@@ -2843,6 +2846,9 @@ export class ExpeditionEngine {
         this.syncNavigationLock();
 
         if (success) {
+            if (typeof win.registrarProgressoMissaoDiaria === 'function') {
+                win.registrarProgressoMissaoDiaria('expedition_complete', 1);
+            }
             if (typeof win.RetentionEngine?.onGameEvent === 'function') {
                 win.RetentionEngine.onGameEvent('expedition_complete', 1);
             }

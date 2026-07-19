@@ -215,13 +215,15 @@ function renderMonthlyCalendar(): void {
   const eng = engine();
   if (!eng) return;
   const save = eng.getSave();
+  const lv = Math.max(1, Math.floor(Number(window.nivel) || 1));
+  const isMage = typeof window.isClasseMagica === 'function' && window.isClasseMagica(window.charClass);
   renderCalendarGrid(
     'retention-monthly-grid',
     'retention-monthly-summary',
     RETENTION_MONTHLY_DAYS,
     'retention-grid--monthly',
     'monthly',
-    retentionMonthlyReward,
+    (d) => retentionMonthlyReward(d, lv, isMage),
     (d) => eng.canClaimMonthlyDay(d),
     eng.getMonthlyCurrentDay(),
     save.monthly.claimedDays || [],
@@ -306,9 +308,41 @@ function renderJourneyList(): void {
 }
 
 function renderRetentionHub(): void {
+  renderComebackBanner();
   if (hubTab === 'newbie') renderNewbieCalendar();
   else if (hubTab === 'monthly') renderMonthlyCalendar();
   else renderJourneyList();
+}
+
+function renderComebackBanner(): void {
+  const eng = engine();
+  let banner = document.getElementById('retention-comeback-banner');
+  if (!banner) {
+    const host = document.querySelector('#janela-retention-hub .retention-hub-tabs');
+    if (!host?.parentElement) return;
+    banner = document.createElement('div');
+    banner.id = 'retention-comeback-banner';
+    banner.className = 'retention-clan-banner retention-comeback-banner';
+    host.parentElement.insertBefore(banner, host.nextSibling);
+  }
+  if (!eng?.hasComebackReady()) {
+    banner.hidden = true;
+    banner.innerHTML = '';
+    return;
+  }
+  const preview = eng.getComebackPreview?.() ?? null;
+  const tier = eng.getComebackTierKey?.() ?? 'short';
+  const hours = Math.floor(eng.getComebackHoursAway?.() ?? 0);
+  banner.hidden = false;
+  banner.innerHTML = `<div class="retention-clan-banner__text">
+      <strong>${escapeHtml(rt('game.retention.comeback.bannerTitle'))}</strong>
+      <span>${escapeHtml(rt(`game.retention.comeback.tier.${tier}`, { hours }))}</span>
+    </div>
+    <div class="retention-comeback-banner__reward">${htmlRetentionRewardIcons(preview)}</div>
+    <div class="retention-clan-banner__actions">
+      <button type="button" class="btn-l2" onclick="claimRetentionComeback()">${escapeHtml(rt('game.retention.comeback.claim'))}</button>
+      <button type="button" class="btn-l2 btn-l2--ghost" onclick="abrirRetentionComeback()">${escapeHtml(rt('game.retention.comeback.details'))}</button>
+    </div>`;
 }
 
 /** Re-render open hub + update menu badge (after claim / load). */
@@ -486,19 +520,23 @@ function fecharRetentionWeaponPick(): void {
 function abrirRetentionComeback(): void {
   const body = document.getElementById('retention-comeback-body');
   const eng = engine();
-  if (!body || !eng) return;
-  const last = eng.getSave().comeback.lastSeenAt || Date.now();
-  const hours = Math.min(48, Math.max(4, (Date.now() - last) / 3600000));
-  const adena = Math.min(50000, Math.floor(hours * 500));
-  body.innerHTML = `<p>${escapeHtml(rt('game.retention.comeback.body', { hours: Math.floor(hours) }))}</p>
-    <div class="retention-comeback-reward">+${Math.max(800, adena).toLocaleString()} Adena · ${escapeHtml(rt('game.retention.comeback.potions'))}</div>`;
+  if (!body || !eng || !eng.hasComebackReady()) return;
+  const hours = Math.floor(eng.getComebackHoursAway?.() ?? 0);
+  const tier = eng.getComebackTierKey?.() ?? 'short';
+  const preview = eng.getComebackPreview?.() ?? null;
+  body.innerHTML = `<p>${escapeHtml(rt(`game.retention.comeback.tier.${tier}`, { hours }))}</p>
+    <div class="retention-comeback-reward">${htmlRetentionRewardIcons(preview)}</div>`;
   window.abrirModal('janela-retention-comeback', 1480);
 }
 
 function claimRetentionComeback(): void {
   const eng = engine();
-  if (!eng?.claimComeback()) return;
+  if (!eng?.claimComeback()) {
+    window.l2Alert?.(rt('game.retention.comeback.claimFailed'));
+    return;
+  }
   window.fecharModal('janela-retention-comeback');
+  syncRetentionHubUi();
   window.escreverLog?.(`<span style="color:#a78bfa;">${escapeHtml(rt('game.retention.logComeback'))}</span>`);
   refreshRetentionHud();
 }

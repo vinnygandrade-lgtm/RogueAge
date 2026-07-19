@@ -89,6 +89,7 @@ async function bootGame(): Promise<void> {
   await import('./combat/skills_engine');
   await import('./game/classes');
   await import('./game/skills');
+  await import('./game/skill_unlock_notifs');
   tickBoot(88, bootMsg('loading.phaseCombat', 'Loading combat...'));
 
   await import('./ui/pwa_install');

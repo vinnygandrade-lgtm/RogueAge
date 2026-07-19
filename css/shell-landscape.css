@@ -3165,12 +3165,17 @@ html[data-l2-layout="landscape"] .gameplay-ach-card__desc {
     font-size: 0.78em;
 }
 
-html[data-l2-layout="landscape"] #janela-player-titles.store-window {
-    width: min(420px, 38vw);
-    max-width: min(420px, 38vw);
+html[data-l2-layout="landscape"] #janela-player-titles.store-window--player-titles {
+    width: min(440px, 42vw);
+    max-width: min(440px, 42vw);
+    max-height: min(86vh, 720px);
 }
 
 html[data-l2-layout="landscape"] .player-titles-row {
-    min-height: 48px;
-    padding: 10px 14px;
+    padding: 12px 14px;
+}
+
+html[data-l2-layout="landscape"] .player-titles-row__equip {
+    min-width: 108px;
+    min-height: 42px;
 }

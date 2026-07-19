@@ -620,6 +620,9 @@ function executarCompraMarket(id: string | number): void {
             renderizarListaMarket();
             window.atualizar();
             window.mostrarAviso(marketT('market.tradeRegistered'));
+            if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+                window.registrarProgressoMissaoDiaria('market_trade', 1);
+            }
             window.escreverLog(`<span style="color:#ca8a04;">${marketT('market.mailLogPrefix')}</span> <span style="color:#d6d3d1;">${marketT('market.tradeLogBroker')}</span>`);
             if (typeof window.salvarJogo === 'function') window.salvarJogo();
         } finally {
@@ -1078,6 +1081,9 @@ function confirmarRegistroMarket(): void {
             window.fecharModalRegistrarMercado();
             mudarAbaMarket('sell');
             window.mostrarAviso(marketT('market.listedSuccess'));
+            if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+                window.registrarProgressoMissaoDiaria('market_trade', 1);
+            }
             window.atualizar();
             if (typeof window.salvarJogo === 'function') window.salvarJogo();
         } finally {

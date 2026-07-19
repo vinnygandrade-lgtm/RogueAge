@@ -811,7 +811,7 @@
     <div id="janela-spellbook" class="store-window spellbook-window">
         <div class="store-header"><span class="spellbook-header-title" data-i18n="game.spellbook.title">SPELLBOOK</span></div>
         <div class="store-body spellbook-store-body">
-            <p class="spellbook-sub" data-i18n="game.spellbook.subtitle">Browse your learned skills. Select one to see full details and assign it to the action bar.</p>
+            <p class="spellbook-sub" data-i18n="game.spellbook.subtitle">Learned skills and upcoming unlocks. Tap a skill for details — only unlocked skills can go on your action bar.</p>
             <div class="spellbook-body">
                 <div id="spellbook-list" class="spellbook-list" role="listbox" aria-label="Skills"></div>
                 <p id="spellbook-select-hint" class="spellbook-detail__hint" data-i18n="game.spellbook.hintSelect">Select a skill above to inspect it and assign to a shortcut.</p>
@@ -900,21 +900,21 @@
     <div id="janela-level-rewards" class="store-window">
         <div class="store-header"><span data-i18n="game.achievements.modalTitle">ACHIEVEMENTS</span></div>
         <div class="achievements-hub-tabs" role="tablist" aria-label="Achievements">
-            <button type="button" id="ach-tab-levels" class="achievements-hub-tab achievements-hub-tab--active" role="tab" aria-selected="true" data-i18n="game.achievements.tabLevels" onclick="setAchievementsHubTab('levels')">Levels</button>
-            <button type="button" id="ach-tab-journey" class="achievements-hub-tab" role="tab" aria-selected="false" data-i18n="game.achievements.tabJourney" onclick="setAchievementsHubTab('journey')">Journey</button>
+            <button type="button" id="ach-tab-journey" class="achievements-hub-tab achievements-hub-tab--active" role="tab" aria-selected="true" data-i18n="game.achievements.tabJourney" onclick="setAchievementsHubTab('journey')">Journey</button>
+            <button type="button" id="ach-tab-levels" class="achievements-hub-tab" role="tab" aria-selected="false" data-i18n="game.achievements.tabLevels" onclick="setAchievementsHubTab('levels')">Levels</button>
         </div>
-        <p id="ach-hint-levels" class="level-rewards-hint" data-i18n="game.achievements.modalHint">Tap a level to open its reward. Gold tiles are milestones (every 10). Dark = not reached yet.</p>
-        <p id="ach-hint-journey" class="level-rewards-hint" data-i18n="game.gameplayAchievements.modalHint" style="display:none;">Complete goals to unlock chat titles. Higher grades need bigger feats.</p>
-        <div id="ach-panel-levels" class="achievements-hub-panel" style="display:flex;">
+        <p id="ach-hint-journey" class="level-rewards-hint" data-i18n="game.gameplayAchievements.modalHint">Complete goals to unlock chat titles. Higher grades need bigger feats.</p>
+        <p id="ach-hint-levels" class="level-rewards-hint" data-i18n="game.achievements.modalHint" style="display:none;">Tap a level to open its reward. Gold tiles are milestones (every 10). Dark = not reached yet.</p>
+        <div id="ach-panel-journey" class="achievements-hub-panel" style="display:flex;">
+            <div id="gameplay-ach-summary" class="gameplay-ach-summary" aria-live="polite"></div>
+            <div id="gameplay-ach-list" class="gameplay-ach-list"></div>
+        </div>
+        <div id="ach-panel-levels" class="achievements-hub-panel" style="display:none;">
             <div class="level-rewards-top">
                 <div id="level-rewards-summary" class="level-rewards-summary" aria-live="polite"></div>
                 <button type="button" id="btn-level-rewards-claim-all" class="btn-l2 level-rewards-claim-all" data-i18n="game.achievements.claimAll" onclick="reivindicarTodasRecompensasNivel()">CLAIM ALL</button>
             </div>
             <div id="level-rewards-grid" class="level-rewards-grid" role="list" aria-label="Level rewards"></div>
-        </div>
-        <div id="ach-panel-journey" class="achievements-hub-panel" style="display:none;">
-            <div id="gameplay-ach-summary" class="gameplay-ach-summary" aria-live="polite"></div>
-            <div id="gameplay-ach-list" class="gameplay-ach-list"></div>
         </div>
         <div class="store-footer store-footer--level-rewards">
             <button type="button" class="btn-l2 btn-level-rewards-close" data-i18n="game.achievements.closeBtn" onclick="fecharLevelRewards()">CLOSE</button>
@@ -979,12 +979,12 @@
         </div>
     </div>
 
-    <div id="janela-player-titles" class="store-window">
+    <div id="janela-player-titles" class="store-window store-window--player-titles">
         <div class="store-header"><span data-i18n="game.gameplayAchievements.titlesModalTitle">TITLES</span></div>
         <div class="store-body store-body--player-titles">
-            <p class="player-titles-hint" data-i18n="game.gameplayAchievements.titlesModalHint">Titles unlocked from Journey achievements. Equipped titles appear in chat.</p>
+            <p class="player-titles-hint" data-i18n="game.gameplayAchievements.titlesModalHint">Equipped titles grant unique stat bonuses. Higher grades are stronger. Use Equip on any owned title.</p>
             <div id="player-titles-equipped" class="player-titles-equipped" aria-live="polite"></div>
-            <div id="player-titles-list" class="player-titles-list"></div>
+            <div id="player-titles-list" class="player-titles-list" role="list" aria-label="Owned titles"></div>
         </div>
         <div class="store-footer store-footer--player-titles">
             <button type="button" class="btn-l2 btn-player-titles-close" data-i18n="game.gameplayAchievements.closeBtn" onclick="fecharPlayerTitles()">CLOSE</button>
@@ -1374,7 +1374,10 @@
         <div id="buffs-ativos-container"></div>
 
         <div class="travel-menu">
-            <button id="btn-tab-perfil" class="btn-travel active" data-i18n="nav.profile" onclick="irPara('perfil')">PROFILE</button>
+            <button id="btn-tab-perfil" class="btn-travel active" onclick="irPara('perfil')">
+                <span class="btn-travel__label" data-i18n="nav.profile">PROFILE</span>
+                <span id="nav-notif-profile-skills" class="nav-notif nav-notif--tab nav-notif--skills" hidden aria-hidden="true"></span>
+            </button>
             <button id="btn-tab-cidade" class="btn-travel" data-i18n="nav.town" onclick="irPara('cidade')">TOWN</button>
             <button id="btn-tab-world" class="btn-travel btn-travel--accent" data-i18n="nav.world" onclick="irPara('world')">WORLD</button>
             <button id="btn-tab-inventario" class="btn-travel" data-i18n="nav.bag" onclick="irPara('inventario')">BAG</button>
@@ -2271,7 +2274,10 @@
             <div id="profile-stats-preview" class="profile-stats-preview" role="region"></div>
 
             <div class="paperdoll-actions">
-                <button type="button" class="btn-l2 btn-profile-spellbook" onclick="abrirSpellbook()">SPELLBOOK (SKILLS)</button>
+                <button type="button" id="btn-profile-spellbook" class="btn-l2 btn-profile-spellbook" onclick="abrirSpellbook()">
+                    <span data-i18n="game.spellbook.profileBtn">SPELLBOOK (SKILLS)</span>
+                    <span id="nav-notif-spellbook" class="nav-notif nav-notif--skills nav-notif--spellbook-btn" hidden aria-hidden="true"></span>
+                </button>
                 <button type="button" class="btn-l2 btn-profile-status" data-i18n="game.inventoryUi.profilePreview.sourcesBtn" onclick="abrirStatusDetalhado()">SOURCES & BREAKDOWN</button>
                 <button type="button" class="btn-l2 btn-profile-titles" data-i18n="game.gameplayAchievements.profileTitlesBtn" onclick="abrirPlayerTitles()">TITLES</button>
             </div>

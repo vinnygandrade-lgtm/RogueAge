@@ -15,6 +15,10 @@
     "name": "Redemoinho Aquático",
     "desc": "Cria um vórtice de água que atinge o inimigo."
   },
+  "arcane_guard": {
+    "name": "Guarda Arcana",
+    "desc": "Tece um escudo leve. Aumenta a Defesa em 15% por um curto tempo."
+  },
   "armor_crush": {
     "name": "Esmagamento de Armadura",
     "desc": "Destrói a armadura do inimigo, reduzindo drasticamente a defesa."
@@ -34,6 +38,10 @@
   "backstab": {
     "name": "Apunhalada",
     "desc": "Ataque furtivo com dano extremamente alto."
+  },
+  "battle_focus": {
+    "name": "Foco de Batalha",
+    "desc": "Afia sua postura. Aumenta o Ataque em 12% por um curto tempo."
   },
   "battle_roar": {
     "name": "Rugido de Batalha",
@@ -202,6 +210,10 @@
   "fatal_strike": {
     "name": "Golpe Fatal",
     "desc": "Golpe letal que fende a armadura do alvo."
+  },
+  "firm_strike": {
+    "name": "Golpe Firme",
+    "desc": "Um golpe de seguimento estável. Dano físico confiável no início."
   },
   "flame_strike": {
     "name": "Golpe Flamejante",
@@ -534,6 +546,10 @@
   "sonic_blaster": {
     "name": "Disparo Sônico",
     "desc": "Dispara energia de lâmina."
+  },
+  "spark_bolt": {
+    "name": "Raio Faiscante",
+    "desc": "Um raio arcano rápido. Bom dano mágico no início da jornada."
   },
   "spoil": {
     "name": "Spoil",

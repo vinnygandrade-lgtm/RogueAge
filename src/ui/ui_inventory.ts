@@ -1200,6 +1200,7 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.hp.clanMultOnSum && b.hp.clanMultOnSum !== 1) {
         vitParts.push(rowKey('lblHpClan', 'Clan multiplier (applied here)', '×' + b.hp.clanMultOnSum.toFixed(3)));
     }
+    if (b.hp.title) vitParts.push(rowKey('lblHpTitle', '+ Equipped title', '+' + String(b.hp.title)));
     vitParts.push(rowKey('lblTotalHp', '= Max HP', String(b.hp.total)));
     vitParts.push(rowKey('lblMpRace', 'Race base MP (scaled)', String(b.mp.raceBaseMp)));
     vitParts.push(rowKey('lblMpLevels', '+ MP from levels', '+' + String(b.mp.mpPerLevels)));
@@ -1208,6 +1209,7 @@ window.renderPainelStatsDetalhado = function (): void {
     vitParts.push(rowKey('lblMpArmor', '+ Armor MP', '+' + String(b.mp.armor)));
     vitParts.push(rowKey('lblMpWeapon', '+ Weapon MP', '+' + String(b.mp.weapon)));
     vitParts.push(rowKey('lblMpJewels', '+ Jewelry MP', '+' + String(b.mp.jewels)));
+    if (b.mp.title) vitParts.push(rowKey('lblMpTitle', '+ Equipped title', '+' + String(b.mp.title)));
     vitParts.push(rowKey('lblMpTotal', '= Max MP', String(b.mp.total)));
     vitParts.push(rowKey('lblCp', '= Max CP', '(' + window.playerStats.maxHp + ' × ' + b.cpMult.toFixed(2) + ') → ' + b.cpTotal));
     h.push(wrapDetails(false,
@@ -1226,6 +1228,7 @@ window.renderPainelStatsDetalhado = function (): void {
     offParts.push(rowKey('lblPatkAfterMultNoEquip', 'After modifiers (before armor/jewelry)', String(b.pAtk.afterMultsNoEquip)));
     offParts.push(rowKey('lblArmorPatkEquip', '+ from armor', '+' + String(b.pAtk.armorEquip)));
     offParts.push(rowKey('lblJewelPatk', '+ from jewelry', '+' + String(b.pAtk.jewelsEquip)));
+    if (b.pAtk.title) offParts.push(rowKey('lblPatkTitle', '+ equipped title', '+' + String(b.pAtk.title)));
     offParts.push(rowFb(L('lblPatkTotal', 'Physical attack'), String(b.pAtk.total)));
 
     offParts.push('<div class="status-detail__sub status-detail__sub--gap">' + escapeStatHtml(L('lblMatkAddendsLead', 'Magic side — adds up first (then % modifiers apply):')) + '</div>');
@@ -1239,6 +1242,7 @@ window.renderPainelStatsDetalhado = function (): void {
     offParts.push(rowKey('lblMatkAfterMultNoEquip', 'After modifiers (before armor/jewelry)', String(b.mAtk.afterMultsNoEquip)));
     offParts.push(rowKey('lblArmorMatkEquip', '+ from armor', '+' + String(b.mAtk.armorEquip)));
     offParts.push(rowKey('lblJewelMatk', '+ from jewelry', '+' + String(b.mAtk.jewelsEquip)));
+    if (b.mAtk.title) offParts.push(rowKey('lblMatkTitle', '+ equipped title', '+' + String(b.mAtk.title)));
     offParts.push(rowFb(L('lblMatkTotal', 'Magic attack'), String(b.mAtk.total)));
     if (b.castle.pAtk > 1.001 && b.castle.castlesOwned) {
         offParts.push('<div class="status-detail__pill">' + escapeStatHtml(L(
@@ -1259,6 +1263,7 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.pDef.augment) defParts.push(rowKey('lblPdefAug', '+ Weapon augment', '+' + String(b.pDef.augment)));
     defParts.push(rowKey('lblPdefRawSum', '= Added up before % boosts', String(Math.floor(b.pDef.rawSumBeforeMult))));
     defParts.push('<div class="status-detail__formula">' + escapeStatHtml(defMultExplain) + '</div>');
+    if (b.pDef.title) defParts.push(rowKey('lblPdefTitle', '+ Equipped title', '+' + String(b.pDef.title)));
     defParts.push(rowKey('lblPdefFinal', '= P.Def total', String(b.pDef.total)));
     defParts.push(rowKey('lblMdefFlat', 'Base magic defense', '+' + String(b.mDef.flatBase)));
     if (b.mDef.armorBonusMDef) defParts.push(rowKey('lblMdefArmorBonus', '+ Robe/armor bonus M.Def', '+' + String(b.mDef.armorBonusMDef)));
@@ -1269,6 +1274,7 @@ window.renderPainelStatsDetalhado = function (): void {
     defParts.push(rowKey('lblMdefRawSum', '= Added up before % boosts', String(Math.floor(b.mDef.rawSumBeforeMult))));
     defParts.push('<div class="status-detail__formula">' + escapeStatHtml(mdefMultExplain) + '</div>');
     defParts.push(rowKey('lblMdefFloorInner', '= After class & blessings', String(b.mDef.afterClassBuffClanCastle)));
+    if (b.mDef.title) defParts.push(rowKey('lblMdefTitle', '+ Equipped title', '+' + String(b.mDef.title)));
     defParts.push(rowKey('lblMdefTotalShown', '= M.Def total · same as HUD', String(b.mDef.total)));
     h.push(wrapDetails(false,
         '<span class="status-detail-acc__ttl">' + L('secDeepDefense', 'Defense — detailed') + '</span><span class="status-detail-acc__chev" aria-hidden="true"></span>',
@@ -1282,12 +1288,16 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.critParts.armor) otherParts.push(rowKey('lblCritArmor', '  · armor', '+' + String(b.critParts.armor)));
     if (b.critParts.weapon) otherParts.push(rowKey('lblCritWeapon', '  · weapon', '+' + String(b.critParts.weapon)));
     if (b.critParts.jewels) otherParts.push(rowKey('lblCritJewels', '  · jewelry', '+' + String(b.critParts.jewels)));
+    if (b.critParts.title) otherParts.push(rowKey('lblCritTitle', '  · equipped title', '+' + String(b.critParts.title)));
     if (typeof b.critParts.rawBeforeCap === 'number' && typeof b.critParts.cap === 'number' && b.critParts.rawBeforeCap > b.critRate) {
         otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
             'lblCritCapApplied',
             'Added bonuses reached {raw}% — global crit cap {cap}% applies in combat (same as the total above).',
             { raw: String(b.critParts.rawBeforeCap), cap: String(b.critParts.cap) }
         )) + '</div>');
+    }
+    if (b.atkSpeed.reduceTitleMs) {
+        otherParts.push(rowKey('lblSpdTitle', '  · equipped title (faster)', '−' + String(b.atkSpeed.reduceTitleMs) + ' ms'));
     }
     otherParts.push(rowFb(L('lblAtkSpdShown', 'Time between hits (lower = faster)'), (b.atkSpeed.totalMs / 1000).toFixed(2) + 's'));
     if (b.atkSpeed.floored250) {

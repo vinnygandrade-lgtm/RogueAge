@@ -36,12 +36,24 @@ function isClanLeaderNav(): boolean {
   );
 }
 
+function syncAchievementsMenuCounts(): void {
+  let ach = 0;
+  if (typeof window.contarPendenciasLevelRewards === 'function') {
+    ach += Math.max(0, window.contarPendenciasLevelRewards() || 0);
+  }
+  if (typeof window.contarPendenciasGameplayAchievements === 'function') {
+    ach += Math.max(0, window.contarPendenciasGameplayAchievements() || 0);
+  }
+  state.achievements = ach;
+  if (typeof window.syncAchievementsHubTabNotifs === 'function') {
+    window.syncAchievementsHubTabNotifs();
+  }
+}
+
 function syncExtendedNavCounts(): void {
   state.olympiad = Math.max(0, window.OlympiadEngine?.countClaimableRankRewards?.() ?? 0);
   state.clanWar = isClanLeaderNav() ? 1 : 0;
-  if (typeof window.contarPendenciasLevelRewards === 'function') {
-    state.achievements = Math.max(0, window.contarPendenciasLevelRewards() || 0);
-  }
+  syncAchievementsMenuCounts();
 }
 
 function syncLeaderMenuItemVisibility(): void {
@@ -116,9 +128,9 @@ function refreshNavMenuNotifications(partial?: Partial<NavMenuNotifState>): void
     if (partial.rewards !== undefined) state.rewards = Math.max(0, partial.rewards);
     if (partial.retention !== undefined) state.retention = Math.max(0, partial.retention);
     if (partial.missions !== undefined) state.missions = Math.max(0, partial.missions);
-    if (partial.achievements !== undefined) state.achievements = Math.max(0, partial.achievements);
     if (partial.olympiad !== undefined) state.olympiad = Math.max(0, partial.olympiad);
     if (partial.clanWar !== undefined) state.clanWar = Math.max(0, partial.clanWar);
+    // achievements: always recomputed in syncExtendedNavCounts (levels + journey titles)
   }
 
   syncExtendedNavCounts();

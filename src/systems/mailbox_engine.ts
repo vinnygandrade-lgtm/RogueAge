@@ -31,6 +31,12 @@ function mb(key: string, params?: Record<string, string | number>): string {
     return typeof window.t === 'function' ? window.t(key, params) : key;
 }
 
+function trackMailboxClaim(): void {
+    if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+        window.registrarProgressoMissaoDiaria('resgatar_correio', 1);
+    }
+}
+
 function mailInputValue(id: string): string {
     const el = document.getElementById(id);
     return el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement ? el.value : '';
@@ -1027,6 +1033,8 @@ async function processarAcaoMail(msgId, acao, param = null) {
                         window.mostrarAviso(mb('mailbox.avisoGoldReceived'));
                     }
 
+                    trackMailboxClaim();
+
                     // Recarrega a mailbox para mover para o histórico
                     await carregarMailbox();
                     renderizarMailbox();
@@ -1110,6 +1118,10 @@ async function processarAcaoMail(msgId, acao, param = null) {
         if (typeof window.responderSolicitacao === 'function') {
             await window.responderSolicitacao(String(param ?? ''), aceito, appId as string | null);
         }
+    }
+
+    if (['collect_market', 'collect_market_delivery', 'collect_raid', 'collect_player'].includes(acao)) {
+        trackMailboxClaim();
     }
 
     // Move para o histórico após a ação (exceto se for apenas arquivamento)

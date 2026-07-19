@@ -817,6 +817,12 @@ function aplicarHudMissoesBadge(): void {
   window.refreshNavMenuNotifications?.({ missions: n });
 }
 
+function trackMissionClaimed(): void {
+  if (typeof window.registrarProgressoMissaoDiaria === 'function') {
+    window.registrarProgressoMissaoDiaria('missao_resgatada', 1);
+  }
+}
+
 function reivindicarMissaoDiaria(index: number): void {
   if (!missoesDiariasData || !missoesDiariasData.missoes[index]) return;
   const m = missoesDiariasData.missoes[index];
@@ -835,6 +841,7 @@ function reivindicarMissaoDiaria(index: number): void {
 
   renderizarMissoesHub();
   aplicarHudMissoesBadge();
+  trackMissionClaimed();
 }
 
 function reivindicarMissaoSemanal(index: number): void {
@@ -855,6 +862,7 @@ function reivindicarMissaoSemanal(index: number): void {
 
   renderizarMissoesHub();
   aplicarHudMissoesBadge();
+  trackMissionClaimed();
 }
 
 function montarBonusDiario(gradeAtual: DailyBossGradeTier | string): DailyMissionReward {
@@ -922,6 +930,7 @@ function reivindicarBonusMissaoDiaria(): void {
   }
   renderizarMissoesHub();
   aplicarHudMissoesBadge();
+  trackMissionClaimed();
 }
 
 function reivindicarBonusMissaoSemanal(): void {
@@ -939,6 +948,7 @@ function reivindicarBonusMissaoSemanal(): void {
   }
   renderizarMissoesHub();
   aplicarHudMissoesBadge();
+  trackMissionClaimed();
 }
 
 function encontrarCandidatoReroll(

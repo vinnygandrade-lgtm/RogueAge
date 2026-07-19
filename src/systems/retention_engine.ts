@@ -17,13 +17,19 @@ import {
   RETENTION_JOURNEY_STEP_DEFS,
   RETENTION_MONTHLY_DAYS,
   RETENTION_NEWBIE_DAYS,
+  computeComebackReward,
+  retentionComebackTierKey,
   retentionMonthlyReward,
   retentionNewbieReward,
 } from '../game/retention_catalog';
 
 const COMEBACK_MIN_HOURS = 4;
-const COMEBACK_MAX_ADENA = 50000;
+const COMEBACK_MAX_HOURS = 48;
+
 const JOURNEY_PROGRESS: Record<number, number> = {};
+
+/** Hours away captured at load — survives autosave touching lastSeenAt before claim. */
+let pendingComebackHours: number | null = null;
 
 let retentionSave: RetentionSave | null = null;
 
@@ -231,6 +237,34 @@ function refreshHud(): void {
   if (typeof window.atualizar === 'function') window.atualizar();
 }
 
+function playerLevel(): number {
+  return Math.max(1, Math.floor(Number(window.nivel) || 1));
+}
+
+function playerIsMage(): boolean {
+  return typeof window.isClasseMagica === 'function' && window.isClasseMagica(window.charClass);
+}
+
+function hoursAwayFromLastSeen(): number {
+  const s = getSaveInternal();
+  const last = s.comeback.lastSeenAt || Date.now();
+  return Math.min(COMEBACK_MAX_HOURS, Math.max(0, (Date.now() - last) / 3600000));
+}
+
+function capturePendingComeback(): void {
+  pendingComebackHours = null;
+  const s = getSaveInternal();
+  const hoursAway = hoursAwayFromLastSeen();
+  if (hoursAway >= COMEBACK_MIN_HOURS && s.comeback.lastComebackDayKey !== todayDayKey()) {
+    pendingComebackHours = hoursAway;
+  }
+}
+
+function getComebackHoursForClaim(): number {
+  if (pendingComebackHours != null) return pendingComebackHours;
+  return hoursAwayFromLastSeen();
+}
+
 export const RetentionEngine: RetentionEngineApi = {
   getSave(): RetentionSave {
     return getSaveInternal();
@@ -296,7 +330,7 @@ export const RetentionEngine: RetentionEngineApi = {
   claimMonthlyDay(day: number): boolean {
     const d = Math.floor(day);
     if (!this.canClaimMonthlyDay(d)) return false;
-    aplicarRecompensa(retentionMonthlyReward(d));
+    aplicarRecompensa(retentionMonthlyReward(d, playerLevel(), playerIsMage()));
     const s = getSaveInternal();
     if (s.monthly.claimedDays.indexOf(d) < 0) s.monthly.claimedDays.push(d);
     s.monthly.claimedDays.sort((a, b) => a - b);
@@ -328,27 +362,32 @@ export const RetentionEngine: RetentionEngineApi = {
 
   hasComebackReady(): boolean {
     const s = getSaveInternal();
-    const last = s.comeback.lastSeenAt || Date.now();
-    const hoursAway = (Date.now() - last) / 3600000;
-    if (hoursAway < COMEBACK_MIN_HOURS) return false;
-    return s.comeback.lastComebackDayKey !== todayDayKey();
+    if (s.comeback.lastComebackDayKey === todayDayKey()) return false;
+    const hours = pendingComebackHours != null ? pendingComebackHours : hoursAwayFromLastSeen();
+    return hours >= COMEBACK_MIN_HOURS;
+  },
+
+  getComebackPreview(): DailyMissionReward | null {
+    if (!this.hasComebackReady()) return null;
+    return computeComebackReward(getComebackHoursForClaim(), playerLevel(), playerIsMage());
+  },
+
+  getComebackTierKey(): string {
+    return retentionComebackTierKey(getComebackHoursForClaim());
+  },
+
+  getComebackHoursAway(): number {
+    return getComebackHoursForClaim();
   },
 
   claimComeback(): boolean {
     if (!this.hasComebackReady()) return false;
+    const hours = getComebackHoursForClaim();
+    aplicarRecompensa(computeComebackReward(hours, playerLevel(), playerIsMage()));
     const s = getSaveInternal();
-    const last = s.comeback.lastSeenAt || Date.now();
-    const hoursAway = Math.min(48, (Date.now() - last) / 3600000);
-    const adena = Math.min(COMEBACK_MAX_ADENA, Math.floor(hoursAway * 500));
-    aplicarRecompensa({
-      adenas: Math.max(800, adena),
-      itens: {
-        'HP Potion': Math.min(20, 4 + Math.floor(hoursAway / 2)),
-        'Mana Potion': Math.min(15, 3 + Math.floor(hoursAway / 3)),
-      },
-    });
     s.comeback.lastComebackDayKey = todayDayKey();
     s.comeback.lastSeenAt = Date.now();
+    pendingComebackHours = null;
     persistSilent();
     refreshHud();
     return true;
@@ -432,6 +471,7 @@ export const RetentionEngine: RetentionEngineApi = {
   },
 
   afterCharacterLoad(): void {
+    capturePendingComeback();
     rebuildJourneyProgressFromLevel();
     if (window.playerClanId) {
       markJourneyStepComplete(8);
@@ -439,13 +479,32 @@ export const RetentionEngine: RetentionEngineApi = {
     refreshHud();
 
     if (this.hasComebackReady() && typeof window.abrirRetentionComeback === 'function') {
-      setTimeout(() => window.abrirRetentionComeback?.(), 2200);
+      setTimeout(() => {
+        if (RetentionEngine.hasComebackReady()) window.abrirRetentionComeback?.();
+      }, 2200);
     }
     refreshHud();
   },
 };
 
+function bindRetentionSessionHooks(): void {
+  if (typeof window === 'undefined' || typeof document === 'undefined') return;
+  const persistLastSeen = (): void => {
+    RetentionEngine.touchLastSeen();
+    try {
+      if (typeof window.salvarJogo === 'function') window.salvarJogo({ silent: true });
+    } catch { /* ignore */ }
+  };
+  window.addEventListener('beforeunload', persistLastSeen);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') persistLastSeen();
+  });
+}
+
+bindRetentionSessionHooks();
+
 function applyRetentionFromSave(raw: RetentionSave | null | undefined, nivel = 1): void {
+  pendingComebackHours = null;
   const legacySkip = nivel >= 10;
   retentionSave = normalizeRetention(raw, legacySkip);
   syncMonthlyMonth();
@@ -462,7 +521,6 @@ function applyRetentionFromSave(raw: RetentionSave | null | undefined, nivel = 1
 }
 
 function getRetentionSavePayload(): RetentionSave {
-  RetentionEngine.touchLastSeen();
   return getSaveInternal();
 }
 

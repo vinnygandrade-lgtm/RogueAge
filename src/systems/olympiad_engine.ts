@@ -1990,6 +1990,9 @@ const OlympiadEngine = {
         if (typeof window.atualizar === 'function') window.atualizar();
 
         // 5. Missões diárias — progresso no cliente (engajamento); MMR/recompensa de arena seguem regra cloud acima.
+        if (typeof registrarProgressoMissaoDiaria === 'function') {
+            registrarProgressoMissaoDiaria('olympiad_duel', 1);
+        }
         if (vitoria && typeof registrarProgressoMissaoDiaria === 'function') {
             registrarProgressoMissaoDiaria('vencer_olympiad', 1);
             registrarProgressoMissaoDiaria('matar_olympiad', 1);

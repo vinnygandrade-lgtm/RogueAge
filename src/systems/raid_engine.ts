@@ -665,6 +665,8 @@ const RaidEngine = {
         
         if (typeof window.registrarProgressoMissaoDiaria === 'function' && eraDiario) {
             window.registrarProgressoMissaoDiaria('derrotar_daily_boss', 1);
+        } else if (typeof window.registrarProgressoMissaoDiaria === 'function' && !eraDiario) {
+            window.registrarProgressoMissaoDiaria('derrotar_raid_mundo', 1);
         }
 
         const tFn = (typeof window.t === 'function') ? window.t : null;
