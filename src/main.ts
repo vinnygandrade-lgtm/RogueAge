@@ -73,6 +73,7 @@ async function bootGame(): Promise<void> {
   await import('./systems/retention_engine');
   await import('./systems/mailbox_engine');
   await import('./systems/cloud_sync');
+  await import('./systems/stat_ranking_engine');
   await import('./systems/multiplayer_visuals');
   await import('./systems/ranking_manager');
   await import('./systems/ranking_seasons');
@@ -97,6 +98,7 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_nav_notifications');
   await import('./ui/ui_nav_coach');
   await import('./ui/ui_nav_menu');
+  await import('./ui/ui_stat_ranking');
   await import('./ui/ui_inventory');
   tickBoot(91, bootMsg('loading.phaseUi', 'Preparing interface...'));
   await import('./systems/endgame_pursuits');

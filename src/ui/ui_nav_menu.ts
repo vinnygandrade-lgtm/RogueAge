@@ -119,6 +119,14 @@ function syncNavMenuActiveItem(): void {
 
     }
 
+    if (modalIsOpen('janela-stat-ranking')) {
+
+        document.getElementById('nav-menu-stat-ranking')?.classList.add('nav-menu-item--active');
+
+        return;
+
+    }
+
     if (modalIsOpen('janela-game-settings')) {
 
         document.getElementById('nav-menu-settings')?.classList.add('nav-menu-item--active');
@@ -472,6 +480,14 @@ function navMenuGo(dest: string): void {
         case 'settings':
 
             if (typeof window.abrirGameSettings === 'function') window.abrirGameSettings();
+
+            break;
+
+        case 'statRanking':
+
+            if (typeof window.abrirStatRanking === 'function') window.abrirStatRanking();
+
+            setTimeout(() => syncNavMenuActiveItem(), 280);
 
             break;
 

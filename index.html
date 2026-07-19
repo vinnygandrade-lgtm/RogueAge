@@ -139,6 +139,12 @@
                         </span>
                         <span class="nav-menu-item__label" data-i18n="navMenu.achievements">Achievements</span>
                     </button>
+                    <button type="button" class="nav-menu-item" id="nav-menu-stat-ranking" onclick="navMenuGo('statRanking')">
+                        <span class="nav-menu-item__icon-wrap">
+                            <span class="nav-menu-item__glyph nav-menu-item__glyph--stat-ranking" aria-hidden="true"></span>
+                        </span>
+                        <span class="nav-menu-item__label" data-i18n="navMenu.statRanking">Rankings</span>
+                    </button>
                     <button type="button" class="nav-menu-item" id="nav-menu-olympiad" onclick="navMenuGo('olympiad')">
                         <span class="nav-menu-item__icon-wrap">
                             <span class="nav-menu-item__glyph nav-menu-item__glyph--olympiad" aria-hidden="true"></span>
@@ -805,6 +811,31 @@
             </div>
 
             <button type="button" class="btn-l2 btn-seletor-cancel" onclick="fecharSeletorGlobal()">CANCEL</button>
+        </div>
+    </div>
+
+    <div id="janela-stat-ranking" class="store-window store-window--stat-ranking">
+        <div class="store-header store-header--stat-ranking">
+            <span data-i18n="game.statRanking.title">STATUS RANKINGS</span>
+        </div>
+        <div class="store-body store-body--stat-ranking">
+            <p class="stat-ranking-sub" data-i18n="game.statRanking.subtitle">Compare combat power across Aden. Tap a filter to sort the ladder.</p>
+            <div class="stat-ranking-chip-rail">
+                <div id="stat-ranking-chips" class="stat-ranking-chips" role="tablist" aria-label="Stat filters"></div>
+            </div>
+            <div class="stat-ranking-status-bar">
+                <span id="stat-ranking-metric-pill" class="stat-ranking-metric-pill"></span>
+                <p id="stat-ranking-status" class="stat-ranking-status" aria-live="polite"></p>
+            </div>
+            <div class="stat-ranking-list-head" aria-hidden="true">
+                <span data-i18n="game.statRanking.colRank">#</span>
+                <span data-i18n="game.statRanking.colPlayer">Player</span>
+                <span data-i18n="game.statRanking.colValue">Value</span>
+            </div>
+            <div id="stat-ranking-list" class="stat-ranking-list" role="list"></div>
+        </div>
+        <div class="stat-ranking-footer">
+            <button type="button" class="btn-l2 stat-ranking-footer-close" data-i18n="game.statRanking.close" onclick="fecharStatRanking()">CLOSE</button>
         </div>
     </div>
 

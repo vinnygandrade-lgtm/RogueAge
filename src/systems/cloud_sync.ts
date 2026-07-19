@@ -35,7 +35,13 @@ export async function sincronizarSaveComNuvem(force = false): Promise<void> {
     console.log('☁️ Sincronizando save com a nuvem...');
     if (isCloudSaveEnabled()) {
       const parsed = JSON.parse(saveData) as CharacterSave;
-      await window.SupabaseAPI.savePlayer(charName, parsed, { force });
+      const saveRes = await window.SupabaseAPI.savePlayer(charName, parsed, { force }) as
+        | { success?: boolean }
+        | undefined;
+      // After a successful character save, refresh combat-stat ladder snapshot (throttled).
+      if (saveRes && saveRes.success && typeof window.pushCombatStatSnapshot === 'function') {
+        void window.pushCombatStatSnapshot({ force: !!force });
+      }
     }
   } catch (error) {
     console.error('Erro na sincronização cloud:', error);

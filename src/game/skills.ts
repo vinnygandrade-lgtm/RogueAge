@@ -382,6 +382,14 @@ const arvoreDeSkills: Record<string, SkillTreeEntry[]> = {
    "Cleric": [ { lvl: 20, nome: "Divine Flash" }, { lvl: 20, nome: "Greater Heal" }, { lvl: 20, nome: "Might" }, { lvl: 20, nome: "Wind Walk" } ],
    "Bishop": [ { lvl: 40, nome: "Trance" }, { lvl: 40, nome: "Holy Armor" }, { lvl: 40, nome: "Major Heal" }, { lvl: 40, nome: "Dryad Root" } ],
    "Cardinal": [ { lvl: 76, nome: "Miracle" } ],
+   // Prophet = combat buffer path (vs Bishop pure healer)
+   "Prophet": [
+     { lvl: 40, nome: "Empower" },
+     { lvl: 40, nome: "Holy Armor" },
+     { lvl: 40, nome: "Major Heal" },
+     { lvl: 40, nome: "Agility" },
+   ],
+   "Hierophant": [ { lvl: 76, nome: "Prophecy of Wind" } ],
 
    // === ARVORE DARK ELVES ===
    "Assassin": [ { lvl: 20, nome: "Mortal Blow" }, { lvl: 20, nome: "Hex" }, { lvl: 20, nome: "Sting" }, { lvl: 20, nome: "Ultimate Evasion" } ],
@@ -400,6 +408,13 @@ const arvoreDeSkills: Record<string, SkillTreeEntry[]> = {
    "Shillien Templar": [ { lvl: 76, nome: "Touch of Death" } ],
    "Phantom Summoner": [ { lvl: 40, nome: "Summon Silhouette" }, { lvl: 40, nome: "Corpse Burst" }, { lvl: 40, nome: "Curse Gloom" }, { lvl: 40, nome: "Servitor Empowerment" } ],
    "Spectral Master": [ { lvl: 76, nome: "Summon Spectral Lord" } ],
+   // Shillien Oracle = dark support (heal + mana + combat buff + armor shred)
+   "Shillien Oracle": [
+     { lvl: 20, nome: "Light Heal" },
+     { lvl: 20, nome: "Recharge" },
+     { lvl: 20, nome: "Might" },
+     { lvl: 20, nome: "Hex" },
+   ],
    "Shillien Elder": [ { lvl: 40, nome: "Greater Heal" }, { lvl: 40, nome: "Empower" }, { lvl: 40, nome: "Dryad Root" }, { lvl: 40, nome: "Trance" } ],
    "Shillien Saint": [ { lvl: 76, nome: "Prophecy of Wind" } ],
 

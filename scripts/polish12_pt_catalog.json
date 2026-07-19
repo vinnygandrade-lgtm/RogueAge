@@ -36,6 +36,8 @@
     "archmage": { "name": "Archmage", "desc": "O ápice da magia de fogo. Obliteração vulcânica." },
     "arcane_lord": { "name": "Arcane Lord", "desc": "Senhor das invocações. Comanda o Rei Felino." },
     "bishop": { "name": "Bishop", "desc": "Mestre de curas e escudos divinos. Quase imortal." },
+    "prophet": { "name": "Prophet", "desc": "Himnista de batalha. Empodera com bênçãos de ataque, armadura e velocidade." },
+    "hierophant": { "name": "Hierophant", "desc": "Profeta supremo. Proclama a Profecia do Vento — ritmo de combate máximo." },
     "cardinal": { "name": "Cardinal", "desc": "Enviado sagrado. Pode realizar curas milagrosas." },
     "ghost_hunter": { "name": "Ghost Hunter", "desc": "Um fantasma letal no campo de batalha." },
     "storm_screamer": { "name": "Storm Screamer", "desc": "A tempestade encarnada. Dano extremo." },

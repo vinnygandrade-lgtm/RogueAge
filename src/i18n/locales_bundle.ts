@@ -108,6 +108,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 missions: 'Missions',
                 retention: 'Login Rewards',
                 achievements: 'Achievements',
+                statRanking: 'Rankings',
                 olympiad: 'Grand Olympiad',
                 clanWar: 'Clan War',
                 settings: 'Settings',
@@ -1019,6 +1020,31 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         recipe: 'Recipe',
                         recuperacao: 'Recovery',
                         cura_mp: 'Mana restore'
+                    }
+                },
+                statRanking: {
+                    title: 'STATUS RANKINGS',
+                    subtitle: 'Compare combat power across Aden. Tap a filter to sort the ladder.',
+                    close: 'CLOSE',
+                    loading: 'Loading ladder…',
+                    empty: 'No rankings yet. Play online and save your character to appear here.',
+                    offline: 'Sign in online to view status rankings.',
+                    error: 'Could not load rankings. Try again later.',
+                    yourRank: 'Your rank: #{rank} · {metric}',
+                    notOnLadder: 'You are not on this ladder yet — keep playing and save online.',
+                    youBadge: 'YOU',
+                    colRank: '#',
+                    colPlayer: 'Player',
+                    colValue: 'Value',
+                    metric: {
+                        p_atk: 'P.Atk',
+                        m_atk: 'M.Atk',
+                        p_def: 'P.Def',
+                        m_def: 'M.Def',
+                        crit_rate: 'Crit',
+                        max_hp: 'Max HP',
+                        atk_speed: 'Atk Spd',
+                        level: 'Level'
                     }
                 },
                 skills: {
@@ -2831,6 +2857,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 missions: 'Missões',
                 retention: 'Recompensas de Login',
                 achievements: 'Conquistas',
+                statRanking: 'Rankings',
                 olympiad: 'Grand Olympiad',
                 clanWar: 'Guerra de Clãs',
                 settings: 'Configurações',
@@ -3742,6 +3769,31 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         recipe: 'Receita',
                         recuperacao: 'Recuperação',
                         cura_mp: 'Recuperação de MP'
+                    }
+                },
+                statRanking: {
+                    title: 'RANKINGS DE STATUS',
+                    subtitle: 'Compare o poder de combate em Aden. Toque num filtro para ordenar a lista.',
+                    close: 'FECHAR',
+                    loading: 'A carregar ranking…',
+                    empty: 'Ainda sem ranking. Jogue online e guarde o personagem para aparecer aqui.',
+                    offline: 'Entre online para ver os rankings de status.',
+                    error: 'Não foi possível carregar o ranking. Tente mais tarde.',
+                    yourRank: 'Sua posição: #{rank} · {metric}',
+                    notOnLadder: 'Você ainda não está neste ranking — continue jogando e salve online.',
+                    youBadge: 'VOCÊ',
+                    colRank: '#',
+                    colPlayer: 'Jogador',
+                    colValue: 'Valor',
+                    metric: {
+                        p_atk: 'P.Atk',
+                        m_atk: 'M.Atk',
+                        p_def: 'P.Def',
+                        m_def: 'M.Def',
+                        crit_rate: 'Crit',
+                        max_hp: 'HP Máx.',
+                        atk_speed: 'Vel. Atq.',
+                        level: 'Nível'
                     }
                 },
                 skills: {

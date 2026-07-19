@@ -32,6 +32,8 @@ const classModifiers = {
     "Necromancer": { hp: 0.8, mp: 2.0, atk: 2.5, def: 0.8, spd: 0.8, crit: 10 },
     "Sorcerer": { hp: 0.8, mp: 2.0, atk: 2.5, def: 0.8, spd: 0.8, crit: 10 }, // <-- Mago de Fogo Adicionado
     "Bishop": { hp: 1.1, mp: 2.2, atk: 1.5, def: 1.1, spd: 0.9, crit: 5 },
+    // Prophet = buffer path (less tanky than Bishop, strong MP pool for hymns)
+    "Prophet": { hp: 1.0, mp: 2.1, atk: 1.35, def: 0.95, spd: 0.9, crit: 5 },
 
     // === TERCEIRA TRANSFERÊNCIA (NÍVEL 76 - ENDGAME) ===
     "Duelist": { hp: 1.6, mp: 1.2, atk: 2.5, def: 1.3, spd: 0.88, crit: 15 },
@@ -47,6 +49,7 @@ const classModifiers = {
     "Warlock": { hp: 1.2, mp: 2.0, atk: 2.0, def: 1.1, spd: 0.9, crit: 5 },
     "Arcane Lord": { hp: 1.45, mp: 3.0, atk: 3.2, def: 1.2, spd: 0.9, crit: 8 },
     "Cardinal": { hp: 1.22, mp: 3.5, atk: 2.0, def: 1.22, spd: 0.9, crit: 5 },
+    "Hierophant": { hp: 1.12, mp: 3.0, atk: 1.75, def: 1.05, spd: 0.9, crit: 5 },
 
     // === DARK ELVES (Fighters & Mages) ===
     "Assassin": { hp: 0.90, mp: 1.0, atk: 1.6, def: 0.7, spd: 0.88, crit: 18 },
@@ -232,10 +235,14 @@ const classEvolutions = {
     ],
     // Lembre de colocar a vírgula depois do bloco do Warlock!
     "Cleric": [
-        { nome: "Bishop", reqLvl: 40, desc: "Master of heals and divine shields. Nearly immortal.", cor: "#22c55e" }
+        { nome: "Bishop", reqLvl: 40, desc: "Master of heals and divine shields. Nearly immortal.", cor: "#22c55e" },
+        { nome: "Prophet", reqLvl: 40, desc: "Battle hymnist. Empowers allies with attack, armor, and speed blessings.", cor: "#a78bfa" }
     ],
     "Bishop": [
         { nome: "Cardinal", reqLvl: 76, desc: "Sacred envoy. Can perform miraculous heals.", cor: "#10b981" }
+    ],
+    "Prophet": [
+        { nome: "Hierophant", reqLvl: 76, desc: "Supreme prophet. Speaks the Prophecy of Wind — peak combat cadence.", cor: "#8b5cf6" }
     ],
     "Abyss Walker": [
         { nome: "Ghost Hunter", reqLvl: 76, desc: "A lethal ghost on the battlefield.", cor: "#111827" }

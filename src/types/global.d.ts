@@ -282,6 +282,16 @@ declare global {
     obterSkillsSpellbookSections?: () => import('./game').SpellbookSection[];
     /** Log + toast for skills unlocked by leveling from levelBefore → levelAfter. */
     notifySkillsUnlockedAfterLevelChange?: (levelBefore: number, levelAfter: number) => void;
+    pushCombatStatSnapshot?: (opts?: { force?: boolean }) => Promise<boolean>;
+    fetchCombatStatRanking?: (
+      metric: import('./game').CombatStatMetric,
+      limit?: number,
+      opts?: { force?: boolean },
+    ) => Promise<import('./game').CombatStatRankingResult | null>;
+    getCombatStatMetrics?: () => import('./game').CombatStatMetric[];
+    buildCombatStatSnapshotFromLocal?: () => import('./game').CombatStatSnapshotPayload | null;
+    abrirStatRanking?: () => void;
+    fecharStatRanking?: () => void;
     markSkillsUnseen?: (skillIds: string[]) => void;
     markSkillUnlockSeen?: (skillId: string) => void;
     hasUnseenSkillUnlock?: (skillId: string) => boolean;

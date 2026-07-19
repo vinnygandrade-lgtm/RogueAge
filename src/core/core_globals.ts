@@ -22,6 +22,7 @@ const L2MINI_CLASSES_MAGICAS = new Set([
   'Sorcerer',
   'Warlock',
   'Bishop',
+  'Hierophant',
   'Soultaker',
   'Archmage',
   'Arcane Lord',

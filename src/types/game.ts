@@ -1675,6 +1675,13 @@ export interface SupabaseApi {
   ensureChatConnected?: (charName: string, meta: Record<string, unknown>) => void | Promise<void>;
   savePlayer?: (charName: string, data: CharacterSave, opts?: { force?: boolean }) => Promise<unknown>;
   getGlobalRanking?: () => Promise<CloudRankingPlayer[] | null>;
+  upsertCombatStatSnapshot?: (
+    payload: CombatStatSnapshotPayload,
+  ) => Promise<{ success?: boolean; error?: string } | null>;
+  getCombatStatRanking?: (
+    metric: CombatStatMetric,
+    limit?: number,
+  ) => Promise<CombatStatRankingResult | null>;
   fetchMailbox: (charName: string) => Promise<CloudMailboxRow[]>;
   sendMail: (
     recipient: string,
@@ -1810,6 +1817,46 @@ export interface CloudRankingPlayer {
   renown?: number;
   ascensionTitle?: string;
   isRealPlayer?: boolean;
+}
+
+/** Metrics for server-sorted combat stat ladder. */
+export type CombatStatMetric =
+  | 'p_atk'
+  | 'm_atk'
+  | 'p_def'
+  | 'm_def'
+  | 'crit_rate'
+  | 'max_hp'
+  | 'atk_speed'
+  | 'level';
+
+export interface CombatStatSnapshotPayload {
+  charName: string;
+  charClass: string;
+  level: number;
+  pAtk: number;
+  mAtk: number;
+  pDef: number;
+  mDef: number;
+  critRate: number;
+  maxHp: number;
+  atkSpeed: number;
+}
+
+export interface CombatStatRankingRow {
+  rank_pos: number;
+  char_name: string;
+  char_class: string;
+  level: number;
+  metric_value: number;
+  updated_at?: string;
+}
+
+export interface CombatStatRankingResult {
+  success: boolean;
+  metric?: CombatStatMetric | string;
+  rows?: CombatStatRankingRow[];
+  error?: string;
 }
 
 /** Entrada do ranking mundial (bots + nuvem + jogador local). */

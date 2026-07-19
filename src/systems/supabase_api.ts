@@ -390,8 +390,56 @@ const SupabaseAPI = {
 
             if (error) throw error;
             console.log(`☁️ [${charName}] salvo.`);
+            return { success: true };
         } catch (err) {
             console.error("❌ Erro ao salvar:", err.message);
+            return { success: false, error: err?.message || 'save_failed' };
+        }
+    },
+
+    /**
+     * Push combat-stat snapshot for the ladder (RPC). Ownership checked in SQL.
+     * Client-computed totals — bridge until server recomputes from equip (§12.7).
+     */
+    async upsertCombatStatSnapshot(payload) {
+        if (!SUPABASE_CONFIG.enabled || !this.client) return null;
+        if (!this.getUser()) return null;
+        if (!payload || !payload.charName) return null;
+        try {
+            const { data, error } = await this.client.rpc('upsert_character_combat_stats', {
+                p_char_name: payload.charName,
+                p_char_class: payload.charClass || 'Fighter',
+                p_level: Math.floor(Number(payload.level) || 1),
+                p_p_atk: Math.floor(Number(payload.pAtk) || 0),
+                p_m_atk: Math.floor(Number(payload.mAtk) || 0),
+                p_p_def: Math.floor(Number(payload.pDef) || 0),
+                p_m_def: Math.floor(Number(payload.mDef) || 0),
+                p_crit_rate: Math.floor(Number(payload.critRate) || 0),
+                p_max_hp: Math.floor(Number(payload.maxHp) || 0),
+                p_atk_speed: Math.floor(Number(payload.atkSpeed) || 0),
+            });
+            if (error) throw error;
+            return data || { success: true };
+        } catch (err) {
+            console.warn('[SupabaseAPI] upsertCombatStatSnapshot:', err?.message || err);
+            return { success: false, error: err?.message || 'upsert_failed' };
+        }
+    },
+
+    /** Top-N combat stat ladder for a whitelist metric. */
+    async getCombatStatRanking(metric, limit = 50) {
+        if (!SUPABASE_CONFIG.enabled || !this.client) return null;
+        if (!this.getUser()) return null;
+        try {
+            const { data, error } = await this.client.rpc('get_combat_stat_ranking', {
+                p_metric: metric || 'p_atk',
+                p_limit: Math.min(100, Math.max(1, Number(limit) || 50)),
+            });
+            if (error) throw error;
+            return data || null;
+        } catch (err) {
+            console.warn('[SupabaseAPI] getCombatStatRanking:', err?.message || err);
+            return null;
         }
     },
 
