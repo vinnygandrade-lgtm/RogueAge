@@ -16,6 +16,9 @@ const NAV_MENU_SWIPE_THRESHOLD_PX = 72;
 
 const NAV_MENU_SWIPE_MAX_DRAG_PX = 220;
 
+/** Ignore finger jitter until this — otherwise taps on the sheet cancel click. */
+const NAV_MENU_SWIPE_ARM_PX = 14;
+
 
 
 function navMenuIsOpen(): boolean {
@@ -253,6 +256,13 @@ function setNavMenuTabActive(active: boolean): void {
 
 
 function focusNavMenuSheet(): void {
+    // On phones, programmatic focus can make the next tap feel "eaten"
+    // (sticky focus / hover). Keyboard users still get Tab trap via keydown.
+    try {
+        if (window.matchMedia('(pointer: coarse)').matches) return;
+    } catch {
+        /* matchMedia unavailable — fall through */
+    }
 
     const items = navMenuFocusables();
 
@@ -519,17 +529,22 @@ function bindNavMenuSwipe(): void {
 
     let startY = 0;
 
-    let dragging = false;
+    let tracking = false;
+
+    let armed = false;
 
     let currentDy = 0;
 
 
 
+    /** Dismiss-swipe only from chrome — never from buttons (steals mobile clicks). */
     const canStartSwipe = (target: EventTarget | null): boolean => {
 
         if (!(target instanceof Element)) return false;
 
-        return !!target.closest('.nav-menu-sheet__handle, .nav-menu-sheet__title, .nav-menu-sheet__grid');
+        if (target.closest('button, a, input, select, textarea, [role="button"]')) return false;
+
+        return !!target.closest('.nav-menu-sheet__handle, .nav-menu-sheet__title');
 
     };
 
@@ -537,7 +552,9 @@ function bindNavMenuSwipe(): void {
 
     const finishDrag = (close: boolean): void => {
 
-        dragging = false;
+        tracking = false;
+
+        armed = false;
 
         if (!sheet) return;
 
@@ -585,11 +602,11 @@ function bindNavMenuSwipe(): void {
 
         currentDy = 0;
 
-        dragging = true;
+        tracking = true;
+
+        armed = false;
 
         sheet.classList.remove('nav-menu-sheet--snap-back', 'nav-menu-sheet--dismissing');
-
-        sheet.classList.add('nav-menu-sheet--dragging');
 
     };
 
@@ -597,7 +614,7 @@ function bindNavMenuSwipe(): void {
 
     const onTouchMove = (e: TouchEvent) => {
 
-        if (!dragging) return;
+        if (!tracking) return;
 
         const dy = e.touches[0].clientY - startY;
 
@@ -605,9 +622,19 @@ function bindNavMenuSwipe(): void {
 
             currentDy = 0;
 
-            setNavMenuSheetDragOffset(sheet, 0);
+            if (armed) setNavMenuSheetDragOffset(sheet, 0);
 
             return;
+
+        }
+
+        if (!armed) {
+
+            if (dy < NAV_MENU_SWIPE_ARM_PX) return;
+
+            armed = true;
+
+            sheet.classList.add('nav-menu-sheet--dragging');
 
         }
 
@@ -621,7 +648,16 @@ function bindNavMenuSwipe(): void {
 
     const onTouchEnd = () => {
 
-        if (!dragging) return;
+        if (!tracking) return;
+
+        // Tiny movement = tap, not swipe — leave click alone
+        if (!armed) {
+
+            tracking = false;
+
+            return;
+
+        }
 
         finishDrag(currentDy >= NAV_MENU_SWIPE_THRESHOLD_PX);
 
@@ -635,7 +671,21 @@ function bindNavMenuSwipe(): void {
 
     sheet.addEventListener('touchend', onTouchEnd);
 
-    sheet.addEventListener('touchcancel', () => finishDrag(false));
+    sheet.addEventListener('touchcancel', () => {
+
+        if (!tracking) return;
+
+        if (!armed) {
+
+            tracking = false;
+
+            return;
+
+        }
+
+        finishDrag(false);
+
+    });
 
 }
 

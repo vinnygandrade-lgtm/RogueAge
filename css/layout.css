@@ -314,6 +314,8 @@
     position: relative;
     min-height: 56px;
     gap: 4px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Icon simulation for mobile feel */

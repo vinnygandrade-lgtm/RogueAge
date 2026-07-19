@@ -6785,11 +6785,20 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
     letter-spacing: 0.04em;
     text-align: left;
     cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 }
-.nav-menu-item:hover {
-    border-color: var(--l2-accent-gold, #b38a4d);
-    background: linear-gradient(135deg, #241c14 0%, #120d09 100%);
+/* Hover only on real pointers — on iOS :hover steals the first tap */
+@media (hover: hover) and (pointer: fine) {
+    .nav-menu-item:hover {
+        border-color: var(--l2-accent-gold, #b38a4d);
+        background: linear-gradient(135deg, #241c14 0%, #120d09 100%);
+    }
+    .nav-menu-item:hover .nav-menu-item__glyph {
+        opacity: 1;
+        filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.35));
+    }
 }
 .nav-menu-item:active { transform: scale(0.97); }
 .nav-menu-item--active {
@@ -6820,10 +6829,6 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
     background-position: center;
     opacity: 0.72;
 }
-.nav-menu-item:hover .nav-menu-item__glyph {
-    opacity: 1;
-    filter: drop-shadow(0 0 4px rgba(250, 204, 21, 0.35));
-}
 .nav-menu-item__glyph--social {
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23d9b97e"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>');
 }
@@ -6851,9 +6856,13 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
 .nav-menu-item__glyph--clanwar {
     background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%23d9b97e"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 4v5c0 4.418-3.582 8-7 9-3.418-1-7-4.582-7-9V7l7-4z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>');
 }
-.nav-menu-sheet__handle {
+.nav-menu-sheet__handle,
+.nav-menu-sheet__title {
     touch-action: none;
     cursor: grab;
+}
+.nav-menu-sheet__grid {
+    touch-action: manipulation;
 }
 .nav-menu-sheet--dragging,
 .nav-menu-sheet--dismissing {
