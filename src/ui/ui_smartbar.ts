@@ -115,22 +115,31 @@ function abrirAcaoItemGeral(
   const displayName = hotbarLabel(nome);
   const textoDesc = resolveSmartbarItemDesc(nome, itemData);
 
-  const descricao = `<div style="color:#d4c4a8; font-size:0.85em; font-style:italic; margin-top:8px; border-top:1px dashed #444; padding-top:6px; text-align:center;">"${textoDesc}"</div>`;
-
   img.src = imgItem;
   if (isCurrency) img.classList.add('l2-coin-modal');
   else img.classList.remove('l2-coin-modal');
 
-  const qtyLabel = smartbarT('game.smartbar.quantity');
+  const hero = document.getElementById('acao-hero');
+  const heroName = document.getElementById('acao-hero-name');
+  const heroTags = document.getElementById('acao-hero-tags');
+  if (hero && heroName && heroTags) {
+    heroName.textContent = displayName;
+    heroTags.innerHTML = '';
+    hero.classList.add('acao-hero--card', 'is-filled');
+  }
+
   let extraBag = '';
   if (isCurrency && !previewOnly) {
-    extraBag = `<div style="color:#94a3b8;font-size:0.78em;margin-top:8px;text-align:center;">${smartbarT('game.smartbar.currencyNoShortcut')}</div>`;
+    extraBag = `<div class="item-sheet__note">${smartbarT('game.smartbar.currencyNoShortcut')}</div>`;
   }
   const owned = window.inventario[nome] ?? 0;
   const qtyLine = previewQty != null
-    ? `<span style="color:#fde68a; font-size:0.9em;">${typeof window.t === 'function' ? window.t('game.rewards.previewAmount') : 'In this reward:'} <b>${Number(previewQty).toLocaleString()}</b></span>`
-    : `<span style="color:#aaa; font-size:0.9em;">${qtyLabel} ${owned}</span>`;
-  desc.innerHTML = `<b style="color:#fff">${displayName}</b><br>${qtyLine}${descricao}${extraBag}`;
+    ? `<div class="item-sheet__row"><span class="item-sheet__lbl">${typeof window.t === 'function' ? window.t('game.inventoryUi.sheet.inReward', { n: Number(previewQty).toLocaleString() }) : ('In this reward: ' + Number(previewQty).toLocaleString())}</span></div>`
+    : `<div class="item-sheet__row"><span class="item-sheet__lbl">${typeof window.t === 'function' ? window.t('game.inventoryUi.sheet.quantity', { n: owned }) : (smartbarT('game.smartbar.quantity') + ' ' + owned)}</span></div>`;
+  const flavor = textoDesc
+    ? `<div class="item-sheet__flavor">“${String(textoDesc).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}”</div>`
+    : '';
+  desc.innerHTML = `<div class="item-sheet item-sheet--body"><div class="item-sheet__body">${qtyLine}${flavor}${extraBag}</div></div>`;
 
   btnAcao.style.display = 'block';
   if (isCurrency || previewOnly) {

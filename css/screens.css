@@ -894,13 +894,7 @@ button.hud-mail-btn {
     display: flex;
     width: 100%;
     gap: 12px;
-}
-
-@media (max-width: 520px) {
-    .enchant-split {
-        flex-direction: column;
-        gap: 14px;
-    }
+    min-height: 0;
 }
 
 .enchant-box {
@@ -912,7 +906,7 @@ button.hud-mail-btn {
     background: rgba(0, 0, 0, 0.45) !important;
     border: 1px solid #3d2b1f !important;
     border-radius: 8px;
-    min-height: 180px;
+    min-height: 120px;
     max-height: min(48vh, 320px);
     overflow-y: auto;
     overflow-x: hidden;

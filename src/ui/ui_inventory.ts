@@ -362,6 +362,7 @@ function abrirSeletorJoiaSlotPerfil(profileSlot: string): void {
     }
 
     window.abrirModal('janela-item-acao', 2100);
+    limparHeroItemAcao();
     const tituloEl = document.getElementById('acao-titulo');
     const desc = document.getElementById('acao-desc');
     const btnAcao = document.getElementById('btn-acao-item') as HTMLButtonElement | null;
@@ -408,15 +409,23 @@ function abrirSeletorJoiaSlotPerfil(profileSlot: string): void {
 }
 
 function fecharJanelaAcao(): void {
-    var btnAcao = document.getElementById('btn-acao-item');
+    var btnAcao = document.getElementById('btn-acao-item') as HTMLButtonElement | null;
     if (btnAcao) {
         btnAcao.onclick = null;
         btnAcao.style.display = 'block';
+        btnAcao.disabled = false;
+        btnAcao.style.background = '';
+        btnAcao.style.borderColor = '';
+        btnAcao.style.color = '';
     }
     _limparBotoesAcaoExtra();
+    limparHeroItemAcao();
     try {
         const acImg = document.getElementById('acao-img');
-        if (acImg) acImg.classList.remove('l2-coin-modal');
+        if (acImg) {
+            acImg.classList.remove('l2-coin-modal');
+            (acImg as HTMLImageElement).src = '';
+        }
         const imgSlotEl = document.getElementById('acao-img-slot');
         if (imgSlotEl) imgSlotEl.classList.remove('l2-currency-modal-slot');
     } catch (e) { /* noop */ }
@@ -469,120 +478,187 @@ window.fecharJanelaBloqueioGrade = function(): void {
 // ======================================================
 // LEITOR UNIVERSAL DE STATUS E FERRAMENTAS
 // ======================================================
+function _sheetT(key: string, params?: Record<string, string | number>): string {
+    const path = 'game.inventoryUi.sheet.' + key;
+    return typeof window.t === 'function' ? window.t(path, params) : key;
+}
+
+function _escSheet(s: unknown): string {
+    return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function limparHeroItemAcao(): void {
+    const hero = document.getElementById('acao-hero');
+    const nameEl = document.getElementById('acao-hero-name');
+    const tagsEl = document.getElementById('acao-hero-tags');
+    if (hero) hero.classList.remove('acao-hero--card', 'is-filled');
+    if (nameEl) nameEl.textContent = '';
+    if (tagsEl) tagsEl.innerHTML = '';
+}
+
+function preencherHeroItemAcao(
+    nome: string,
+    opts?: { enchant?: number; grade?: string; gradeColor?: string; tagsHtml?: string }
+): void {
+    const hero = document.getElementById('acao-hero');
+    const nameEl = document.getElementById('acao-hero-name');
+    const tagsEl = document.getElementById('acao-hero-tags');
+    if (!hero || !nameEl || !tagsEl) return;
+
+    const enc = _invNum(opts?.enchant);
+    const display = (enc > 0 ? '+' + enc + ' ' : '') + (nome || '');
+    nameEl.textContent = display;
+
+    let tags = opts?.tagsHtml || '';
+    if (!tags && opts?.grade) {
+        const cor = opts.gradeColor || '#b5b3ae';
+        tags = `<span class="item-sheet__grade" style="color:${cor};border-color:${cor}">[${_escSheet(opts.grade)}]</span>`;
+    }
+    tagsEl.innerHTML = tags;
+    hero.classList.add('acao-hero--card', 'is-filled');
+}
+
 function formatarTooltipEquipamento(
     base: ItemCatalogBase,
     lvlEncante: number,
     isAugment: boolean,
     tipoOriginal: string,
-    itemCompleto: InventoryBagEquip | null = null
+    itemCompleto: InventoryBagEquip | null = null,
+    opts?: { omitHeader?: boolean }
 ): string {
-    let corGrade = (typeof window.getGradeColor === 'function') ? window.getGradeColor(base.grade) : '#b5b3ae';
-    let titulo = `
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <b style="color:white; font-size:1.15em; text-shadow: 1px 1px 2px #000;">${lvlEncante > 0 ? '+'+lvlEncante+' ' : ''}${base.nome}</b>
-            <span style="color:${corGrade}; font-size:0.75em; font-weight:bold; border: 1px solid ${corGrade}; padding: 2px 5px; border-radius: 4px; background: rgba(0,0,0,0.5);">[${base.grade}]</span>
-        </div>`;
-    let divisor = `<hr style="border: 0; height: 1px; background: linear-gradient(to right, transparent, #555, transparent); margin: 8px 0;">`;
-    let detalhes = `<div style="text-align: left; padding: 6px; width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border-radius: 5px; border: 1px solid #333;">`;
-    const addLinha = (label: string, val: string | number, color: string) =>
-        `<div style="display:flex; justify-content:space-between; font-size: 0.85em; margin-bottom: 4px;"><span style="color: #888;">${label}</span> <span style="color: ${color}; font-weight:bold;">${val}</span></div>`;
+    const corGrade = (typeof window.getGradeColor === 'function') ? window.getGradeColor(base.grade) : '#b5b3ae';
+    const omitHeader = !!(opts && opts.omitHeader);
+    const nomeEsc = _escSheet(base.nome || '');
+    const gradeEsc = _escSheet(base.grade || '');
+
+    const addChip = (label: string, val: string | number, color: string) =>
+        `<div class="item-sheet__chip"><span>${_escSheet(label)}</span><b style="color:${color}">${val}</b></div>`;
 
     let tipo = 'misc';
     if (['neck', 'ear', 'ring', 'jewel', 'ear1', 'ear2', 'ring1', 'ring2'].includes(tipoOriginal)) tipo = 'jewel';
     else if (['Heavy', 'Light', 'Medium', 'Robe', 'Mage Light', 'Mage Heavy', 'armor'].includes(tipoOriginal)) tipo = 'armor';
     else if (['Sword', 'Dagger', 'Bow', 'Fist', 'Mace', 'Magic Sword', 'Wand', 'Scepter', 'weapon'].includes(tipoOriginal)) tipo = 'weapon';
 
-    let basePAtk = _invNum(base.atk ?? base.pAtk);
-    let baseMAtk = _invNum(base.matk ?? base.mAtk);
-    let basePDef = _invNum(base.def ?? base.pDef);
-    let baseMDef = _invNum(base.mDef);
+    const basePAtk = _invNum(base.atk ?? base.pAtk);
+    const baseMAtk = _invNum(base.matk ?? base.mAtk);
+    const basePDef = _invNum(base.def ?? base.pDef);
+    const baseMDef = _invNum(base.mDef);
 
-    let linhaReqNivel = '';
+    let html = `<div class="item-sheet${omitHeader ? ' item-sheet--body' : ''}">`;
+
+    if (!omitHeader) {
+        const encLbl = lvlEncante > 0 ? '+' + lvlEncante + ' ' : '';
+        html += `<div class="item-sheet__head">
+            <div class="item-sheet__name">${encLbl}${nomeEsc}</div>
+            <span class="item-sheet__grade" style="color:${corGrade};border-color:${corGrade}">[${gradeEsc}]</span>
+        </div>`;
+    }
+
+    html += `<div class="item-sheet__body">`;
+
     if (typeof window.validarEquipPorGrade === 'function') {
         const gradeProbe = { base, uid: itemCompleto?.uid || '', tipo: tipoOriginal, enchant: lvlEncante } as EquipInstance;
-        let vReq = window.validarEquipPorGrade(gradeProbe);
-        let corReq = vReq.permitido ? '#22c55e' : '#ef4444';
-        let txtReq = vReq.permitido ? 'Liberado' : 'Bloqueado';
-        linhaReqNivel = `<div style="margin-bottom:6px; text-align:center; font-size:0.82em; color:${corReq}; border:1px solid ${corReq}; border-radius:4px; padding:4px 6px; background:rgba(0,0,0,0.35);">Requires Level ${vReq.nivelMinimo} <span style="color:#94a3b8;">(Your level: ${vReq.nivelAtual})</span> - <b>${txtReq}</b></div>`;
+        const vReq = window.validarEquipPorGrade(gradeProbe);
+        const ok = !!vReq.permitido;
+        html += `<div class="item-sheet__req ${ok ? 'is-ok' : 'is-locked'}">
+            <span class="item-sheet__req-line">${_escSheet(_sheetT('reqLevel', { min: vReq.nivelMinimo }))} · ${_escSheet(_sheetT('yourLevel', { level: vReq.nivelAtual }))}</span>
+            <span class="item-sheet__req-badge">${_escSheet(_sheetT(ok ? 'unlocked' : 'locked'))}</span>
+        </div>`;
     }
 
-    if (linhaReqNivel) detalhes += linhaReqNivel;
-
+    let chipsCore = '';
     if (tipo === 'weapon') {
-        let bonusPAtk = Math.floor(basePAtk * 0.10 * lvlEncante);
-        let totalPAtk = basePAtk + bonusPAtk + (isAugment ? _invNum(base.augPAtk) : 0);
-        detalhes += `<div style="display:flex; justify-content:space-between; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 4px;"><span style="color:#ccc; font-weight:bold;">P. Atk (Total):</span> <b style="color:#ef4444; font-size:1.2em; text-shadow: 1px 1px 0 #000;">${totalPAtk}</b></div>`;
-        if(basePAtk > 0) detalhes += addLinha('➥ Base P. Atk:', basePAtk, '#aaa');
-        if(baseMAtk > 0) detalhes += addLinha('➥ Base M. Atk:', baseMAtk, '#3b82f6');
-        if(lvlEncante > 0) detalhes += addLinha(`➥ Encante (+${lvlEncante}):`, `+${bonusPAtk}`, '#3b82f6');
+        const bonusPAtk = Math.floor(basePAtk * 0.10 * lvlEncante);
+        const totalPAtk = basePAtk + bonusPAtk + (isAugment ? _invNum(base.augPAtk) : 0);
+        html += `<div class="item-sheet__total item-sheet__total--patk"><span>${_escSheet(_sheetT('pAtkTotal'))}</span><b>${totalPAtk}</b></div>`;
+        if (basePAtk > 0) chipsCore += addChip(_sheetT('basePAtk'), basePAtk, '#c4b5a0');
+        if (baseMAtk > 0) chipsCore += addChip(_sheetT('baseMAtk'), baseMAtk, '#60a5fa');
+        if (lvlEncante > 0) chipsCore += addChip(_sheetT('enchantBonus', { n: lvlEncante }), '+' + bonusPAtk, '#93c5fd');
     } else if (tipo === 'armor') {
-        let bonusPDef = Math.floor(basePDef * 0.10 * lvlEncante);
-        let totalPDef = basePDef + bonusPDef;
-        detalhes += `<div style="display:flex; justify-content:space-between; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 4px;"><span style="color:#ccc; font-weight:bold;">P. Def (Total):</span> <b style="color:#fde047; font-size:1.2em; text-shadow: 1px 1px 0 #000;">${totalPDef}</b></div>`;
-        if(base.tipo) detalhes += addLinha('➥ Armor Type:', base.tipo, '#10b981');
-        if(basePDef > 0) detalhes += addLinha('➥ Base P. Def:', basePDef, '#aaa');
-        if(lvlEncante > 0) detalhes += addLinha(`➥ Encante (+${lvlEncante}):`, `+${bonusPDef}`, '#3b82f6');
+        const bonusPDef = Math.floor(basePDef * 0.10 * lvlEncante);
+        const totalPDef = basePDef + bonusPDef;
+        html += `<div class="item-sheet__total item-sheet__total--pdef"><span>${_escSheet(_sheetT('pDefTotal'))}</span><b>${totalPDef}</b></div>`;
+        if (base.tipo) chipsCore += addChip(_sheetT('armorType'), _escSheet(base.tipo), '#34d399');
+        if (basePDef > 0) chipsCore += addChip(_sheetT('basePDef'), basePDef, '#c4b5a0');
+        if (lvlEncante > 0) chipsCore += addChip(_sheetT('enchantBonus', { n: lvlEncante }), '+' + bonusPDef, '#93c5fd');
     } else if (tipo === 'jewel') {
-        let bonusMDef = Math.floor(baseMDef * 0.10 * lvlEncante);
-        let totalMDef = baseMDef + bonusMDef;
-        detalhes += `<div style="display:flex; justify-content:space-between; margin-bottom: 8px; border-bottom: 1px solid #444; padding-bottom: 4px;"><span style="color:#ccc; font-weight:bold;">M. Def (Total):</span> <b style="color:#a855f7; font-size:1.2em; text-shadow: 1px 1px 0 #000;">${totalMDef}</b></div>`;
-        if(baseMDef > 0) detalhes += addLinha('➥ Base M. Def:', baseMDef, '#aaa');
-        if(lvlEncante > 0) detalhes += addLinha(`➥ Encante (+${lvlEncante}):`, `+${bonusMDef}`, '#3b82f6');
+        const bonusMDef = Math.floor(baseMDef * 0.10 * lvlEncante);
+        const totalMDef = baseMDef + bonusMDef;
+        html += `<div class="item-sheet__total item-sheet__total--mdef"><span>${_escSheet(_sheetT('mDefTotal'))}</span><b>${totalMDef}</b></div>`;
+        if (baseMDef > 0) chipsCore += addChip(_sheetT('baseMDef'), baseMDef, '#c4b5a0');
+        if (lvlEncante > 0) chipsCore += addChip(_sheetT('enchantBonus', { n: lvlEncante }), '+' + bonusMDef, '#93c5fd');
     }
+    if (chipsCore) html += `<div class="item-sheet__chips">${chipsCore}</div>`;
 
-    let dicStatus = [
-        { k: 'pAtk', lbl: '↳ Extra P.Atk:', cor: '#ef4444', pfx: '+' },
-        { k: 'mAtk', lbl: '↳ Extra M.Atk:', cor: '#3b82f6', pfx: '+' },
-        { k: 'bonusHp', lbl: '↳ Max HP:', cor: '#10b981', pfx: '+' },
-        { k: 'bonusMp', lbl: '↳ Max MP:', cor: '#3b82f6', pfx: '+' },
-        { k: 'bonusSpd', lbl: '↳ Atk. Speed:', cor: '#fcd34d', pfx: 'Fast +' },
-        { k: 'bonusCrit', lbl: '↳ Crit Rate:', cor: '#ef4444', pfx: '+', sfx: '%' },
-        { k: 'bonusMDef', lbl: '↳ Extra M.Def:', cor: '#a855f7', pfx: '+' }
+    const dicStatus = [
+        { k: 'pAtk', lblKey: 'extraPAtk', cor: '#f87171', pfx: '+' },
+        { k: 'mAtk', lblKey: 'extraMAtk', cor: '#60a5fa', pfx: '+' },
+        { k: 'bonusHp', lblKey: 'maxHp', cor: '#34d399', pfx: '+' },
+        { k: 'bonusMp', lblKey: 'maxMp', cor: '#60a5fa', pfx: '+' },
+        { k: 'bonusSpd', lblKey: 'atkSpeed', cor: '#fcd34d', pfx: '+' },
+        { k: 'bonusCrit', lblKey: 'critRate', cor: '#f87171', pfx: '+', sfx: '%' },
+        { k: 'bonusMDef', lblKey: 'extraMDef', cor: '#c084fc', pfx: '+' }
     ];
 
     let htmlBonusExtra = '';
-    dicStatus.forEach(st => {
+    dicStatus.forEach((st) => {
         const statVal = _invNum(base[st.k]);
         if (statVal > 0) {
             if ((st.k === 'pAtk' || st.k === 'atk') && tipo === 'weapon') return;
             if ((st.k === 'mAtk' || st.k === 'matk') && tipo === 'weapon') return;
-            if (st.k === 'bonusMDef' && tipo === 'jewel') return; 
-            htmlBonusExtra += addLinha(st.lbl, `${st.pfx || ''}${statVal}${st.sfx || ''}`, st.cor);
+            if (st.k === 'bonusMDef' && tipo === 'jewel') return;
+            htmlBonusExtra += addChip(_sheetT(st.lblKey), `${st.pfx || ''}${statVal}${st.sfx || ''}`, st.cor);
         }
     });
 
     if (htmlBonusExtra !== '') {
-        let tituloBonus = tipo === 'weapon' ? 'SPECIAL ABILITY' : (tipo === 'jewel' ? 'EPIC POWER / BÔNUS' : 'EQUIPMENT BÔNUS');
-        let corTitulo = tipo === 'weapon' ? '#eab308' : (tipo === 'jewel' ? '#f87171' : '#aaa');
-        detalhes += `<div style="margin-top: 8px; padding-top: 5px; border-top: 1px dashed #666;">`;
-        detalhes += `<div style="text-align:center; color:${corTitulo}; font-size: 0.8em; margin-bottom:6px; font-weight:bold;">${tituloBonus}</div>`;
-        detalhes += htmlBonusExtra;
-        detalhes += `</div>`;
+        const tituloBonus = tipo === 'weapon'
+            ? _sheetT('specialAbility')
+            : (tipo === 'jewel' ? _sheetT('epicBonus') : _sheetT('equipBonus'));
+        const secCls = tipo === 'weapon' ? 'is-gold' : (tipo === 'jewel' ? 'is-epic' : 'is-muted');
+        html += `<div class="item-sheet__sec ${secCls}"><div class="item-sheet__sec-title">${_escSheet(tituloBonus)}</div><div class="item-sheet__chips">${htmlBonusExtra}</div></div>`;
     }
 
     if (isAugment) {
-        let augLvl = _invNum(base.augLevel) || 1; let coresLvl = ['#aaa', '#10b981', '#3b82f6', '#ef4444', '#facc15']; let corAug = coresLvl[augLvl - 1] || '#a855f7'; let txtLvl = augLvl === 5 ? 'MAX' : `LVL ${augLvl}`;
-        detalhes += `<div style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed ${corAug}; background: rgba(0,0,0,0.2); border-radius: 4px; padding: 5px;">`;
-        detalhes += `<div style="text-align:center; color:${corAug}; font-weight:bold; margin-bottom:6px; text-shadow: 0 0 5px ${corAug}; letter-spacing: 1px;">✦ AUGMENT ${txtLvl} ✦</div>`;
-        let dicAug = [
-            { k: 'augPAtk', lbl: '↳ P. Atk:', cor: corAug, pfx: '+' }, { k: 'augMAtk', lbl: '↳ M. Atk:', cor: corAug, pfx: '+' },
-            { k: 'augPDef', lbl: '↳ P. Def:', cor: corAug, pfx: '+' }, { k: 'augMDef', lbl: '↳ M. Def:', cor: corAug, pfx: '+' },
-            { k: 'augSpd', lbl: '↳ Atk. Speed:', cor: corAug, pfx: 'Fast +' }, { k: 'augCrit', lbl: '↳ Crit Rate:', cor: corAug, pfx: '+', sfx: '%' }
+        const augLvl = _invNum(base.augLevel) || 1;
+        const coresLvl = ['#a8a29e', '#34d399', '#60a5fa', '#f87171', '#facc15'];
+        const corAug = coresLvl[augLvl - 1] || '#c084fc';
+        const txtLvl = augLvl === 5 ? _sheetT('augmentMax') : ('Lv.' + augLvl);
+        let augChips = '';
+        const dicAug = [
+            { k: 'augPAtk', lblKey: 'pAtkTotal', pfx: '+' },
+            { k: 'augMAtk', lblKey: 'extraMAtk', pfx: '+' },
+            { k: 'augPDef', lblKey: 'pDefTotal', pfx: '+' },
+            { k: 'augMDef', lblKey: 'mDefTotal', pfx: '+' },
+            { k: 'augSpd', lblKey: 'atkSpeed', pfx: '+' },
+            { k: 'augCrit', lblKey: 'critRate', pfx: '+', sfx: '%' }
         ];
-        dicAug.forEach(st => { const augVal = _invNum(base[st.k]); if (augVal) detalhes += addLinha(st.lbl, `${st.pfx || ''}${augVal}${st.sfx || ''}`, st.cor); });
-        detalhes += `</div>`;
+        dicAug.forEach((st) => {
+            const augVal = _invNum(base[st.k]);
+            if (augVal) augChips += addChip(_sheetT(st.lblKey), `${st.pfx || ''}${augVal}${st.sfx || ''}`, corAug);
+        });
+        html += `<div class="item-sheet__sec item-sheet__sec--aug" style="--aug:${corAug}">
+            <div class="item-sheet__sec-title" style="color:${corAug}">✦ ${_escSheet(_sheetT('augmentTitle', { level: txtLvl }))} ✦</div>
+            <div class="item-sheet__chips">${augChips}</div>
+        </div>`;
     }
 
-    if (base.desc) detalhes += `<div style="color:#d4c4a8; font-size:0.75em; font-style:italic; margin-top:8px; border-top:1px dashed #444; padding-top:6px; text-align:center;">"${base.desc}"</div>`;
-    // Informações de Segurança (RG do Item) no Rodapé
+    if (base.desc) {
+        html += `<div class="item-sheet__flavor">“${_escSheet(base.desc)}”</div>`;
+    }
     if (itemCompleto && itemCompleto.uid) {
-        detalhes += `<div style="margin-top: 10px; padding-top: 6px; border-top: 1px solid #333; font-family: monospace; font-size: 7px; color: #555; text-align: center; letter-spacing: 0.5px;">`;
-        detalhes += `OWNER: ${itemCompleto.owner || 'UNKNOWN'} | RG: ${itemCompleto.uid}`;
-        detalhes += `</div>`;
+        html += `<div class="item-sheet__uid" title="${_escSheet(itemCompleto.uid)}">${_escSheet(_sheetT('ownerRg', {
+            owner: itemCompleto.owner || 'UNKNOWN',
+            uid: String(itemCompleto.uid).slice(0, 10) + '…'
+        }))}</div>`;
     }
 
-    detalhes += `</div>`;
-    return titulo + divisor + detalhes;
+    html += `</div></div>`;
+    return html;
 }
 
 function abrirAcaoInventario(index: number, slotPerfilPref?: string): void {
@@ -614,7 +690,10 @@ function abrirAcaoInventario(index: number, slotPerfilPref?: string): void {
     if (tituloEl) tituloEl.innerText = (typeof window.t === 'function') ? window.t('game.inventoryUi.itemInfoTitle') : 'ITEM INFO';
     if (imgEl && itemBase.img) imgEl.src = itemBase.img;
 
-    const info = formatarTooltipEquipamento(itemBase, nivelEnchant, isAugment, tipoBruto, equip);
+    const corGrade = (typeof window.getGradeColor === 'function') ? window.getGradeColor(itemBase.grade) : '#b5b3ae';
+    preencherHeroItemAcao(itemBase.nome || '', { enchant: nivelEnchant, grade: itemBase.grade, gradeColor: corGrade });
+
+    const info = formatarTooltipEquipamento(itemBase, nivelEnchant, isAugment, tipoBruto, equip, { omitHeader: true });
     const descContainer = document.getElementById('acao-desc');
     if (!descContainer) return;
     descContainer.innerHTML = info;
@@ -670,7 +749,6 @@ function abrirAcaoInventario(index: number, slotPerfilPref?: string): void {
     btnAtalho.className = 'btn-l2 btn-acao-extra';
     btnAtalho.innerText = (typeof window.t === 'function') ? window.t('game.smartbar.pinToShortcut') : 'ASSIGN TO SHORTCUT';
     btnAtalho.style.background = "#ca8a04";
-    btnAtalho.style.marginTop = "8px";
     btnAtalho.onclick = function() {
         window.fecharJanelaAcao();
         window.abrirSeletorAtalhoGlobal(itemBase.nome || '', (slotIdx: number) => {
@@ -746,7 +824,10 @@ function abrirAcaoPerfil(tipo: string): void {
     if (tituloEl) tituloEl.innerText = (typeof window.t === 'function') ? window.t('game.inventoryUi.itemInfoTitle') : 'ITEM INFO';
     if (imgEl && itemBase.img) imgEl.src = itemBase.img;
 
-    const info = formatarTooltipEquipamento(itemBase, enc, aug, tipoBruto, fullItem);
+    const corGradePerfil = (typeof window.getGradeColor === 'function') ? window.getGradeColor(itemBase.grade) : '#b5b3ae';
+    preencherHeroItemAcao(itemBase.nome || '', { enchant: enc, grade: itemBase.grade, gradeColor: corGradePerfil });
+
+    const info = formatarTooltipEquipamento(itemBase, enc, aug, tipoBruto, fullItem, { omitHeader: true });
     const descContainer = document.getElementById('acao-desc');
     if (!descContainer) return;
     descContainer.innerHTML = info;
@@ -768,7 +849,6 @@ function abrirAcaoPerfil(tipo: string): void {
     btnAtalho.className = 'btn-l2 btn-acao-extra';
     btnAtalho.innerText = (typeof window.t === 'function') ? window.t('game.smartbar.pinToShortcut') : 'ASSIGN TO SHORTCUT';
     btnAtalho.style.background = "#ca8a04";
-    btnAtalho.style.marginTop = "8px";
     btnAtalho.onclick = function() {
         window.fecharJanelaAcao();
         window.abrirSeletorAtalhoGlobal(itemBase.nome || '', (slotIdx: number) => {

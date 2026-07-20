@@ -650,6 +650,7 @@ declare global {
     aug: boolean,
     tipo: string,
     itemRaw?: unknown,
+    opts?: { omitHeader?: boolean },
   ): string;
   function renderizarClans(aba?: string): void | Promise<void>;
   function abrirCriacaoClan(): void;
@@ -723,6 +724,8 @@ declare global {
   function setQtdVendaMax(): void;
   function comprarBuff(tipo: 'fighter' | 'mage' | string): void;
   function fecharEnchant(): void;
+  function setEnchantMobileTab(tab: 'gear' | 'scrolls'): void;
+  function setAugmentMobileTab(tab: 'weapon' | 'stone'): void;
   function fecharAugment(): void;
   function fecharAugmentAcao(): void;
   function fecharAugmentResultado(): void;

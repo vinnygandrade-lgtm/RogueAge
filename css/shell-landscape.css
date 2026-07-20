@@ -141,10 +141,262 @@ html[data-l2-layout="landscape"] #janela-stat-ranking .stat-ranking-footer {
     padding: 10px 16px 12px;
 }
 
-html[data-l2-layout="landscape"] #janela-item-acao.store-window,
 html[data-l2-layout="landscape"] #janela-craft-resultado.store-window {
     width: min(400px, 90vw);
     max-width: min(400px, 90vw);
+}
+
+/* —— Item detail sheet (PC desk) — wide 2-column inspection —— */
+html[data-l2-layout="landscape"] #janela-item-acao.store-window--item-acao {
+    width: min(780px, 72vw);
+    max-width: min(820px, 88vw);
+    min-height: min(420px, 70vh);
+    max-height: min(86vh, 720px);
+    overflow: hidden;
+    border-color: rgba(201, 162, 39, 0.5);
+    box-shadow:
+        0 28px 60px rgba(0, 0, 0, 0.58),
+        inset 0 1px 0 rgba(255, 248, 220, 0.08);
+}
+html[data-l2-layout="landscape"] #janela-item-acao .store-header--acao {
+    padding: 14px 52px 14px 22px;
+    background: linear-gradient(90deg, #1a1612, #2a241e, #1a1612);
+}
+html[data-l2-layout="landscape"] #janela-item-acao .store-header--acao span {
+    font-size: 1.05em;
+    letter-spacing: 0.16em;
+    color: #f5e6c8;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .fechar-store--acao {
+    width: 38px;
+    height: 38px;
+    right: 12px;
+    border-color: rgba(201, 162, 39, 0.4);
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .fechar-store--acao:hover {
+    background: rgba(201, 162, 39, 0.18);
+    border-color: rgba(250, 204, 21, 0.55);
+    color: #fef3c7;
+}
+
+/* Grid: [ showcase + actions | stats ] */
+html[data-l2-layout="landscape"] #janela-item-acao .store-body--acao {
+    display: grid;
+    grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 16px 20px;
+    padding: 18px 20px 20px;
+    min-height: 0;
+    overflow: hidden;
+    flex: 1 1 auto;
+    background:
+        radial-gradient(80% 90% at 18% 20%, rgba(201, 162, 39, 0.1), transparent 55%),
+        radial-gradient(70% 80% at 85% 80%, rgba(80, 50, 20, 0.12), transparent 50%),
+        rgba(0, 0, 0, 0.2);
+}
+html[data-l2-layout="landscape"] #janela-item-acao .acao-hero {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: stretch;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .acao-hero.is-filled {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+    padding: 22px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(201, 162, 39, 0.35);
+    background:
+        radial-gradient(circle at 50% 28%, rgba(90, 70, 30, 0.45) 0%, rgba(12, 10, 8, 0.96) 70%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 248, 220, 0.06),
+        0 10px 28px rgba(0, 0, 0, 0.35);
+}
+html[data-l2-layout="landscape"] #janela-item-acao .acao-hero.is-filled .acao-hero__text {
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao #acao-img-slot,
+html[data-l2-layout="landscape"] #janela-item-acao .acao-img-slot {
+    width: 128px;
+    height: 128px;
+    min-width: 128px;
+    min-height: 128px;
+    max-width: 128px;
+    border-radius: 14px;
+    border-width: 2px;
+    border-color: rgba(201, 162, 39, 0.45);
+    box-shadow:
+        inset 0 0 24px rgba(0, 0, 0, 0.55),
+        0 8px 22px rgba(0, 0, 0, 0.4);
+}
+html[data-l2-layout="landscape"] #janela-item-acao .acao-hero__name {
+    font-size: 1.28em;
+    line-height: 1.25;
+    -webkit-line-clamp: 3;
+    text-align: center;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .acao-hero__tags {
+    justify-content: center;
+    gap: 8px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__grade {
+    font-size: 0.78em;
+    padding: 4px 10px;
+}
+
+html[data-l2-layout="landscape"] #janela-item-acao #acao-desc {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: stretch;
+    min-height: 0;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 14px;
+    border-color: rgba(120, 95, 60, 0.75);
+    background:
+        linear-gradient(180deg, rgba(28, 22, 16, 0.88), rgba(8, 6, 5, 0.94));
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet {
+    padding: 16px 18px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__body {
+    gap: 10px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__req {
+    padding: 10px 12px;
+    font-size: 0.88em;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__req-badge {
+    font-size: 0.78em;
+    padding: 5px 10px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__total {
+    padding: 14px 16px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__total span {
+    font-size: 1.05em;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__total b {
+    font-size: 1.75em;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__chips {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__chip {
+    padding: 10px 12px;
+    border-radius: 9px;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__chip:hover {
+    border-color: rgba(201, 162, 39, 0.4);
+    background: rgba(50, 38, 22, 0.55);
+    transform: translateY(-1px);
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__chip span {
+    font-size: 0.72em;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__chip b {
+    font-size: 1.08em;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__sec {
+    padding: 12px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__sec-title {
+    font-size: 0.78em;
+    margin-bottom: 8px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__flavor {
+    -webkit-line-clamp: 4;
+    font-size: 0.88em;
+    line-height: 1.45;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .item-sheet__uid {
+    display: block;
+    font-size: 10px;
+    opacity: 0.9;
+}
+
+html[data-l2-layout="landscape"] #janela-item-acao .acao-btns {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 0;
+    width: 100%;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .acao-btns:not(:has(.btn-acao-extra)),
+html[data-l2-layout="landscape"] #janela-item-acao .acao-btns:has(.btn-acao-extra) {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .btn-acao-close {
+    display: none !important;
+}
+html[data-l2-layout="landscape"] #janela-item-acao #btn-acao-item,
+html[data-l2-layout="landscape"] #janela-item-acao .btn-acao-extra,
+html[data-l2-layout="landscape"] #janela-item-acao .btn-jewel-side {
+    flex: none;
+    width: 100%;
+    min-height: 48px;
+    font-size: 0.92em;
+    letter-spacing: 0.04em;
+    border-radius: 10px;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .acao-btns:has(.btn-acao-extra) #btn-acao-item {
+    order: 0;
+    flex: none;
+}
+
+/* Seletor de joia / sem hero: painel único largo */
+html[data-l2-layout="landscape"] #janela-item-acao .store-body--acao:not(:has(.acao-hero.is-filled)) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .store-body--acao:not(:has(.acao-hero.is-filled)) #acao-desc {
+    grid-column: 1;
+    grid-row: 1;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .store-body--acao:not(:has(.acao-hero.is-filled)) .acao-btns {
+    grid-column: 1;
+    grid-row: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .store-body--acao:not(:has(.acao-hero.is-filled)) #btn-acao-item,
+html[data-l2-layout="landscape"] #janela-item-acao .store-body--acao:not(:has(.acao-hero.is-filled)) .btn-acao-extra {
+    flex: 1 1 180px;
+    width: auto;
+}
+
+html[data-l2-layout="landscape"] #janela-item-acao .jewel-pick-hint {
+    margin: 12px 16px 6px;
+    font-size: 0.9em;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .jewel-pick-grid {
+    max-height: min(360px, 48vh);
+    overflow-y: auto;
+    padding: 0 16px 14px;
+    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+html[data-l2-layout="landscape"] #janela-item-acao .jewel-pick-row {
+    min-height: 52px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+html[data-l2-layout="landscape"] #janela-item-acao .jewel-pick-row:hover {
+    border-color: rgba(201, 162, 39, 0.55);
+    background: rgba(40, 30, 18, 0.55);
 }
 
 html[data-l2-layout="landscape"] #janela-status-detalhado.store-window {
@@ -190,25 +442,50 @@ html[data-l2-layout="landscape"] #janela-augment .store-body--aug {
     min-height: min(62vh, 520px);
 }
 
+/* Mobile-only chrome — keep PC desk */
+html[data-l2-layout="landscape"] #janela-enchant .enchant-step-hint,
+html[data-l2-layout="landscape"] #janela-augment .enchant-step-hint,
+html[data-l2-layout="landscape"] #janela-enchant .enchant-tabs,
+html[data-l2-layout="landscape"] #janela-augment .enchant-tabs,
+html[data-l2-layout="landscape"] #janela-enchant .enchant-dock__meta,
+html[data-l2-layout="landscape"] #janela-augment .enchant-dock__meta {
+    display: none !important;
+}
+
 html[data-l2-layout="landscape"] #janela-enchant .enchant-split,
-html[data-l2-layout="landscape"] #janela-augment .enchant-split {
+html[data-l2-layout="landscape"] #janela-augment .enchant-split,
+html[data-l2-layout="landscape"] #janela-enchant .enchant-dock,
+html[data-l2-layout="landscape"] #janela-augment .enchant-dock,
+html[data-l2-layout="landscape"] #janela-enchant .enchant-dock__forge,
+html[data-l2-layout="landscape"] #janela-augment .enchant-dock__forge {
     display: contents;
 }
 
-html[data-l2-layout="landscape"] #janela-enchant .enchant-col:nth-child(1),
-html[data-l2-layout="landscape"] #janela-augment .enchant-col:nth-child(1) {
+html[data-l2-layout="landscape"] #janela-enchant .enchant-col,
+html[data-l2-layout="landscape"] #janela-augment .enchant-col {
+    display: flex !important;
+    flex-direction: column;
+}
+
+html[data-l2-layout="landscape"] #janela-enchant .enchant-col--gear,
+html[data-l2-layout="landscape"] #janela-augment .enchant-col--gear {
     grid-column: 1;
     grid-row: 1 / -1;
     min-height: 0;
     align-items: stretch;
 }
 
-html[data-l2-layout="landscape"] #janela-enchant .enchant-col:nth-child(2),
-html[data-l2-layout="landscape"] #janela-augment .enchant-col:nth-child(2) {
+html[data-l2-layout="landscape"] #janela-enchant .enchant-col--scrolls,
+html[data-l2-layout="landscape"] #janela-augment .enchant-col--scrolls {
     grid-column: 3;
     grid-row: 1 / -1;
     min-height: 0;
     align-items: stretch;
+}
+
+html[data-l2-layout="landscape"] #janela-enchant .enchant-col-label,
+html[data-l2-layout="landscape"] #janela-augment .enchant-col-label {
+    display: block;
 }
 
 html[data-l2-layout="landscape"] #janela-enchant .enchant-col-label,

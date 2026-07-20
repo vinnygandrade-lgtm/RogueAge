@@ -22,6 +22,58 @@ let targetEquipObj: EnchantTargetEquip | null = null;
 let targetScroll: string | null = null;
 let listaItensEnchant: EnchantTargetEquip[] = [];
 let _enchantInProgress = false;
+let _enchantMobileTab: 'gear' | 'scrolls' = 'gear';
+let _augmentMobileTab: 'weapon' | 'stone' = 'weapon';
+
+function setEnchantMobileTab(tab: 'gear' | 'scrolls'): void {
+    _enchantMobileTab = tab === 'scrolls' ? 'scrolls' : 'gear';
+    const win = document.getElementById('janela-enchant');
+    if (!win) return;
+    win.querySelectorAll<HTMLElement>('[data-enchant-panel]').forEach((panel) => {
+        const id = panel.getAttribute('data-enchant-panel');
+        panel.classList.toggle('is-enchant-panel-active', id === _enchantMobileTab);
+    });
+    win.querySelectorAll<HTMLButtonElement>('[data-enchant-tab]').forEach((btn) => {
+        const id = btn.getAttribute('data-enchant-tab');
+        const active = id === _enchantMobileTab;
+        btn.classList.toggle('enchant-tab--active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    refreshEnchantStepHint();
+}
+
+function refreshEnchantStepHint(): void {
+    const hint = document.getElementById('enchant-step-hint');
+    if (!hint) return;
+    if (!targetEquipObj) {
+        hint.textContent = enchantT('game.enchantUi.hintPickGear');
+        return;
+    }
+    if (!targetScroll) {
+        hint.textContent = enchantT('game.enchantUi.hintPickScroll');
+        return;
+    }
+    hint.textContent = enchantT('game.enchantUi.hintReady');
+}
+
+function refreshEnchantDockMeta(): void {
+    const nameEl = document.getElementById('enchant-dock-name');
+    const levelEl = document.getElementById('enchant-dock-level');
+    if (!nameEl || !levelEl) return;
+    if (!targetEquipObj) {
+        nameEl.textContent = enchantT('game.enchantUi.dockWaitingGear');
+        levelEl.textContent = '';
+        return;
+    }
+    const nome = targetEquipObj.base?.nome || enchantT('game.enchantUi.columnGear');
+    nameEl.textContent = nome;
+    const lvl = getEnchantLevelForTarget(targetEquipObj);
+    if (lvl >= 25) {
+        levelEl.textContent = enchantT('game.enchantUi.dockLevelMax', { level: lvl });
+    } else {
+        levelEl.textContent = enchantT('game.enchantUi.dockLevelNext', { from: lvl, to: lvl + 1 });
+    }
+}
 
 function enchantT(key: string, params?: Record<string, string | number>): string {
   return typeof window.t === 'function' ? window.t(key, params) : key;
@@ -195,7 +247,9 @@ function configurarBotaoFecharResultadoEnchant(btnBg: string): void {
 function abrirJanelaEnchant(): void { 
     targetEquipObj = null; 
     targetScroll = null; 
-    atualizarInterfaceEnchant(); 
+    _enchantMobileTab = 'gear';
+    atualizarInterfaceEnchant();
+    setEnchantMobileTab('gear');
     window.abrirModal('janela-enchant', 1500); 
 }
 
@@ -243,20 +297,32 @@ function abrirInfoEquipEnchant(idUnico: string): void {
     titulo.innerText = (typeof window.t === 'function') ? window.t('game.enchantUi.selectGear') : 'SELECT GEAR';
     img.src = item.base.img || '';
 
-    const info = typeof window.formatarTooltipEquipamento === 'function'
-        ? window.formatarTooltipEquipamento(item.base, item.lvl, item.isAugment, item.tipo, item.refOriginal)
-        : '';
-    const locText = item.local === 'equipado'
-        ? '<br><b style="color:#10b981;">' + ((typeof window.t === 'function') ? window.t('game.enchantUi.equippedNow') : '[EQUIPPED]') + '</b>'
-        : '<br><b style="color:#aaa;">' + ((typeof window.t === 'function') ? window.t('game.enchantUi.inBag') : '[IN BAG]') + '</b>';
+    const corGradeEnc = (typeof window.getGradeColor === 'function') ? window.getGradeColor(item.base.grade) : '#b5b3ae';
+    const hero = document.getElementById('acao-hero');
+    const heroName = document.getElementById('acao-hero-name');
+    const heroTags = document.getElementById('acao-hero-tags');
+    if (hero && heroName && heroTags) {
+        const encLbl = item.lvl > 0 ? ('+' + item.lvl + ' ') : '';
+        heroName.textContent = encLbl + (item.base.nome || '');
+        const locChip = item.local === 'equipado'
+            ? `<span class="item-sheet__grade" style="color:#34d399;border-color:#34d399">${(typeof window.t === 'function') ? window.t('game.enchantUi.equippedNow') : '[EQUIPPED]'}</span>`
+            : `<span class="item-sheet__grade" style="color:#a8a29e;border-color:#78716c">${(typeof window.t === 'function') ? window.t('game.enchantUi.inBag') : '[IN BAG]'}</span>`;
+        heroTags.innerHTML = `<span class="item-sheet__grade" style="color:${corGradeEnc};border-color:${corGradeEnc}">[${item.base.grade || ''}]</span>${locChip}`;
+        hero.classList.add('acao-hero--card', 'is-filled');
+    }
 
-    desc.innerHTML = info + locText;
+    const info = typeof window.formatarTooltipEquipamento === 'function'
+        ? window.formatarTooltipEquipamento(item.base, item.lvl, item.isAugment, item.tipo, item.refOriginal, { omitHeader: true })
+        : '';
+
+    desc.innerHTML = info;
 
     btnAcao.innerText = (typeof window.t === 'function') ? window.t('game.enchantUi.selectForEnchant') : 'SELECT FOR ENCHANT';
     btnAcao.style.background = '#ca8a04';
     btnAcao.onclick = function () {
         targetEquipObj = item;
         atualizarInterfaceEnchant();
+        setEnchantMobileTab('scrolls');
         window.fecharJanelaAcao();
     };
 }
@@ -276,9 +342,30 @@ function abrirInfoScrollEnchant(nomeItem: string): void {
     titulo.innerText = (typeof window.t === 'function') ? window.t('game.enchantUi.selectScroll') : 'SELECT SCROLL';
     img.src = infoScroll.img || 'assets/npcs/grocer.png';
 
-    const ownLbl = (typeof window.t === 'function') ? window.t('game.shop.ownedLabel') : 'Owned:';
+    const hero = document.getElementById('acao-hero');
+    const heroName = document.getElementById('acao-hero-name');
+    const heroTags = document.getElementById('acao-hero-tags');
+    if (hero && heroName && heroTags) {
+        heroName.textContent = nomeItem;
+        const chipColor = meta.abencoado ? '#fde047' : '#c084fc';
+        const chipLbl = (typeof window.t === 'function')
+            ? window.t(meta.abencoado ? 'game.inventoryUi.sheet.scrollBlessed' : 'game.inventoryUi.sheet.scrollNormal')
+            : (meta.abencoado ? 'Blessed' : 'Scroll');
+        heroTags.innerHTML = `<span class="item-sheet__grade" style="color:${chipColor};border-color:${chipColor}">${chipLbl}</span>`;
+        hero.classList.add('acao-hero--card', 'is-filled');
+    }
+
     const owned = _invNum(window.inventario[nomeItem]);
-    desc.innerHTML = `<b style="color:${meta.abencoado ? '#fde047' : '#8b5cf6'}">${nomeItem}</b><br><br>${infoScroll.desc || ''}<br><br><span style="color:#aaa;">${ownLbl} ${owned}</span>`;
+    const qtyLbl = (typeof window.t === 'function')
+        ? window.t('game.inventoryUi.sheet.quantity', { n: owned })
+        : ('Owned: ' + owned);
+    const flavor = infoScroll.desc
+        ? `<div class="item-sheet__flavor">“${String(infoScroll.desc).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}”</div>`
+        : '';
+    desc.innerHTML = `<div class="item-sheet item-sheet--body"><div class="item-sheet__body">
+        <div class="item-sheet__row"><span class="item-sheet__lbl">${qtyLbl}</span></div>
+        ${flavor}
+    </div></div>`;
 
     btnAcao.innerText = (typeof window.t === 'function') ? window.t('game.enchantUi.selectScroll') : 'SELECT SCROLL';
     btnAcao.style.background = meta.abencoado ? '#ca8a04' : '#8b5cf6';
@@ -379,7 +466,9 @@ function atualizarInterfaceEnchant(): void {
             ${item.lvl > 0 ? `<div class="inv-qtd">+${item.lvl}</div>` : ''}
         </div>`;
     });
-    gridEquip.innerHTML = htmlEquip.length > 0 ? htmlEquip : `<span style="font-size:8px; color:#aaa; grid-column:span 3; text-align:center;">${(typeof window.t === 'function') ? window.t('game.enchantUi.noEquipment') : 'No equipment.'}</span>`;
+    gridEquip.innerHTML = htmlEquip.length > 0
+        ? htmlEquip
+        : `<span class="enchant-empty">${(typeof window.t === 'function') ? window.t('game.enchantUi.noEquipment') : 'No equipment.'}</span>`;
 
     // 3. DESENHA A GRID DE SCROLLS
     let htmlScroll = ''; 
@@ -400,7 +489,9 @@ function atualizarInterfaceEnchant(): void {
                 </div>`;
         }
     });
-    gridScroll.innerHTML = temScroll ? htmlScroll : `<span style="font-size:8px; color:#aaa; grid-column:span 3; text-align:center;">${(typeof window.t === 'function') ? window.t('game.enchantUi.noScrolls') : 'No scrolls.'}</span>`;
+    gridScroll.innerHTML = temScroll
+        ? htmlScroll
+        : `<span class="enchant-empty">${(typeof window.t === 'function') ? window.t('game.enchantUi.noScrolls') : 'No scrolls.'}</span>`;
 
     // 4. DESENHA O PREVIEW DO MEIO
     let previewEquip = targetEquipObj ? `<img src="${targetEquipObj.base.img}" class="inv-img" alt="">` : '?';
@@ -409,6 +500,9 @@ function atualizarInterfaceEnchant(): void {
 
     slotTargetEquip.innerHTML = previewEquip;
     slotTargetScroll.innerHTML = previewScroll;
+    refreshEnchantDockMeta();
+    refreshEnchantStepHint();
+    setEnchantMobileTab(_enchantMobileTab);
 
     // 5. VALIDAÇÕES FINAIS (Travar botão se errado)
     aviso.style.display = 'none';
@@ -714,11 +808,61 @@ let augmentArmaSelecionada: AugmentArmaSelection | null = null;
 let augmentStoneSelecionada: string | null = null;
 let augmentIndexArma: AugmentIndexArma = null;
 
+function setAugmentMobileTab(tab: 'weapon' | 'stone'): void {
+    _augmentMobileTab = tab === 'stone' ? 'stone' : 'weapon';
+    const win = document.getElementById('janela-augment');
+    if (!win) return;
+    win.querySelectorAll<HTMLElement>('[data-augment-panel]').forEach((panel) => {
+        const id = panel.getAttribute('data-augment-panel');
+        panel.classList.toggle('is-enchant-panel-active', id === _augmentMobileTab);
+    });
+    win.querySelectorAll<HTMLButtonElement>('[data-augment-tab]').forEach((btn) => {
+        const id = btn.getAttribute('data-augment-tab');
+        const active = id === _augmentMobileTab;
+        btn.classList.toggle('enchant-tab--active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    refreshAugmentStepHint();
+}
+
+function refreshAugmentStepHint(): void {
+    const hint = document.getElementById('augment-step-hint');
+    if (!hint) return;
+    if (!augmentArmaSelecionada) {
+        hint.textContent = enchantT('game.enchantUi.hintPickWeapon');
+        return;
+    }
+    if (!augmentStoneSelecionada) {
+        hint.textContent = enchantT('game.enchantUi.hintPickStone');
+        return;
+    }
+    hint.textContent = enchantT('game.enchantUi.hintAugmentReady');
+}
+
+function refreshAugmentDockMeta(): void {
+    const nameEl = document.getElementById('augment-dock-name');
+    const levelEl = document.getElementById('augment-dock-level');
+    if (!nameEl || !levelEl) return;
+    if (!augmentArmaSelecionada) {
+        nameEl.textContent = enchantT('game.enchantUi.dockWaitingWeapon');
+        levelEl.textContent = '';
+        return;
+    }
+    const catalog = _resolveAugmentCatalog(augmentArmaSelecionada);
+    nameEl.textContent = catalog.nome || enchantT('game.enchantUi.augmentColWeapon');
+    const enc = _invNum(augmentArmaSelecionada.enchant);
+    levelEl.textContent = enc > 0
+        ? enchantT('game.enchantUi.dockWeaponPlus', { level: enc })
+        : enchantT('game.enchantUi.dockWeaponReady');
+}
+
 function abrirJanelaAugment(): void {
     if (typeof window.fecharNpc === 'function') window.fecharNpc();
     window.abrirModal('janela-augment', 1500);
     resetarAugment();
+    _augmentMobileTab = 'weapon';
     renderizarAugmentGrids();
+    setAugmentMobileTab('weapon');
 }
 
 function fecharAugment(): void {
@@ -793,7 +937,9 @@ function renderizarAugmentGrids(): void {
         });
     }
 
-    if (!temArma) gridEquip.innerHTML = `<span style="font-size:10px; color:#555; grid-column:span 3; text-align:center;">${(typeof window.t === 'function') ? window.t('game.enchantUi.noWeaponsAugment') : 'No weapons.'}</span>`;
+    if (!temArma) {
+        gridEquip.innerHTML = `<span class="enchant-empty">${(typeof window.t === 'function') ? window.t('game.enchantUi.noWeaponsAugment') : 'No weapons.'}</span>`;
+    }
 
     let qtdStones = (window.inventario && window.inventario["Life Stone"]) ? window.inventario["Life Stone"] : 0;
     if (qtdStones > 0) {
@@ -803,8 +949,11 @@ function renderizarAugmentGrids(): void {
                 <div class="inv-qtd">${qtdStones}</div>
             </div>`;
     } else {
-         gridStone.innerHTML = '<span style="font-size:10px; color:#555; grid-column:span 3; text-align:center;">' + ((typeof window.t === 'function') ? window.t('game.enchantUi.noStones') : 'No stones.') + '</span>';
+         gridStone.innerHTML = `<span class="enchant-empty">${(typeof window.t === 'function') ? window.t('game.enchantUi.noStones') : 'No stones.'}</span>`;
     }
+    refreshAugmentDockMeta();
+    refreshAugmentStepHint();
+    setAugmentMobileTab(_augmentMobileTab);
 }
 
 // ==========================================
@@ -927,6 +1076,7 @@ function selecionarAugmentArma(indexInventario: number | 'equipped'): void {
             ${labelPlus}
         </div>`;
     checarProntidaoAugment();
+    setAugmentMobileTab('stone');
 }
 
 function selecionarAugmentStone(): void {
@@ -943,11 +1093,17 @@ function checarProntidaoAugment(): void {
     const aviso = document.getElementById('augment-warning') as HTMLElement | null;
     if (!btn || !aviso) return;
 
+    refreshAugmentDockMeta();
+    refreshAugmentStepHint();
+
     if (augmentArmaSelecionada && augmentStoneSelecionada) {
         btn.disabled = false;
         btn.style.background = '#a855f7'; 
         aviso.style.display = 'block';
         aviso.innerText = (typeof window.t === 'function') ? window.t('game.enchantUi.augmentFeeLine') : 'Fee: 5,000 Adena';
+    } else {
+        btn.disabled = true;
+        aviso.style.display = 'none';
     }
 }
 
@@ -1310,9 +1466,11 @@ function mostrarResultadoAugment(armaNova: AugmentArmaSelection): void {
 window.abrirJanelaEnchant = abrirJanelaEnchant;
 window.fecharEnchant = fecharEnchant;
 window.executarEnchant = executarEnchant;
+window.setEnchantMobileTab = setEnchantMobileTab;
 window.abrirJanelaAugment = abrirJanelaAugment;
 window.fecharAugment = fecharAugment;
 window.executarAugment = executarAugment;
+window.setAugmentMobileTab = setAugmentMobileTab;
 window.abrirAugmentAcao = abrirAugmentAcao;
 window.selecionarAugmentStone = selecionarAugmentStone;
 window.fecharAugmentAcao = fecharAugmentAcao;

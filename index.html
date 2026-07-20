@@ -247,13 +247,22 @@
         <div id="market-seletor-grid" class="inventory-grid"></div>
         <button type="button" class="btn-l2 btn-market-back" data-i18n="market.back" onclick="fecharSeletorItemMarket()">BACK</button>
     </div>
-    <div id="janela-item-acao" class="store-window">
-        <div class="store-header"><span id="acao-titulo">ITEM INFO</span></div>
+    <div id="janela-item-acao" class="store-window store-window--item-acao">
+        <div class="store-header store-header--acao">
+            <span id="acao-titulo" data-i18n="game.inventoryUi.itemInfoTitle">ITEM INFO</span>
+            <button type="button" class="fechar-store fechar-store--acao" onclick="fecharJanelaAcao()" aria-label="Close">&times;</button>
+        </div>
         <div class="store-body store-body--acao">
-            <div id="acao-img-slot" class="store-item-slot">
-                <img id="acao-img" src="" alt="">
+            <div class="acao-hero" id="acao-hero">
+                <div id="acao-img-slot" class="store-item-slot acao-img-slot">
+                    <img id="acao-img" src="" alt="">
+                </div>
+                <div class="acao-hero__text">
+                    <div id="acao-hero-name" class="acao-hero__name"></div>
+                    <div id="acao-hero-tags" class="acao-hero__tags"></div>
+                </div>
             </div>
-            <div id="acao-desc"></div>
+            <div id="acao-desc" class="acao-desc"></div>
             <div class="acao-btns">
                 <button type="button" id="btn-acao-item" class="btn-l2" data-i18n="market.actionPlaceholder">ACTION</button>
                 <button type="button" class="btn-l2 btn-acao-close" data-i18n="market.close" onclick="fecharJanelaAcao()">CLOSE</button>
@@ -470,87 +479,115 @@
     <div id="janela-enchant" class="store-window store-window--enchant">
         <div class="store-header"><span data-i18n="game.enchantUi.windowTitle">ENCHANT GEAR</span></div>
         <div class="store-body store-body--enchant">
+            <p id="enchant-step-hint" class="enchant-step-hint" data-i18n="game.enchantUi.hintPickGear">1. Choose the gear to enchant</p>
+            <div class="enchant-tabs" role="tablist" aria-label="Enchant steps">
+                <button type="button" class="enchant-tab enchant-tab--active" data-enchant-tab="gear" role="tab" aria-selected="true" onclick="setEnchantMobileTab('gear')" data-i18n="game.enchantUi.tabGear">Equipment</button>
+                <button type="button" class="enchant-tab" data-enchant-tab="scrolls" role="tab" aria-selected="false" onclick="setEnchantMobileTab('scrolls')" data-i18n="game.enchantUi.tabScrolls">Scrolls</button>
+            </div>
             <div class="enchant-split">
-                <div class="enchant-col">
+                <div class="enchant-col enchant-col--gear" data-enchant-panel="gear">
                     <span class="enchant-col-label" data-i18n="game.enchantUi.columnGear">EQUIPMENT</span>
                     <div id="enchant-equip-grid" class="enchant-box"></div>
                 </div>
-                <div class="enchant-col">
+                <div class="enchant-col enchant-col--scrolls" data-enchant-panel="scrolls">
                     <span class="enchant-col-label" data-i18n="game.enchantUi.columnScrolls">SCROLLS</span>
                     <div id="enchant-scroll-grid" class="enchant-box"></div>
                 </div>
             </div>
 
-            <div class="enchant-preview">
-                <div id="slot-target-equip" class="store-item-slot enchant-slot-mid">?</div>
-                <span class="enchant-plus" aria-hidden="true">+</span>
-                <div id="slot-target-scroll" class="store-item-slot enchant-slot-mid">?</div>
-            </div>
-
-            <div class="enchant-warn-wrap">
-                <span id="enchant-warning">⚠️ RISK OF CRYSTALLIZATION ⚠️</span>
-            </div>
-
-            <div class="enchant-actions">
-                <button type="button" id="btn-executar-enchant" class="btn-l2" data-i18n="game.enchantUi.enchant" onclick="executarEnchant()" disabled>ENCHANT</button>
-                <button type="button" class="btn-l2 btn-enchant-cancel" data-i18n="modal.cancel" onclick="fecharEnchant()">CANCEL</button>
+            <div class="enchant-dock">
+                <div class="enchant-dock__forge">
+                    <div class="enchant-preview">
+                        <div id="slot-target-equip" class="store-item-slot enchant-slot-mid">?</div>
+                        <span class="enchant-plus" aria-hidden="true">+</span>
+                        <div id="slot-target-scroll" class="store-item-slot enchant-slot-mid">?</div>
+                    </div>
+                    <div class="enchant-dock__meta">
+                        <div id="enchant-dock-name" class="enchant-dock__name"></div>
+                        <div id="enchant-dock-level" class="enchant-dock__level"></div>
+                    </div>
+                </div>
+                <div class="enchant-warn-wrap">
+                    <span id="enchant-warning">⚠️ RISK OF CRYSTALLIZATION ⚠️</span>
+                </div>
+                <div class="enchant-actions">
+                    <button type="button" id="btn-executar-enchant" class="btn-l2" data-i18n="game.enchantUi.enchant" onclick="executarEnchant()" disabled>ENCHANT</button>
+                    <button type="button" class="btn-l2 btn-enchant-cancel" data-i18n="modal.cancel" onclick="fecharEnchant()">CANCEL</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="janela-augment" class="store-window">
+    <div id="janela-augment" class="store-window store-window--augment">
         <div class="store-header"><span data-i18n="game.enchantUi.augmentWindowTitle">AUGMENT WEAPON</span></div>
         <div class="store-body store-body--aug">
+            <p id="augment-step-hint" class="enchant-step-hint" data-i18n="game.enchantUi.hintPickWeapon">1. Choose the weapon to augment</p>
+            <div class="enchant-tabs" role="tablist" aria-label="Augment steps">
+                <button type="button" class="enchant-tab enchant-tab--active" data-augment-tab="weapon" role="tab" aria-selected="true" onclick="setAugmentMobileTab('weapon')" data-i18n="game.enchantUi.tabWeapon">Weapon</button>
+                <button type="button" class="enchant-tab" data-augment-tab="stone" role="tab" aria-selected="false" onclick="setAugmentMobileTab('stone')" data-i18n="game.enchantUi.tabStone">Life Stone</button>
+            </div>
             <div class="enchant-split">
-                <div class="enchant-col">
+                <div class="enchant-col enchant-col--gear" data-augment-panel="weapon">
                     <span class="enchant-col-label" data-i18n="game.enchantUi.augmentColWeapon">WEAPON</span>
                     <div id="augment-equip-grid" class="enchant-box"></div>
                 </div>
-                <div class="enchant-col">
+                <div class="enchant-col enchant-col--scrolls" data-augment-panel="stone">
                     <span class="enchant-col-label" data-i18n="game.enchantUi.augmentColStone">LIFE STONE</span>
                     <div id="augment-stone-grid" class="enchant-box"></div>
                 </div>
             </div>
 
-            <div class="enchant-preview enchant-preview--aug">
-                <div id="slot-target-augment-equip" class="store-item-slot enchant-slot-mid">?</div>
-                <span class="aug-plus">+</span>
-                <div id="slot-target-augment-stone" class="store-item-slot enchant-slot-mid">?</div>
-            </div>
-
-            <div class="enchant-warn-wrap">
-                <span id="augment-warning"></span>
-            </div>
-
-            <div class="enchant-actions">
-                <button type="button" id="btn-executar-augment" class="btn-l2" data-i18n="game.enchantUi.augmentBtn" onclick="executarAugment()" disabled>AUGMENT</button>
-                <button type="button" class="btn-l2 btn-aug-cancel" data-i18n="modal.cancel" onclick="fecharAugment()">CANCEL</button>
+            <div class="enchant-dock enchant-dock--aug">
+                <div class="enchant-dock__forge">
+                    <div class="enchant-preview enchant-preview--aug">
+                        <div id="slot-target-augment-equip" class="store-item-slot enchant-slot-mid">?</div>
+                        <span class="aug-plus">+</span>
+                        <div id="slot-target-augment-stone" class="store-item-slot enchant-slot-mid">?</div>
+                    </div>
+                    <div class="enchant-dock__meta">
+                        <div id="augment-dock-name" class="enchant-dock__name"></div>
+                        <div id="augment-dock-level" class="enchant-dock__level"></div>
+                    </div>
+                </div>
+                <div class="enchant-warn-wrap">
+                    <span id="augment-warning"></span>
+                </div>
+                <div class="enchant-actions">
+                    <button type="button" id="btn-executar-augment" class="btn-l2" data-i18n="game.enchantUi.augmentBtn" onclick="executarAugment()" disabled>AUGMENT</button>
+                    <button type="button" class="btn-l2 btn-aug-cancel" data-i18n="modal.cancel" onclick="fecharAugment()">CANCEL</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="janela-augment-acao" class="store-window">
+    <div id="janela-augment-acao" class="store-window store-window--aug-acao">
         <div class="store-header"><span data-i18n="game.enchantUi.selectGear">SELECT GEAR</span></div>
-        <div class="aug-acao-body">
-            <div class="store-item-slot aug-acao-slot">
-                <img id="augment-acao-img" src="" alt="">
+        <div class="aug-acao-body store-body--acao">
+            <div class="acao-hero">
+                <div class="store-item-slot aug-acao-slot acao-img-slot">
+                    <img id="augment-acao-img" src="" alt="">
+                </div>
             </div>
-            <div id="augment-acao-desc"></div>
-            <button type="button" id="btn-augment-confirmar-selecao" class="btn-l2" data-i18n="game.enchantUi.selectForAugment">SELECT FOR AUGMENT</button>
-            <button type="button" class="btn-l2 btn-aug-acao-back" onclick="fecharAugmentAcao()">BACK</button>
+            <div id="augment-acao-desc" class="acao-desc"></div>
+            <div class="acao-btns">
+                <button type="button" id="btn-augment-confirmar-selecao" class="btn-l2" data-i18n="game.enchantUi.selectForAugment">SELECT FOR AUGMENT</button>
+                <button type="button" class="btn-l2 btn-aug-acao-back" onclick="fecharAugmentAcao()">BACK</button>
+            </div>
         </div>
     </div>
 
-    <div id="janela-augment-resultado" class="store-window">
+    <div id="janela-augment-resultado" class="store-window store-window--aug-result">
         <div id="aug-res-header" class="store-header"><span id="aug-res-title-text" data-i18n="game.enchantUi.augmentCompleteTitle">AUGMENTATION COMPLETE</span></div>
-        <div class="aug-res-body">
-           <div id="aug-res-img-slot" class="store-item-slot">
-              <img id="aug-res-img" src="" alt="">
+        <div class="aug-res-body store-body--acao">
+            <div class="acao-hero">
+                <div id="aug-res-img-slot" class="store-item-slot acao-img-slot">
+                    <img id="aug-res-img" src="" alt="">
+                </div>
             </div>
             <h3 id="aug-res-nome">Nome da Arma</h3>
             <div id="aug-res-box">
-               <div id="aug-res-subtitle" data-i18n="game.enchantUi.augmentNewPowers">New Powers Awakened:</div>
-               <div id="aug-res-status"></div>
+                <div id="aug-res-subtitle" data-i18n="game.enchantUi.augmentNewPowers">New Powers Awakened:</div>
+                <div id="aug-res-status"></div>
             </div>
             <button type="button" id="aug-res-btn" class="btn-l2" data-i18n="game.enchantUi.augmentExcellent" onclick="fecharAugmentResultado()">EXCELLENT!</button>
         </div>
