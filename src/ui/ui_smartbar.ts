@@ -257,16 +257,28 @@ function resetHotbarDockStyles(container: HTMLElement): void {
   container.style.removeProperty('z-index');
 }
 
+function isExpeditionHotbarLive(): boolean {
+  const exp = (window as Window & {
+    ExpeditionEngine?: {
+      state?: { active?: boolean; suspended?: boolean };
+      isRunEffectsActive?: () => boolean;
+    };
+  }).ExpeditionEngine;
+  if (!exp?.state?.active) return false;
+  if (typeof exp.isRunEffectsActive === 'function') return !!exp.isRunEffectsActive();
+  return !exp.state.suspended;
+}
+
 /** Re-dock hotbar into expedition map/combat panel after render (CSS default is display:none). */
 function syncExpeditionHotbarDockIfNeeded(): void {
   const exp = (window as Window & {
     ExpeditionEngine?: {
-      state?: { active?: boolean };
+      state?: { active?: boolean; suspended?: boolean };
       isExpeditionCombatUiActive?: () => boolean;
       syncExpeditionHotbar?: (mode: 'hub' | 'map' | 'combat' | 'idle') => void;
     };
   }).ExpeditionEngine;
-  if (!exp?.state?.active || typeof exp.syncExpeditionHotbar !== 'function') return;
+  if (!isExpeditionHotbarLive() || typeof exp?.syncExpeditionHotbar !== 'function') return;
   const mode =
     typeof exp.isExpeditionCombatUiActive === 'function' && exp.isExpeditionCombatUiActive()
       ? 'combat'
@@ -298,14 +310,15 @@ function renderizarBarraAtalhos(): void {
 
     const expEng = (window as Window & {
       ExpeditionEngine?: {
-        state?: { active?: boolean };
+        state?: { active?: boolean; suspended?: boolean };
         isExpeditionCombatUiActive?: () => boolean;
         syncExpeditionHotbar?: (mode: 'hub' | 'map' | 'combat' | 'idle') => void;
       };
     }).ExpeditionEngine;
-    const expeditionActive = !!expEng?.state?.active;
+    // Parked/suspended runs must NOT steal the global hotbar (Profile/Town would show it).
+    const expeditionLive = isExpeditionHotbarLive();
     const expeditionCombat = !!(
-      expeditionActive &&
+      expeditionLive &&
       typeof expEng?.isExpeditionCombatUiActive === 'function' &&
       expEng.isExpeditionCombatUiActive()
     );
@@ -317,7 +330,7 @@ function renderizarBarraAtalhos(): void {
       } else if (estaNaOlympiad && olyHook) {
         if (container.parentElement !== olyHook) olyHook.appendChild(container);
         applyHotbarCombatDockStyles(container);
-      } else if (expeditionActive && typeof expEng?.syncExpeditionHotbar === 'function') {
+      } else if (expeditionLive && typeof expEng?.syncExpeditionHotbar === 'function') {
         expEng.syncExpeditionHotbar(expeditionCombat ? 'combat' : 'map');
         applyHotbarCombatDockStyles(container);
       } else if (hotbarHome) {

@@ -1,4 +1,5 @@
 import { itemDropDisplayName } from '../combat/combat_i18n';
+import type { ExpeditionRunSave } from '../types/game';
 
 /** Path card picked each journey (roguelike route). */
 export type ExpeditionPathType = 'combat' | 'boss' | 'chest' | 'elite' | 'merchant' | 'forge' | 'scout' | 'patrol' | 'tracks' | 'warhorn' | 'ambush';
@@ -55,6 +56,11 @@ export type ExpeditionRunPanelTab = 'path' | 'stats' | 'gear';
 
 export interface ExpeditionState {
     active: boolean;
+    /**
+     * Run parked while the player is in town / other tabs / offline.
+     * Bag + progress persist; combat buffs/enchants pause until resume.
+     */
+    suspended: boolean;
     zoneId: string;
     journey: number;
     pathChoices: ExpeditionPathChoice[];
@@ -64,7 +70,7 @@ export interface ExpeditionState {
     /** True while the current map step was forced to fights-only (UI hint). */
     combatOnlyThisJourney: boolean;
     runBuffs: ExpeditionRunBuffs;
-    /** Temporary +enchant on equipped gear — reverts when the run ends (not saved). */
+    /** Temporary +enchant on equipped gear — reverts when the run ends (cleared on extract). */
     runEnchantBonus: ExpeditionRunEnchantBonus;
     runStats: ExpeditionRunStats;
     journeyTrait: JourneyMobTrait;
@@ -303,7 +309,7 @@ export class ExpeditionEngine {
     static _combatUiActive = false;
 
     static isExpeditionCombatUiActive(): boolean {
-        return !!(this.state.active && this._combatUiActive);
+        return !!(this.state.active && !this.state.suspended && this._combatUiActive);
     }
 
     /** Original `#hotbar-home-anchor` parent — restore when leaving expedition map/combat. */
@@ -346,16 +352,15 @@ export class ExpeditionEngine {
         if (barra) barra.style.removeProperty('display');
     }
 
-    /** Move bar back to `#screen-game` footer and show it (map wipe destroys docked nodes). */
+    /**
+     * Move bar back to `#screen-game` footer after map wipe.
+     * Does not force visibility — caller / `irPara` decides show vs hide per screen.
+     */
     static restoreGameHotbar() {
         this.detachHotbarBeforeMapWipe();
-
-        const barra = document.getElementById('barra-de-atalhos-dinamica');
         const win = window as any;
         if (typeof win.renderizarBarraAtalhos === 'function') {
             win.renderizarBarraAtalhos();
-        } else if (barra) {
-            barra.style.setProperty('display', 'grid', 'important');
         }
     }
 
@@ -431,10 +436,21 @@ export class ExpeditionEngine {
         const combatSlot = document.getElementById('expedition-combat-hotbar-slot');
         const mapSlot = document.getElementById('expedition-hotbar-slot');
         const anchor = document.getElementById('hotbar-home-anchor');
+        const barra = document.getElementById('barra-de-atalhos-dinamica');
 
-        if (!this.state.active) {
-            this.restoreGameHotbar();
+        const hideHomeHotbar = () => {
+            this.dockHotbarToSlot(null);
+            const home = document.getElementById('hotbar-home-anchor');
+            const bar = document.getElementById('barra-de-atalhos-dinamica');
+            if (home) home.style.setProperty('display', 'none', 'important');
+            if (bar) bar.style.setProperty('display', 'none', 'important');
+        };
+
+        // No live expedition UI (ended or parked) — never force the bar visible on Profile/Town.
+        if (!this.state.active || this.state.suspended || mode === 'hub' || mode === 'idle') {
             if (combatSlot) combatSlot.setAttribute('aria-hidden', 'true');
+            if (mapSlot) mapSlot.setAttribute('aria-hidden', 'true');
+            hideHomeHotbar();
             return;
         }
 
@@ -444,6 +460,7 @@ export class ExpeditionEngine {
             }
             if (mapSlot) mapSlot.style.removeProperty('display');
             this.dockHotbarToSlot('expedition-hotbar-slot');
+            if (barra) barra.style.setProperty('display', 'grid', 'important');
             return;
         }
 
@@ -454,21 +471,14 @@ export class ExpeditionEngine {
                 combatSlot.setAttribute('aria-hidden', 'false');
             }
             this.dockHotbarToSlot('expedition-combat-hotbar-slot');
-            return;
-        }
-
-        if (mode === 'hub') {
-            this.dockHotbarToSlot(null);
-            const anchor = document.getElementById('hotbar-home-anchor');
-            const barra = document.getElementById('barra-de-atalhos-dinamica');
-            if (anchor) anchor.style.setProperty('display', 'none', 'important');
-            if (barra) barra.style.setProperty('display', 'none', 'important');
+            if (barra) barra.style.setProperty('display', 'grid', 'important');
         }
     }
 
     static createInitialState(zoneId: string): ExpeditionState {
         return {
             active: false,
+            suspended: false,
             zoneId,
             journey: 1,
             pathChoices: [],
@@ -489,6 +499,303 @@ export class ExpeditionEngine {
             runPanelTab: 'path',
             bag: { adenas: 0, xp: 0, drops: {} }
         };
+    }
+
+    /** Run buffs / forge enchants apply only while the player is on the expedition map/combat. */
+    static isRunEffectsActive(): boolean {
+        return !!(this.state.active && !this.state.suspended);
+    }
+
+    static hasActiveRun(): boolean {
+        return !!this.state.active;
+    }
+
+    static hasSuspendedRun(): boolean {
+        return !!(this.state.active && this.state.suspended);
+    }
+
+    static getRunSavePayload(): ExpeditionRunSave | null {
+        if (!this.state.active) return null;
+        const win = window as any;
+        const bagDrops: Record<string, number> = {};
+        const srcDrops = this.state.bag.drops || {};
+        for (const k of Object.keys(srcDrops)) {
+            const n = Math.floor(Number(srcDrops[k]) || 0);
+            if (n > 0) bagDrops[k] = n;
+        }
+        const payload: ExpeditionRunSave = {
+            v: 1,
+            suspended: !!this.state.suspended,
+            zoneId: String(this.state.zoneId || 'No-Grade'),
+            journey: Math.max(1, Math.floor(Number(this.state.journey) || 1)),
+            pathChoices: (this.state.pathChoices || []).map((c) => ({
+                id: String(c.id || ''),
+                type: c.type,
+            })),
+            currentPath: this.state.currentPath,
+            combatOnlyNextJourney: !!this.state.combatOnlyNextJourney,
+            combatOnlyThisJourney: !!this.state.combatOnlyThisJourney,
+            runBuffs: { ...this.state.runBuffs },
+            runEnchantBonus: { ...this.state.runEnchantBonus },
+            runStats: { ...this.state.runStats },
+            journeyTrait: this.state.journeyTrait,
+            nextJourneyTrait: this.state.nextJourneyTrait,
+            luckLootMult: Number(this.state.luckLootMult) || 1,
+            luckLegendaryNext: !!this.state.luckLegendaryNext,
+            rareEventJourney: Math.floor(Number(this.state.rareEventJourney) || 0),
+            rareEventUsed: !!this.state.rareEventUsed,
+            pendingRareEvent: !!this.state.pendingRareEvent,
+            rareEventType: this.state.rareEventType,
+            runPanelTab: this.state.runPanelTab || 'path',
+            bag: {
+                adenas: Math.max(0, Math.floor(Number(this.state.bag.adenas) || 0)),
+                xp: Math.max(0, Math.floor(Number(this.state.bag.xp) || 0)),
+                drops: bagDrops,
+            },
+            vitals: {
+                hp: Math.max(0, Math.floor(Number(win.playerHP) || 0)),
+                mp: Math.max(0, Math.floor(Number(win.playerMP) || 0)),
+                cp: Math.max(0, Math.floor(Number(win.playerCP) || 0)),
+            },
+        };
+        if (this.pendingUpgradeOptions.length) {
+            payload.pendingUpgradeIds = this.pendingUpgradeOptions.map((u) => u.id);
+            if (this.lastCombatLoot) {
+                payload.lastCombatLoot = {
+                    adenas: Math.floor(Number(this.lastCombatLoot.adenas) || 0),
+                    xp: Math.floor(Number(this.lastCombatLoot.xp) || 0),
+                    drops: { ...(this.lastCombatLoot.drops || {}) },
+                };
+            }
+        }
+        return payload;
+    }
+
+    static persistRun(opts?: { silent?: boolean }): void {
+        if (!this.state.active) return;
+        if (typeof window.salvarJogo === 'function') {
+            window.salvarJogo({ silent: opts?.silent !== false });
+        }
+    }
+
+    static applyRunFromSave(raw: ExpeditionRunSave | null | undefined): void {
+        this.restoreMobTuning();
+        this.pendingUpgradeOptions = [];
+        this.lastCombatLoot = null;
+        this._combatUiActive = false;
+
+        if (!raw || typeof raw !== 'object' || raw.v !== 1) {
+            this.state = this.createInitialState('');
+            this.syncNavigationLock();
+            return;
+        }
+
+        const zoneId = String(raw.zoneId || 'No-Grade');
+        const baseBuffs = this.emptyRunBuffs();
+        const baseEnch = this.emptyRunEnchantBonus();
+        const baseStats = this.emptyRunStats();
+        const rb = raw.runBuffs && typeof raw.runBuffs === 'object' ? raw.runBuffs : {};
+        const re = raw.runEnchantBonus && typeof raw.runEnchantBonus === 'object' ? raw.runEnchantBonus : {};
+        const rs = raw.runStats && typeof raw.runStats === 'object' ? raw.runStats : {};
+
+        for (const k of Object.keys(baseBuffs) as (keyof ExpeditionRunBuffs)[]) {
+            baseBuffs[k] = Math.max(0, Math.floor(Number(rb[k]) || 0));
+        }
+        for (const k of Object.keys(baseEnch) as (keyof ExpeditionRunEnchantBonus)[]) {
+            baseEnch[k] = Math.max(0, Math.floor(Number(re[k]) || 0));
+        }
+        baseStats.combatsWon = Math.max(0, Math.floor(Number(rs.combatsWon) || 0));
+        baseStats.elitesCleared = Math.max(0, Math.floor(Number(rs.elitesCleared) || 0));
+        baseStats.bossesCleared = Math.max(0, Math.floor(Number(rs.bossesCleared) || 0));
+        baseStats.upgradesTaken = Math.max(0, Math.floor(Number(rs.upgradesTaken) || 0));
+        baseStats.chestsOpened = Math.max(0, Math.floor(Number(rs.chestsOpened) || 0));
+        baseStats.merchantsUsed = Math.max(0, Math.floor(Number(rs.merchantsUsed) || 0));
+        baseStats.forgesUsed = Math.max(0, Math.floor(Number(rs.forgesUsed) || 0));
+        baseStats.scoutsUsed = Math.max(0, Math.floor(Number(rs.scoutsUsed) || 0));
+        baseStats.rareEventType = (rs.rareEventType as ExpeditionRareEventType) || null;
+
+        const pathTypes: ExpeditionPathType[] = [
+            'combat', 'boss', 'chest', 'elite', 'merchant', 'forge',
+            'scout', 'patrol', 'tracks', 'warhorn', 'ambush',
+        ];
+        const pathChoices = Array.isArray(raw.pathChoices)
+            ? raw.pathChoices
+                .filter((c) => c && pathTypes.includes(c.type as ExpeditionPathType))
+                .map((c, i) => ({
+                    id: String(c.id || `path_${i}`),
+                    type: c.type as ExpeditionPathType,
+                }))
+            : [];
+
+        const traits: JourneyMobTrait[] = ['brutal', 'swift', 'lethal', 'armored', 'frenzied'];
+        const bagDrops: Record<string, number> = {};
+        const rawDrops = raw.bag?.drops && typeof raw.bag.drops === 'object' ? raw.bag.drops : {};
+        for (const k of Object.keys(rawDrops)) {
+            const n = Math.floor(Number(rawDrops[k]) || 0);
+            if (n > 0) bagDrops[k] = n;
+        }
+
+        this.state = {
+            active: true,
+            suspended: true, // always load parked; resume when entering Forest
+            zoneId,
+            journey: Math.max(1, Math.floor(Number(raw.journey) || 1)),
+            pathChoices,
+            currentPath: pathTypes.includes(raw.currentPath as ExpeditionPathType)
+                ? (raw.currentPath as ExpeditionPathType)
+                : null,
+            combatOnlyNextJourney: !!raw.combatOnlyNextJourney,
+            combatOnlyThisJourney: !!raw.combatOnlyThisJourney,
+            runBuffs: baseBuffs,
+            runEnchantBonus: baseEnch,
+            runStats: baseStats,
+            journeyTrait: traits.includes(raw.journeyTrait as JourneyMobTrait)
+                ? (raw.journeyTrait as JourneyMobTrait)
+                : 'brutal',
+            nextJourneyTrait: traits.includes(raw.nextJourneyTrait as JourneyMobTrait)
+                ? (raw.nextJourneyTrait as JourneyMobTrait)
+                : 'brutal',
+            luckLootMult: Math.max(1, Number(raw.luckLootMult) || 1),
+            luckLegendaryNext: !!raw.luckLegendaryNext,
+            rareEventJourney: Math.max(0, Math.floor(Number(raw.rareEventJourney) || 0)),
+            rareEventUsed: !!raw.rareEventUsed,
+            pendingRareEvent: !!raw.pendingRareEvent,
+            rareEventType: (['shrine', 'gambler', 'cache', 'storm'] as ExpeditionRareEventType[])
+                .includes(raw.rareEventType as ExpeditionRareEventType)
+                ? (raw.rareEventType as ExpeditionRareEventType)
+                : null,
+            runPanelTab: (['path', 'stats', 'gear'] as ExpeditionRunPanelTab[])
+                .includes(raw.runPanelTab as ExpeditionRunPanelTab)
+                ? (raw.runPanelTab as ExpeditionRunPanelTab)
+                : 'path',
+            bag: {
+                adenas: Math.max(0, Math.floor(Number(raw.bag?.adenas) || 0)),
+                xp: Math.max(0, Math.floor(Number(raw.bag?.xp) || 0)),
+                drops: bagDrops,
+            },
+        };
+
+        // Stash vitals on the engine for resume (town HP stays until then).
+        (this as any)._savedRunVitals = {
+            hp: Math.max(0, Math.floor(Number(raw.vitals?.hp) || 0)),
+            mp: Math.max(0, Math.floor(Number(raw.vitals?.mp) || 0)),
+            cp: Math.max(0, Math.floor(Number(raw.vitals?.cp) || 0)),
+        };
+
+        if (Array.isArray(raw.pendingUpgradeIds) && raw.pendingUpgradeIds.length) {
+            const pool = [...UPGRADE_POOL, ...LEGENDARY_UPGRADE_POOL];
+            this.pendingUpgradeOptions = raw.pendingUpgradeIds
+                .map((id) => pool.find((u) => u.id === id))
+                .filter((u): u is UpgradeDef => !!u);
+            if (raw.lastCombatLoot && typeof raw.lastCombatLoot === 'object') {
+                this.lastCombatLoot = {
+                    adenas: Math.floor(Number(raw.lastCombatLoot.adenas) || 0),
+                    xp: Math.floor(Number(raw.lastCombatLoot.xp) || 0),
+                    drops: { ...(raw.lastCombatLoot.drops || {}) },
+                };
+            }
+        }
+
+        this.ensureZoneForRun(zoneId);
+        this.syncNavigationLock();
+    }
+
+    static ensureZoneForRun(zoneId: string): void {
+        const win = window as any;
+        const zones = win.zonasDeCaca;
+        if (zones && zones[zoneId]) {
+            win.zonaAtual = zones[zoneId];
+        } else if (zones && zones['No-Grade']) {
+            win.zonaAtual = zones['No-Grade'];
+            if (this.state.active) this.state.zoneId = 'No-Grade';
+        }
+        if (typeof win.atualizarHudZonaNome === 'function') {
+            try { win.atualizarHudZonaNome(); } catch { /* noop */ }
+        }
+    }
+
+    /**
+     * Park the run so the player can open town / inventory / leave the game.
+     * Aborts an in-progress fight (bag kept; path can be re-picked).
+     */
+    static suspendRunForWorldLeave(opts?: { persist?: boolean }): void {
+        if (!this.state.active || this.state.suspended) return;
+        const win = window as any;
+
+        if (this._combatUiActive || (Array.isArray(win.monstrosAtivos) && win.monstrosAtivos.length > 0)) {
+            if (typeof win.pararAtaqueMonstro === 'function') win.pararAtaqueMonstro();
+            if (typeof win.clearForestPlayerThreats === 'function') win.clearForestPlayerThreats();
+            if (Array.isArray(win.monstrosAtivos)) win.monstrosAtivos.length = 0;
+            this.restoreMobTuning();
+            this._combatUiActive = false;
+            (this as any)._combatLootMult = 1;
+            // Fight abandoned — return to map choices for this journey.
+            this.state.currentPath = null;
+        }
+
+        // Close expedition modals that would soft-lock other screens.
+        if (typeof win.fecharModal === 'function') {
+            ['janela-expedition-node', 'janela-expedition-result', 'janela-expedition-rules']
+                .forEach((id) => { try { win.fecharModal(id); } catch { /* noop */ } });
+        }
+
+        (this as any)._savedRunVitals = {
+            hp: Math.max(0, Math.floor(Number(win.playerHP) || 0)),
+            mp: Math.max(0, Math.floor(Number(win.playerMP) || 0)),
+            cp: Math.max(0, Math.floor(Number(win.playerCP) || 0)),
+        };
+
+        this.state.suspended = true;
+        this.restoreGameHotbar();
+        this.setForestLayoutMode('idle');
+        this.syncNavigationLock();
+
+        if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+        if (typeof win.atualizar === 'function') win.atualizar();
+
+        if (opts?.persist !== false) this.persistRun({ silent: true });
+
+        if (typeof win.escreverLog === 'function') {
+            const msg = this.t(
+                'game.hunt.expedition.runParkedLog',
+                'Expedition parked — bag and progress saved. Return to Forest to continue.'
+            );
+            win.escreverLog(`<span style="color:#fbbf24; font-weight:bold;">⛺ ${msg}</span>`);
+        }
+    }
+
+    /** Resume a parked run when entering Forest. */
+    static resumeSuspendedRun(): void {
+        if (!this.state.active) return;
+        this.state.suspended = false;
+        this.ensureZoneForRun(this.state.zoneId);
+        this._combatUiActive = false;
+
+        const win = window as any;
+        if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+
+        const vitals = (this as any)._savedRunVitals as { hp: number; mp: number; cp: number } | null;
+        if (vitals) {
+            const maxHp = Math.max(1, Math.floor(Number(win.playerStats?.maxHp) || 1));
+            const maxMp = Math.max(1, Math.floor(Number(win.playerStats?.maxMp) || 1));
+            const maxCp = Math.max(0, Math.floor(Number(win.playerStats?.maxCp) || 0));
+            win.playerHP = Math.min(maxHp, Math.max(1, Math.floor(Number(vitals.hp) || maxHp)));
+            win.playerMP = Math.min(maxMp, Math.max(0, Math.floor(Number(vitals.mp) || 0)));
+            win.playerCP = Math.min(maxCp, Math.max(0, Math.floor(Number(vitals.cp) || 0)));
+        }
+
+        this.hideHub();
+        this.renderMap();
+        this.syncNavigationLock();
+        this.ensureRunVitalsForCombat();
+        if (typeof win.atualizar === 'function') win.atualizar();
+
+        if (this.pendingUpgradeOptions.length) {
+            this.showUpgradeModal(this.lastCombatLoot || { adenas: 0, xp: 0, drops: {} });
+        }
+
+        this.persistRun({ silent: true });
+        this.syncHubParkedHint();
     }
 
     static emptyRunStats(): ExpeditionRunStats {
@@ -522,7 +829,7 @@ export class ExpeditionEngine {
 
     /** Passive HP regen multiplier during an active run (1.0 = base, 1.1 = +10% card). */
     static getHpRegenMult(): number {
-        if (!this.state.active) return 1;
+        if (!this.isRunEffectsActive()) return 1;
         const pct = Math.min(100, Math.max(0, Number(this.state.runBuffs.hpRegenPct) || 0));
         return 1 + pct / 100;
     }
@@ -531,7 +838,7 @@ export class ExpeditionEngine {
     static getSkillMpCost(baseMp: number): number {
         const base = Math.max(0, Math.floor(Number(baseMp) || 0));
         if (!base) return 0;
-        if (!this.state.active) return base;
+        if (!this.isRunEffectsActive()) return base;
         const pct = Math.min(60, Math.max(0, Number(this.state.runBuffs.mpCostReductionPct) || 0));
         return Math.max(1, Math.floor(base * (1 - pct / 100)));
     }
@@ -541,7 +848,7 @@ export class ExpeditionEngine {
     }
 
     static getRunEnchantBonus(slot: ExpeditionEnchantSlot): number {
-        if (!this.state.active) return 0;
+        if (!this.isRunEffectsActive()) return 0;
         return Math.max(0, Number(this.state.runEnchantBonus[slot]) || 0);
     }
 
@@ -936,7 +1243,7 @@ export class ExpeditionEngine {
     }
 
     static applyRunBuffsToPlayerStats(): void {
-        if (!this.state.active) return;
+        if (!this.isRunEffectsActive()) return;
         const win = window as any;
         const ps = win.playerStats;
         if (!ps) return;
@@ -1409,6 +1716,7 @@ export class ExpeditionEngine {
         if (this._resultSkipsAdvance) {
             this._resultSkipsAdvance = false;
             this.renderMap();
+            this.persistRun({ silent: true });
             return;
         }
         this.advanceJourney();
@@ -1437,6 +1745,7 @@ export class ExpeditionEngine {
         if (botoesCombate) botoesCombate.style.display = 'none';
 
         this.renderMap();
+        this.persistRun({ silent: true });
     }
 
     static rollUpgradeOptions(count = 3): UpgradeDef[] {
@@ -1501,6 +1810,7 @@ export class ExpeditionEngine {
         this.setForestLayoutMode('map');
 
         if (typeof win.abrirModal === 'function') win.abrirModal('janela-expedition-upgrade', 1600);
+        this.persistRun({ silent: true });
     }
 
     static refreshUpgradeDom(root?: HTMLElement | null) {
@@ -1529,11 +1839,13 @@ export class ExpeditionEngine {
     }
 
     static syncNavigationLock() {
-        const locked = this.state.active;
+        // Layout lock only while the run is live on the Forest screen (not when parked in town).
+        const locked = this.isRunEffectsActive();
         const gameRoot = document.querySelector('.game-container');
         const floresta = document.getElementById('tela-floresta');
         if (gameRoot) gameRoot.classList.toggle('expedition-run-locked', locked);
         if (floresta) floresta.classList.toggle('expedition-run-active', locked);
+        this.refreshHubStartButton();
     }
 
     static promptExitAndExtract(): void {
@@ -1646,15 +1958,73 @@ export class ExpeditionEngine {
         if (hub) hub.style.display = 'none';
     }
 
+    static isForestScreenVisible(): boolean {
+        const floresta = document.getElementById('tela-floresta');
+        if (!floresta) return false;
+        const style = window.getComputedStyle(floresta);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+    }
+
     static syncForestEntryUi() {
         if (this.state.active) {
+            if (this.state.suspended) {
+                // Parked run: show hub with Resume (do not auto-jump into the map).
+                this._combatUiActive = false;
+                if (this.isForestScreenVisible()) {
+                    this.showHub();
+                    this.refreshHubStartButton();
+                    this.syncHubParkedHint();
+                } else {
+                    this.refreshHubStartButton();
+                }
+                return;
+            }
             this.hideHub();
             const mode = this._combatUiActive ? 'combat' : 'map';
             this.setForestLayoutMode(mode);
+            if (mode === 'map') this.renderMap();
         } else {
             this._combatUiActive = false;
             this.showHub();
+            this.refreshHubStartButton();
+            this.syncHubParkedHint();
         }
+    }
+
+    /** Toggle hub copy when a run is parked vs a fresh start. */
+    static syncHubParkedHint() {
+        const desc = document.querySelector('#expedition-hub .expedition-hub__desc') as HTMLElement | null;
+        if (!desc) return;
+        if (this.state.active && this.state.suspended) {
+            desc.textContent = this.t(
+                'game.hunt.expedition.hubResumeHint',
+                'You have a run in progress. Resume to continue from your bag and journey.'
+            );
+            desc.removeAttribute('data-i18n');
+        } else {
+            desc.setAttribute('data-i18n', 'game.hunt.expedition.hubDesc');
+            desc.textContent = this.t(
+                'game.hunt.expedition.hubDesc',
+                'Infinite journeys — pick a path each step. Win fights to choose upgrade cards. Extract to keep 100% of your bag.'
+            );
+        }
+    }
+
+    /**
+     * Pause button — park the run and return to the Forest hub without extracting.
+     * Bag/progress stay saved; player can open town or Resume later.
+     */
+    static pauseRunToHub(): void {
+        if (!this.state.active || this.state.suspended) return;
+        const win = window as any;
+        if (typeof win.fecharModal === 'function') {
+            ['janela-expedition-upgrade', 'janela-expedition-node', 'janela-expedition-result', 'janela-expedition-rules']
+                .forEach((id) => { try { win.fecharModal(id); } catch { /* noop */ } });
+        }
+        this.suspendRunForWorldLeave({ persist: true });
+        this.showHub();
+        this.refreshHubStartButton();
+        this.syncHubParkedHint();
     }
 
     static init() {
@@ -1662,12 +2032,29 @@ export class ExpeditionEngine {
         setTimeout(() => ExpeditionEngine.wireStartButton(), 1000);
     }
 
+    static refreshHubStartButton() {
+        const btn = document.getElementById('btn-iniciar-caca');
+        if (!btn) return;
+        if (this.state.active) {
+            btn.setAttribute('data-i18n', 'game.hunt.expedition.resumeBtn');
+            btn.textContent = this.t('game.hunt.expedition.resumeBtn', 'Resume Expedition');
+        } else {
+            btn.setAttribute('data-i18n', 'game.hunt.expedition.startBtn');
+            btn.textContent = this.t('game.hunt.expedition.startBtn', 'Begin Expedition');
+        }
+    }
+
     static wireStartButton() {
         const btnIniciar = document.getElementById('btn-iniciar-caca');
         if (!btnIniciar) return;
         btnIniciar.onclick = () => {
+            if (ExpeditionEngine.state.active) {
+                ExpeditionEngine.resumeSuspendedRun();
+                return;
+            }
             ExpeditionEngine.startExpedition((window as any).zonaAtual?.id || 'No-Grade');
         };
+        this.refreshHubStartButton();
         this.syncForestEntryUi();
     }
 
@@ -1677,6 +2064,7 @@ export class ExpeditionEngine {
         const firstTrait = this.rollJourneyTrait();
         this.state = {
             active: true,
+            suspended: false,
             zoneId,
             journey: 1,
             pathChoices: [],
@@ -1697,6 +2085,9 @@ export class ExpeditionEngine {
             runPanelTab: 'path',
             bag: { adenas: 0, xp: 0, drops: {} }
         };
+        (this as any)._savedRunVitals = null;
+        this.pendingUpgradeOptions = [];
+        this.lastCombatLoot = null;
         this.refreshJourneyPhase();
         this._combatUiActive = false;
         this.hideHub();
@@ -1705,8 +2096,8 @@ export class ExpeditionEngine {
         const win = window as any;
         this.ensureRunVitalsForCombat();
         if (typeof win.atualizar === 'function') win.atualizar();
+        this.persistRun({ silent: true });
         try {
-            const win = window as any;
             if (typeof win.TutorialEngine !== 'undefined' && typeof win.TutorialEngine.notifyHuntSearch === 'function') {
                 win.TutorialEngine.notifyHuntSearch();
             }
@@ -2145,7 +2536,8 @@ export class ExpeditionEngine {
         const traitLabel = this.t('game.hunt.expedition.traitLabel', 'Enemy trait');
         const bagTitle = this.t('game.hunt.expedition.bagTitle', 'Expedition Bag');
         const bagEmpty = this.t('game.hunt.expedition.bagEmpty', 'No items yet...');
-        const extractLabel = this.t('game.hunt.expedition.extract', 'Exit & collect loot');
+        const extractLabel = this.t('game.hunt.expedition.extract', 'Collect & exit');
+        const pauseLabel = this.t('game.hunt.expedition.pauseBtn', 'Pause');
 
         if (this.state.pendingRareEvent) this.state.runPanelTab = 'path';
 
@@ -2214,7 +2606,10 @@ export class ExpeditionEngine {
                             </span>
                         </div>
                     </div>
-                    <button type="button" class="btn-l2 expedition-bag__extract expedition-bag-bar__extract" onclick="ExpeditionEngine.promptExitAndExtract()">${extractLabel}</button>
+                    <div class="expedition-bag-bar__actions">
+                        <button type="button" class="btn-l2 expedition-bag-bar__pause" onclick="ExpeditionEngine.pauseRunToHub()">${pauseLabel}</button>
+                        <button type="button" class="btn-l2 expedition-bag__extract expedition-bag-bar__extract" onclick="ExpeditionEngine.promptExitAndExtract()">${extractLabel}</button>
+                    </div>
                 </div>
                 ${dropsDetailsHtml}
             </div>
@@ -2776,6 +3171,9 @@ export class ExpeditionEngine {
     static reset() {
         this.restoreMobTuning();
         this._combatUiActive = false;
+        this.pendingUpgradeOptions = [];
+        this.lastCombatLoot = null;
+        (this as any)._savedRunVitals = null;
         this.state = this.createInitialState('');
         this.syncNavigationLock();
         this.showHub();
@@ -2786,6 +3184,9 @@ export class ExpeditionEngine {
         if (!this.state.active) return;
         const win = window as any;
         this.restoreMobTuning();
+        this.pendingUpgradeOptions = [];
+        this.lastCombatLoot = null;
+        (this as any)._savedRunVitals = null;
 
         const bagSnapshot = {
             adenas: this.state.bag.adenas,
@@ -2838,12 +3239,13 @@ export class ExpeditionEngine {
             win.aplicarXpGanhoFloresta(xpReward);
         }
 
-        win.atualizar();
-        if (typeof win.salvarJogo === 'function') win.salvarJogo();
-
+        // Clear run BEFORE save so expeditionRun is null after extract/death payout.
         this.state = this.createInitialState('');
         this._combatUiActive = false;
         this.syncNavigationLock();
+
+        win.atualizar();
+        if (typeof win.salvarJogo === 'function') win.salvarJogo();
 
         if (success) {
             if (typeof win.registrarProgressoMissaoDiaria === 'function') {

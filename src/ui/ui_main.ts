@@ -357,14 +357,14 @@ function atualizarPreview() {
 }
 
 function mudarTela(id: string) {
-    if (window.ExpeditionEngine?.state?.active && id !== 'screen-game') {
-        const msg = typeof window.t === 'function'
-            ? window.t('game.hunt.expedition.navLockedMsg')
-            : 'Expedition in progress — use Exit & collect loot at the bottom of the map.';
-        if (typeof window.escreverLog === 'function') {
-            window.escreverLog(`<span style="color:#fbbf24; font-weight:bold;">⚠️ ${msg}</span>`);
-        }
-        return;
+    // Park expedition run when leaving the game shell (bag/progress kept in save).
+    if (
+        id !== 'screen-game'
+        && window.ExpeditionEngine?.state?.active
+        && !window.ExpeditionEngine.state.suspended
+        && typeof window.ExpeditionEngine.suspendRunForWorldLeave === 'function'
+    ) {
+        window.ExpeditionEngine.suspendRunForWorldLeave();
     }
 
     const currentActive = document.querySelector('.screen.active-screen') as HTMLElement | null;
@@ -679,17 +679,24 @@ function irPara(lugar) {
         return;
     }
 
-    if (window.ExpeditionEngine?.state?.active && lugar !== 'floresta') {
-        const msg = typeof window.t === 'function'
-            ? window.t('game.hunt.expedition.navLockedMsg')
-            : 'Expedition in progress — use Exit & collect loot at the bottom of the map.';
-        window.escreverLog(`<span style="color:#fbbf24; font-weight:bold;">⚠️ ${msg}</span>`);
-        return;
+    // Park expedition when leaving Forest — bag and progress stay in the save.
+    if (
+        lugar !== 'floresta'
+        && window.ExpeditionEngine?.state?.active
+        && !window.ExpeditionEngine.state.suspended
+        && typeof window.ExpeditionEngine.suspendRunForWorldLeave === 'function'
+    ) {
+        window.ExpeditionEngine.suspendRunForWorldLeave();
     }
 
     if (lugar !== 'floresta') {
         const telaFloresta = document.getElementById('tela-floresta');
-        if (telaFloresta && telaFloresta.style.display === 'flex' && window.monstrosAtivos && window.monstrosAtivos.length > 0) {
+        // Expedition suspend already clears monsters; keep hard block for normal hunt combat.
+        if (
+            telaFloresta && telaFloresta.style.display === 'flex'
+            && window.monstrosAtivos && window.monstrosAtivos.length > 0
+            && !(window.ExpeditionEngine?.state?.active)
+        ) {
         window.escreverLog(`<span style="color:#ef4444; font-weight:bold;">⚠️ You are in combat! Defeat the monster or use the FLEE button!</span>`);
         return; 
         }

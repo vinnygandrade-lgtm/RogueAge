@@ -408,11 +408,11 @@ function renderizarMonstros() {
         const bleedPips = buildMobBleedPipsHtml(mob);
 
         htmlFinal += `
-        <div id="mob-card-${mob.idUnico}" class="mob-hunt-card${mob.mobThreat && mob.mobThreat !== 'none' ? ` mob-hunt-card--${mob.mobThreat}` : ''}${isMagico ? ' mob-hunt-card--magic' : ''}" style="display:flex; flex-direction:column; align-items:center; flex: 1 1 18%; min-width: 60px; max-width: 90px;">
-            <div style="width: 100%; margin-bottom: 5px; text-align:center;">
-                <div class="mob-hunt-card__name" style="color: #ffcc00; font-size: 0.55em; font-weight: bold; text-shadow: 1px 1px 0 #000; margin-bottom: 2px;">${formatMobCardName(mob)}${marker}${archetypeTags}</div>
-                <div style="width: 100%; background: #222; height: 3px; border-radius: 2px; overflow: hidden; border: 1px solid #444;">
-                    <div id="mob-cd-fill-${mob.idUnico}" style="background: #ef4444; width: ${mob.progresso}%; height: 100%;"></div>
+        <div id="mob-card-${mob.idUnico}" class="mob-hunt-card${mob.mobThreat && mob.mobThreat !== 'none' ? ` mob-hunt-card--${mob.mobThreat}` : ''}${isMagico ? ' mob-hunt-card--magic' : ''}">
+            <div class="mob-hunt-card__header">
+                <div class="mob-hunt-card__name">${formatMobCardName(mob)}${marker}${archetypeTags}</div>
+                <div class="mob-hunt-card__atkbar">
+                    <div id="mob-cd-fill-${mob.idUnico}" class="mob-hunt-card__atkfill" style="width: ${mob.progresso}%;"></div>
                 </div>
             </div>
             <div class="mob-hunt-sprite-wrap">
@@ -420,11 +420,11 @@ function renderizarMonstros() {
                     <img id="monster-img-${mob.idUnico}" class="${imgClasses}" src="${imgSrc}" style="${imgFilter} transition: transform 0.1s ease-out; transform: ${transform}; opacity: ${hpVal > 0 ? 1 : 0};">
                 </div>
             </div>
-            <div class="hp-bar" style="margin-top: 5px; margin-bottom: 5px; width:100%;">
+            <div class="hp-bar mob-hunt-card__hpbar">
                 <div id="mob-hp-fill-${mob.idUnico}" class="mob-hunt-hp-fill" style="width: ${hpPorcento}%;"></div>
-                <small id="mob-hp-text-${mob.idUnico}" class="mob-hunt-hp-text" style="position:absolute; width:100%; left:0; top:0; color:white; font-size:8px; z-index:2;">${exibicaoHp}</small>
+                <small id="mob-hp-text-${mob.idUnico}" class="mob-hunt-hp-text">${exibicaoHp}</small>
             </div>
-            <div id="mob-debuffs-${mob.idUnico}" style="display:flex; gap:3px; justify-content:center; margin-top:2px; height:20px;"></div>
+            <div id="mob-debuffs-${mob.idUnico}" class="mob-hunt-card__debuffs"></div>
             ${bleedPips}
         </div>`;
     });

@@ -562,6 +562,13 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 17;
     }
 
+    if (v < 18) {
+        if (data.expeditionRun != null && typeof data.expeditionRun !== 'object') {
+            data.expeditionRun = null;
+        }
+        v = 18;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -652,6 +659,10 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
         unseenSkillUnlocks: typeof window.getUnseenSkillUnlocksSavePayload === 'function'
             ? window.getUnseenSkillUnlocksSavePayload()
             : [],
+        expeditionRun: (typeof window.ExpeditionEngine !== 'undefined'
+            && typeof window.ExpeditionEngine.getRunSavePayload === 'function')
+            ? window.ExpeditionEngine.getRunSavePayload()
+            : null,
     };
     
     if (!window.charName) return;
@@ -950,6 +961,12 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
         }
         if (typeof window.applyUnseenSkillUnlocksFromSave === 'function') {
             window.applyUnseenSkillUnlocksFromSave(data.unseenSkillUnlocks);
+        }
+        if (
+            typeof window.ExpeditionEngine !== 'undefined'
+            && typeof window.ExpeditionEngine.applyRunFromSave === 'function'
+        ) {
+            window.ExpeditionEngine.applyRunFromSave(data.expeditionRun ?? null);
         }
 
         if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();

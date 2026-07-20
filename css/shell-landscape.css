@@ -2508,10 +2508,10 @@ html[data-l2-layout="landscape"] #global-ranking-list {
     max-height: min(52vh, 480px);
 }
 
-/* Forest / expedition battle ? PC scenery */
+/* Forest / expedition battle — PC scenery (path bias set with combat stage below) */
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #forest-battle-bg[data-battle-bg-aspect="wide"] {
     background-size: cover;
-    background-position: center center;
+    background-position: center 58%;
 }
 
 /* Portrait WebP fallback on PC: prefer ground plane + side vignette */
@@ -2549,29 +2549,841 @@ html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #forest-
     );
 }
 
-/* Forest combat */
+/* =========================================================
+ * Forest Expedition — PC desk (v2)
+ * Beat portrait-fit shrinks; bag NEVER under Pause/Extract.
+ * Layout: bag card full-width → buttons row → drops
+ * ========================================================= */
+html[data-l2-layout="landscape"] #tela-floresta.screen-content {
+    padding: 14px 24px 12px;
+    align-items: stretch;
+}
+
 html[data-l2-layout="landscape"] #tela-floresta .tela-floresta-inner {
-    max-width: 720px;
+    max-width: min(1100px, 100%);
     margin-inline: auto;
     width: 100%;
 }
 
 html[data-l2-layout="landscape"] #tela-floresta #mobs-container,
 html[data-l2-layout="landscape"] #tela-floresta #botoes-combate {
-    max-width: 640px;
+    max-width: min(1080px, 100%);
     margin-inline: auto;
     width: 100%;
 }
 
+/* —— Hub —— */
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub {
+    padding: 20px 16px 28px;
+    align-items: center;
+}
 html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__panel {
-    max-width: 420px;
+    max-width: min(820px, 100%);
     margin-inline: auto;
-    padding: 20px 22px;
+    padding: 36px 40px 30px;
+    border-radius: 16px;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__crest {
+    width: 88px;
+    height: 88px;
+    font-size: 44px;
+    margin-bottom: 18px;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__eyebrow {
+    font-size: 13px !important;
+    letter-spacing: 0.22em;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__title {
+    font-size: 2em !important;
+    margin-bottom: 14px;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__desc {
+    font-size: 15px !important;
+    line-height: 1.65;
+    max-width: 54ch;
+    margin-inline: auto;
+    margin-bottom: 22px;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__features {
+    gap: 12px;
+    margin-bottom: 22px;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__feature {
+    padding: 11px 18px;
+    font-size: 13px !important;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__feature span:first-child {
+    font-size: 18px !important;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__begin,
+html[data-l2-layout="landscape"] #tela-floresta #btn-iniciar-caca.expedition-hub__begin {
+    min-height: 58px !important;
+    font-size: 1.15em !important;
+    max-width: 440px;
+    margin-inline: auto;
+    display: block;
+}
+html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__rules-link {
+    font-size: 14px !important;
+    min-height: 42px;
+}
+
+/* —— Active run board — fill height, don’t crush map into a stub scroll —— */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta.expedition-run-active.screen-content {
+    padding: 8px 16px 6px;
+    max-width: none;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta.expedition-map-open .tela-floresta-inner {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    max-width: min(1200px, 100%);
+    margin-inline: auto;
+    width: 100%;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta #expedition-map-container.expedition-map-shell,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta #expedition-map-container {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    max-width: min(1200px, 100%);
+    margin-inline: auto;
+    width: 100%;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta .expedition-panel--rogue,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta .expedition-panel {
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    border-radius: 14px;
+    overflow: hidden;
+}
+/* Path board gets the real stage height; only this pane scrolls if needed */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-panel__main {
+    flex: 1 1 0 !important;
+    min-height: 180px !important;
+}
+
+/* Vitals — ONE row on PC (was stacking and stealing the map) */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta.expedition-run-active #expedition-run-vitals {
+    max-width: min(1200px, 100%);
+    margin-inline: auto;
+    padding: 8px 14px !important;
+    margin-bottom: 6px !important;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-run-vitals__bars {
+    flex-direction: row !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-vital {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    gap: 6px !important;
+    grid-template-columns: 26px 1fr !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-vital__track,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-vital--hp .exp-run-vital__track {
+    height: 14px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-vital__tag {
+    font-size: 12px !important;
+    font-weight: 800;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-vital__text,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-vital--hp .exp-run-vital__text {
+    font-size: 12px !important;
+    font-weight: 700;
+}
+
+/* Header */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-map-header--rogue {
+    padding: 10px 16px 10px !important;
+    flex-shrink: 0;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-map-header--compact .expedition-map-header__row {
+    margin-bottom: 6px !important;
+    gap: 12px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-journey-badge {
+    min-width: 60px !important;
+    padding: 8px 10px !important;
+    border-radius: 10px;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-journey-badge__eyebrow {
+    font-size: 10px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-journey-badge__num {
+    font-size: 24px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-map-header--rogue .expedition-map-header__title {
+    font-size: 1.2em !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-map-header--rogue .expedition-map-header__progress {
+    font-size: 14px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-map-header--rogue .expedition-map-header__rules {
+    min-height: 44px !important;
+    min-width: 84px !important;
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-map-header__chips {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    gap: 10px !important;
+    padding-bottom: 0 !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-meta-chip {
+    font-size: 13px !important;
+    padding: 9px 14px !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+}
+
+/* Main / tabs */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-panel__main {
+    padding: 16px 22px 14px !important;
+    gap: 14px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-run-tabs {
+    max-width: 560px;
+    margin-inline: auto;
+    gap: 8px !important;
+    padding: 5px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-run-tab {
+    min-height: 46px !important;
+    font-size: 13px !important;
+    padding: 10px 14px !important;
+    letter-spacing: 0.06em;
+}
+
+/* Banners */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-milestone-banner,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-opening-banner,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-combat-only-banner {
+    margin-bottom: 12px !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+}
+
+/* Path board */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-section {
+    padding: 18px 20px 20px !important;
+    border-radius: 14px;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-section__head {
+    margin-bottom: 14px !important;
+    gap: 10px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-section__label {
+    font-size: 16px !important;
+    letter-spacing: 0.1em;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-section__glyph {
+    font-size: 24px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-grid {
+    gap: 16px !important;
+    max-width: 920px;
+    margin-inline: auto;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-grid--solo {
+    max-width: 360px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-grid--duo {
+    max-width: 640px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card--cta,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card--milestone {
+    min-height: 118px !important;
+    padding: 22px 12px 14px !important;
+    border-radius: 14px;
+    gap: 6px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card__badge {
+    top: 10px !important;
+    font-size: 11px !important;
+    padding: 5px 11px !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card__icon,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card--milestone .expedition-path-card__icon {
+    font-size: 38px !important;
+    line-height: 1;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card__label {
+    font-size: 15px !important;
+    font-weight: 800;
+    letter-spacing: 0.05em !important;
+    line-height: 1.3 !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card__hint {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    max-width: 22ch;
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    overflow: visible !important;
+}
+
+/* Stats / gear tabs — readable desk panels */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stats-panel,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-panel {
+    padding: 18px 20px !important;
+    max-width: 900px;
+    margin-inline: auto;
+    width: 100%;
+    border-radius: 12px;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stats-panel__label,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-panel__label {
+    font-size: 14px !important;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px !important;
+    color: #ddd6fe;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stats-legend {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    padding: 12px 14px !important;
+    margin-bottom: 14px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stats-table {
+    gap: 4px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stats-table__head {
+    font-size: 12px !important;
+    padding: 0 12px 8px !important;
+    gap: 12px !important;
+    color: #94a3b8;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stats-table__group {
+    font-size: 12px !important;
+    margin-top: 14px !important;
+    padding: 10px 12px 6px !important;
+    letter-spacing: 0.1em;
+    color: #c4b5fd;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stat-row {
+    gap: 12px !important;
+    padding: 12px 14px !important;
+    border-radius: 10px;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stat-row__label {
+    font-size: 15px !important;
+    font-weight: 700;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stat-row__base,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stat-row__run,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stat-row__total {
+    font-size: 15px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-upgrades-block {
+    margin-top: 18px !important;
+    padding-top: 16px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-upgrades-block__label {
+    font-size: 13px !important;
+    margin-bottom: 10px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-upgrades-empty {
+    font-size: 13px !important;
+    padding: 14px 12px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-upgrade-chips {
+    gap: 8px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-upgrade-chip {
+    min-height: 34px !important;
+    padding: 6px 12px 6px 10px !important;
+    border-radius: 10px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-upgrade-chip__icon {
+    font-size: 15px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-upgrade-chip__val {
+    font-size: 14px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-upgrade-chip__label {
+    font-size: 12px !important;
+}
+
+/* Gear tab */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-panel__hint {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    margin-bottom: 14px !important;
+    color: #94a3b8;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-panel__empty {
+    font-size: 14px !important;
+    padding: 28px 12px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-list {
+    gap: 10px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-row {
+    gap: 14px !important;
+    padding: 12px 14px !important;
+    border-radius: 10px;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-row__icon {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 10px;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-row__icon--empty {
+    font-size: 20px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-row__slot {
+    font-size: 12px !important;
+    letter-spacing: 0.08em;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-row__name {
+    font-size: 15px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-row__enchant {
+    gap: 6px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-row .exp-upgrade-stat__base {
+    font-size: 16px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-row .exp-upgrade-stat__bonus {
+    font-size: 15px !important;
+}
+
+/* Hotbar */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #barra-de-atalhos-dinamica.action-bar,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-hotbar-slot #barra-de-atalhos-dinamica,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #barra-de-atalhos-dinamica {
+    max-width: 740px;
+    margin-inline: auto;
+    gap: 10px !important;
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-hotbar-slot .shortcut-slot {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    min-height: 46px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-panel .expedition-hotbar-slot {
+    flex-shrink: 0;
+}
+
+/* —— Footer: ONE desk row — bag | Pausar | Recolher (saves map height) —— */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-panel__footer,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-panel__footer--compact {
+    padding: 10px 16px 12px !important;
+    flex-shrink: 0;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px) !important;
+    grid-template-rows: auto !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 1100px;
+    margin-inline: auto;
+    position: relative;
+    z-index: 1;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__info {
+    grid-column: 1;
+    grid-row: 1;
+    width: auto !important;
+    min-width: 0 !important;
+    flex: none !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(20, 16, 28, 0.95), rgba(10, 8, 14, 0.98));
+    border: 1px solid rgba(179, 138, 77, 0.35);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__icon {
+    font-size: 26px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__totals {
+    gap: 2px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__title {
+    font-size: 12px !important;
+    letter-spacing: 0.1em;
+    color: #c4b5a0;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__values {
+    font-size: 16px !important;
+    font-weight: 800;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__adena {
+    font-size: 16px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__xp {
+    font-size: 16px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__actions {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 280px !important;
+    gap: 10px !important;
+    flex: none !important;
+    position: relative;
+    z-index: 2;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__pause,
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__extract {
+    width: 100% !important;
+    min-height: 48px !important;
+    font-size: 13px !important;
+    padding: 10px 12px !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-details {
+    max-width: 960px;
+    margin: 10px auto 0;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-details__summary {
+    font-size: 13px !important;
+}
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-details .expedition-bag__drops {
+    max-height: 96px !important;
+    font-size: 13px !important;
+}
+
+/* —— Combat stage (PC) — feet on the wide BG path / lower third ——
+ * Art: battle_*_wide.webp 1920×1080 — ground plane + dirt path sit
+ * roughly in the lower 35–45% of the frame; keep sprites large and
+ * bottom-aligned so they read as standing on that plane.
+ */
+html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta.expedition-combat-open .tela-floresta-inner {
+    max-width: min(1200px, 100%);
+}
+
+/* Only when combat is live (JS sets display:flex) — do not force visibility */
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container {
+    flex: 1 1 0;
+    min-height: 0 !important;
+    max-width: min(1080px, 100%);
+    width: 100%;
+    margin-inline: auto;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    flex-wrap: nowrap;
+    gap: 28px !important;
+    /* Room below sprites so HP / atk bars aren’t clipped by hotbar */
+    padding: 12px 24px clamp(28px, 5vh, 48px) !important;
+    box-sizing: border-box;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .mob-hunt-card,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .mob-hunt-card {
+    flex: 0 1 auto !important;
+    min-width: 140px !important;
+    max-width: 210px !important;
+    width: auto !important;
+    overflow: visible !important;
+    padding-bottom: 4px;
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-sprite,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-sprite {
+    /* Slightly shorter so name + bars fit above the hotbar */
+    max-height: min(24vh, 176px) !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-sprite-wrap,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-sprite-wrap {
+    /* Don’t reserve 28vh when empty — that crushed the combat flex column */
+    min-height: 0;
+    align-items: flex-end;
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-card__name,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-card__name {
+    font-size: 13px !important;
+    line-height: 1.3 !important;
+    margin-bottom: 6px !important;
+    gap: 4px !important;
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-hp-text,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-hp-text {
+    font-size: 12px !important;
+    line-height: 1 !important;
+    font-weight: 800 !important;
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .hp-bar,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .hp-bar,
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .mob-hunt-card__hpbar,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .mob-hunt-card__hpbar {
+    /* Tall enough for the HP number (was 12px bar + 12px type → clipped) */
+    height: 18px !important;
+    min-height: 18px !important;
+    margin-top: 8px !important;
+    margin-bottom: 6px !important;
+    flex-shrink: 0;
+    overflow: hidden !important;
+}
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .mob-hunt-card__atkbar,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .mob-hunt-card__atkbar {
+    height: 5px !important;
+    min-height: 5px !important;
+    flex-shrink: 0;
+}
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .mob-hunt-card__header,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .mob-hunt-card__header,
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .mob-hunt-card__debuffs,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .mob-hunt-card__debuffs {
+    flex-shrink: 0;
+}
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .tela-floresta-inner,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active.expedition-combat-open .tela-floresta-inner {
+    overflow: visible !important;
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .mob-archetype-tag,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .mob-archetype-tag {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mob-type-legend {
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+    margin: 4px auto 6px !important;
+    max-width: min(1080px, 100%);
+}
+
+@media (max-height: 800px) {
+    html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-sprite,
+    html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-sprite {
+        max-height: min(20vh, 148px) !important;
+    }
+    html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-sprite-wrap,
+    html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-sprite-wrap {
+        min-height: 0;
+    }
+    html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .mob-hunt-card,
+    html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .mob-hunt-card {
+        min-width: 120px !important;
+        max-width: 180px !important;
+    }
+}
+
+/* —— Upgrade modal — professional desk draft —— */
+html[data-l2-layout="landscape"] #janela-expedition-upgrade.store-window,
+html[data-l2-layout="landscape"] .expedition-upgrade-window {
+    width: min(980px, 94vw);
+    max-width: min(980px, 94vw);
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .expedition-upgrade-window__header span {
+    font-size: 1.25em !important;
+    letter-spacing: 0.06em;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .expedition-upgrade-body {
+    padding: 20px 24px 22px !important;
+    max-height: calc(88dvh - 56px);
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-intro {
+    font-size: 15px !important;
+    line-height: 1.55 !important;
+    margin-bottom: 16px !important;
+    color: #e2e8f0;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-loot-panel {
+    margin-bottom: 18px !important;
+    padding: 14px 16px !important;
+    border-radius: 12px;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-loot-panel__label {
+    font-size: 13px !important;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px !important;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-loot,
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-loot .exp-result-line,
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-loot-empty {
+    font-size: 14px !important;
+    line-height: 1.45;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-stats-panel {
+    margin-bottom: 14px !important;
+    padding: 14px 16px !important;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-stats-panel__label {
+    font-size: 13px !important;
+    margin-bottom: 10px !important;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-stat__label {
+    font-size: 12px !important;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-stat__base {
+    font-size: 16px !important;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-stat__bonus {
+    font-size: 15px !important;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-buff-details-btn {
+    min-height: 40px !important;
+    font-size: 13px !important;
+    margin-top: 12px !important;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-buff-details__empty,
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-buff-details__list {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+}
+
+/* 3 vertical choice cards — icon / title / desc / Pick */
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-cards {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    align-items: stretch;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    min-height: 0 !important;
+    height: 100%;
+    padding: 22px 18px 16px !important;
+    border-radius: 14px;
+    text-align: center !important;
+    position: relative;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card:hover,
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 18px rgba(124, 58, 237, 0.22);
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card__icon {
+    width: auto !important;
+    font-size: 42px !important;
+    line-height: 1 !important;
+    margin: 4px 0 2px;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card__body {
+    flex: 1 1 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: center;
+    text-align: center;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card__title {
+    font-size: 18px !important;
+    font-weight: 700;
+    line-height: 1.25 !important;
+    letter-spacing: 0.04em;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card__desc {
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    color: #cbd5e1;
+    max-width: 28ch;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card__pick {
+    align-self: stretch;
+    margin-top: auto;
+    min-height: 44px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px !important;
+    font-weight: 800;
+    letter-spacing: 0.1em !important;
+    padding: 12px 14px !important;
+    border-radius: 10px !important;
+}
+html[data-l2-layout="landscape"] #janela-expedition-upgrade .exp-upgrade-card__legend {
+    top: 12px !important;
+    right: 12px !important;
+    font-size: 11px !important;
+    letter-spacing: 0.12em;
+    padding: 5px 10px !important;
+}
+
+html[data-l2-layout="landscape"] #janela-expedition-rules.store-window,
+html[data-l2-layout="landscape"] #janela-expedition-node.store-window,
+html[data-l2-layout="landscape"] #janela-expedition-result.store-window {
+    width: min(600px, 92vw);
+    max-width: min(600px, 92vw);
+}
+html[data-l2-layout="landscape"] #janela-expedition-rules .store-body,
+html[data-l2-layout="landscape"] #janela-expedition-node .store-body,
+html[data-l2-layout="landscape"] #janela-expedition-result .store-body {
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 html[data-l2-layout="landscape"] .forest-death-panel,
 html[data-l2-layout="landscape"] .forest-flee-success-panel {
-    max-width: 360px;
+    max-width: 440px;
+}
+
+@media (max-height: 800px) {
+    html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__panel {
+        padding: 24px 30px 22px;
+    }
+    html[data-l2-layout="landscape"] #tela-floresta #expedition-hub .expedition-hub__title {
+        font-size: 1.65em !important;
+    }
+    html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card,
+    html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-path-card--cta {
+        min-height: 100px !important;
+        padding: 18px 10px 12px !important;
+    }
+    html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar__values {
+        font-size: 14px !important;
+    }
+    html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-bag-bar {
+        grid-template-columns: minmax(0, 1fr) minmax(240px, 300px) !important;
+    }
 }
 
 /* Inventory ? 8 cols, comfortable width */

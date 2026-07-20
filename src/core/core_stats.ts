@@ -33,7 +33,10 @@ function getItemStat(item: StatItem, stat: string): number {
 function expeditionRunEnchantBonus(slot: string): number {
   try {
     const eng = window.ExpeditionEngine;
-    if (eng?.state?.active && typeof eng.getRunEnchantBonus === 'function') {
+    const effectsOn = eng && typeof (eng as { isRunEffectsActive?: () => boolean }).isRunEffectsActive === 'function'
+      ? !!(eng as { isRunEffectsActive: () => boolean }).isRunEffectsActive()
+      : !!(eng?.state?.active && !(eng.state as { suspended?: boolean }).suspended);
+    if (effectsOn && typeof eng.getRunEnchantBonus === 'function') {
       return Math.max(
         0,
         Number(eng.getRunEnchantBonus(slot as import('../systems/expedition_engine').ExpeditionEnchantSlot)) || 0,
@@ -274,9 +277,13 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         if (
         typeof window.ExpeditionEngine !== 'undefined'
         && window.ExpeditionEngine.state
-        && window.ExpeditionEngine.state.active
         && !(window.ExpeditionEngine as { _skipRunBuffApply?: boolean })._skipRunBuffApply
         && typeof window.ExpeditionEngine.applyRunBuffsToPlayerStats === 'function'
+        && (
+            typeof (window.ExpeditionEngine as { isRunEffectsActive?: () => boolean }).isRunEffectsActive === 'function'
+                ? (window.ExpeditionEngine as { isRunEffectsActive: () => boolean }).isRunEffectsActive()
+                : !!(window.ExpeditionEngine.state.active && !(window.ExpeditionEngine.state as { suspended?: boolean }).suspended)
+        )
     ) {
         window.ExpeditionEngine.applyRunBuffsToPlayerStats();
     }

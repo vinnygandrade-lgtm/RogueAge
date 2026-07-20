@@ -62,7 +62,7 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Marketplace (landscape):** `#menu-social-market` balcão centrado ~1180–1220px (não o stage 1080 genérico). Tabs a largura total; aba Buy em grelha `search | filters` numa linha + lista densa; Sell com label + “Register” na mesma fila; modais `#janela-market-registrar` (~760px, item | preço) e `#janela-market-seletor` (~820px, grelha 8 cols). Com o mercado aberto, o chat vira dock de vidro (mais transparente + blur) no canto — sem empurrar o balcão; em ≤1100px empilha toolbar e registo.
 
-**Expedition battle BG:** portrait `assets/zones/battle_<slug>.webp` (1080×2340); PC `battle_<slug>_wide.webp` (1920×1080). Cliente em `src/ui/ui_forest_battle_bg.ts` — landscape tenta wide, senão crop do portrait; evento `l2-layout-change` refresca a meio do combate. Ver `assets/zones/README.md`.
+**Expedition battle BG:** portrait `assets/zones/battle_<slug>.webp` (1080×2340); PC `battle_<slug>_wide.webp` (1920×1080). Cliente em `src/ui/ui_forest_battle_bg.ts` — landscape tenta wide, senão crop do portrait; evento `l2-layout-change` refresca a meio do combate. **PC mobs:** sprites até ~200px, pés no caminho (terço inferior da arte); ver `assets/zones/README.md`.
 
 **Town Square (landscape):** `#praca-cidade` balcão centrado ~1180–1240px (grelha 3 cols + Master | Craft banner). Cards maiores; menus NPC ~820–900px. Com `#tela-cidade` aberta, chat em dock de vidro (como o mercado). Em ≤1100px a grelha passa a 2 cols.
 
@@ -103,7 +103,9 @@ Sob `data-l2-layout="landscape"` e `#screen-game` (classe `game-ingame` no `.gam
 - **Chat** = janela flutuante canto inferior esquerdo (420×260).
 - Hotbar centrada; inventário/perfil com tamanhos ideais.
 
-Social / Olimpíada / Guerra / Expedição: usáveis na moldura larga; stack interno vertical (sem redesign dedicado no v1).
+Social / Olimpíada / Guerra: usáveis na moldura larga.
+
+**Expedição (landscape):** balcão PC em `css/shell-landscape.css` — mapa/combate preenche a altura do shell (vitals numa linha; footer **saco | Pausar | Recolher** numa fila); path board com `min-height` útil no painel central; **upgrade** = 3 cartas verticais; abas Status/Equip legíveis; mobs ~200px no path do BG. Compactação mobile só em `expedition-portrait-fit.css`.
 
 ## Regras para novos ecrãs / modais
 
@@ -113,15 +115,12 @@ Social / Olimpíada / Guerra / Expedição: usáveis na moldura larga; stack int
 - Arte full-screen (paperdoll 1080×984, ícones 256×256) é **asset**, não tamanho de ecrã.
 - Overrides landscape: preferir seletores sob `html[data-l2-layout="landscape"]` em `shell-landscape.css` (ou ficheiro de ecrã), não alterar tokens portrait globais.
 
-## Expedição (portrait fit)
+## Expedição (portrait fit + PC desk)
 
-A expedição roguelike usa layout próprio em **`css/expedition-portrait-fit.css`** (depois de `index-extras.css`):
+- **Portrait:** `css/expedition-portrait-fit.css` (depois de `index-extras.css`) — vitals numa linha; chat oculto; hotbar no painel da run; hub compacto. Regras de **tamanho/fonte compactos** usam `html:not([data-l2-layout="landscape"])` para não esmagar o PC.
+- **Landscape:** `css/shell-landscape.css` (último) — tipografia e espaçamento de desk; bag bar em **duas linhas** (info → acções).
 
-- **Run / jornada:** vitals numa linha; chat oculto; **hotbar dentro do painel** (entre caminhos e Extract), não no hub inicial.
-- **Combate:** hotbar acima dos botões de combate, no mesmo painel da floresta.
-- **Hub:** painel full-width com scroll interior.
-
-Não alterar tokens `--l2-shell-*` para remendar expedição — ajustar só este ficheiro.
+Não alterar tokens `--l2-shell-*` para remendar expedição — portrait no ficheiro de fit, PC no landscape.
 
 ## Ajuste fino
 

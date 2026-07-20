@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 17 as const;
+export const L2MINI_SAVE_VERSION = 18 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -748,6 +748,44 @@ export interface RetentionEngineApi {
   [key: string]: unknown;
 }
 
+/** Mid-run Forest Expedition — persisted so leave/reload keeps the bag. */
+export type ExpeditionPathTypeSave =
+  | 'combat' | 'boss' | 'chest' | 'elite' | 'merchant' | 'forge'
+  | 'scout' | 'patrol' | 'tracks' | 'warhorn' | 'ambush';
+
+export type ExpeditionRareEventTypeSave = 'shrine' | 'gambler' | 'cache' | 'storm';
+export type JourneyMobTraitSave = 'brutal' | 'swift' | 'lethal' | 'armored' | 'frenzied';
+export type ExpeditionRunPanelTabSave = 'path' | 'stats' | 'gear';
+
+export interface ExpeditionRunSave {
+  v: 1;
+  /** True when the player left Forest / closed the game mid-run (buffs paused). */
+  suspended: boolean;
+  zoneId: string;
+  journey: number;
+  pathChoices: Array<{ id: string; type: ExpeditionPathTypeSave }>;
+  currentPath: ExpeditionPathTypeSave | null;
+  combatOnlyNextJourney: boolean;
+  combatOnlyThisJourney: boolean;
+  runBuffs: Record<string, number>;
+  runEnchantBonus: Record<string, number>;
+  runStats: Record<string, number | string | null>;
+  journeyTrait: JourneyMobTraitSave;
+  nextJourneyTrait: JourneyMobTraitSave;
+  luckLootMult: number;
+  luckLegendaryNext: boolean;
+  rareEventJourney: number;
+  rareEventUsed: boolean;
+  pendingRareEvent: boolean;
+  rareEventType: ExpeditionRareEventTypeSave | null;
+  runPanelTab: ExpeditionRunPanelTabSave;
+  bag: { adenas: number; xp: number; drops: Record<string, number> };
+  /** Vitals frozen for the run — restored when resuming the map (town heal does not carry in). */
+  vitals: { hp: number; mp: number; cp: number };
+  pendingUpgradeIds?: string[];
+  lastCombatLoot?: { adenas: number; xp: number; drops: Record<string, number> } | null;
+}
+
 /** Payload persistido (localStorage + characters.data JSONB). */
 export interface CharacterSave {
   saveVersion?: number;
@@ -799,6 +837,11 @@ export interface CharacterSave {
   retention?: RetentionSave;
   /** Skill ids unlocked but not yet inspected in the Spellbook (UI badges). */
   unseenSkillUnlocks?: string[];
+  /**
+   * Mid-run Forest Expedition snapshot (bag, buffs, path). Null/absent = no active run.
+   * Client-authoritative until extract RPC (§12.7).
+   */
+  expeditionRun?: ExpeditionRunSave | null;
   playerClanId?: number | string | null;
   mailboxCloud?: unknown[];
   inventarioRecentLog?: InventarioRecentEntry[];
