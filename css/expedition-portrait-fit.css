@@ -317,20 +317,33 @@ html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .ex
     max-width: 200px;
 }
 
-/* Footer bag + extract — always visible, stacked (portrait) */
+/* Footer bag HUD + extract summary (portrait) */
 html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-panel__footer,
 html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-panel__footer--compact {
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+    flex-shrink: 0;
 }
 
-html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag-bar {
-    flex-direction: column;
-    align-items: stretch;
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag-dock {
     gap: 6px;
 }
 
-html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag-bar__info {
-    justify-content: flex-start;
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .exp-bag-hud {
+    padding: 8px 9px;
+    gap: 8px;
+}
+
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .exp-bag-hud__stat {
+    font-size: 12px;
+}
+
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .exp-bag-hud__risk {
+    font-size: 8px;
+    padding: 4px 6px;
+    max-width: 42%;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
 }
 
 html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag-bar__actions {
@@ -338,20 +351,91 @@ html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .ex
     max-width: none;
     min-width: 0;
     flex-direction: row;
-    gap: 6px;
+    display: flex;
+    gap: 7px;
 }
+
 html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag-bar__pause,
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag__extract,
 html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag-bar__extract {
     flex: 1 1 0;
     width: auto;
     max-width: none;
     min-height: 40px !important;
-    font-size: 9px !important;
+    font-size: 10px !important;
+    letter-spacing: 0.05em;
+    border-radius: 8px !important;
+}
+
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag-bar__extract {
+    background: linear-gradient(180deg, #d4a017 0%, #8a6410 55%, #5c420c 100%) !important;
+    border: 1px solid rgba(250, 204, 21, 0.45) !important;
+    color: #1a1208 !important;
+    font-weight: 900;
+}
+
+html:not([data-l2-layout="landscape"]) .l2-modal.l2-modal--rich {
+    max-height: none;
+    height: auto;
+    border-radius: 12px;
+    border-color: rgba(201, 162, 39, 0.4);
+}
+
+html:not([data-l2-layout="landscape"]) .l2-modal.l2-modal--rich .l2-modal-header {
+    padding: 10px 12px;
+    background: linear-gradient(90deg, #1c1410, #3a2a18, #1c1410);
+    border-bottom-color: rgba(201, 162, 39, 0.35);
+}
+
+html:not([data-l2-layout="landscape"]) .l2-modal.l2-modal--rich .l2-modal-body {
+    flex: 0 1 auto;
+    overflow: visible;
+    padding: 10px 12px 6px;
+}
+
+html:not([data-l2-layout="landscape"]) .l2-modal.l2-modal--rich .l2-modal-footer {
+    padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+
+html:not([data-l2-layout="landscape"]) .l2-modal.l2-modal--rich .btn-modal-confirm {
+    background: linear-gradient(180deg, #d4a017 0%, #8a6410 55%, #5c420c 100%) !important;
+    border: 1px solid rgba(250, 204, 21, 0.45) !important;
+    color: #1a1208 !important;
+    font-weight: 900;
+    font-family: 'Cinzel', serif;
     letter-spacing: 0.04em;
 }
 
-html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked .expedition-bag-details .expedition-bag__drops {
-    max-height: 48px;
+html:not([data-l2-layout="landscape"]) .exp-summary__headline {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+html:not([data-l2-layout="landscape"]) .exp-summary__vs {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 6px;
+}
+
+html:not([data-l2-layout="landscape"]) .exp-summary__col {
+    min-width: 0;
+    padding: 8px 7px 7px;
+}
+
+html:not([data-l2-layout="landscape"]) .exp-summary__pct {
+    font-size: 18px;
+}
+
+html:not([data-l2-layout="landscape"]) .exp-summary__col-title {
+    font-size: 8px;
+}
+
+html:not([data-l2-layout="landscape"]) .exp-summary__row {
+    font-size: 10px;
+}
+
+html:not([data-l2-layout="landscape"]) .exp-summary__row strong {
+    font-size: 12px;
 }
 
 /* Stats tab — tighter table (portrait) */
@@ -564,4 +648,63 @@ html:not([data-l2-layout="landscape"]) .exp-upgrade-loot-panel {
 html:not([data-l2-layout="landscape"]) .expedition-node-window .exp-node-actions,
 html:not([data-l2-layout="landscape"]) .expedition-result-window .exp-result-continue {
     gap: 8px;
+}
+
+/* Victory / extract modal — full recap visible on portrait */
+html:not([data-l2-layout="landscape"]) #janela-vitoria.vitoria-window {
+    width: min(calc(100vw - 16px), 420px);
+    max-width: min(calc(100vw - 16px), 420px);
+    max-height: min(94dvh, 720px) !important;
+    border-radius: 12px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .store-body--vitoria {
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-scroll {
+    gap: 10px;
+    padding: 10px 12px 10px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-title {
+    font-size: 1.15em;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-hero__badge {
+    font-size: 18px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-subtitle {
+    font-size: 10.5px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-loot-panel {
+    padding: 10px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-metric {
+    padding: 8px 3px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-metric strong {
+    font-size: 14px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-recap.is-open {
+    display: flex;
+    flex-shrink: 0;
+    padding: 9px 10px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-recap__chips {
+    gap: 5px;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-recap__chip {
+    font-size: 10px;
+    padding: 4px 7px;
+    white-space: normal;
+    text-align: center;
+    max-width: 100%;
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .vitoria-actions {
+    gap: 7px;
+    padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+html:not([data-l2-layout="landscape"]) #janela-vitoria .btn-vitoria-hunt,
+html:not([data-l2-layout="landscape"]) #janela-vitoria .btn-vitoria-town {
+    min-height: 42px;
+    font-size: 9.5px;
 }

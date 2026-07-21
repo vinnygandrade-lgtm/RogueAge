@@ -18,7 +18,7 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 | Re-enter Forest (parked) | Hub shows **Resume Expedition** (does not auto-jump into the map) |
 | Resume | `resumeSuspendedRun()` — restores run vitals + map (town heal does not carry into the run) |
 | **Start on another map while parked** | Hub warns (pending on map A). Confirm → extract 100% bag + victory modal → auto-start new run on map B (`confirmExtractToStartOtherZone`). Cancel keeps the parked run. |
-| Extract / death | Clears `expeditionRun` after payout |
+| Extract / death | Clears `expeditionRun` after payout. Map footer = bag HUD (totals + “die = half”). Extract confirm = results screen: **100% Extract** vs **50% If you die** (portrait + landscape desk polish). |
 
 ## Effects while parked
 

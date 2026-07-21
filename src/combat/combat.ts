@@ -807,32 +807,109 @@ function travarFlorestaResumoVitoria(ativo) {
 }
 
 function mostrarResumoVitoria() {
-    let containerLoot = document.getElementById('vitoria-loot');
-    const labAdena = (typeof window.t === 'function') ? window.t('game.combat.victoryAdena') : 'Adena:';
-    const labXp = (typeof window.t === 'function') ? window.t('game.combat.victoryXp') : 'XP:';
-    const labDrops = (typeof window.t === 'function') ? window.t('game.combat.victoryDrops') : 'Drops:';
-    let htmlLoot = `<div style="display:flex; justify-content:space-between;"><span>${labAdena}</span> <b style="color:#ffcc00;">+${lootTurno.adenas}</b></div><div style="display:flex; justify-content:space-between;"><span>${labXp}</span> <b style="color:#10b981;">+${lootTurno.xp}</b></div><hr style="border:0.5px solid #444; margin:5px 0;"><div style="color:#a855f7; font-weight:bold;">${labDrops}</div>`;
-    for (let item in lootTurno.drops) { htmlLoot += `<div style="display:flex; justify-content:space-between;"><span>${itemDropDisplayName(item)}:</span> <b>x${lootTurno.drops[item]}</b></div>`; }
-    containerLoot.innerHTML = htmlLoot;
+    const tFn = typeof window.t === 'function' ? window.t : null;
+    const tx = (key: string, fallback: string) => (tFn ? tFn(key) : fallback);
+    const labAdena = tx('game.hunt.expedition.resultAdena', 'Adena');
+    const labXp = tx('game.hunt.expedition.resultXp', 'XP');
+    const labDrops = tx('game.hunt.expedition.bagRiskDropsLabel', 'Drops');
+    const bag = lootTurno || { adenas: 0, xp: 0, drops: {} as Record<string, number> };
+    const adenas = Math.max(0, Math.floor(Number(bag.adenas) || 0));
+    const xp = Math.max(0, Math.floor(Number(bag.xp) || 0));
+    const dropEntries = Object.keys(bag.drops || {}).filter((k) => (bag.drops[k] || 0) > 0);
+    const dropStacks = dropEntries.reduce((n, k) => n + (Number(bag.drops[k]) || 0), 0);
 
+    const metricsEl = document.getElementById('vitoria-metrics');
+    if (metricsEl) {
+        metricsEl.innerHTML = `
+            <div class="vitoria-metric vitoria-metric--adena"><strong>+${adenas.toLocaleString()}</strong><em>${labAdena}</em></div>
+            <div class="vitoria-metric vitoria-metric--xp"><strong>+${xp.toLocaleString()}</strong><em>${labXp}</em></div>
+            <div class="vitoria-metric vitoria-metric--drop"><strong>${dropStacks}</strong><em>${labDrops}</em></div>`;
+    }
+
+    const dropsEl = document.getElementById('vitoria-loot');
+    if (dropsEl) {
+        if (dropEntries.length) {
+            dropsEl.innerHTML = dropEntries.map((item) =>
+                `<span class="vitoria-drop-chip"><em>${itemDropDisplayName(item)}</em><b>x${bag.drops[item]}</b></span>`
+            ).join('');
+            dropsEl.hidden = false;
+        } else {
+            dropsEl.innerHTML = '';
+            dropsEl.hidden = true;
+        }
+    }
+
+    const modal = document.getElementById('janela-vitoria');
+    const headerEl = document.getElementById('vitoria-header-label');
+    const titleEl = document.getElementById('vitoria-title');
+    const subtitleEl = document.getElementById('vitoria-subtitle');
+    const badgeEl = document.getElementById('vitoria-hero-badge');
     const summaryEl = document.getElementById('vitoria-expedition-summary');
     const expSummary = (window as any).expeditionExtractSummary;
+    const isExtract = !!expSummary;
+
+    if (modal) modal.classList.toggle('vitoria-window--extract', isExtract);
+
+    if (headerEl) {
+        headerEl.textContent = isExtract
+            ? tx('game.hunt.expedition.victoryExtractHeader', 'Extract complete')
+            : tx('game.combat.victoryHeader', 'Battle clear');
+    }
+    if (titleEl) {
+        titleEl.textContent = isExtract
+            ? tx('game.hunt.expedition.victoryExtractTitle', 'Bag secured')
+            : tx('game.combat.victoryTitle', 'Victory');
+    }
+    if (badgeEl) {
+        badgeEl.hidden = !isExtract;
+        badgeEl.textContent = '100%';
+    }
+    if (subtitleEl) {
+        if (isExtract) {
+            subtitleEl.textContent = tx(
+                'game.hunt.expedition.victoryExtractSub',
+                'You kept everything from the expedition bag.'
+            );
+            subtitleEl.hidden = false;
+        } else {
+            subtitleEl.textContent = '';
+            subtitleEl.hidden = true;
+        }
+    }
+
     if (summaryEl) {
-        if (expSummary) {
-            const label = (typeof window.t === 'function')
-                ? window.t('game.hunt.expedition.extractSummaryTitle')
-                : 'Expedition recap';
-            summaryEl.innerHTML = `<span class="vitoria-expedition-summary__label">${label}</span><span class="vitoria-expedition-summary__text">${expSummary}</span>`;
-            summaryEl.style.display = 'block';
+        if (isExtract) {
+            const label = tx('game.hunt.expedition.extractSummaryTitle', 'Expedition recap');
+            const chips = String(expSummary)
+                .split(/\s*·\s*/)
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((s) => `<span class="vitoria-recap__chip">${s}</span>`)
+                .join('');
+            summaryEl.innerHTML = `<span class="vitoria-recap__label">${label}</span><div class="vitoria-recap__chips">${chips}</div>`;
+            summaryEl.style.display = 'flex';
+            summaryEl.classList.add('is-open');
         } else {
             summaryEl.innerHTML = '';
             summaryEl.style.display = 'none';
+            summaryEl.classList.remove('is-open');
         }
     }
     delete (window as any).expeditionExtractSummary;
 
+    if (window.I18n && typeof window.I18n.refreshDom === 'function' && modal) {
+        try { window.I18n.refreshDom(modal); } catch { /* ignore */ }
+        // Keep dynamic extract titles after refreshDom (data-i18n would overwrite).
+        if (isExtract) {
+            if (headerEl) headerEl.textContent = tx('game.hunt.expedition.victoryExtractHeader', 'Extract complete');
+            if (titleEl) titleEl.textContent = tx('game.hunt.expedition.victoryExtractTitle', 'Bag secured');
+        }
+    }
+
     travarFlorestaResumoVitoria(true);
     abrirModal('janela-vitoria', 1500);
+    const scrollEl = document.querySelector('#janela-vitoria .vitoria-scroll') as HTMLElement | null;
+    if (scrollEl) scrollEl.scrollTop = 0;
 }
 
 function fecharVitoriaEProcurar() {

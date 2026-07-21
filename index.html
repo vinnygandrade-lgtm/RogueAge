@@ -682,21 +682,28 @@
         </div>
     </div>
 
-    <div id="janela-vitoria" class="store-window">
-        <div class="store-header"><span>BATTLE CLEAR!</span></div>
+    <div id="janela-vitoria" class="store-window vitoria-window" style="display:none;">
+        <div class="store-header vitoria-window__header"><span id="vitoria-header-label" data-i18n="game.combat.victoryHeader">Battle clear</span></div>
         <div class="store-body store-body--vitoria">
-            <h3 class="vitoria-title">VICTORY</h3>
+            <div class="vitoria-scroll">
+                <div class="vitoria-hero">
+                    <div id="vitoria-hero-badge" class="vitoria-hero__badge" hidden>100%</div>
+                    <h3 id="vitoria-title" class="vitoria-title" data-i18n="game.combat.victoryTitle">Victory</h3>
+                    <p id="vitoria-subtitle" class="vitoria-subtitle" hidden></p>
+                </div>
 
-            <div class="vitoria-loot-panel">
-                <div class="vitoria-loot-h">Loot & Experience:</div>
-                <div id="vitoria-loot"></div>
+                <div class="vitoria-loot-panel">
+                    <div class="vitoria-loot-h" data-i18n="game.combat.victoryLootLabel">Secured</div>
+                    <div id="vitoria-metrics" class="vitoria-metrics" aria-live="polite"></div>
+                    <div id="vitoria-loot" class="vitoria-drops" hidden></div>
+                </div>
+
+                <div id="vitoria-expedition-summary" class="vitoria-recap" style="display:none;" aria-live="polite"></div>
             </div>
 
-            <div id="vitoria-expedition-summary" class="vitoria-expedition-summary" style="display:none;" aria-live="polite"></div>
-
             <div class="vitoria-actions">
-                <button type="button" class="btn-l2 btn-vitoria-hunt" onclick="fecharVitoriaEProcurar()">HUNT MORE</button>
-                <button type="button" class="btn-l2 btn-vitoria-town" onclick="fecharVitoriaEVoltar()">RETURN TO TOWN</button>
+                <button type="button" class="btn-l2 btn-vitoria-hunt" onclick="fecharVitoriaEProcurar()" data-i18n="game.combat.victoryHuntMore">Hunt more</button>
+                <button type="button" class="btn-l2 btn-vitoria-town" onclick="fecharVitoriaEVoltar()" data-i18n="game.combat.victoryReturnTown">Return to town</button>
             </div>
         </div>
     </div>

@@ -1650,9 +1650,17 @@ function recolherLootRaid() {
 // ==========================================
 // NOVO SISTEMA DE MODAIS PROFISSIONAIS (L2)
 // ==========================================
+/** Plain text → <br>; HTML payloads keep markup (newlines must NOT become <br> or CSS grids break). */
+function formatL2ModalBodyHtml(raw: string): string {
+    const s = String(raw ?? '');
+    if (/<[a-z][\s\S]*>/i.test(s)) return s;
+    return s.replace(/\n/g, '<br>');
+}
+
 window.l2Alert = function(mensagem, tituloOrOnClose, maybeOnClose) {
     return new Promise((resolve) => {
         const overlay = document.getElementById('l2-modal-overlay');
+        const box = document.getElementById('l2-modal-box');
         const body = document.getElementById('l2-modal-body');
         const title = document.getElementById('l2-modal-title');
         const footer = document.getElementById('l2-modal-footer');
@@ -1669,8 +1677,10 @@ window.l2Alert = function(mensagem, tituloOrOnClose, maybeOnClose) {
             if (typeof maybeOnClose === 'function') onClose = maybeOnClose;
         }
 
+        const html = formatL2ModalBodyHtml(mensagem);
         title.innerText = titulo;
-        body.innerHTML = String(mensagem).replace(/\n/g, '<br>');
+        body.innerHTML = html;
+        if (box) box.classList.toggle('l2-modal--rich', html.includes('exp-risk-confirm'));
         const okLabel = tFn ? tFn('modal.ok') : 'OK';
         footer.innerHTML = `<button class="btn-modal btn-modal-confirm" id="btn-l2-alert-ok">${okLabel}</button>`;
 
@@ -1678,6 +1688,7 @@ window.l2Alert = function(mensagem, tituloOrOnClose, maybeOnClose) {
 
         document.getElementById('btn-l2-alert-ok').onclick = () => {
             overlay.style.display = 'none';
+            if (box) box.classList.remove('l2-modal--rich');
             if (onClose) {
                 try { onClose(); } catch (e) { /* ignore */ }
             }
@@ -1688,10 +1699,22 @@ window.l2Alert = function(mensagem, tituloOrOnClose, maybeOnClose) {
 
 window.l2Confirm = function(mensagem: string, tituloOrCb?: any, opts?: any): any {
     const overlay = document.getElementById('l2-modal-overlay');
+    const box = document.getElementById('l2-modal-box');
     const body = document.getElementById('l2-modal-body');
     const title = document.getElementById('l2-modal-title');
     const footer = document.getElementById('l2-modal-footer');
     const tFn = typeof window.t === 'function' ? window.t : null;
+
+    const applyBody = (raw: string) => {
+        const html = formatL2ModalBodyHtml(raw);
+        body!.innerHTML = html;
+        if (box) box.classList.toggle('l2-modal--rich', html.includes('exp-risk-confirm'));
+        return html;
+    };
+    const closeModal = () => {
+        if (overlay) overlay.style.display = 'none';
+        if (box) box.classList.remove('l2-modal--rich');
+    };
 
     // Legacy callback form: l2Confirm(html, cb, { title, hideCancel })
     if (typeof tituloOrCb === 'function') {
@@ -1707,7 +1730,7 @@ window.l2Confirm = function(mensagem: string, tituloOrCb?: any, opts?: any): any
             return;
         }
         title.innerText = o.title ? String(o.title) : (tFn ? tFn('modal.titleConfirmation') : 'CONFIRMATION');
-        body.innerHTML = String(mensagem).replace(/\n/g, '<br>');
+        applyBody(mensagem);
         const cancelLabel = o.cancelLabel || (tFn ? tFn('modal.cancel') : 'CANCEL');
         const confirmLabel = o.confirmLabel || (tFn ? tFn('modal.confirm') : 'CONFIRM');
         if (o.hideCancel) {
@@ -1723,13 +1746,13 @@ window.l2Confirm = function(mensagem: string, tituloOrCb?: any, opts?: any): any
         const btnYes = document.getElementById('btn-l2-confirm-yes');
         if (btnNo) {
             btnNo.onclick = () => {
-                overlay.style.display = 'none';
+                closeModal();
                 callback(false);
             };
         }
         if (btnYes) {
             btnYes.onclick = () => {
-                overlay.style.display = 'none';
+                closeModal();
                 callback(true);
             };
         }
@@ -1744,7 +1767,7 @@ window.l2Confirm = function(mensagem: string, tituloOrCb?: any, opts?: any): any
 
         const tit = titulo ? String(titulo) : (tFn ? tFn('modal.titleConfirmation') : 'CONFIRMATION');
         title.innerText = tit;
-        body.innerHTML = String(mensagem).replace(/\n/g, '<br>');
+        applyBody(mensagem);
         const cancelLabel = labelOpts.cancelLabel
             || (tFn ? tFn('modal.cancel') : 'CANCEL');
         const confirmLabel = labelOpts.confirmLabel
@@ -1760,13 +1783,13 @@ window.l2Confirm = function(mensagem: string, tituloOrCb?: any, opts?: any): any
         const btnYes = document.getElementById('btn-l2-confirm-yes');
         if (btnNo) {
             btnNo.onclick = () => {
-                overlay.style.display = 'none';
+                closeModal();
                 resolve(false);
             };
         }
         if (btnYes) {
             btnYes.onclick = () => {
-                overlay.style.display = 'none';
+                closeModal();
                 resolve(true);
             };
         }

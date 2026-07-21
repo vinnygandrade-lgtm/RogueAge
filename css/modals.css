@@ -3,6 +3,11 @@
 /* ========================================= */
 
 .l2-modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.3s ease; will-change: opacity; }
+.l2-modal-overlay:has(.l2-modal--rich) {
+    padding: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    align-items: center;
+}
 .l2-modal { 
     background: var(--l2-bg-shell); 
     border: 1px solid var(--l2-border-strong); 
@@ -13,6 +18,36 @@
     position: relative; 
     overflow: hidden; 
     animation: modalAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+}
+
+/* Rich confirms (expedition extract risk, etc.): keep footer buttons reachable */
+.l2-modal.l2-modal--rich {
+    display: flex;
+    flex-direction: column;
+    max-height: none;
+    height: auto;
+    width: min(100%, calc(100vw - 24px));
+}
+.l2-modal.l2-modal--rich .l2-modal-header {
+    flex-shrink: 0;
+}
+.l2-modal.l2-modal--rich .l2-modal-body {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 14px 14px 10px;
+    text-align: left;
+}
+.l2-modal.l2-modal--rich .l2-modal-footer {
+    flex-shrink: 0;
+    padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid rgba(179, 138, 77, 0.22);
+    background: rgba(0, 0, 0, 0.28);
+    gap: 10px;
+}
+.l2-modal.l2-modal--rich .l2-modal-footer .btn-modal {
+    min-height: 44px;
+    flex: 1 1 0;
 }
 
 .l2-modal-header { 
@@ -127,6 +162,11 @@
     .store-window {
         width: 98%;
         max-height: 80vh;
+    }
+    /* Victory needs the full recap (loot + expedition chips) — don't clip to 80vh */
+    #janela-vitoria.store-window,
+    #janela-vitoria.vitoria-window {
+        max-height: min(94dvh, 720px);
     }
     .store-items-grid {
         grid-template-columns: repeat(auto-fill, minmax(min(100%, 48px), 1fr));

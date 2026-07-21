@@ -1928,16 +1928,20 @@ export class ExpeditionEngine {
         if (!this.state.active) return;
         const win = window as any;
         const title = this.t('game.hunt.expedition.exitRunTitle', 'Leave expedition?');
-        const body = this.t(
-            'game.hunt.expedition.exitRunBody',
-            'You will extract now and collect 100% of your Expedition Bag (Adena, XP and materials). Run upgrades and forge enchants are cleared.'
-        );
+        const body = this.buildExtractConfirmHtml();
+        const confirmLabel = this.t('game.hunt.expedition.extract', 'Collect & exit');
+        const cancelLabel = this.t('modal.cancel', 'Cancel');
 
         let ok = false;
         if (typeof win.l2Confirm === 'function') {
-            ok = await win.l2Confirm(body, title);
+            ok = await win.l2Confirm(body, title, { confirmLabel, cancelLabel });
         } else {
-            ok = window.confirm(body);
+            ok = window.confirm(
+                this.t(
+                    'game.hunt.expedition.exitRunBody',
+                    'Extract now to keep 100% of the bag. Run upgrades and forge enchants are cleared.'
+                )
+            );
         }
         if (!ok) return;
 
@@ -2645,6 +2649,148 @@ export class ExpeditionEngine {
         return { kept, lost: t - kept };
     }
 
+    static getBagSnapshot(): { adenas: number; xp: number; drops: Record<string, number> } {
+        const drops: Record<string, number> = {};
+        const src = this.state.bag?.drops || {};
+        for (const k of Object.keys(src)) {
+            const n = Math.max(0, Math.floor(Number(src[k]) || 0));
+            if (n > 0) drops[k] = n;
+        }
+        return {
+            adenas: Math.max(0, Math.floor(Number(this.state.bag?.adenas) || 0)),
+            xp: Math.max(0, Math.floor(Number(this.state.bag?.xp) || 0)),
+            drops,
+        };
+    }
+
+    static countBagDropStacks(drops: Record<string, number>): number {
+        return Object.keys(drops || {}).reduce((n, k) => n + Math.max(0, Math.floor(Number(drops[k]) || 0)), 0);
+    }
+
+    /** Compact "Adena · XP · drops" line for HUD / confirms. */
+    static formatBagCompactLine(bag: { adenas: number; xp: number; drops: Record<string, number> }): string {
+        const labAdena = this.t('game.hunt.expedition.resultAdena', 'Adena');
+        const labXp = this.t('game.hunt.expedition.resultXp', 'XP');
+        const parts: string[] = [];
+        parts.push(`${bag.adenas.toLocaleString()} ${labAdena}`);
+        parts.push(`${bag.xp.toLocaleString()} ${labXp}`);
+        const stacks = this.countBagDropStacks(bag.drops);
+        if (stacks > 0) {
+            parts.push(this.t('game.hunt.expedition.bagRiskDrops', '{n} drops', { n: stacks }));
+        }
+        return parts.join(' · ');
+    }
+
+    static buildBagDropLinesHtml(
+        bag: { adenas: number; xp: number; drops: Record<string, number> },
+        tone: 'keep' | 'death',
+        opts?: { compact?: boolean }
+    ): string {
+        const labAdena = this.t('game.hunt.expedition.resultAdena', 'Adena');
+        const labXp = this.t('game.hunt.expedition.resultXp', 'XP');
+        const compact = !!opts?.compact;
+        let html = '';
+        if (bag.adenas > 0 || compact) {
+            const cls = tone === 'keep' ? 'exp-result-line__val--adena' : 'exp-result-line__val--hurt';
+            html += this.buildResultLine(labAdena, `+${bag.adenas.toLocaleString()}`, cls);
+        }
+        if (bag.xp > 0 || compact) {
+            const cls = tone === 'keep' ? 'exp-result-line__val--xp' : 'exp-result-line__val--hurt';
+            html += this.buildResultLine(labXp, `+${bag.xp.toLocaleString()}`, cls);
+        }
+        const stacks = this.countBagDropStacks(bag.drops);
+        if (compact) {
+            if (stacks > 0) {
+                const cls = tone === 'keep' ? 'exp-result-line__val--drop' : 'exp-result-line__val--hurt';
+                html += this.buildResultLine(
+                    this.t('game.hunt.expedition.bagRiskDropsLabel', 'Drops'),
+                    `x${stacks}`,
+                    cls
+                );
+            }
+        } else {
+            for (const item of Object.keys(bag.drops || {})) {
+                const qty = bag.drops[item];
+                if (qty <= 0) continue;
+                const cls = tone === 'keep' ? 'exp-result-line__val--drop' : 'exp-result-line__val--hurt';
+                html += this.buildResultLine(itemDropDisplayName(item), `x${qty}`, cls);
+            }
+        }
+        if (!html) {
+            return `<p class="exp-risk-empty">${this.t('game.hunt.expedition.bagRiskEmpty', 'Bag is empty.')}</p>`;
+        }
+        return `<div class="exp-risk-lines">${html}</div>`;
+    }
+
+    /** Map footer HUD — totals only (risk detail lives on Extract confirm). */
+    static buildMapBagBarHtml(): string {
+        const bag = this.getBagSnapshot();
+        const hasLoot = this.bagHasAnyLoot(bag);
+        const drops = this.countBagDropStacks(bag.drops);
+        const risk = hasLoot
+            ? this.t('game.hunt.expedition.bagHudRisk', 'Die = keep half')
+            : this.t('game.hunt.expedition.bagHudSafe', 'No loot at risk');
+        const dropsHtml = drops > 0
+            ? `<span class="exp-bag-hud__stat exp-bag-hud__stat--drop">${drops} ${this.t('game.hunt.expedition.bagRiskDropsLabel', 'Drops')}</span>`
+            : '';
+        return `<div class="exp-bag-hud${hasLoot ? '' : ' exp-bag-hud--safe'}" role="status">
+            <div class="exp-bag-hud__left">
+                <span class="exp-bag-hud__label">${this.t('game.hunt.expedition.bagTitle', 'Expedition Bag')}</span>
+                <div class="exp-bag-hud__stats">
+                    <span class="exp-bag-hud__stat exp-bag-hud__stat--adena">+${bag.adenas.toLocaleString()}</span>
+                    <span class="exp-bag-hud__stat exp-bag-hud__stat--xp">+${bag.xp.toLocaleString()} XP</span>
+                    ${dropsHtml}
+                </div>
+            </div>
+            <span class="exp-bag-hud__risk">${risk}</span>
+        </div>`;
+    }
+
+    /** Extract confirm — raid results style: EXTRACT 100% vs DIE 50%. */
+    static buildExtractConfirmHtml(): string {
+        const bag = this.getBagSnapshot();
+        const split = this.computeDeathBagSplit(bag);
+        const labAdena = this.t('game.hunt.expedition.resultAdena', 'Adena');
+        const labXp = this.t('game.hunt.expedition.resultXp', 'XP');
+        const labDrops = this.t('game.hunt.expedition.bagRiskDropsLabel', 'Drops');
+        const keepDrops = this.countBagDropStacks(bag.drops);
+        const dieDrops = this.countBagDropStacks(split.kept.drops);
+
+        const rows = (adena: number, xp: number, drops: number) =>
+            `<div class="exp-summary__rows">
+                <div class="exp-summary__row"><span>${labAdena}</span><strong class="exp-summary__adena">${adena.toLocaleString()}</strong></div>
+                <div class="exp-summary__row"><span>${labXp}</span><strong class="exp-summary__xp">${xp.toLocaleString()}</strong></div>
+                <div class="exp-summary__row"><span>${labDrops}</span><strong class="exp-summary__drop">${drops}</strong></div>
+            </div>`;
+
+        return `<div class="exp-risk-confirm exp-summary">
+            <p class="exp-summary__headline">${this.t(
+                'game.hunt.expedition.summaryHeadline',
+                'Secure the bag now — or risk losing half.'
+            )}</p>
+            <div class="exp-summary__vs">
+                <div class="exp-summary__col exp-summary__col--keep">
+                    <div class="exp-summary__col-head">
+                        <span class="exp-summary__pct">100%</span>
+                        <span class="exp-summary__col-title">${this.t('game.hunt.expedition.summaryExtract', 'Extract')}</span>
+                    </div>
+                    ${rows(bag.adenas, bag.xp, keepDrops)}
+                </div>
+                <div class="exp-summary__col exp-summary__col--die">
+                    <div class="exp-summary__col-head">
+                        <span class="exp-summary__pct">50%</span>
+                        <span class="exp-summary__col-title">${this.t('game.hunt.expedition.summaryDie', 'If you die')}</span>
+                    </div>
+                    ${rows(split.kept.adenas, split.kept.xp, dieDrops)}
+                </div>
+            </div>
+            <p class="exp-summary__note">${this.t(
+                'game.hunt.expedition.summaryNote',
+                'Run upgrades clear when you leave.'
+            )}</p>
+        </div>`;
+    }
+
     static computeDeathBagSplit(bag: { adenas: number; xp: number; drops: Record<string, number> }) {
         const adenaSplit = this.splitDeathShare(bag.adenas);
         const xpSplit = this.splitDeathShare(bag.xp);
@@ -2749,8 +2895,6 @@ export class ExpeditionEngine {
         const pickHint = this.getPathPickHint(journey, this.state.pathChoices.length);
         const mapRulesBtn = this.t('game.hunt.expedition.mapRulesBtn', 'Rules');
         const traitLabel = this.t('game.hunt.expedition.traitLabel', 'Enemy trait');
-        const bagTitle = this.t('game.hunt.expedition.bagTitle', 'Expedition Bag');
-        const bagEmpty = this.t('game.hunt.expedition.bagEmpty', 'No items yet...');
         const extractLabel = this.t('game.hunt.expedition.extract', 'Collect & exit');
         const pauseLabel = this.t('game.hunt.expedition.pauseBtn', 'Pause');
 
@@ -2760,23 +2904,6 @@ export class ExpeditionEngine {
         const enemyLabel = this.t('game.hunt.expedition.metaEnemies', 'Enemy power');
         const zoneLabel = this.t('game.hunt.expedition.metaZone', 'Zone rate');
         const traitName = this.getTraitLabel(this.state.journeyTrait);
-        const dropKeys = Object.keys(this.state.bag.drops);
-        const dropStacks = dropKeys.reduce((n, k) => n + (this.state.bag.drops[k] || 0), 0);
-        const dropsSummary = dropStacks > 0
-            ? this.t('game.hunt.expedition.bagDropsToggle', 'Bag drops ({n})', { n: dropStacks })
-            : bagEmpty;
-
-        let dropsHtml = '';
-        for (const item of dropKeys) {
-            dropsHtml += `<span class="expedition-bag__drop">${itemDropDisplayName(item)} x${this.state.bag.drops[item]}</span>`;
-        }
-
-        const dropsDetailsHtml = dropStacks > 0
-            ? `<details class="expedition-bag-details">
-                    <summary class="expedition-bag-details__summary">${dropsSummary}</summary>
-                    <div class="expedition-bag__drops">${dropsHtml}</div>
-                </details>`
-            : '';
 
         this.detachHotbarBeforeMapWipe();
 
@@ -2809,24 +2936,13 @@ export class ExpeditionEngine {
             </div>
             <div id="expedition-hotbar-slot" class="expedition-hotbar-slot" aria-label="Shortcuts"></div>
             <div class="expedition-panel__footer expedition-panel__footer--compact">
-                <div class="expedition-bag-bar">
-                    <div class="expedition-bag-bar__info">
-                        <span class="expedition-bag-bar__icon" aria-hidden="true">🎒</span>
-                        <div class="expedition-bag-bar__totals">
-                            <span class="expedition-bag-bar__title">${bagTitle}</span>
-                            <span class="expedition-bag-bar__values">
-                                <span class="expedition-bag-bar__adena">+${this.state.bag.adenas.toLocaleString()}</span>
-                                <span class="expedition-bag-bar__sep">·</span>
-                                <span class="expedition-bag-bar__xp">+${this.state.bag.xp.toLocaleString()} XP</span>
-                            </span>
-                        </div>
-                    </div>
+                <div class="expedition-bag-dock">
+                    ${this.buildMapBagBarHtml()}
                     <div class="expedition-bag-bar__actions">
                         <button type="button" class="btn-l2 expedition-bag-bar__pause" onclick="ExpeditionEngine.pauseRunToHub()">${pauseLabel}</button>
                         <button type="button" class="btn-l2 expedition-bag__extract expedition-bag-bar__extract" onclick="ExpeditionEngine.promptExitAndExtract()">${extractLabel}</button>
                     </div>
                 </div>
-                ${dropsDetailsHtml}
             </div>
         </div>`;
 
