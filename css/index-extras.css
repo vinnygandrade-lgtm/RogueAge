@@ -3421,32 +3421,49 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     width: min(calc(100vw - 24px), var(--l2-modal-max-width, 420px));
     max-height: min(85dvh, 640px);
     z-index: 1600;
-    border: 1px solid rgba(179, 138, 77, 0.35);
+    border: 1px solid rgba(179, 138, 77, 0.4);
     flex-direction: column;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(230, 194, 138, 0.1);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(230, 194, 138, 0.12);
 }
 .expedition-rules-window__header {
-    background: linear-gradient(90deg, #2a1a12, #581c87, #2a1a12);
+    background: linear-gradient(90deg, #1c1410, #3a2a18, #1c1410);
+    border-bottom: 1px solid rgba(201, 162, 39, 0.35);
     flex-shrink: 0;
 }
 .expedition-rules-window__header span {
     color: var(--l2-accent-gold-light, #e6c28a);
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.06em;
 }
 .expedition-rules-body {
-    padding: 12px 12px 14px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
     flex: 0 1 auto;
-    min-height: auto;
+    min-height: 0;
     max-height: calc(85dvh - 52px);
+    background: linear-gradient(180deg, rgba(18, 14, 11, 0.99), rgba(10, 8, 7, 1));
+}
+.expedition-rules-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    background: linear-gradient(180deg, rgba(14, 12, 10, 0.98), rgba(8, 7, 10, 0.99));
+    padding: 12px 12px 8px;
+}
+.expedition-rules-footer {
+    flex-shrink: 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid rgba(179, 138, 77, 0.22);
+    background: rgba(0, 0, 0, 0.28);
 }
 .expedition-rules-intro {
     margin: 0 0 12px;
-    color: var(--l2-text-secondary, #c4b5a0);
+    color: #cfc3b0;
     font-size: 12px;
     line-height: 1.5;
-    text-align: center;
+    text-align: left;
 }
 .expedition-rules-grid {
     display: grid;
@@ -3455,40 +3472,41 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     margin-bottom: 12px;
 }
 .expedition-rules-card {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(179, 138, 77, 0.18);
-    border-radius: 8px;
-    padding: 10px 8px;
-    text-align: center;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    background:
+        linear-gradient(180deg, rgba(36, 28, 20, 0.85), rgba(8, 6, 5, 0.75));
+    border: 1px solid rgba(179, 138, 77, 0.28);
+    border-radius: 9px;
+    padding: 10px 9px;
+    text-align: left;
+    box-shadow: inset 0 1px 0 rgba(245, 220, 160, 0.06);
 }
-.expedition-rules-card__icon { font-size: 22px; margin-bottom: 4px; }
+.expedition-rules-card__icon { font-size: 18px; margin-bottom: 4px; line-height: 1; }
 .expedition-rules-card__title {
     color: var(--l2-accent-gold-light, #e6c28a);
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
-    letter-spacing: 0.05em;
-    margin-bottom: 4px;
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
     text-transform: uppercase;
 }
 .expedition-rules-card__text {
-    color: #cbd5e1;
-    font-size: 10px;
+    color: #d4c8b4;
+    font-size: 11px;
     line-height: 1.4;
 }
 .expedition-rules-legend {
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     padding: 10px;
-    border-radius: 8px;
-    background: rgba(88, 28, 135, 0.15);
-    border: 1px solid rgba(167, 139, 250, 0.18);
+    border-radius: 9px;
+    background: rgba(0, 0, 0, 0.32);
+    border: 1px solid rgba(179, 138, 77, 0.22);
 }
 .expedition-rules-legend__title {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #a78bfa;
+    color: #b8a078;
     margin-bottom: 8px;
 }
 .expedition-rules-legend__list {
@@ -3504,7 +3522,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     gap: 8px;
     font-size: 10px;
     line-height: 1.35;
-    color: #cbd5e1;
+    color: #d4c8b4;
 }
 .expedition-rules-legend__list li span:first-child {
     flex-shrink: 0;
@@ -3513,26 +3531,29 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
 }
 .expedition-rules-legend__list--rogue {
     display: grid;
-    gap: 6px;
+    gap: 5px;
 }
 .expedition-rules-legend__list--rogue li {
-    padding: 8px 10px;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 7px 9px;
+    border-radius: 7px;
+    background: rgba(20, 16, 12, 0.65);
+    border: 1px solid rgba(90, 70, 52, 0.55);
 }
 .expedition-rules-legend__list--rogue li span:last-child {
-    color: #e2e8f0;
+    color: #e7e0d4;
     font-size: 11px;
     line-height: 1.4;
 }
 .expedition-rules-close {
     width: 100%;
     min-height: 44px;
+    margin: 0;
     font-family: 'Cinzel', serif;
-    letter-spacing: 0.05em;
-    background: linear-gradient(180deg, #44403c, #292524) !important;
-    border: 1px solid rgba(120, 113, 108, 0.5) !important;
+    letter-spacing: 0.06em;
+    background: linear-gradient(180deg, #d4a017 0%, #8a6410 55%, #5c420c 100%) !important;
+    border: 1px solid rgba(250, 204, 21, 0.45) !important;
+    color: #1a1208 !important;
+    font-weight: 900;
 }
 
 /* Node preview modal — never set display here; .store-window defaults to display:none until abrirModal */

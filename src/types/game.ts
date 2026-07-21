@@ -765,6 +765,8 @@ export interface ExpeditionRunSave {
   journey: number;
   pathChoices: Array<{ id: string; type: ExpeditionPathTypeSave }>;
   currentPath: ExpeditionPathTypeSave | null;
+  /** True if the run was interrupted mid-fight — resume must re-enter the same path. */
+  combatInterrupted?: boolean;
   combatOnlyNextJourney: boolean;
   combatOnlyThisJourney: boolean;
   runBuffs: Record<string, number>;

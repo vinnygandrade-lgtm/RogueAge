@@ -65,6 +65,11 @@ export interface ExpeditionState {
     journey: number;
     pathChoices: ExpeditionPathChoice[];
     currentPath: ExpeditionPathType | null;
+    /**
+     * Fight was interrupted (reload / edge park). Resume restarts the same combat path —
+     * no free re-pick of another route.
+     */
+    combatInterrupted: boolean;
     /** Set when last journey picked a non-combat route; next journey is fights-only. */
     combatOnlyNextJourney: boolean;
     /** True while the current map step was forced to fights-only (UI hint). */
@@ -314,6 +319,34 @@ export class ExpeditionEngine {
         return !!(this.state.active && !this.state.suspended && this._combatUiActive);
     }
 
+    /** Live fight on Forest — leave / Pause retreat is blocked (rules: no retreat). */
+    static isLiveCombatActive(): boolean {
+        if (!this.state.active || this.state.suspended) return false;
+        if (this._combatUiActive) return true;
+        const win = window as any;
+        return Array.isArray(win.monstrosAtivos) && win.monstrosAtivos.length > 0;
+    }
+
+    /**
+     * Call from nav before leaving Forest / screen-game.
+     * @returns true if navigation must abort.
+     */
+    static blockLeaveDuringCombat(): boolean {
+        if (!this.isLiveCombatActive()) return false;
+        const win = window as any;
+        const title = this.t('game.hunt.expedition.combatLeaveTitle', 'Fight in progress');
+        const body = this.t(
+            'game.hunt.expedition.combatLeaveBlocked',
+            'You are in an expedition fight. There is no retreat — win the battle or die and keep half the bag.'
+        );
+        if (typeof win.l2Alert === 'function') {
+            void win.l2Alert(body, title);
+        } else if (typeof win.escreverLog === 'function') {
+            win.escreverLog(`<span style="color:#ef4444; font-weight:bold;">⚠️ ${body}</span>`);
+        }
+        return true;
+    }
+
     /** Original `#hotbar-home-anchor` parent — restore when leaving expedition map/combat. */
     static _hotbarDockRestore: { parent: HTMLElement; next: ChildNode | null } | null = null;
 
@@ -485,6 +518,7 @@ export class ExpeditionEngine {
             journey: 1,
             pathChoices: [],
             currentPath: null,
+            combatInterrupted: false,
             combatOnlyNextJourney: false,
             combatOnlyThisJourney: false,
             runBuffs: ExpeditionEngine.emptyRunBuffs(),
@@ -535,6 +569,7 @@ export class ExpeditionEngine {
                 type: c.type,
             })),
             currentPath: this.state.currentPath,
+            combatInterrupted: !!this.state.combatInterrupted,
             combatOnlyNextJourney: !!this.state.combatOnlyNextJourney,
             combatOnlyThisJourney: !!this.state.combatOnlyThisJourney,
             runBuffs: { ...this.state.runBuffs },
@@ -637,15 +672,22 @@ export class ExpeditionEngine {
             if (n > 0) bagDrops[k] = n;
         }
 
+        const loadedPath = pathTypes.includes(raw.currentPath as ExpeditionPathType)
+            ? (raw.currentPath as ExpeditionPathType)
+            : null;
+        const hasPendingUpgrade = Array.isArray(raw.pendingUpgradeIds) && raw.pendingUpgradeIds.length > 0;
+        const pathIsCombat = !!loadedPath && ['combat', 'boss', 'elite'].includes(loadedPath);
+        // Mid-fight reload (path locked, no upgrade pick yet) must resume the same fight.
+        const combatInterrupted = pathIsCombat && !hasPendingUpgrade;
+
         this.state = {
             active: true,
             suspended: true, // always load parked; resume when entering Forest
             zoneId,
             journey: Math.max(1, Math.floor(Number(raw.journey) || 1)),
             pathChoices,
-            currentPath: pathTypes.includes(raw.currentPath as ExpeditionPathType)
-                ? (raw.currentPath as ExpeditionPathType)
-                : null,
+            currentPath: loadedPath,
+            combatInterrupted,
             combatOnlyNextJourney: !!raw.combatOnlyNextJourney,
             combatOnlyThisJourney: !!raw.combatOnlyThisJourney,
             runBuffs: baseBuffs,
@@ -718,21 +760,31 @@ export class ExpeditionEngine {
 
     /**
      * Park the run so the player can open town / inventory / leave the game.
-     * Aborts an in-progress fight (bag kept; path can be re-picked).
+     * Live combat leave is normally blocked; if still called mid-fight, the same
+     * combat path stays locked (`combatInterrupted`) — no free route re-pick.
      */
     static suspendRunForWorldLeave(opts?: { persist?: boolean }): void {
         if (!this.state.active || this.state.suspended) return;
         const win = window as any;
 
-        if (this._combatUiActive || (Array.isArray(win.monstrosAtivos) && win.monstrosAtivos.length > 0)) {
+        const inCombat = this._combatUiActive
+            || (Array.isArray(win.monstrosAtivos) && win.monstrosAtivos.length > 0);
+
+        if (inCombat) {
             if (typeof win.pararAtaqueMonstro === 'function') win.pararAtaqueMonstro();
             if (typeof win.clearForestPlayerThreats === 'function') win.clearForestPlayerThreats();
             if (Array.isArray(win.monstrosAtivos)) win.monstrosAtivos.length = 0;
             this.restoreMobTuning();
             this._combatUiActive = false;
             (this as any)._combatLootMult = 1;
-            // Fight abandoned — return to map choices for this journey.
-            this.state.currentPath = null;
+            if (this.state.currentPath && this.isCombatPathType(this.state.currentPath)) {
+                this.state.combatInterrupted = true;
+            } else {
+                this.state.currentPath = null;
+                this.state.combatInterrupted = false;
+            }
+        } else {
+            this.state.combatInterrupted = false;
         }
 
         // Close expedition modals that would soft-lock other screens.
@@ -769,7 +821,13 @@ export class ExpeditionEngine {
     /** Resume a parked run when entering Forest. */
     static resumeSuspendedRun(): void {
         if (!this.state.active) return;
+        const resumeCombat = this.state.combatInterrupted
+            && !!this.state.currentPath
+            && this.isCombatPathType(this.state.currentPath);
+        const pathToResume = this.state.currentPath;
+
         this.state.suspended = false;
+        this.state.combatInterrupted = false;
         this.ensureZoneForRun(this.state.zoneId);
         this._combatUiActive = false;
 
@@ -787,6 +845,17 @@ export class ExpeditionEngine {
         }
 
         this.hideHub();
+
+        if (resumeCombat && pathToResume) {
+            this.syncNavigationLock();
+            this.ensureRunVitalsForCombat();
+            if (typeof win.atualizar === 'function') win.atualizar();
+            this.startCombatPath(pathToResume);
+            this.persistRun({ silent: true });
+            this.syncHubParkedHint();
+            return;
+        }
+
         this.renderMap();
         this.syncNavigationLock();
         this.ensureRunVitalsForCombat();
@@ -1726,6 +1795,7 @@ export class ExpeditionEngine {
 
     static advanceJourney() {
         this._combatUiActive = false;
+        this.state.combatInterrupted = false;
 
         const lastPath = this.state.currentPath;
         if (lastPath && !this.isCombatPathType(lastPath)) {
@@ -2147,6 +2217,8 @@ export class ExpeditionEngine {
      */
     static pauseRunToHub(): void {
         if (!this.state.active || this.state.suspended) return;
+        // Pause is a map action — never a free retreat from an active fight.
+        if (this.blockLeaveDuringCombat()) return;
         const win = window as any;
         if (typeof win.fecharModal === 'function') {
             ['janela-expedition-upgrade', 'janela-expedition-node', 'janela-expedition-result', 'janela-expedition-rules']
@@ -2211,6 +2283,7 @@ export class ExpeditionEngine {
             journey: 1,
             pathChoices: [],
             currentPath: null,
+            combatInterrupted: false,
             combatOnlyNextJourney: false,
             combatOnlyThisJourney: false,
             runBuffs: this.emptyRunBuffs(),
@@ -2944,6 +3017,8 @@ export class ExpeditionEngine {
 
     static startCombatPath(pathType: ExpeditionPathType) {
         this._combatUiActive = true;
+        this.state.combatInterrupted = false;
+        this.state.currentPath = pathType;
         this.setForestLayoutMode('combat');
 
         const win = window as any;
@@ -2961,6 +3036,8 @@ export class ExpeditionEngine {
         this.syncNavigationLock();
         this.ensureRunVitalsForCombat();
         if (typeof win.atualizar === 'function') win.atualizar();
+        // Persist path lock so reload mid-fight cannot free-re-pick another route.
+        this.persistRun({ silent: true });
         win.procurarMonstros();
     }
 
@@ -2968,6 +3045,7 @@ export class ExpeditionEngine {
         if (!this.state.active) return;
 
         this._combatUiActive = false;
+        this.state.combatInterrupted = false;
         this.restoreMobTuning();
 
         const combatMult = (this as any)._combatLootMult || 1;

@@ -357,6 +357,14 @@ function atualizarPreview() {
 }
 
 function mudarTela(id: string) {
+    // No retreat from a live expedition fight (must win or die).
+    if (
+        id !== 'screen-game'
+        && typeof window.ExpeditionEngine?.blockLeaveDuringCombat === 'function'
+        && window.ExpeditionEngine.blockLeaveDuringCombat()
+    ) {
+        return;
+    }
     // Park expedition run when leaving the game shell (bag/progress kept in save).
     if (
         id !== 'screen-game'
@@ -676,6 +684,15 @@ function irPara(lugar) {
 
     if (typeof window.RaidEngine !== 'undefined' && window.RaidEngine.ativo) {
         window.escreverLog(`<span style="color:#ef4444; font-weight:bold;">⚠️ You are in the Boss arena! Use FLEE or finish the fight.</span>`);
+        return;
+    }
+
+    // No retreat from a live expedition fight (must win or die).
+    if (
+        lugar !== 'floresta'
+        && typeof window.ExpeditionEngine?.blockLeaveDuringCombat === 'function'
+        && window.ExpeditionEngine.blockLeaveDuringCombat()
+    ) {
         return;
     }
 

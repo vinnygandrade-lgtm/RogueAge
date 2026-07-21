@@ -497,11 +497,18 @@ html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #te
 }
 
 /* —— Modals (portrait compact) —— */
-html:not([data-l2-layout="landscape"]) .expedition-rules-body,
 html:not([data-l2-layout="landscape"]) .expedition-upgrade-body,
 html:not([data-l2-layout="landscape"]) .expedition-result-body,
 html:not([data-l2-layout="landscape"]) .expedition-node-body {
     padding: 10px 12px 12px;
+}
+
+html:not([data-l2-layout="landscape"]) .expedition-rules-scroll {
+    padding: 10px 10px 6px;
+}
+
+html:not([data-l2-layout="landscape"]) .expedition-rules-footer {
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
 }
 
 html:not([data-l2-layout="landscape"]) .expedition-rules-grid {
@@ -509,19 +516,19 @@ html:not([data-l2-layout="landscape"]) .expedition-rules-grid {
 }
 
 html:not([data-l2-layout="landscape"]) .expedition-rules-card {
-    padding: 8px 6px;
+    padding: 8px 7px;
 }
 
 html:not([data-l2-layout="landscape"]) .expedition-rules-card__icon {
-    font-size: 18px;
+    font-size: 16px;
 }
 
 html:not([data-l2-layout="landscape"]) .expedition-rules-card__text {
-    font-size: 9px;
+    font-size: 10px;
 }
 
 html:not([data-l2-layout="landscape"]) .expedition-rules-legend__list li {
-    font-size: 9px;
+    font-size: 10px;
     line-height: 1.35;
 }
 

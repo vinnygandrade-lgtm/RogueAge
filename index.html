@@ -704,45 +704,49 @@
     <div id="janela-expedition-rules" class="store-window expedition-rules-window" style="display:none;">
         <div class="store-header expedition-rules-window__header"><span data-i18n="game.hunt.expedition.rulesTitle">Expedition Rules</span></div>
         <div class="store-body expedition-rules-body">
-            <p class="expedition-rules-intro" data-i18n="game.hunt.expedition.rulesIntro">Loot stays in your Expedition Bag until you extract safely. Choose your path — each step is a risk.</p>
-            <div class="expedition-rules-grid">
-                <div class="expedition-rules-card">
-                    <div class="expedition-rules-card__icon">🎒</div>
-                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesBagTitle">Expedition Bag</div>
-                    <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesBagDesc">Adena and drops from nodes go to the bag — not your inventory — until you finish or extract.</div>
+            <div class="expedition-rules-scroll">
+                <p class="expedition-rules-intro" data-i18n="game.hunt.expedition.rulesIntro">Loot and combat XP stay in your Expedition Bag until you extract. Pick a path each journey — extract for 100%, death keeps half.</p>
+                <div class="expedition-rules-grid">
+                    <div class="expedition-rules-card">
+                        <div class="expedition-rules-card__icon" aria-hidden="true">🎒</div>
+                        <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesBagTitle">Expedition Bag</div>
+                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesBagDesc">Adena, drops, and combat XP go into the bag — not your inventory or character — until you extract or die.</div>
+                    </div>
+                    <div class="expedition-rules-card">
+                        <div class="expedition-rules-card__icon" aria-hidden="true">💀</div>
+                        <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesDeathTitle">If you die</div>
+                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesDeathDesc">You keep half of the bag (Adena, items, and XP). The other half is lost forever.</div>
+                    </div>
+                    <div class="expedition-rules-card">
+                        <div class="expedition-rules-card__icon" aria-hidden="true">🏃</div>
+                        <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesExtractTitle">Extract</div>
+                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesExtractDesc">On the map, use Collect &amp; exit to keep 100% of the bag. Boss wins do not auto-extract — cash out yourself. In combat there is no retreat — you cannot leave until you win or die.</div>
+                    </div>
+                    <div class="expedition-rules-card">
+                        <div class="expedition-rules-card__icon" aria-hidden="true">🗺️</div>
+                        <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesPathTitle">Roguelike loop</div>
+                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesPathDesc">Journey 1: Fight or Elite only. Safe paths and gifts from journey 2. Boss gate every 10 journeys.</div>
+                    </div>
                 </div>
-                <div class="expedition-rules-card">
-                    <div class="expedition-rules-card__icon">💀</div>
-                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesDeathTitle">If you die</div>
-                    <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesDeathDesc">You lose 50% of the bag. Combat XP already earned stays on your character.</div>
-                </div>
-                <div class="expedition-rules-card">
-                    <div class="expedition-rules-card__icon">🏃</div>
-                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesExtractTitle">Extract</div>
-                    <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesExtractDesc">Extract or escape successfully to keep 100% of the bag. Defeat the boss to auto-extract with full loot.</div>
-                </div>
-                <div class="expedition-rules-card">
-                    <div class="expedition-rules-card__icon">🗺️</div>
-                    <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesPathTitle">Branching paths</div>
-                    <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesPathDesc">Pick one node per stage. Skipped routes close forever. Elite, chests, camps and events vary each run.</div>
+                <div class="expedition-rules-legend">
+                    <div class="expedition-rules-legend__title" data-i18n="game.hunt.expedition.rulesLegendTitle">Path cards</div>
+                    <ul class="expedition-rules-legend__list expedition-rules-legend__list--rogue">
+                        <li><span aria-hidden="true">⚔️</span> <span data-i18n="game.hunt.expedition.legendPathCombat">Fight — win to pick a run upgrade</span></li>
+                        <li><span aria-hidden="true">👹</span> <span data-i18n="game.hunt.expedition.legendPathBoss">Boss — brutal fight, ×2 bag loot</span></li>
+                        <li><span aria-hidden="true">💀</span> <span data-i18n="game.hunt.expedition.legendPathElite">Elite — champions, premium loot</span></li>
+                        <li><span aria-hidden="true">🎁</span> <span data-i18n="game.hunt.expedition.legendPathChest">Chest — loot (from journey 2)</span></li>
+                        <li><span aria-hidden="true">🧳</span> <span data-i18n="game.hunt.expedition.legendPathMerchant">Merchant — trade (from journey 2)</span></li>
+                        <li><span aria-hidden="true">🚶</span> <span data-i18n="game.hunt.expedition.legendPathPatrol">Patrol — XP march, opening-safe</span></li>
+                        <li><span aria-hidden="true">👣</span> <span data-i18n="game.hunt.expedition.legendPathTracks">Tracks — next journey trait</span></li>
+                        <li><span aria-hidden="true">🔨</span> <span data-i18n="game.hunt.expedition.legendPathForge">Forge — run stat boost</span></li>
+                        <li><span aria-hidden="true">📯</span> <span data-i18n="game.hunt.expedition.legendPathWarhorn">Warhorn — class atk + speed</span></li>
+                        <li><span aria-hidden="true">🌿</span> <span data-i18n="game.hunt.expedition.legendPathAmbush">Ambush — loot or HP loss</span></li>
+                    </ul>
                 </div>
             </div>
-            <div class="expedition-rules-legend">
-                <div class="expedition-rules-legend__title" data-i18n="game.hunt.expedition.rulesLegendTitle">Path cards</div>
-                <ul class="expedition-rules-legend__list expedition-rules-legend__list--rogue">
-                    <li><span>⚔️</span> <span data-i18n="game.hunt.expedition.legendPathCombat">Fight — win to pick a run upgrade</span></li>
-                    <li><span>👹</span> <span data-i18n="game.hunt.expedition.legendPathBoss">Boss — brutal fight, ×2 bag loot</span></li>
-                    <li><span>💀</span> <span data-i18n="game.hunt.expedition.legendPathElite">Elite — champions, premium loot</span></li>
-                    <li><span>🎁</span> <span data-i18n="game.hunt.expedition.legendPathChest">Chest — loot (from journey 2)</span></li>
-                    <li><span>🧳</span> <span data-i18n="game.hunt.expedition.legendPathMerchant">Merchant — trade (from journey 2)</span></li>
-                    <li><span>🚶</span> <span data-i18n="game.hunt.expedition.legendPathPatrol">Patrol — XP march, opening-safe</span></li>
-                    <li><span>👣</span> <span data-i18n="game.hunt.expedition.legendPathTracks">Tracks — next journey trait</span></li>
-                    <li><span>🔨</span> <span data-i18n="game.hunt.expedition.legendPathForge">Forge — run stat boost</span></li>
-                    <li><span>📯</span> <span data-i18n="game.hunt.expedition.legendPathWarhorn">Warhorn — class atk + speed</span></li>
-                    <li><span>🌿</span> <span data-i18n="game.hunt.expedition.legendPathAmbush">Ambush — loot or HP loss</span></li>
-                </ul>
+            <div class="expedition-rules-footer">
+                <button type="button" class="btn-l2 expedition-rules-close" data-i18n="game.hunt.expedition.rulesCloseBtn" onclick="ExpeditionEngine.closeRulesModal()">Got it</button>
             </div>
-            <button type="button" class="btn-l2 expedition-rules-close" data-i18n="game.hunt.expedition.rulesCloseBtn" onclick="ExpeditionEngine.closeRulesModal()">Got it</button>
         </div>
     </div>
 
