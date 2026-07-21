@@ -841,6 +841,9 @@ function fecharVitoriaEProcurar() {
     prepararTelaCacada();
 
     const exp = (window as any).ExpeditionEngine;
+    if (exp && typeof exp.consumePendingStartAfterExtract === 'function' && exp.consumePendingStartAfterExtract()) {
+        return;
+    }
     if (exp?.state?.active) {
         if (typeof exp.renderMap === 'function') exp.renderMap();
     } else if (exp && typeof exp.showHub === 'function') {
@@ -854,6 +857,8 @@ function fecharVitoriaEProcurar() {
 function fecharVitoriaEVoltar() {
     travarFlorestaResumoVitoria(false);
     fecharModal('janela-vitoria');
+    const exp = (window as any).ExpeditionEngine;
+    if (exp) exp._pendingStartZoneAfterExtract = null;
     window.irPara('cidade');
 }
 

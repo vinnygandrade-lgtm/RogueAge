@@ -1605,7 +1605,14 @@ function teleportarParaZona(grade) {
         document.getElementById('hud-zona-nome').innerText = zoneName; 
         window.monstrosAtivos.length = 0;
         window.atualizar(); 
-        irPara('floresta'); 
+        irPara('floresta');
+        try {
+            const exp = (window as any).ExpeditionEngine;
+            if (exp && typeof exp.refreshHubStartButton === 'function') {
+                exp.refreshHubStartButton();
+                exp.syncHubParkedHint?.();
+            }
+        } catch { /* noop */ }
     } else { 
         window.mostrarAviso(typeof window.t === 'function' ? window.t('game.travel.needAdena', { amount: zonaDestino.custo }) : `You need ${zonaDestino.custo} Adena!`); 
     }
@@ -1662,21 +1669,69 @@ window.l2Alert = function(mensagem, tituloOrOnClose, maybeOnClose) {
     });
 };
 
-window.l2Confirm = function(mensagem, titulo) {
-    return new Promise<boolean>((resolve) => {
-        const overlay = document.getElementById('l2-modal-overlay');
-        const body = document.getElementById('l2-modal-body');
-        const title = document.getElementById('l2-modal-title');
-        const footer = document.getElementById('l2-modal-footer');
-        const tFn = typeof window.t === 'function' ? window.t : null;
+window.l2Confirm = function(mensagem: string, tituloOrCb?: any, opts?: any): any {
+    const overlay = document.getElementById('l2-modal-overlay');
+    const body = document.getElementById('l2-modal-body');
+    const title = document.getElementById('l2-modal-title');
+    const footer = document.getElementById('l2-modal-footer');
+    const tFn = typeof window.t === 'function' ? window.t : null;
 
-        if (!overlay || !body) return resolve(false);
+    // Legacy callback form: l2Confirm(html, cb, { title, hideCancel })
+    if (typeof tituloOrCb === 'function') {
+        const callback = tituloOrCb as (confirmado: boolean) => void;
+        const o = (opts || {}) as {
+            title?: string;
+            hideCancel?: boolean;
+            confirmLabel?: string;
+            cancelLabel?: string;
+        };
+        if (!overlay || !body || !title || !footer) {
+            callback(false);
+            return;
+        }
+        title.innerText = o.title ? String(o.title) : (tFn ? tFn('modal.titleConfirmation') : 'CONFIRMATION');
+        body.innerHTML = String(mensagem).replace(/\n/g, '<br>');
+        const cancelLabel = o.cancelLabel || (tFn ? tFn('modal.cancel') : 'CANCEL');
+        const confirmLabel = o.confirmLabel || (tFn ? tFn('modal.confirm') : 'CONFIRM');
+        if (o.hideCancel) {
+            footer.innerHTML = `<button class="btn-modal btn-modal-confirm" id="btn-l2-confirm-yes">${confirmLabel}</button>`;
+        } else {
+            footer.innerHTML = `
+                <button class="btn-modal btn-modal-cancel" id="btn-l2-confirm-no">${cancelLabel}</button>
+                <button class="btn-modal btn-modal-confirm" id="btn-l2-confirm-yes">${confirmLabel}</button>
+            `;
+        }
+        overlay.style.display = 'flex';
+        const btnNo = document.getElementById('btn-l2-confirm-no');
+        const btnYes = document.getElementById('btn-l2-confirm-yes');
+        if (btnNo) {
+            btnNo.onclick = () => {
+                overlay.style.display = 'none';
+                callback(false);
+            };
+        }
+        if (btnYes) {
+            btnYes.onclick = () => {
+                overlay.style.display = 'none';
+                callback(true);
+            };
+        }
+        return;
+    }
+
+    const titulo = tituloOrCb as string | undefined;
+    const labelOpts = (opts && typeof opts === 'object') ? opts as { confirmLabel?: string; cancelLabel?: string } : {};
+
+    return new Promise<boolean>((resolve) => {
+        if (!overlay || !body || !title || !footer) return resolve(false);
 
         const tit = titulo ? String(titulo) : (tFn ? tFn('modal.titleConfirmation') : 'CONFIRMATION');
         title.innerText = tit;
         body.innerHTML = String(mensagem).replace(/\n/g, '<br>');
-        const cancelLabel = tFn ? tFn('modal.cancel') : 'CANCEL';
-        const confirmLabel = tFn ? tFn('modal.confirm') : 'CONFIRM';
+        const cancelLabel = labelOpts.cancelLabel
+            || (tFn ? tFn('modal.cancel') : 'CANCEL');
+        const confirmLabel = labelOpts.confirmLabel
+            || (tFn ? tFn('modal.confirm') : 'CONFIRM');
         footer.innerHTML = `
             <button class="btn-modal btn-modal-cancel" id="btn-l2-confirm-no">${cancelLabel}</button>
             <button class="btn-modal btn-modal-confirm" id="btn-l2-confirm-yes">${confirmLabel}</button>
@@ -1684,15 +1739,20 @@ window.l2Confirm = function(mensagem, titulo) {
 
         overlay.style.display = 'flex';
 
-        document.getElementById('btn-l2-confirm-no').onclick = () => {
-            overlay.style.display = 'none';
-            resolve(false);
-        };
-
-        document.getElementById('btn-l2-confirm-yes').onclick = () => {
-            overlay.style.display = 'none';
-            resolve(true);
-        };
+        const btnNo = document.getElementById('btn-l2-confirm-no');
+        const btnYes = document.getElementById('btn-l2-confirm-yes');
+        if (btnNo) {
+            btnNo.onclick = () => {
+                overlay.style.display = 'none';
+                resolve(false);
+            };
+        }
+        if (btnYes) {
+            btnYes.onclick = () => {
+                overlay.style.display = 'none';
+                resolve(true);
+            };
+        }
     });
 };
 

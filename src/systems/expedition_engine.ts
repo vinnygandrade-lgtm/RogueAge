@@ -307,6 +307,8 @@ export class ExpeditionEngine {
     static _forestLayoutMode: 'hub' | 'map' | 'combat' | 'idle' = 'idle';
     /** True while expedition combat UI is active (path chosen — no map / no flee). */
     static _combatUiActive = false;
+    /** After extract-to-switch: start this zone when the victory modal closes. */
+    static _pendingStartZoneAfterExtract: string | null = null;
 
     static isExpeditionCombatUiActive(): boolean {
         return !!(this.state.active && !this.state.suspended && this._combatUiActive);
@@ -1991,23 +1993,152 @@ export class ExpeditionEngine {
         }
     }
 
+    /** Sync zone name / grade badge on the trailhead hub. */
+    static syncHubZoneCard() {
+        const win = window as any;
+        const zoneId = this.getCurrentHuntZoneId();
+        const gradeEl = document.getElementById('expedition-hub-grade');
+        const nameEl = document.getElementById('expedition-hub-zone-name');
+        const levelEl = document.getElementById('expedition-hub-zone-level');
+
+        const gradeShort = zoneId === 'No-Grade' ? 'NG' : String(zoneId);
+        if (gradeEl) {
+            gradeEl.textContent = gradeShort;
+            const color = typeof win.getGradeColor === 'function'
+                ? win.getGradeColor(zoneId)
+                : '#e6c28a';
+            gradeEl.style.color = color || '#e6c28a';
+            gradeEl.style.borderColor = color ? `${color}99` : '';
+        }
+        if (nameEl) {
+            const fromZona = win.zonaAtual?.nome ? String(win.zonaAtual.nome) : '';
+            nameEl.textContent = fromZona || this.getZoneLabel(zoneId);
+        }
+        if (levelEl) {
+            const cat = win.catalogoZonas?.[zoneId];
+            const range = cat?.nivelSugerido ? String(cat.nivelSugerido) : '';
+            if (range) {
+                levelEl.textContent = this.t(
+                    'game.hunt.expedition.hubLevelRange',
+                    'Suggested Lv. {range}',
+                    { range }
+                );
+                levelEl.style.display = '';
+            } else {
+                levelEl.textContent = '';
+                levelEl.style.display = 'none';
+            }
+        }
+    }
+
     /** Toggle hub copy when a run is parked vs a fresh start. */
     static syncHubParkedHint() {
+        this.syncHubZoneCard();
+        const hub = document.getElementById('expedition-hub');
         const desc = document.querySelector('#expedition-hub .expedition-hub__desc') as HTMLElement | null;
         if (!desc) return;
-        if (this.state.active && this.state.suspended) {
-            desc.textContent = this.t(
-                'game.hunt.expedition.hubResumeHint',
-                'You have a run in progress. Resume to continue from your bag and journey.'
-            );
+        const parked = !!(this.state.active && this.state.suspended);
+        if (hub) hub.classList.toggle('expedition-hub--parked', parked);
+        if (parked) {
+            if (this.isPendingRunOnOtherZone()) {
+                const parkedZone = this.getZoneLabel(this.state.zoneId);
+                const here = this.getZoneLabel(this.getCurrentHuntZoneId());
+                desc.textContent = this.t(
+                    'game.hunt.expedition.hubOtherMapHint',
+                    'Pending expedition on {parked}. Collect loot to start on {here}, or Resume only works after you return to that map.',
+                    { parked: parkedZone, here }
+                );
+            } else {
+                desc.textContent = this.t(
+                    'game.hunt.expedition.hubResumeHint',
+                    'You have a run in progress. Resume to continue from your bag and journey.'
+                );
+            }
             desc.removeAttribute('data-i18n');
         } else {
             desc.setAttribute('data-i18n', 'game.hunt.expedition.hubDesc');
             desc.textContent = this.t(
                 'game.hunt.expedition.hubDesc',
-                'Infinite journeys — pick a path each step. Win fights to choose upgrade cards. Extract to keep 100% of your bag.'
+                'Pick a path each journey, grow stronger as you go, and extract when the bag is worth the risk.'
             );
         }
+    }
+
+    static getCurrentHuntZoneId(): string {
+        const win = window as any;
+        const id = win.zonaAtual?.id;
+        return id != null && String(id).length ? String(id) : 'No-Grade';
+    }
+
+    static getZoneLabel(zoneId: string): string {
+        const win = window as any;
+        if (typeof win.zoneDisplayName === 'function') {
+            try {
+                const n = win.zoneDisplayName(zoneId);
+                if (n) return String(n);
+            } catch { /* noop */ }
+        }
+        const z = win.zonasDeCaca?.[zoneId];
+        if (z?.nome) return String(z.nome);
+        return zoneId || 'No-Grade';
+    }
+
+    static isPendingRunOnOtherZone(targetZoneId?: string): boolean {
+        if (!this.state.active) return false;
+        const target = targetZoneId != null ? String(targetZoneId) : this.getCurrentHuntZoneId();
+        return String(this.state.zoneId) !== String(target);
+    }
+
+    /**
+     * Player is on map B while a run is parked on map A.
+     * Confirm → extract (collect bag) then start a fresh run on B after the victory modal.
+     * Cancel → keep parked run.
+     */
+    static async confirmExtractToStartOtherZone(newZoneId: string): Promise<void> {
+        if (!this.state.active) {
+            this.startExpedition(newZoneId);
+            return;
+        }
+        if (!this.isPendingRunOnOtherZone(newZoneId)) {
+            this.resumeSuspendedRun();
+            return;
+        }
+
+        const win = window as any;
+        const parked = this.getZoneLabel(this.state.zoneId);
+        const next = this.getZoneLabel(newZoneId);
+        const title = this.t('game.hunt.expedition.otherMapTitle', 'Pending expedition');
+        const body = this.t(
+            'game.hunt.expedition.otherMapBody',
+            'You still have an expedition on {parked}.\n\nCollect your bag (100% loot) to start a new run on {next}, or Cancel to keep the pending run.',
+            { parked, next }
+        );
+        const confirmLabel = this.t('game.hunt.expedition.otherMapCollectBtn', 'Collect & start new');
+        const cancelLabel = this.t('game.hunt.expedition.otherMapCancelBtn', 'Cancel');
+
+        let ok = false;
+        if (typeof win.l2Confirm === 'function') {
+            ok = await win.l2Confirm(body, title, { confirmLabel, cancelLabel });
+        } else {
+            ok = window.confirm(body);
+        }
+        if (!ok) return;
+
+        if (typeof win.pararAtaqueMonstro === 'function') win.pararAtaqueMonstro();
+        if (typeof win.clearForestPlayerThreats === 'function') win.clearForestPlayerThreats();
+        if (Array.isArray(win.monstrosAtivos)) win.monstrosAtivos.length = 0;
+
+        this._pendingStartZoneAfterExtract = String(newZoneId);
+        this.extract();
+    }
+
+    /** Called when the extract victory modal closes — starts a queued new-zone run if any. */
+    static consumePendingStartAfterExtract(): boolean {
+        const zoneId = this._pendingStartZoneAfterExtract;
+        this._pendingStartZoneAfterExtract = null;
+        if (!zoneId) return false;
+        this.startExpedition(zoneId);
+        return true;
     }
 
     /**
@@ -2033,11 +2164,17 @@ export class ExpeditionEngine {
     }
 
     static refreshHubStartButton() {
+        this.syncHubZoneCard();
         const btn = document.getElementById('btn-iniciar-caca');
         if (!btn) return;
         if (this.state.active) {
-            btn.setAttribute('data-i18n', 'game.hunt.expedition.resumeBtn');
-            btn.textContent = this.t('game.hunt.expedition.resumeBtn', 'Resume Expedition');
+            if (this.isPendingRunOnOtherZone()) {
+                btn.setAttribute('data-i18n', 'game.hunt.expedition.startOtherMapBtn');
+                btn.textContent = this.t('game.hunt.expedition.startOtherMapBtn', 'Start here (pending run…)');
+            } else {
+                btn.setAttribute('data-i18n', 'game.hunt.expedition.resumeBtn');
+                btn.textContent = this.t('game.hunt.expedition.resumeBtn', 'Resume Expedition');
+            }
         } else {
             btn.setAttribute('data-i18n', 'game.hunt.expedition.startBtn');
             btn.textContent = this.t('game.hunt.expedition.startBtn', 'Begin Expedition');
@@ -2048,11 +2185,16 @@ export class ExpeditionEngine {
         const btnIniciar = document.getElementById('btn-iniciar-caca');
         if (!btnIniciar) return;
         btnIniciar.onclick = () => {
+            const zoneId = ExpeditionEngine.getCurrentHuntZoneId();
             if (ExpeditionEngine.state.active) {
+                if (ExpeditionEngine.isPendingRunOnOtherZone(zoneId)) {
+                    void ExpeditionEngine.confirmExtractToStartOtherZone(zoneId);
+                    return;
+                }
                 ExpeditionEngine.resumeSuspendedRun();
                 return;
             }
-            ExpeditionEngine.startExpedition((window as any).zonaAtual?.id || 'No-Grade');
+            ExpeditionEngine.startExpedition(zoneId);
         };
         this.refreshHubStartButton();
         this.syncForestEntryUi();
@@ -3171,6 +3313,7 @@ export class ExpeditionEngine {
     static reset() {
         this.restoreMobTuning();
         this._combatUiActive = false;
+        this._pendingStartZoneAfterExtract = null;
         this.pendingUpgradeOptions = [];
         this.lastCombatLoot = null;
         (this as any)._savedRunVitals = null;

@@ -1677,11 +1677,15 @@ export interface ClanWarEngineApi {
 }
 
 export type L2ConfirmFn = {
-  (mensagem: string, titulo?: string): Promise<boolean>;
+  (
+    mensagem: string,
+    titulo?: string,
+    opts?: { confirmLabel?: string; cancelLabel?: string },
+  ): Promise<boolean>;
   (
     mensagem: string,
     callback: (confirmado: boolean) => void,
-    opts?: { title?: string; hideCancel?: boolean },
+    opts?: { title?: string; hideCancel?: boolean; confirmLabel?: string; cancelLabel?: string },
   ): void;
 };
 

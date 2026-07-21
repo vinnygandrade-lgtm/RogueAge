@@ -1698,20 +1698,34 @@
 
                 <div id="expedition-hub" class="expedition-hub">
                     <div class="expedition-hub__panel">
-                        <div class="expedition-hub__scroll">
-                            <div class="expedition-hub__crest" aria-hidden="true">♾️</div>
-                            <div class="expedition-hub__eyebrow" data-i18n="game.hunt.expedition.hubEyebrow">Roguelike hunt</div>
-                            <h3 class="expedition-hub__title" data-i18n="game.hunt.expedition.hubTitle">Zone Expedition</h3>
-                            <p class="expedition-hub__desc" data-i18n="game.hunt.expedition.hubDesc">Infinite journeys — pick a path each step. Win fights to choose upgrade cards. Extract to keep 100% of your bag.</p>
-                            <div class="expedition-hub__features">
-                                <span class="expedition-hub__feature"><span aria-hidden="true">🃏</span><span data-i18n="game.hunt.expedition.hubFeaturePaths">3 paths</span></span>
-                                <span class="expedition-hub__feature"><span aria-hidden="true">⬆️</span><span data-i18n="game.hunt.expedition.hubFeatureUpgrades">Run upgrades</span></span>
-                                <span class="expedition-hub__feature"><span aria-hidden="true">🎒</span><span data-i18n="game.hunt.expedition.hubFeatureExtract">Extract 100%</span></span>
+                        <div class="expedition-hub__brief">
+                            <div class="expedition-hub__zone-card">
+                                <div class="expedition-hub__zone-grade" id="expedition-hub-grade">NG</div>
+                                <div class="expedition-hub__zone-meta">
+                                    <span class="expedition-hub__zone-kicker" data-i18n="game.hunt.expedition.hubZoneLabel">Trailhead</span>
+                                    <h3 class="expedition-hub__zone-name" id="expedition-hub-zone-name">Talking Island</h3>
+                                    <p class="expedition-hub__zone-level" id="expedition-hub-zone-level"></p>
+                                </div>
+                            </div>
+                            <p class="expedition-hub__desc" data-i18n="game.hunt.expedition.hubDesc">Pick a path each journey, grow stronger as you go, and extract when the bag is worth the risk.</p>
+                            <div class="expedition-hub__steps" role="list">
+                                <div class="expedition-hub__step" role="listitem">
+                                    <span class="expedition-hub__step-num" aria-hidden="true">1</span>
+                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep1">Choose a path</span>
+                                </div>
+                                <div class="expedition-hub__step" role="listitem">
+                                    <span class="expedition-hub__step-num" aria-hidden="true">2</span>
+                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep2">Fight for upgrades</span>
+                                </div>
+                                <div class="expedition-hub__step" role="listitem">
+                                    <span class="expedition-hub__step-num" aria-hidden="true">3</span>
+                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep3">Extract to keep the bag</span>
+                                </div>
                             </div>
                         </div>
                         <div class="expedition-hub__actions">
                             <button id="btn-iniciar-caca" type="button" class="btn-l2 expedition-hub__begin" data-i18n="game.hunt.expedition.startBtn">Begin Expedition</button>
-                            <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">View rules</button>
+                            <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">How it works</button>
                         </div>
                     </div>
                 </div>
