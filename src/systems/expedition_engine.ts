@@ -307,6 +307,7 @@ export class ExpeditionEngine {
 
     static pendingPathIndex: number | null = null;
     static pendingUpgradeOptions: UpgradeDef[] = [];
+    static _upgradePickLocked = false;
     static lastCombatLoot: ExpeditionBagDelta | null = null;
     static _resultSkipsAdvance = false;
     static _forestLayoutMode: 'hub' | 'map' | 'combat' | 'idle' = 'idle';
@@ -1832,41 +1833,60 @@ export class ExpeditionEngine {
         return picks;
     }
 
+    static formatUpgradeEffect(up: UpgradeDef): { valueText: string; statLabel: string; tone: string } {
+        const negative = up.stat === 'poisonResPct' || up.stat === 'bleedResPct' || up.stat === 'mpCostReductionPct';
+        const valueText = negative ? `−${up.value}%` : `+${up.value}%`;
+        const statLabel = this.runStatLabel(up.stat);
+        const tone = up.legendary ? 'legend' : (negative ? 'guard' : 'power');
+        return { valueText, statLabel, tone };
+    }
+
+    static buildUpgradeLootMetricsHtml(loot: ExpeditionBagDelta): string {
+        const labAdena = this.t('game.hunt.expedition.resultAdena', 'Adena');
+        const labXp = this.t('game.hunt.expedition.resultXp', 'XP');
+        const labDrops = this.t('game.hunt.expedition.bagRiskDropsLabel', 'Drops');
+        const adenas = Math.max(0, Math.floor(Number(loot.adenas) || 0));
+        const xp = Math.max(0, Math.floor(Number(loot.xp) || 0));
+        const drops = loot.drops || {};
+        const dropStacks = Object.keys(drops).reduce((n, k) => n + Math.max(0, Math.floor(Number(drops[k]) || 0)), 0);
+        if (!adenas && !xp && !dropStacks) {
+            return `<span class="exp-upgrade-loot-empty">${this.t('game.hunt.expedition.upgradeNoLoot', 'Fight cleared.')}</span>`;
+        }
+        return `
+            <div class="exp-upgrade-metric exp-upgrade-metric--adena"><strong>+${adenas.toLocaleString()}</strong><em>${labAdena}</em></div>
+            <div class="exp-upgrade-metric exp-upgrade-metric--xp"><strong>+${xp.toLocaleString()}</strong><em>${labXp}</em></div>
+            <div class="exp-upgrade-metric exp-upgrade-metric--drop"><strong>${dropStacks}</strong><em>${labDrops}</em></div>`;
+    }
+
+    static buildUpgradeCardHtml(up: UpgradeDef, idx: number): string {
+        const effect = this.formatUpgradeEffect(up);
+        const legend = up.legendary
+            ? `<span class="exp-upgrade-card__legend">${this.t('game.hunt.expedition.upgradeLegendBadge', 'LEGENDARY')}</span>`
+            : '';
+        return `<button type="button" class="exp-upgrade-card exp-upgrade-card--${up.id} exp-upgrade-card--${effect.tone}${up.legendary ? ' exp-upgrade-card--legendary' : ''}" onclick="ExpeditionEngine.pickUpgrade(${idx})">
+            ${legend}
+            <span class="exp-upgrade-card__icon" aria-hidden="true">${up.icon}</span>
+            <span class="exp-upgrade-card__effect">${effect.valueText}</span>
+            <span class="exp-upgrade-card__stat">${effect.statLabel}</span>
+            <span class="exp-upgrade-card__title">${this.t(up.titleKey, up.titleFallback)}</span>
+            <span class="exp-upgrade-card__pick">${this.t('game.hunt.expedition.upgradePick', 'Select')}</span>
+        </button>`;
+    }
+
     static showUpgradeModal(loot: ExpeditionBagDelta) {
         const win = window as any;
+        this._upgradePickLocked = false;
         this.pendingUpgradeOptions = this.rollUpgradeOptions(3);
         this.lastCombatLoot = loot;
 
         const lootEl = document.getElementById('exp-upgrade-loot');
-        if (lootEl) {
-            const labAdena = this.t('game.hunt.expedition.resultAdena', 'Adena');
-            const labXp = this.t('game.hunt.expedition.resultXp', 'XP');
-            let html = '';
-            if (loot.adenas) html += this.buildResultLine(labAdena, this.formatSigned(loot.adenas), 'exp-result-line__val--adena');
-            if (loot.xp) html += this.buildResultLine(labXp, this.formatSigned(loot.xp), 'exp-result-line__val--xp');
-            if (loot.drops) {
-                for (const item in loot.drops) {
-                    if (loot.drops[item] > 0) {
-                        html += this.buildResultLine(itemDropDisplayName(item), `x${loot.drops[item]}`, 'exp-result-line__val--drop');
-                    }
-                }
-            }
-            lootEl.innerHTML = html || `<span class="exp-upgrade-loot-empty">${this.t('game.hunt.expedition.upgradeNoLoot', 'Fight cleared.')}</span>`;
-        }
+        if (lootEl) lootEl.innerHTML = this.buildUpgradeLootMetricsHtml(loot);
 
         const grid = document.getElementById('exp-upgrade-cards');
         if (grid) {
-            grid.innerHTML = this.pendingUpgradeOptions.map((up, idx) => `
-                <button type="button" class="exp-upgrade-card exp-upgrade-card--${up.id}${up.legendary ? ' exp-upgrade-card--legendary' : ''}" onclick="ExpeditionEngine.pickUpgrade(${idx})">
-                    ${up.legendary ? `<span class="exp-upgrade-card__legend">${this.t('game.hunt.expedition.upgradeLegendBadge', 'LEGENDARY')}</span>` : ''}
-                    <span class="exp-upgrade-card__icon">${up.icon}</span>
-                    <span class="exp-upgrade-card__body">
-                        <span class="exp-upgrade-card__title">${this.t(up.titleKey, up.titleFallback)}</span>
-                        <span class="exp-upgrade-card__desc">${this.t(up.descKey, up.descFallback)}</span>
-                    </span>
-                    <span class="exp-upgrade-card__pick">${this.t('game.hunt.expedition.upgradePick', 'Pick')}</span>
-                </button>
-            `).join('');
+            grid.innerHTML = this.pendingUpgradeOptions
+                .map((up, idx) => this.buildUpgradeCardHtml(up, idx))
+                .join('');
         }
 
         const titleEl = document.getElementById('exp-upgrade-title');
@@ -1882,6 +1902,8 @@ export class ExpeditionEngine {
         this.setForestLayoutMode('map');
 
         if (typeof win.abrirModal === 'function') win.abrirModal('janela-expedition-upgrade', 1600);
+        const scrollEl = document.querySelector('#janela-expedition-upgrade .exp-upgrade-scroll') as HTMLElement | null;
+        if (scrollEl) scrollEl.scrollTop = 0;
         this.persistRun({ silent: true });
     }
 
@@ -1894,8 +1916,10 @@ export class ExpeditionEngine {
     }
 
     static pickUpgrade(index: number) {
+        if (this._upgradePickLocked) return;
         const up = this.pendingUpgradeOptions[index];
         if (!up) return;
+        this._upgradePickLocked = true;
 
         this.state.runBuffs[up.stat] += up.value;
         this.state.runStats.upgradesTaken += 1;
@@ -1908,6 +1932,7 @@ export class ExpeditionEngine {
         if (typeof win.atualizar === 'function') win.atualizar();
 
         this.advanceJourney();
+        this._upgradePickLocked = false;
     }
 
     static syncNavigationLock() {

@@ -163,9 +163,11 @@
         width: 98%;
         max-height: 80vh;
     }
-    /* Victory needs the full recap (loot + expedition chips) — don't clip to 80vh */
+    /* Victory / upgrade need full content — don't clip to 80vh */
     #janela-vitoria.store-window,
-    #janela-vitoria.vitoria-window {
+    #janela-vitoria.vitoria-window,
+    #janela-expedition-upgrade.store-window,
+    #janela-expedition-upgrade.expedition-upgrade-window {
         max-height: min(94dvh, 720px);
     }
     .store-items-grid {

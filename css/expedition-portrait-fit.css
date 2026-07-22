@@ -617,32 +617,53 @@ html:not([data-l2-layout="landscape"]) .expedition-rules-legend__list li {
 }
 
 html:not([data-l2-layout="landscape"]) .exp-upgrade-card {
-    min-height: 64px;
-    padding: 8px;
-    gap: 8px;
+    min-height: 70px;
+    padding: 10px 10px 10px 8px;
+    column-gap: 8px;
 }
 
 html:not([data-l2-layout="landscape"]) .exp-upgrade-card__icon {
     font-size: 22px;
-    width: 28px;
+}
+
+html:not([data-l2-layout="landscape"]) .exp-upgrade-card__effect {
+    font-size: 18px;
+}
+
+html:not([data-l2-layout="landscape"]) .exp-upgrade-card__stat {
+    font-size: 9px;
 }
 
 html:not([data-l2-layout="landscape"]) .exp-upgrade-card__title {
-    font-size: 11px;
-}
-
-html:not([data-l2-layout="landscape"]) .exp-upgrade-card__desc {
-    font-size: 10px;
+    font-size: 10.5px;
 }
 
 html:not([data-l2-layout="landscape"]) .exp-upgrade-card__pick {
-    padding: 6px 8px;
-    font-size: 8px;
+    padding: 9px 10px;
+    font-size: 9px;
+    min-width: 64px;
+    text-align: center;
 }
 
 html:not([data-l2-layout="landscape"]) .exp-upgrade-loot-panel {
     padding: 8px;
-    margin-bottom: 8px;
+}
+
+html:not([data-l2-layout="landscape"]) #janela-expedition-upgrade.expedition-upgrade-window {
+    max-height: min(94dvh, 720px);
+}
+
+html:not([data-l2-layout="landscape"]) #janela-expedition-upgrade .exp-upgrade-scroll {
+    padding: 10px 10px 12px;
+    gap: 8px;
+}
+
+html:not([data-l2-layout="landscape"]) #janela-expedition-upgrade .exp-upgrade-intro {
+    font-size: 11px;
+}
+
+html:not([data-l2-layout="landscape"]) #janela-expedition-upgrade .exp-upgrade-cards {
+    gap: 7px;
 }
 
 html:not([data-l2-layout="landscape"]) .expedition-node-window .exp-node-actions,

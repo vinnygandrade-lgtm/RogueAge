@@ -796,14 +796,17 @@
     </div>
 
     <div id="janela-expedition-upgrade" class="store-window expedition-upgrade-window" style="display:none;">
-        <div class="store-header expedition-upgrade-window__header"><span id="exp-upgrade-title">Choose your upgrade</span></div>
+        <div class="store-header expedition-upgrade-window__header"><span id="exp-upgrade-title" data-i18n="game.hunt.expedition.upgradeTitle">Choose your upgrade</span></div>
         <div class="store-body expedition-upgrade-body">
-            <p class="exp-upgrade-intro" data-i18n="game.hunt.expedition.upgradeIntro">Victory! Pick one run upgrade — it lasts until you extract or die.</p>
-            <div class="exp-upgrade-loot-panel">
-                <div class="exp-upgrade-loot-panel__label" data-i18n="game.hunt.expedition.upgradeLootLabel">Secured in bag</div>
-                <div id="exp-upgrade-loot" class="exp-upgrade-loot"></div>
+            <div class="exp-upgrade-scroll">
+                <p class="exp-upgrade-intro" data-i18n="game.hunt.expedition.upgradeIntroShort">Pick one boost — lasts until you extract or die.</p>
+                <div class="exp-upgrade-loot-panel">
+                    <div class="exp-upgrade-loot-panel__label" data-i18n="game.hunt.expedition.upgradeLootLabel">Fight loot</div>
+                    <div id="exp-upgrade-loot" class="exp-upgrade-loot-metrics" aria-live="polite"></div>
+                </div>
+                <div class="exp-upgrade-pick-label" data-i18n="game.hunt.expedition.upgradePickLabel">Choose 1 of 3</div>
+                <div id="exp-upgrade-cards" class="exp-upgrade-cards"></div>
             </div>
-            <div id="exp-upgrade-cards" class="exp-upgrade-cards"></div>
         </div>
     </div>
 
