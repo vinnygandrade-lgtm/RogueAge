@@ -358,12 +358,17 @@ setInterval(() => {
     const hpRegenMult = expeditionActive && typeof expEng.getHpRegenMult === 'function'
         ? expEng.getHpRegenMult()
         : 1;
+    const mpRegenMult = expeditionActive && typeof expEng.getMpRegenMult === 'function'
+        ? expEng.getMpRegenMult()
+        : 1;
 
     if (window.playerHP < maxHp || window.playerMP < maxMp || window.playerCP < maxCp) {
         if (window.playerHP < maxHp) {
             window.playerHP = Math.min(maxHp, window.playerHP + Math.max(1, Math.floor(maxHp * 0.05 * hpRegenMult)));
         }
-        window.playerMP = Math.min(maxMp, window.playerMP + Math.max(1, Math.floor(maxMp * 0.05)));
+        if (window.playerMP < maxMp) {
+            window.playerMP = Math.min(maxMp, window.playerMP + Math.max(1, Math.floor(maxMp * 0.05 * mpRegenMult)));
+        }
         window.playerCP = Math.min(maxCp, window.playerCP + Math.max(1, Math.floor(maxCp * 0.03)));
         atualizar();
     }

@@ -5510,11 +5510,14 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
 .exp-upgrade-card--crit,
 .exp-upgrade-card--speed,
 .exp-upgrade-card--pdef,
+.exp-upgrade-card--mdef,
 .exp-upgrade-card--vitality,
 .exp-upgrade-card--poison_res,
 .exp-upgrade-card--bleed_res,
 .exp-upgrade-card--hp_regen,
-.exp-upgrade-card--mp_efficiency {
+.exp-upgrade-card--mp_regen,
+.exp-upgrade-card--mp_efficiency,
+.exp-upgrade-card--skill_cdr {
     border-left-width: 3px;
 }
 .exp-upgrade-card--patk { border-left-color: #f87171; }
@@ -5522,11 +5525,14 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
 .exp-upgrade-card--crit { border-left-color: #facc15; }
 .exp-upgrade-card--speed { border-left-color: #38bdf8; }
 .exp-upgrade-card--pdef { border-left-color: #6ee7b7; }
+.exp-upgrade-card--mdef { border-left-color: #a78bfa; }
 .exp-upgrade-card--vitality { border-left-color: #fb923c; }
 .exp-upgrade-card--poison_res { border-left-color: #86efac; }
 .exp-upgrade-card--bleed_res { border-left-color: #fca5a5; }
 .exp-upgrade-card--hp_regen { border-left-color: #4ade80; }
+.exp-upgrade-card--mp_regen { border-left-color: #60a5fa; }
 .exp-upgrade-card--mp_efficiency { border-left-color: #7dd3fc; }
+.exp-upgrade-card--skill_cdr { border-left-color: #fbbf24; }
 .exp-upgrade-card--legendary {
     border-color: rgba(250, 204, 21, 0.55);
     background:

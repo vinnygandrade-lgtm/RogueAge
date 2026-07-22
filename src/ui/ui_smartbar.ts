@@ -300,7 +300,14 @@ function syncExpeditionHotbarDockIfNeeded(): void {
 function getSkillCdTotal(nomeSlot: string): number {
   if (nomeSlot === 'Attack') return window.playerStats?.atkSpeed ?? 1000;
   const skill = window.bancoDeSkills?.[nomeSlot];
-  if (skill?.cd) return skill.cd;
+  if (skill?.cd) {
+    const base = skill.cd;
+    const eng = window.ExpeditionEngine as { getSkillCooldownMs?: (n: number) => number } | undefined;
+    if (eng && typeof eng.getSkillCooldownMs === 'function') {
+      return eng.getSkillCooldownMs(base);
+    }
+    return base;
+  }
   if (nomeSlot.includes('Potion')) return 15000;
   return 1000;
 }

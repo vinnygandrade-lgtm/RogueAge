@@ -36,6 +36,7 @@ export interface ExpeditionRunBuffs {
     pAtkPct: number;
     mAtkPct: number;
     pDefPct: number;
+    mDefPct: number;
     critRatePct: number;
     atkSpeedPct: number;
     maxHpPct: number;
@@ -43,8 +44,12 @@ export interface ExpeditionRunBuffs {
     bleedResPct: number;
     /** Bonus to passive HP regen ticks during the run (+10% per card, capped). */
     hpRegenPct: number;
+    /** Bonus to passive MP regen ticks during the run (+10% per card, capped). */
+    mpRegenPct: number;
     /** Reduces skill MP cost during the run (−15% per card, capped at 60% total). */
     mpCostReductionPct: number;
+    /** Reduces skill cooldown during the run (−12% per card, capped at 50% total). */
+    skillCdReductionPct: number;
 }
 
 export interface ExpeditionPathChoice {
@@ -199,6 +204,16 @@ const UPGRADE_POOL: UpgradeDef[] = [
         descFallback: '+7% P.Def for this run'
     },
     {
+        id: 'mdef',
+        icon: '🔮',
+        stat: 'mDefPct',
+        value: 7,
+        titleKey: 'game.hunt.expedition.upgradeMdefTitle',
+        titleFallback: 'Spell Ward',
+        descKey: 'game.hunt.expedition.upgradeMdefDesc',
+        descFallback: '+7% M.Def for this run'
+    },
+    {
         id: 'vitality',
         icon: '❤️',
         stat: 'maxHpPct',
@@ -239,6 +254,16 @@ const UPGRADE_POOL: UpgradeDef[] = [
         descFallback: '+10% HP regeneration during this run (map and combat)'
     },
     {
+        id: 'mp_regen',
+        icon: '💙',
+        stat: 'mpRegenPct',
+        value: 10,
+        titleKey: 'game.hunt.expedition.upgradeMpRegenTitle',
+        titleFallback: 'Mana Flow',
+        descKey: 'game.hunt.expedition.upgradeMpRegenDesc',
+        descFallback: '+10% MP regeneration during this run (map and combat)'
+    },
+    {
         id: 'mp_efficiency',
         icon: '🔷',
         stat: 'mpCostReductionPct',
@@ -247,6 +272,16 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleFallback: 'Arcane Efficiency',
         descKey: 'game.hunt.expedition.upgradeMpEfficiencyDesc',
         descFallback: '−15% MP cost on skills for this run'
+    },
+    {
+        id: 'skill_cdr',
+        icon: '⏱️',
+        stat: 'skillCdReductionPct',
+        value: 12,
+        titleKey: 'game.hunt.expedition.upgradeSkillCdrTitle',
+        titleFallback: 'Swift Cast',
+        descKey: 'game.hunt.expedition.upgradeSkillCdrDesc',
+        descFallback: '−12% skill cooldown for this run'
     }
 ];
 
@@ -889,13 +924,16 @@ export class ExpeditionEngine {
             pAtkPct: 0,
             mAtkPct: 0,
             pDefPct: 0,
+            mDefPct: 0,
             critRatePct: 0,
             atkSpeedPct: 0,
             maxHpPct: 0,
             poisonResPct: 0,
             bleedResPct: 0,
             hpRegenPct: 0,
-            mpCostReductionPct: 0
+            mpRegenPct: 0,
+            mpCostReductionPct: 0,
+            skillCdReductionPct: 0
         };
     }
 
@@ -906,6 +944,13 @@ export class ExpeditionEngine {
         return 1 + pct / 100;
     }
 
+    /** Passive MP regen multiplier during an active run (1.0 = base, 1.1 = +10% card). */
+    static getMpRegenMult(): number {
+        if (!this.isRunEffectsActive()) return 1;
+        const pct = Math.min(100, Math.max(0, Number(this.state.runBuffs.mpRegenPct) || 0));
+        return 1 + pct / 100;
+    }
+
     /** Effective MP cost for a skill during an active expedition run (min 1 when base > 0). */
     static getSkillMpCost(baseMp: number): number {
         const base = Math.max(0, Math.floor(Number(baseMp) || 0));
@@ -913,6 +958,15 @@ export class ExpeditionEngine {
         if (!this.isRunEffectsActive()) return base;
         const pct = Math.min(60, Math.max(0, Number(this.state.runBuffs.mpCostReductionPct) || 0));
         return Math.max(1, Math.floor(base * (1 - pct / 100)));
+    }
+
+    /** Effective skill cooldown (ms) during an active expedition run (min 250ms when base > 0). */
+    static getSkillCooldownMs(baseMs: number): number {
+        const base = Math.max(0, Math.floor(Number(baseMs) || 0));
+        if (!base) return 0;
+        if (!this.isRunEffectsActive()) return base;
+        const pct = Math.min(50, Math.max(0, Number(this.state.runBuffs.skillCdReductionPct) || 0));
+        return Math.max(250, Math.floor(base * (1 - pct / 100)));
     }
 
     static emptyRunEnchantBonus(): ExpeditionRunEnchantBonus {
@@ -1154,7 +1208,8 @@ export class ExpeditionEngine {
 
     static rollRandomRunStat(): keyof ExpeditionRunBuffs {
         const statKeys: (keyof ExpeditionRunBuffs)[] = [
-            'pAtkPct', 'mAtkPct', 'pDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct', 'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpCostReductionPct'
+            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct',
+            'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpRegenPct', 'mpCostReductionPct', 'skillCdReductionPct'
         ];
         return statKeys[Math.floor(Math.random() * statKeys.length)];
     }
@@ -1164,16 +1219,27 @@ export class ExpeditionEngine {
             pAtkPct: ['game.hunt.expedition.runStatPatk', 'P.Atk'],
             mAtkPct: ['game.hunt.expedition.runStatMatk', 'M.Atk'],
             pDefPct: ['game.hunt.expedition.runStatPdef', 'P.Def'],
+            mDefPct: ['game.hunt.expedition.runStatMdef', 'M.Def'],
             critRatePct: ['game.hunt.expedition.runStatCrit', 'Crit'],
             atkSpeedPct: ['game.hunt.expedition.runStatSpd', 'Spd'],
             maxHpPct: ['game.hunt.expedition.runStatHp', 'HP'],
             poisonResPct: ['game.hunt.expedition.runStatPoisonRes', 'Poison res'],
             bleedResPct: ['game.hunt.expedition.runStatBleedRes', 'Bleed res'],
             hpRegenPct: ['game.hunt.expedition.runStatHpRegen', 'HP regen'],
-            mpCostReductionPct: ['game.hunt.expedition.runStatMpEfficiency', 'MP cost']
+            mpRegenPct: ['game.hunt.expedition.runStatMpRegen', 'MP regen'],
+            mpCostReductionPct: ['game.hunt.expedition.runStatMpEfficiency', 'MP cost'],
+            skillCdReductionPct: ['game.hunt.expedition.runStatSkillCdr', 'Skill CD']
         };
         const [key, fb] = labels[stat];
         return this.t(key, fb);
+    }
+
+    /** Stats that display as reductions (−%) on chips / cards. */
+    static isNegativeRunBuffStat(stat: keyof ExpeditionRunBuffs): boolean {
+        return stat === 'poisonResPct'
+            || stat === 'bleedResPct'
+            || stat === 'mpCostReductionPct'
+            || stat === 'skillCdReductionPct';
     }
 
     /** Three path cards per journey — fight routes vs safe loot. Journey 10/20/… = mandatory boss gate. */
@@ -1302,12 +1368,13 @@ export class ExpeditionEngine {
         };
     }
 
-    static getRunBuffMults(): { pAtk: number; mAtk: number; pDef: number; crit: number; atkSpeed: number; maxHp: number } {
+    static getRunBuffMults(): { pAtk: number; mAtk: number; pDef: number; mDef: number; crit: number; atkSpeed: number; maxHp: number } {
         const b = this.state.runBuffs;
         return {
             pAtk: 1 + b.pAtkPct / 100,
             mAtk: 1 + b.mAtkPct / 100,
             pDef: 1 + b.pDefPct / 100,
+            mDef: 1 + b.mDefPct / 100,
             crit: 1 + b.critRatePct / 100,
             atkSpeed: Math.max(0.5, 1 - b.atkSpeedPct / 100),
             maxHp: 1 + b.maxHpPct / 100
@@ -1323,6 +1390,7 @@ export class ExpeditionEngine {
             pAtk: ps.pAtk,
             mAtk: ps.mAtk,
             pDef: ps.pDef,
+            mDef: ps.mDef,
             critRate: ps.critRate,
             atkSpeed: ps.atkSpeed,
             maxHp: ps.maxHp
@@ -1331,6 +1399,7 @@ export class ExpeditionEngine {
         ps.pAtk = buffed.pAtk;
         ps.mAtk = buffed.mAtk;
         ps.pDef = buffed.pDef;
+        ps.mDef = buffed.mDef;
         ps.critRate = buffed.critRate;
         ps.atkSpeed = buffed.atkSpeed;
         ps.maxHp = buffed.maxHp;
@@ -1346,6 +1415,7 @@ export class ExpeditionEngine {
         pAtk: number;
         mAtk: number;
         pDef: number;
+        mDef: number;
         critRate: number;
         atkSpeed: number;
         maxHp: number;
@@ -1356,6 +1426,7 @@ export class ExpeditionEngine {
             pAtk: Math.floor(base.pAtk * m.pAtk),
             mAtk: Math.floor(base.mAtk * m.mAtk),
             pDef: Math.floor(base.pDef * m.pDef),
+            mDef: Math.floor(base.mDef * m.mDef),
             critRate: typeof win.applyCritRateCap === 'function'
                 ? win.applyCritRateCap(Math.floor(base.critRate * m.crit))
                 : Math.min(70, Math.floor(base.critRate * m.crit)),
@@ -1366,7 +1437,7 @@ export class ExpeditionEngine {
 
     static getUpgradeStatSnapshot(): {
         base: { pAtk: number; mAtk: number; pDef: number; mDef: number; critRate: number; atkSpeed: number; maxHp: number };
-        total: { pAtk: number; mAtk: number; pDef: number; critRate: number; atkSpeed: number; maxHp: number };
+        total: { pAtk: number; mAtk: number; pDef: number; mDef: number; critRate: number; atkSpeed: number; maxHp: number };
     } {
         const win = window as any;
         this._skipRunBuffApply = true;
@@ -1417,7 +1488,7 @@ export class ExpeditionEngine {
         ];
         const defenseRows = [
             { label: this.t('game.hunt.expedition.upgradeStatPdef', 'P.Def'), baseVal: base.pDef, totalVal: total.pDef },
-            { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, totalVal: base.mDef, noRunBuff: true },
+            { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, totalVal: total.mDef },
             { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, totalVal: total.maxHp }
         ];
 
@@ -1461,9 +1532,12 @@ export class ExpeditionEngine {
             ['mAtkPct', '✨', 'offense'],
             ['critRatePct', '🎯', 'offense'],
             ['atkSpeedPct', '💨', 'offense'],
+            ['skillCdReductionPct', '⏱️', 'offense'],
             ['pDefPct', '🛡️', 'defense'],
+            ['mDefPct', '🔮', 'defense'],
             ['maxHpPct', '❤️', 'defense'],
             ['hpRegenPct', '💚', 'regen'],
+            ['mpRegenPct', '💙', 'regen'],
             ['poisonResPct', '☠️', 'resist'],
             ['bleedResPct', '🩸', 'resist'],
             ['mpCostReductionPct', '🔷', 'resist']
@@ -1471,7 +1545,7 @@ export class ExpeditionEngine {
         for (const [stat, icon, tone] of pctLines) {
             const val = b[stat];
             if (!val) continue;
-            const isRes = stat === 'poisonResPct' || stat === 'bleedResPct' || stat === 'mpCostReductionPct';
+            const isRes = this.isNegativeRunBuffStat(stat);
             const valText = `${isRes ? '−' : '+'}${val}%`;
             chips.push(`<span class="exp-run-upgrade-chip exp-run-upgrade-chip--${tone}">
                 <span class="exp-run-upgrade-chip__icon" aria-hidden="true">${icon}</span>
@@ -1509,7 +1583,7 @@ export class ExpeditionEngine {
             { label: this.t('game.hunt.expedition.upgradeStatPatk', 'P.Atk'), baseVal: base.pAtk, bonus: total.pAtk - base.pAtk },
             { label: this.t('game.hunt.expedition.upgradeStatMatk', 'M.Atk'), baseVal: base.mAtk, bonus: total.mAtk - base.mAtk },
             { label: this.t('game.hunt.expedition.upgradeStatPdef', 'P.Def'), baseVal: base.pDef, bonus: total.pDef - base.pDef },
-            { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, totalOnly: true },
+            { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, bonus: total.mDef - base.mDef },
             { label: this.t('game.hunt.expedition.upgradeStatCrit', 'Crit'), baseVal: base.critRate, bonus: total.critRate - base.critRate },
             { label: this.t('game.hunt.expedition.upgradeStatSpd', 'Atk Spd'), baseVal: base.atkSpeed, bonus: total.atkSpeed - base.atkSpeed },
             { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, bonus: total.maxHp - base.maxHp }
@@ -1535,18 +1609,21 @@ export class ExpeditionEngine {
             ['pAtkPct', '⚔️'],
             ['mAtkPct', '✨'],
             ['pDefPct', '🛡️'],
+            ['mDefPct', '🔮'],
             ['critRatePct', '🎯'],
             ['atkSpeedPct', '💨'],
             ['maxHpPct', '❤️'],
             ['hpRegenPct', '💚'],
+            ['mpRegenPct', '💙'],
             ['poisonResPct', '☠️'],
             ['bleedResPct', '🩸'],
-            ['mpCostReductionPct', '🔷']
+            ['mpCostReductionPct', '🔷'],
+            ['skillCdReductionPct', '⏱️']
         ];
         for (const [stat, icon] of pctLines) {
             const val = b[stat];
             if (!val) continue;
-            const isRes = stat === 'poisonResPct' || stat === 'bleedResPct' || stat === 'mpCostReductionPct';
+            const isRes = this.isNegativeRunBuffStat(stat);
             lines.push(`${icon} ${isRes ? '−' : '+'}${val}% ${this.runStatLabel(stat)}`);
         }
         const en = this.state.runEnchantBonus;
@@ -1834,7 +1911,7 @@ export class ExpeditionEngine {
     }
 
     static formatUpgradeEffect(up: UpgradeDef): { valueText: string; statLabel: string; tone: string } {
-        const negative = up.stat === 'poisonResPct' || up.stat === 'bleedResPct' || up.stat === 'mpCostReductionPct';
+        const negative = this.isNegativeRunBuffStat(up.stat);
         const valueText = negative ? `−${up.value}%` : `+${up.value}%`;
         const statLabel = this.runStatLabel(up.stat);
         const tone = up.legendary ? 'legend' : (negative ? 'guard' : 'power');
@@ -2403,11 +2480,14 @@ export class ExpeditionEngine {
         if (b.critRatePct) chips.push(`🎯 +${b.critRatePct}%`);
         if (b.atkSpeedPct) chips.push(`💨 +${b.atkSpeedPct}%`);
         if (b.pDefPct) chips.push(`🛡️ +${b.pDefPct}%`);
+        if (b.mDefPct) chips.push(`🔮 +${b.mDefPct}%`);
         if (b.maxHpPct) chips.push(`❤️ +${b.maxHpPct}%`);
         if (b.hpRegenPct) chips.push(`💚 +${b.hpRegenPct}% regen`);
+        if (b.mpRegenPct) chips.push(`💙 +${b.mpRegenPct}% MP regen`);
         if (b.poisonResPct) chips.push(`☠️ -${b.poisonResPct}%`);
         if (b.bleedResPct) chips.push(`🩸 -${b.bleedResPct}%`);
         if (b.mpCostReductionPct) chips.push(`🔷 -${b.mpCostReductionPct}% MP`);
+        if (b.skillCdReductionPct) chips.push(`⏱️ -${b.skillCdReductionPct}% CD`);
         const enchantHtml = this.buildRunEnchantChipsHtml();
         if (chips.length === 0 && !enchantHtml) {
             return `<span class="expedition-run-buffs__empty">${this.t('game.hunt.expedition.runBuffsEmpty', 'No run upgrades yet — win fights to grow stronger.')}</span>`;
@@ -2597,7 +2677,8 @@ export class ExpeditionEngine {
             default: {
                 this.state.luckLegendaryNext = true;
                 const statKeys: (keyof ExpeditionRunBuffs)[] = [
-                    'pAtkPct', 'mAtkPct', 'pDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct', 'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpCostReductionPct'
+                    'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct',
+                    'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpRegenPct', 'mpCostReductionPct', 'skillCdReductionPct'
                 ];
                 const stat = statKeys[Math.floor(Math.random() * statKeys.length)];
                 this.state.runBuffs[stat] += 6;
@@ -2653,11 +2734,14 @@ export class ExpeditionEngine {
         if (runBuffs.critRatePct) buffParts.push(`+${runBuffs.critRatePct}% Crit`);
         if (runBuffs.atkSpeedPct) buffParts.push(`+${runBuffs.atkSpeedPct}% Spd`);
         if (runBuffs.pDefPct) buffParts.push(`+${runBuffs.pDefPct}% P.Def`);
+        if (runBuffs.mDefPct) buffParts.push(`+${runBuffs.mDefPct}% M.Def`);
         if (runBuffs.maxHpPct) buffParts.push(`+${runBuffs.maxHpPct}% ${this.runStatLabel('maxHpPct')}`);
         if (runBuffs.hpRegenPct) buffParts.push(`+${runBuffs.hpRegenPct}% ${this.runStatLabel('hpRegenPct')}`);
+        if (runBuffs.mpRegenPct) buffParts.push(`+${runBuffs.mpRegenPct}% ${this.runStatLabel('mpRegenPct')}`);
         if (runBuffs.poisonResPct) buffParts.push(`-${runBuffs.poisonResPct}% ${this.runStatLabel('poisonResPct')}`);
         if (runBuffs.bleedResPct) buffParts.push(`-${runBuffs.bleedResPct}% ${this.runStatLabel('bleedResPct')}`);
         if (runBuffs.mpCostReductionPct) buffParts.push(`-${runBuffs.mpCostReductionPct}% ${this.runStatLabel('mpCostReductionPct')}`);
+        if (runBuffs.skillCdReductionPct) buffParts.push(`-${runBuffs.skillCdReductionPct}% ${this.runStatLabel('skillCdReductionPct')}`);
         const forgeSummary = this.buildRunEnchantSummaryText();
         if (forgeSummary) parts.push(forgeSummary);
         if (buffParts.length) {

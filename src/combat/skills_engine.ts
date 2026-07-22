@@ -43,6 +43,16 @@ function resolveSkillMpCost(baseMp: number): number {
     return base;
 }
 
+function resolveSkillCooldownMs(baseMs: number): number {
+    const base = Math.max(0, Math.floor(Number(baseMs) || 0));
+    if (!base) return 0;
+    const eng = (window as Window & { ExpeditionEngine?: { getSkillCooldownMs?: (n: number) => number } }).ExpeditionEngine;
+    if (eng && typeof eng.getSkillCooldownMs === 'function') {
+        return eng.getSkillCooldownMs(base);
+    }
+    return base;
+}
+
 function usarSkill(nomeSkill: string) {
     if (window.playerHP <= 0) return; 
     if (typeof window.monstrosAtivos === 'undefined' || window.monstrosAtivos.length === 0) return;
@@ -70,7 +80,7 @@ function usarSkill(nomeSkill: string) {
 
     window.globalCooldownAtivo = Date.now() + 1200; 
     window.playerMP -= mpCost;
-    window.dispararAnimacaoCooldown?.(nomeSkill, skill.cd);
+    window.dispararAnimacaoCooldown?.(nomeSkill, resolveSkillCooldownMs(skill.cd));
     if (typeof window.registrarProgressoMissaoDiaria === 'function') {
         window.registrarProgressoMissaoDiaria('usar_skills', 1);
     }
