@@ -770,6 +770,8 @@ export interface ExpeditionRunSave {
   combatOnlyNextJourney: boolean;
   combatOnlyThisJourney: boolean;
   runBuffs: Record<string, number>;
+  /** Locked synergy build id for this run (optional — older saves omit). */
+  activeBuildId?: string | null;
   runEnchantBonus: Record<string, number>;
   runStats: Record<string, number | string | null>;
   journeyTrait: JourneyMobTraitSave;

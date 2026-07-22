@@ -26,6 +26,13 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - Run % buffs and temporary forge enchants **do not** apply in town
 - Resume reapplies them on the expedition map
 
+## Run builds (synergy)
+
+- First completed synergy build locks for the run (`activeBuildId` on `expeditionRun`)
+- Builds: **Swift Caster** (skill CD ≥ 24%), **Spell Fortress** (M.Def ≥ 14% + HP/MP regen ≥ 10%), **Blade Dancer** (Atk Spd ≥ 20% + Crit ≥ 10%)
+- Bonus % live in `buildBonusBuffs` (rebuilt from catalog on load) — separate from card picks
+- Progress chips on run Status + upgrade modal
+
 ## Honesty (§12.7)
 
 Still **client-authoritative** bag credit on extract. Persistence only prevents silent loss on reload/navigation.

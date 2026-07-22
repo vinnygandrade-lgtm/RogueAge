@@ -52,6 +52,25 @@ export interface ExpeditionRunBuffs {
     skillCdReductionPct: number;
 }
 
+/** First completed synergy build locks for the rest of the run (v1). */
+export type ExpeditionBuildId = 'swift_caster' | 'spell_fortress' | 'blade_dancer';
+
+type ExpeditionBuildRequirement =
+    | { kind: 'stat'; stat: keyof ExpeditionRunBuffs; minPct: number }
+    | { kind: 'anyOf'; stats: (keyof ExpeditionRunBuffs)[]; minPct: number };
+
+interface ExpeditionBuildDef {
+    id: ExpeditionBuildId;
+    icon: string;
+    priority: number;
+    titleKey: string;
+    titleFallback: string;
+    bonusKey: string;
+    bonusFallback: string;
+    requirements: ExpeditionBuildRequirement[];
+    bonuses: Partial<Record<keyof ExpeditionRunBuffs, number>>;
+}
+
 export interface ExpeditionPathChoice {
     id: string;
     type: ExpeditionPathType;
@@ -80,6 +99,12 @@ export interface ExpeditionState {
     /** True while the current map step was forced to fights-only (UI hint). */
     combatOnlyThisJourney: boolean;
     runBuffs: ExpeditionRunBuffs;
+    /**
+     * Synergy build locked for this run (first completed wins).
+     * Bonus % live in `buildBonusBuffs` — separate from card picks.
+     */
+    activeBuildId: ExpeditionBuildId | null;
+    buildBonusBuffs: ExpeditionRunBuffs;
     /** Temporary +enchant on equipped gear — reverts when the run ends (cleared on extract). */
     runEnchantBonus: ExpeditionRunEnchantBonus;
     runStats: ExpeditionRunStats;
@@ -151,6 +176,51 @@ const ZONE_REWARD_RATE: Record<string, number> = {
 };
 
 const JOURNEY_TRAITS: JourneyMobTrait[] = ['brutal', 'swift', 'lethal', 'armored', 'frenzied'];
+
+const RUN_BUILD_IDS: ExpeditionBuildId[] = ['swift_caster', 'spell_fortress', 'blade_dancer'];
+
+/** Synergy builds — card picks fill thresholds; first complete locks + grants bonus. */
+const RUN_BUILDS: ExpeditionBuildDef[] = [
+    {
+        id: 'swift_caster',
+        icon: '⚡',
+        priority: 1,
+        titleKey: 'game.hunt.expedition.buildSwiftCaster',
+        titleFallback: 'Swift Caster',
+        bonusKey: 'game.hunt.expedition.buildSwiftCasterBonus',
+        bonusFallback: '+5% M.Atk · −5% skill MP cost',
+        requirements: [{ kind: 'stat', stat: 'skillCdReductionPct', minPct: 24 }],
+        bonuses: { mAtkPct: 5, mpCostReductionPct: 5 }
+    },
+    {
+        id: 'spell_fortress',
+        icon: '🏰',
+        priority: 2,
+        titleKey: 'game.hunt.expedition.buildSpellFortress',
+        titleFallback: 'Spell Fortress',
+        bonusKey: 'game.hunt.expedition.buildSpellFortressBonus',
+        bonusFallback: '+8% Max HP',
+        requirements: [
+            { kind: 'stat', stat: 'mDefPct', minPct: 14 },
+            { kind: 'anyOf', stats: ['hpRegenPct', 'mpRegenPct'], minPct: 10 }
+        ],
+        bonuses: { maxHpPct: 8 }
+    },
+    {
+        id: 'blade_dancer',
+        icon: '🗡️',
+        priority: 3,
+        titleKey: 'game.hunt.expedition.buildBladeDancer',
+        titleFallback: 'Blade Dancer',
+        bonusKey: 'game.hunt.expedition.buildBladeDancerBonus',
+        bonusFallback: '+4% P.Atk',
+        requirements: [
+            { kind: 'stat', stat: 'atkSpeedPct', minPct: 20 },
+            { kind: 'stat', stat: 'critRatePct', minPct: 10 }
+        ],
+        bonuses: { pAtkPct: 4 }
+    }
+];
 
 const UPGRADE_POOL: UpgradeDef[] = [
     {
@@ -558,6 +628,8 @@ export class ExpeditionEngine {
             combatOnlyNextJourney: false,
             combatOnlyThisJourney: false,
             runBuffs: ExpeditionEngine.emptyRunBuffs(),
+            activeBuildId: null,
+            buildBonusBuffs: ExpeditionEngine.emptyRunBuffs(),
             runEnchantBonus: ExpeditionEngine.emptyRunEnchantBonus(),
             runStats: ExpeditionEngine.emptyRunStats(),
             journeyTrait: 'brutal',
@@ -609,6 +681,7 @@ export class ExpeditionEngine {
             combatOnlyNextJourney: !!this.state.combatOnlyNextJourney,
             combatOnlyThisJourney: !!this.state.combatOnlyThisJourney,
             runBuffs: { ...this.state.runBuffs },
+            activeBuildId: this.state.activeBuildId,
             runEnchantBonus: { ...this.state.runEnchantBonus },
             runStats: { ...this.state.runStats },
             journeyTrait: this.state.journeyTrait,
@@ -727,6 +800,8 @@ export class ExpeditionEngine {
             combatOnlyNextJourney: !!raw.combatOnlyNextJourney,
             combatOnlyThisJourney: !!raw.combatOnlyThisJourney,
             runBuffs: baseBuffs,
+            activeBuildId: null,
+            buildBonusBuffs: this.emptyRunBuffs(),
             runEnchantBonus: baseEnch,
             runStats: baseStats,
             journeyTrait: traits.includes(raw.journeyTrait as JourneyMobTrait)
@@ -754,6 +829,12 @@ export class ExpeditionEngine {
                 drops: bagDrops,
             },
         };
+
+        const rawBuild = (raw as { activeBuildId?: string }).activeBuildId;
+        this.state.activeBuildId = RUN_BUILD_IDS.includes(rawBuild as ExpeditionBuildId)
+            ? (rawBuild as ExpeditionBuildId)
+            : null;
+        this.syncBuildBonusBuffsFromActive();
 
         // Stash vitals on the engine for resume (town HP stays until then).
         (this as any)._savedRunVitals = {
@@ -937,17 +1018,192 @@ export class ExpeditionEngine {
         };
     }
 
+
+    static getBuildDef(id: ExpeditionBuildId | null | undefined): ExpeditionBuildDef | null {
+        if (!id) return null;
+        return RUN_BUILDS.find((b) => b.id === id) || null;
+    }
+
+    static getCardBuffPct(stat: keyof ExpeditionRunBuffs): number {
+        return Math.max(0, Number(this.state.runBuffs[stat]) || 0);
+    }
+
+    /** Card picks + locked build synergy bonus. */
+    static getCombinedBuffPct(stat: keyof ExpeditionRunBuffs): number {
+        const cards = this.getCardBuffPct(stat);
+        const bonus = Math.max(0, Number(this.state.buildBonusBuffs?.[stat]) || 0);
+        return cards + bonus;
+    }
+
+    static syncBuildBonusBuffsFromActive(): void {
+        const bonuses = this.emptyRunBuffs();
+        const def = this.getBuildDef(this.state.activeBuildId);
+        if (def) {
+            for (const [stat, val] of Object.entries(def.bonuses) as [keyof ExpeditionRunBuffs, number][]) {
+                bonuses[stat] = Math.max(0, Math.floor(Number(val) || 0));
+            }
+        }
+        this.state.buildBonusBuffs = bonuses;
+    }
+
+    static isBuildRequirementMet(req: ExpeditionBuildRequirement): boolean {
+        if (req.kind === 'stat') {
+            return this.getCardBuffPct(req.stat) >= req.minPct;
+        }
+        const best = Math.max(...req.stats.map((s) => this.getCardBuffPct(s)));
+        return best >= req.minPct;
+    }
+
+    static isBuildComplete(def: ExpeditionBuildDef): boolean {
+        return def.requirements.every((r) => this.isBuildRequirementMet(r));
+    }
+
+    static formatBuildReqProgress(req: ExpeditionBuildRequirement): string {
+        if (req.kind === 'stat') {
+            const cur = Math.min(req.minPct, this.getCardBuffPct(req.stat));
+            return cur + '/' + req.minPct + ' ' + this.runStatLabel(req.stat);
+        }
+        const bestStat = req.stats.reduce((a, b) =>
+            this.getCardBuffPct(a) >= this.getCardBuffPct(b) ? a : b
+        );
+        const cur = Math.min(req.minPct, this.getCardBuffPct(bestStat));
+        return cur + '/' + req.minPct + ' ' + this.runStatLabel(bestStat);
+    }
+
+    static getBuildProgress(def: ExpeditionBuildDef): {
+        met: number;
+        total: number;
+        complete: boolean;
+        partial: boolean;
+        label: string;
+        /** Short chip value — pct for single-req builds, otherwise met/total. */
+        chipVal: string;
+    } {
+        const total = def.requirements.length;
+        let met = 0;
+        let partial = false;
+        const parts: string[] = [];
+        for (const req of def.requirements) {
+            if (this.isBuildRequirementMet(req)) met += 1;
+            else if (req.kind === 'stat') {
+                if (this.getCardBuffPct(req.stat) > 0) partial = true;
+            } else if (Math.max(...req.stats.map((s) => this.getCardBuffPct(s))) > 0) {
+                partial = true;
+            }
+            parts.push(this.formatBuildReqProgress(req));
+        }
+        if (met > 0 && met < total) partial = true;
+        let chipVal = met + '/' + total;
+        if (total === 1) {
+            const req = def.requirements[0];
+            if (req.kind === 'stat') {
+                chipVal = Math.min(req.minPct, this.getCardBuffPct(req.stat)) + '/' + req.minPct;
+            } else {
+                const best = Math.max(...req.stats.map((s) => this.getCardBuffPct(s)));
+                chipVal = Math.min(req.minPct, best) + '/' + req.minPct;
+            }
+        }
+        return {
+            met,
+            total,
+            complete: met >= total,
+            partial: partial || (total === 1 && chipVal !== '0/' + (def.requirements[0] as { minPct: number }).minPct),
+            label: parts.join(' · '),
+            chipVal
+        };
+    }
+
+    /**
+     * First completed build locks for the run. Returns newly unlocked id (or null).
+     */
+    static evaluateRunBuilds(opts?: { notify?: boolean }): ExpeditionBuildId | null {
+        if (!this.state.active) return null;
+        if (this.state.activeBuildId) {
+            this.syncBuildBonusBuffsFromActive();
+            return null;
+        }
+        const ordered = [...RUN_BUILDS].sort((a, b) => a.priority - b.priority);
+        for (const def of ordered) {
+            if (!this.isBuildComplete(def)) continue;
+            this.state.activeBuildId = def.id;
+            this.syncBuildBonusBuffsFromActive();
+            if (opts?.notify !== false) {
+                const title = this.t(def.titleKey, def.titleFallback);
+                const bonus = this.t(def.bonusKey, def.bonusFallback);
+                const msg = this.t(
+                    'game.hunt.expedition.buildUnlockedLog',
+                    '{icon} Build unlocked: {name} — {bonus}',
+                    { icon: def.icon, name: title, bonus }
+                );
+                const win = window as any;
+                if (typeof win.escreverLog === 'function') {
+                    win.escreverLog('<span style="color:#fde68a;font-weight:bold;">' + msg + '</span>');
+                }
+            }
+            return def.id;
+        }
+        this.state.buildBonusBuffs = this.emptyRunBuffs();
+        return null;
+    }
+
+    static buildRunBuildsHtml(opts?: { compact?: boolean }): string {
+        const title = this.t('game.hunt.expedition.buildsTitle', 'Run builds');
+        const hint = this.t(
+            'game.hunt.expedition.buildsHint',
+            'First completed build locks for this run.'
+        );
+        const chips = [...RUN_BUILDS]
+            .sort((a, b) => a.priority - b.priority)
+            .map((def) => {
+                const prog = this.getBuildProgress(def);
+                const active = this.state.activeBuildId === def.id;
+                const lockedOut = !!this.state.activeBuildId && !active;
+                const name = this.t(def.titleKey, def.titleFallback);
+                let tone = 'progress';
+                let valText = prog.chipVal;
+                if (active) {
+                    tone = 'active';
+                    valText = '\u2713';
+                } else if (lockedOut) {
+                    tone = 'locked';
+                } else if (!prog.partial && prog.met <= 0) {
+                    tone = 'idle';
+                }
+                const bonus = active ? this.t(def.bonusKey, def.bonusFallback) : prog.label;
+                return (
+                    '<span class="exp-run-build-chip exp-run-build-chip--' + tone + '" title="' + bonus + '">' +
+                    '<span class="exp-run-build-chip__icon" aria-hidden="true">' + def.icon + '</span>' +
+                    '<span class="exp-run-build-chip__val">' + valText + '</span>' +
+                    '<span class="exp-run-build-chip__label">' + name + '</span>' +
+                    '</span>'
+                );
+            })
+            .join('');
+        if (opts?.compact) {
+            return '<div class="exp-run-builds exp-run-builds--compact">' + chips + '</div>';
+        }
+        return (
+            '<div class="exp-run-builds">' +
+            '<div class="exp-run-builds__head">' +
+            '<span class="exp-run-builds__title">' + title + '</span>' +
+            '<span class="exp-run-builds__hint">' + hint + '</span>' +
+            '</div>' +
+            '<div class="exp-run-builds__chips">' + chips + '</div>' +
+            '</div>'
+        );
+    }
+
     /** Passive HP regen multiplier during an active run (1.0 = base, 1.1 = +10% card). */
     static getHpRegenMult(): number {
         if (!this.isRunEffectsActive()) return 1;
-        const pct = Math.min(100, Math.max(0, Number(this.state.runBuffs.hpRegenPct) || 0));
+        const pct = Math.min(100, Math.max(0, this.getCombinedBuffPct('hpRegenPct')));
         return 1 + pct / 100;
     }
 
     /** Passive MP regen multiplier during an active run (1.0 = base, 1.1 = +10% card). */
     static getMpRegenMult(): number {
         if (!this.isRunEffectsActive()) return 1;
-        const pct = Math.min(100, Math.max(0, Number(this.state.runBuffs.mpRegenPct) || 0));
+        const pct = Math.min(100, Math.max(0, this.getCombinedBuffPct('mpRegenPct')));
         return 1 + pct / 100;
     }
 
@@ -956,7 +1212,7 @@ export class ExpeditionEngine {
         const base = Math.max(0, Math.floor(Number(baseMp) || 0));
         if (!base) return 0;
         if (!this.isRunEffectsActive()) return base;
-        const pct = Math.min(60, Math.max(0, Number(this.state.runBuffs.mpCostReductionPct) || 0));
+        const pct = Math.min(60, Math.max(0, this.getCombinedBuffPct('mpCostReductionPct')));
         return Math.max(1, Math.floor(base * (1 - pct / 100)));
     }
 
@@ -965,7 +1221,7 @@ export class ExpeditionEngine {
         const base = Math.max(0, Math.floor(Number(baseMs) || 0));
         if (!base) return 0;
         if (!this.isRunEffectsActive()) return base;
-        const pct = Math.min(50, Math.max(0, Number(this.state.runBuffs.skillCdReductionPct) || 0));
+        const pct = Math.min(50, Math.max(0, this.getCombinedBuffPct('skillCdReductionPct')));
         return Math.max(250, Math.floor(base * (1 - pct / 100)));
     }
 
@@ -1369,15 +1625,14 @@ export class ExpeditionEngine {
     }
 
     static getRunBuffMults(): { pAtk: number; mAtk: number; pDef: number; mDef: number; crit: number; atkSpeed: number; maxHp: number } {
-        const b = this.state.runBuffs;
         return {
-            pAtk: 1 + b.pAtkPct / 100,
-            mAtk: 1 + b.mAtkPct / 100,
-            pDef: 1 + b.pDefPct / 100,
-            mDef: 1 + b.mDefPct / 100,
-            crit: 1 + b.critRatePct / 100,
-            atkSpeed: Math.max(0.5, 1 - b.atkSpeedPct / 100),
-            maxHp: 1 + b.maxHpPct / 100
+            pAtk: 1 + this.getCombinedBuffPct('pAtkPct') / 100,
+            mAtk: 1 + this.getCombinedBuffPct('mAtkPct') / 100,
+            pDef: 1 + this.getCombinedBuffPct('pDefPct') / 100,
+            mDef: 1 + this.getCombinedBuffPct('mDefPct') / 100,
+            crit: 1 + this.getCombinedBuffPct('critRatePct') / 100,
+            atkSpeed: Math.max(0.5, 1 - this.getCombinedBuffPct('atkSpeedPct') / 100),
+            maxHp: 1 + this.getCombinedBuffPct('maxHpPct') / 100
         };
     }
 
@@ -1687,6 +1942,9 @@ export class ExpeditionEngine {
                 <div class="exp-run-stats-panel__label">${statsTitle}</div>
                 ${this.buildRunStatsTableHtml()}
             </div>
+            <div class="exp-run-builds-block">
+                ${this.buildRunBuildsHtml()}
+            </div>
             <div class="exp-run-upgrades-block">
                 <div class="exp-run-upgrades-block__label">${upgradesTitle}</div>
                 ${this.buildRunUpgradesChipsHtml()}
@@ -1959,6 +2217,20 @@ export class ExpeditionEngine {
         const lootEl = document.getElementById('exp-upgrade-loot');
         if (lootEl) lootEl.innerHTML = this.buildUpgradeLootMetricsHtml(loot);
 
+        let buildsEl = document.getElementById('exp-upgrade-builds');
+        if (!buildsEl) {
+            const scroll = document.querySelector('#janela-expedition-upgrade .exp-upgrade-scroll');
+            if (scroll) {
+                buildsEl = document.createElement('div');
+                buildsEl.id = 'exp-upgrade-builds';
+                buildsEl.className = 'exp-upgrade-builds';
+                const pickLabel = scroll.querySelector('.exp-upgrade-pick-label');
+                if (pickLabel) scroll.insertBefore(buildsEl, pickLabel);
+                else scroll.appendChild(buildsEl);
+            }
+        }
+        if (buildsEl) buildsEl.innerHTML = this.buildRunBuildsHtml({ compact: true });
+
         const grid = document.getElementById('exp-upgrade-cards');
         if (grid) {
             grid.innerHTML = this.pendingUpgradeOptions
@@ -2002,6 +2274,7 @@ export class ExpeditionEngine {
         this.state.runStats.upgradesTaken += 1;
         this.pendingUpgradeOptions = [];
         this.lastCombatLoot = null;
+        this.evaluateRunBuilds({ notify: true });
 
         const win = window as any;
         if (typeof win.fecharModal === 'function') win.fecharModal('janela-expedition-upgrade');
@@ -2393,6 +2666,8 @@ export class ExpeditionEngine {
             combatOnlyNextJourney: false,
             combatOnlyThisJourney: false,
             runBuffs: this.emptyRunBuffs(),
+            activeBuildId: null,
+            buildBonusBuffs: this.emptyRunBuffs(),
             runEnchantBonus: this.emptyRunEnchantBonus(),
             runStats: this.emptyRunStats(),
             journeyTrait: firstTrait,
@@ -2682,6 +2957,7 @@ export class ExpeditionEngine {
                 ];
                 const stat = statKeys[Math.floor(Math.random() * statKeys.length)];
                 this.state.runBuffs[stat] += 6;
+                this.evaluateRunBuilds({ notify: true });
                 if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
                 result = {
                     nodeType: 'event',
@@ -2742,6 +3018,12 @@ export class ExpeditionEngine {
         if (runBuffs.bleedResPct) buffParts.push(`-${runBuffs.bleedResPct}% ${this.runStatLabel('bleedResPct')}`);
         if (runBuffs.mpCostReductionPct) buffParts.push(`-${runBuffs.mpCostReductionPct}% ${this.runStatLabel('mpCostReductionPct')}`);
         if (runBuffs.skillCdReductionPct) buffParts.push(`-${runBuffs.skillCdReductionPct}% ${this.runStatLabel('skillCdReductionPct')}`);
+        const buildDef = this.getBuildDef(this.state.activeBuildId);
+        if (buildDef) {
+            buffParts.push(this.t('game.hunt.expedition.extractSummaryBuild', 'Build: {name}', {
+                name: this.t(buildDef.titleKey, buildDef.titleFallback)
+            }));
+        }
         const forgeSummary = this.buildRunEnchantSummaryText();
         if (forgeSummary) parts.push(forgeSummary);
         if (buffParts.length) {
@@ -3330,6 +3612,7 @@ export class ExpeditionEngine {
             const stat = this.rollRandomRunStat();
             const boost = 8;
             this.state.runBuffs[stat] += boost;
+            this.evaluateRunBuilds({ notify: true });
             if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
             win.atualizar();
             result = {
@@ -3384,6 +3667,7 @@ export class ExpeditionEngine {
         const stat = this.rollRandomRunStat();
         const boost = 8;
         this.state.runBuffs[stat] += boost;
+        this.evaluateRunBuilds({ notify: true });
         if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
         win.atualizar();
 
@@ -3495,6 +3779,7 @@ export class ExpeditionEngine {
         const mainStat: keyof ExpeditionRunBuffs = mage ? 'mAtkPct' : 'pAtkPct';
         this.state.runBuffs[mainStat] += 8;
         this.state.runBuffs.atkSpeedPct += 5;
+        this.evaluateRunBuilds({ notify: true });
         if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
         win.atualizar();
 
