@@ -76,7 +76,7 @@ export interface ExpeditionPathChoice {
     type: ExpeditionPathType;
 }
 
-export type ExpeditionRunPanelTab = 'path' | 'stats' | 'gear';
+export type ExpeditionRunPanelTab = 'path' | 'stats' | 'builds' | 'gear';
 
 export interface ExpeditionState {
     active: boolean;
@@ -819,7 +819,7 @@ export class ExpeditionEngine {
                 .includes(raw.rareEventType as ExpeditionRareEventType)
                 ? (raw.rareEventType as ExpeditionRareEventType)
                 : null,
-            runPanelTab: (['path', 'stats', 'gear'] as ExpeditionRunPanelTab[])
+            runPanelTab: (['path', 'stats', 'builds', 'gear'] as ExpeditionRunPanelTab[])
                 .includes(raw.runPanelTab as ExpeditionRunPanelTab)
                 ? (raw.runPanelTab as ExpeditionRunPanelTab)
                 : 'path',
@@ -1058,16 +1058,37 @@ export class ExpeditionEngine {
         return def.requirements.every((r) => this.isBuildRequirementMet(r));
     }
 
-    static formatBuildReqProgress(req: ExpeditionBuildRequirement): string {
+    static getBuildReqValues(req: ExpeditionBuildRequirement): {
+        cur: number;
+        minPct: number;
+        label: string;
+        pct: number;
+    } {
         if (req.kind === 'stat') {
             const cur = Math.min(req.minPct, this.getCardBuffPct(req.stat));
-            return cur + '/' + req.minPct + ' ' + this.runStatLabel(req.stat);
+            return {
+                cur,
+                minPct: req.minPct,
+                label: this.runStatLabel(req.stat),
+                pct: req.minPct > 0 ? Math.min(100, Math.round((cur / req.minPct) * 100)) : 0
+            };
         }
         const bestStat = req.stats.reduce((a, b) =>
             this.getCardBuffPct(a) >= this.getCardBuffPct(b) ? a : b
         );
         const cur = Math.min(req.minPct, this.getCardBuffPct(bestStat));
-        return cur + '/' + req.minPct + ' ' + this.runStatLabel(bestStat);
+        const orLabel = req.stats.map((s) => this.runStatLabel(s)).join(' / ');
+        return {
+            cur,
+            minPct: req.minPct,
+            label: orLabel,
+            pct: req.minPct > 0 ? Math.min(100, Math.round((cur / req.minPct) * 100)) : 0
+        };
+    }
+
+    static formatBuildReqProgress(req: ExpeditionBuildRequirement): string {
+        const v = this.getBuildReqValues(req);
+        return v.cur + '/' + v.minPct + ' ' + v.label;
     }
 
     static getBuildProgress(def: ExpeditionBuildDef): {
@@ -1910,16 +1931,22 @@ export class ExpeditionEngine {
         const tabs: { id: ExpeditionRunPanelTab; labelKey: string; fallback: string }[] = [
             { id: 'path', labelKey: 'game.hunt.expedition.runTabPath', fallback: 'Path' },
             { id: 'stats', labelKey: 'game.hunt.expedition.runTabStats', fallback: 'Stats' },
+            { id: 'builds', labelKey: 'game.hunt.expedition.runTabBuilds', fallback: 'Builds' },
             { id: 'gear', labelKey: 'game.hunt.expedition.runTabGear', fallback: 'Gear' }
         ];
         const rareLocked = this.state.pendingRareEvent;
+        const activeBuild = this.getBuildDef(this.state.activeBuildId);
         return `<div class="expedition-run-tabs" role="tablist" aria-label="${this.t('game.hunt.expedition.runTabsLabel', 'Expedition run panels')}">
             ${tabs.map(({ id, labelKey, fallback }) => {
                 const active = this.state.runPanelTab === id;
                 const disabled = rareLocked && id !== 'path';
-                return `<button type="button" role="tab" class="expedition-run-tab${active ? ' expedition-run-tab--active' : ''}${disabled ? ' expedition-run-tab--disabled' : ''}"
+                let label = this.t(labelKey, fallback);
+                if (id === 'builds' && activeBuild) {
+                    label = `${label} ✓`;
+                }
+                return `<button type="button" role="tab" class="expedition-run-tab${active ? ' expedition-run-tab--active' : ''}${disabled ? ' expedition-run-tab--disabled' : ''}${id === 'builds' && activeBuild ? ' expedition-run-tab--build-locked' : ''}"
                     aria-selected="${active ? 'true' : 'false'}"${disabled ? ' disabled' : ''}
-                    onclick="ExpeditionEngine.setRunPanelTab('${id}')">${this.t(labelKey, fallback)}</button>`;
+                    onclick="ExpeditionEngine.setRunPanelTab('${id}')">${label}</button>`;
             }).join('')}
         </div>`;
     }
@@ -1942,13 +1969,85 @@ export class ExpeditionEngine {
                 <div class="exp-run-stats-panel__label">${statsTitle}</div>
                 ${this.buildRunStatsTableHtml()}
             </div>
-            <div class="exp-run-builds-block">
-                ${this.buildRunBuildsHtml()}
-            </div>
             <div class="exp-run-upgrades-block">
                 <div class="exp-run-upgrades-block__label">${upgradesTitle}</div>
                 ${this.buildRunUpgradesChipsHtml()}
             </div>
+        </div>`;
+    }
+
+    static buildRunBuildsPanelHtml(): string {
+        const title = this.t('game.hunt.expedition.buildsPanelTitle', 'Run builds');
+        const hint = this.t(
+            'game.hunt.expedition.buildsPanelHint',
+            'Pick upgrade cards toward a path. The first build you complete locks for this run.'
+        );
+        const activeDef = this.getBuildDef(this.state.activeBuildId);
+        const statusLine = activeDef
+            ? this.t('game.hunt.expedition.buildsPanelActive', 'Locked: {name} — {bonus}', {
+                name: this.t(activeDef.titleKey, activeDef.titleFallback),
+                bonus: this.t(activeDef.bonusKey, activeDef.bonusFallback)
+            })
+            : this.t('game.hunt.expedition.buildsPanelOpen', 'No build locked yet — keep stacking the right upgrades.');
+
+        const cards = [...RUN_BUILDS]
+            .sort((a, b) => a.priority - b.priority)
+            .map((def) => {
+                const prog = this.getBuildProgress(def);
+                const active = this.state.activeBuildId === def.id;
+                const lockedOut = !!this.state.activeBuildId && !active;
+                const name = this.t(def.titleKey, def.titleFallback);
+                const bonus = this.t(def.bonusKey, def.bonusFallback);
+                let tone = 'idle';
+                let statusKey = 'game.hunt.expedition.buildStatusIdle';
+                let statusFb = 'Not started';
+                if (active) {
+                    tone = 'active';
+                    statusKey = 'game.hunt.expedition.buildStatusActive';
+                    statusFb = 'Active this run';
+                } else if (lockedOut) {
+                    tone = 'locked';
+                    statusKey = 'game.hunt.expedition.buildStatusLockedOut';
+                    statusFb = 'Another build locked';
+                } else if (prog.partial || prog.met > 0) {
+                    tone = 'progress';
+                    statusKey = 'game.hunt.expedition.buildStatusProgress';
+                    statusFb = 'In progress';
+                }
+                const status = this.t(statusKey, statusFb);
+                const reqRows = def.requirements.map((req) => {
+                    const v = this.getBuildReqValues(req);
+                    const done = v.cur >= v.minPct;
+                    return `<div class="exp-build-card__req${done ? ' exp-build-card__req--done' : ''}">
+                        <div class="exp-build-card__req-top">
+                            <span class="exp-build-card__req-label">${v.label}</span>
+                            <span class="exp-build-card__req-val">${v.cur}/${v.minPct}%</span>
+                        </div>
+                        <div class="exp-build-card__bar" aria-hidden="true">
+                            <span class="exp-build-card__bar-fill" style="width:${v.pct}%"></span>
+                        </div>
+                    </div>`;
+                }).join('');
+                return `<article class="exp-build-card exp-build-card--${tone}">
+                    <header class="exp-build-card__head">
+                        <span class="exp-build-card__icon" aria-hidden="true">${def.icon}</span>
+                        <div class="exp-build-card__titles">
+                            <span class="exp-build-card__name">${name}</span>
+                            <span class="exp-build-card__status">${status}</span>
+                        </div>
+                        <span class="exp-build-card__chip">${active ? '✓' : prog.chipVal}</span>
+                    </header>
+                    <div class="exp-build-card__reqs">${reqRows}</div>
+                    <p class="exp-build-card__bonus"><strong>${this.t('game.hunt.expedition.buildBonusLabel', 'Bonus')}</strong> ${bonus}</p>
+                </article>`;
+            })
+            .join('');
+
+        return `<div class="exp-run-builds-panel" role="tabpanel">
+            <div class="exp-run-builds-panel__label">${title}</div>
+            <p class="exp-run-builds-panel__hint">${hint}</p>
+            <p class="exp-run-builds-panel__status">${statusLine}</p>
+            <div class="exp-run-builds-panel__list">${cards}</div>
         </div>`;
     }
 
@@ -2001,6 +2100,7 @@ export class ExpeditionEngine {
 
     static buildRunPanelContentHtml(journey: number, pickHint: string): string {
         if (this.state.runPanelTab === 'stats') return this.buildRunStatsPanelHtml();
+        if (this.state.runPanelTab === 'builds') return this.buildRunBuildsPanelHtml();
         if (this.state.runPanelTab === 'gear') return this.buildRunGearPanelHtml();
         return this.state.pendingRareEvent
             ? this.buildRareEventSectionHtml()

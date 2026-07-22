@@ -4349,15 +4349,16 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
 }
 .expedition-run-tab {
     flex: 1;
+    min-width: 0;
     min-height: 36px;
-    padding: 6px 8px;
+    padding: 6px 4px;
     border: 1px solid transparent;
     border-radius: 8px;
     background: transparent;
     color: #94a3b8;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
 }
@@ -4366,6 +4367,9 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     border-color: rgba(167, 139, 250, 0.45);
     color: #f8fafc;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.expedition-run-tab--build-locked {
+    color: #fde68a;
 }
 .expedition-run-tab--disabled,
 .expedition-run-tab:disabled {
@@ -4390,6 +4394,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     min-height: 0;
 }
 .exp-run-stats-panel,
+.exp-run-builds-panel,
 .exp-run-gear-panel {
     flex: 1 1 0;
     min-height: 0;
@@ -4404,6 +4409,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     margin-bottom: 4px;
 }
 .exp-run-stats-panel__label,
+.exp-run-builds-panel__label,
 .exp-run-gear-panel__label {
     font-size: 9px;
     font-weight: 800;
@@ -4646,6 +4652,140 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     letter-spacing: 0.03em;
     text-transform: uppercase;
     color: #e2e8f0;
+}
+.exp-run-builds-panel__hint,
+.exp-run-builds-panel__status {
+    margin: 0 0 8px;
+    font-size: 10px;
+    line-height: 1.4;
+    color: #94a3b8;
+}
+.exp-run-builds-panel__status {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(250, 204, 21, 0.08);
+    border: 1px solid rgba(250, 204, 21, 0.22);
+    color: #fde68a;
+    font-weight: 600;
+}
+.exp-run-builds-panel__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.exp-build-card {
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.28);
+}
+.exp-build-card--progress {
+    border-color: rgba(125, 211, 252, 0.4);
+    background: rgba(12, 74, 110, 0.22);
+}
+.exp-build-card--active {
+    border-color: rgba(250, 204, 21, 0.5);
+    background: rgba(113, 63, 18, 0.35);
+    box-shadow: 0 0 12px rgba(250, 204, 21, 0.12);
+}
+.exp-build-card--locked {
+    opacity: 0.55;
+    filter: grayscale(0.35);
+}
+.exp-build-card__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.exp-build-card__icon {
+    font-size: 18px;
+    line-height: 1;
+}
+.exp-build-card__titles {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.exp-build-card__name {
+    font-size: 12px;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: 0.02em;
+}
+.exp-build-card__status {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.exp-build-card--active .exp-build-card__status { color: #fde68a; }
+.exp-build-card--progress .exp-build-card__status { color: #7dd3fc; }
+.exp-build-card__chip {
+    flex: 0 0 auto;
+    min-width: 40px;
+    text-align: center;
+    padding: 4px 6px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 11px;
+    font-weight: 800;
+    color: #f8fafc;
+    font-variant-numeric: tabular-nums;
+}
+.exp-build-card__reqs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.exp-build-card__req-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 3px;
+}
+.exp-build-card__req-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+.exp-build-card__req-val {
+    font-size: 10px;
+    font-weight: 800;
+    color: #e2e8f0;
+    font-variant-numeric: tabular-nums;
+}
+.exp-build-card__req--done .exp-build-card__req-val { color: #86efac; }
+.exp-build-card__bar {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+.exp-build-card__bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #38bdf8, #a78bfa);
+}
+.exp-build-card--active .exp-build-card__bar-fill {
+    background: linear-gradient(90deg, #fbbf24, #fde68a);
+}
+.exp-build-card__bonus {
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.35;
+    color: #cbd5e1;
+}
+.exp-build-card__bonus strong {
+    color: #fde68a;
+    font-weight: 800;
+    margin-right: 4px;
 }
 .exp-run-gear-panel__hint {
     margin: 0 0 10px;

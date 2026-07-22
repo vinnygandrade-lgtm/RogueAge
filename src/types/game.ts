@@ -755,7 +755,7 @@ export type ExpeditionPathTypeSave =
 
 export type ExpeditionRareEventTypeSave = 'shrine' | 'gambler' | 'cache' | 'storm';
 export type JourneyMobTraitSave = 'brutal' | 'swift' | 'lethal' | 'armored' | 'frenzied';
-export type ExpeditionRunPanelTabSave = 'path' | 'stats' | 'gear';
+export type ExpeditionRunPanelTabSave = 'path' | 'stats' | 'builds' | 'gear';
 
 export interface ExpeditionRunSave {
   v: 1;
