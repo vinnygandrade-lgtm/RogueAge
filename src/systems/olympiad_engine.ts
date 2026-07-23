@@ -1678,6 +1678,8 @@ const OlympiadEngine = {
     playerAtaca() {
         if (!this.ativo || !this.inimigo) return;
         const agora = Date.now();
+        // Wait for skill cast-lock; Attack CD keeps loading independently.
+        if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) return;
         if (agora < (this.olyBasicAttackLockUntil || 0)) return;
 
         // Trava física anti-spam (debounce de segurança)

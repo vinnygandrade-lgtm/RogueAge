@@ -82,11 +82,6 @@ export function beginSkillCast(skillName: string, rechargeMs: number, castMs?: n
 
   armSkillGcd(castDur, name);
 
-  // Restart basic Attack swing CD from zero so a nearly-ready AA does not land on cast.
-  if (typeof window.resetBasicAttackAposSkill === 'function') {
-    window.resetBasicAttackAposSkill();
-  }
-
   if (recharge <= 0) return;
 
   pendingRechargeTimers[name] = setTimeout(() => {

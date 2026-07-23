@@ -566,7 +566,6 @@ declare global {
     isSkillGcdBlocked?: () => boolean;
     armSkillGcd?: (ms?: number, castSkillName?: string) => void;
     beginSkillCast?: (skillName: string, rechargeMs: number, castMs?: number) => void;
-    resetBasicAttackAposSkill?: () => void;
     slotUsesSkillGcd?: (nome: string | null | undefined) => boolean;
     getHotbarSlotLockRemainingMs?: (nome: string) => number;
     getHotbarSlotLockTotalMs?: (nome: string, personalCdTotalMs: number) => number;

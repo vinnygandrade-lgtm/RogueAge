@@ -344,36 +344,17 @@ function scheduleNextAutoAttackSwing(delayMs: number): void {
 }
 
 /**
- * After a skill cast, restart basic Attack load from full CD so a nearly-ready
- * swing does not fire immediately on top of the skill.
- */
-window.resetBasicAttackAposSkill = function () {
-  const atkCdMs = getAttackSwingCdMs();
-  if (typeof dispararAnimacaoGCD === 'function') dispararAnimacaoGCD(atkCdMs, 'Attack');
-  else if (typeof window.dispararAnimacaoCooldown === 'function') window.dispararAnimacaoCooldown('Attack', atkCdMs);
-  else if (window.cooldownsAtivos) window.cooldownsAtivos['Attack'] = Date.now() + atkCdMs;
-
-  if (window.autoAtaqueAtivo) {
-    scheduleNextAutoAttackSwing(atkCdMs);
-  }
-
-  const raid = window.RaidEngine as { ativo?: boolean; ultimoAtaquePlayer?: number } | undefined;
-  if (raid?.ativo) {
-    raid.ultimoAtaquePlayer = Date.now();
-  }
-
-  const oly = window.OlympiadEngine as { ativo?: boolean; olyBasicAttackLockUntil?: number } | undefined;
-  if (oly?.ativo) {
-    oly.olyBasicAttackLockUntil = Date.now() + atkCdMs;
-  }
-};
-
-/**
  * One basic Attack swing (forest / raid). Respects Attack CD.
+ * Also waits for skill cast-lock (does not reset Attack load).
  * Returns true if a swing was performed.
  */
 function tentarGolpeAtaqueBasico(): boolean {
   if (window.playerHP <= 0) return false;
+
+  // Wait for skill launch lock — Attack CD keeps loading, just cannot fire yet.
+  if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) {
+    return false;
+  }
 
   const cdLeft = getAttackCooldownRemainingMs();
   if (cdLeft > 0) return false;
@@ -389,7 +370,6 @@ function tentarGolpeAtaqueBasico(): boolean {
 
   if (!estaEmCombateFloresta()) return false;
 
-  // Basic Attack uses its own swing CD — skill GCD must not stall auto-attack weaving.
   if (typeof tocarSom === 'function') tocarSom('ataque');
   const isMage = typeof window.isClasseMagica === 'function' ? window.isClasseMagica(window.charClass) : false;
   let tIdx =
@@ -536,6 +516,13 @@ function realizarGolpeAutoAtaque() {
   const cdLeft = getAttackCooldownRemainingMs();
   if (cdLeft > 0) {
     scheduleNextAutoAttackSwing(cdLeft);
+    return;
+  }
+
+  const castLeft =
+    typeof window.getSkillGcdRemainingMs === 'function' ? window.getSkillGcdRemainingMs() : 0;
+  if (castLeft > 0) {
+    scheduleNextAutoAttackSwing(castLeft);
     return;
   }
 
