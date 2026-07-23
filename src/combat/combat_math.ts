@@ -364,9 +364,7 @@ function tentarGolpeAtaqueBasico(): boolean {
 
   if (!estaEmCombateFloresta()) return false;
 
-  if (typeof window.globalCooldownAtivo !== 'undefined' && Date.now() < window.globalCooldownAtivo) {
-    return false;
-  }
+  // Basic Attack uses its own swing CD — skill GCD must not stall auto-attack weaving.
   if (typeof tocarSom === 'function') tocarSom('ataque');
   const isMage = typeof window.isClasseMagica === 'function' ? window.isClasseMagica(window.charClass) : false;
   let tIdx =
@@ -521,15 +519,6 @@ function realizarGolpeAutoAtaque() {
     (typeof window.monstrosAtivos === 'undefined' || window.monstrosAtivos.length === 0)
   ) {
     window.pararAutoAtaque?.();
-    return;
-  }
-
-  if (
-    !estaEmCombateRaid() &&
-    typeof window.globalCooldownAtivo !== 'undefined' &&
-    Date.now() < window.globalCooldownAtivo
-  ) {
-    scheduleNextAutoAttackSwing(100);
     return;
   }
 

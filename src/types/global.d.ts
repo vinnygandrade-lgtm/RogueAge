@@ -560,6 +560,14 @@ declare global {
     toggleAutoAtaque?: () => void;
     isAutoAtaqueLigado?: () => boolean;
     pararAutoAtaque?: () => void;
+    /** Shared skill GCD (ms remaining / helpers) — see src/combat/skill_gcd.ts */
+    SKILL_GCD_MS?: number;
+    getSkillGcdRemainingMs?: () => number;
+    isSkillGcdBlocked?: () => boolean;
+    armSkillGcd?: (ms?: number) => void;
+    slotUsesSkillGcd?: (nome: string | null | undefined) => boolean;
+    getHotbarSlotLockRemainingMs?: (nome: string) => number;
+    getHotbarSlotLockTotalMs?: (nome: string, personalCdTotalMs: number) => number;
 
     I18N_LOCALES?: Record<import('./game').UiLocale, Record<string, unknown>>;
   }

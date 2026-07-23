@@ -1736,11 +1736,16 @@ const OlympiadEngine = {
         if (!skill || window.playerMP < skill.mp) return;
 
         const agora = Date.now();
+        if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) {
+            return;
+        }
         if (window.cooldownsAtivos[nomeSkill] && window.cooldownsAtivos[nomeSkill] > agora) {
             return;
         }
 
         window.playerMP -= skill.mp;
+        if (typeof window.armSkillGcd === 'function') window.armSkillGcd();
+        else window.globalCooldownAtivo = agora + 1500;
 
         const skillCD = skill.cd || 1000;
         if (typeof window.dispararAnimacaoCooldown === 'function') {

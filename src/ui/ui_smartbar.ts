@@ -393,10 +393,17 @@ function renderizarBarraAtalhos(): void {
 
       if (nomeSlot) {
         let pct = 0;
-        const cdEnd = window.cooldownsAtivos[nomeSlot];
-        if (cdEnd && cdEnd > agora) {
-          const cdTotal = getSkillCdTotal(nomeSlot);
-          pct = ((cdEnd - agora) / cdTotal) * 100;
+        const lockLeft =
+          typeof window.getHotbarSlotLockRemainingMs === 'function'
+            ? window.getHotbarSlotLockRemainingMs(nomeSlot)
+            : Math.max(0, (Number(window.cooldownsAtivos[nomeSlot]) || 0) - agora);
+        if (lockLeft > 0) {
+          const personalTotal = getSkillCdTotal(nomeSlot);
+          const cdTotal =
+            typeof window.getHotbarSlotLockTotalMs === 'function'
+              ? window.getHotbarSlotLockTotalMs(nomeSlot, personalTotal)
+              : personalTotal;
+          pct = (lockLeft / Math.max(1, cdTotal)) * 100;
           if (pct < 0) pct = 0;
           if (pct > 100) pct = 100;
         }
@@ -677,6 +684,7 @@ function iniciarToqueAtalho(index: number): void {
 
 function executarSkillNaRaid(nomeSlot: string, skill: SkillCatalogEntry): void {
   const agora = Date.now();
+  if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) return;
   if (window.cooldownsAtivos[nomeSlot] && window.cooldownsAtivos[nomeSlot] > agora) return;
   if (window.playerMP < (skill.mp || 0)) {
     if (typeof window.escreverLog === 'function') {
@@ -687,6 +695,8 @@ function executarSkillNaRaid(nomeSlot: string, skill: SkillCatalogEntry): void {
 
   window.playerMP -= skill.mp || 0;
   if (typeof window.atualizar === 'function') window.atualizar();
+  if (typeof window.armSkillGcd === 'function') window.armSkillGcd();
+  else window.globalCooldownAtivo = Date.now() + 1500;
   window.dispararAnimacaoCooldown(nomeSlot, skill.cd || 1000);
   if (typeof window.escreverLog === 'function') {
     window.escreverLog(`<span style="color:${skill.cor || '#fff'}; font-weight:bold;">${smartbarT('game.smartbar.youCast', { skill: hotbarLabel(nomeSlot) })}</span>`);
@@ -738,6 +748,7 @@ window.dispararAnimacaoCooldown = function (nome: string, tempoMs: number): void
   window.cooldownsAtivos[nome] = Date.now() + tempoMs;
 };
 
+/** Personal swing/skill CD animation (not the shared skill GCD). */
 window.dispararAnimacaoGCD = function (tempoMs: number, nome: string): void {
   window.dispararAnimacaoCooldown(nome, tempoMs);
 };
@@ -745,19 +756,36 @@ window.dispararAnimacaoGCD = function (tempoMs: number, nome: string): void {
 setInterval(() => {
   const overlays = document.querySelectorAll('.cd-overlay');
   const agora = Date.now();
+  const gcdLeft =
+    typeof window.getSkillGcdRemainingMs === 'function' ? window.getSkillGcdRemainingMs() : 0;
 
   overlays.forEach((overlay) => {
     const el = overlay as HTMLElement;
     const nome = el.getAttribute('data-cd');
     if (!nome) return;
-    const tempoFim = window.cooldownsAtivos[nome] || 0;
     const timerText = el.nextElementSibling as HTMLElement | null;
+    const slotEl = el.closest('.shortcut-slot');
 
-    if (tempoFim > agora) {
-      const restamMs = tempoFim - agora;
-      const cdTotal = getSkillCdTotal(nome);
+    const restamMs =
+      typeof window.getHotbarSlotLockRemainingMs === 'function'
+        ? window.getHotbarSlotLockRemainingMs(nome)
+        : Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
+    const usesGcd = typeof window.slotUsesSkillGcd === 'function' && window.slotUsesSkillGcd(nome);
+    const personalLeft = Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
+    const gcdOnly = usesGcd && gcdLeft > personalLeft && gcdLeft > 0;
 
-      let porcentagem = (restamMs / cdTotal) * 100;
+    if (slotEl) {
+      slotEl.classList.toggle('skill-gcd-locked', gcdOnly);
+    }
+
+    if (restamMs > 0) {
+      const personalTotal = getSkillCdTotal(nome);
+      const cdTotal =
+        typeof window.getHotbarSlotLockTotalMs === 'function'
+          ? window.getHotbarSlotLockTotalMs(nome, personalTotal)
+          : personalTotal;
+
+      let porcentagem = (restamMs / Math.max(1, cdTotal)) * 100;
       if (porcentagem < 0) porcentagem = 0;
       if (porcentagem > 100) porcentagem = 100;
 
@@ -765,7 +793,8 @@ setInterval(() => {
       el.style.width = '100%';
 
       if (timerText?.classList.contains('cd-timer-text')) {
-        if (nome !== 'Attack') {
+        // Show timer for personal skill CD; hide during short shared GCD flash (Attack never shows).
+        if (nome !== 'Attack' && !gcdOnly) {
           timerText.innerText = (restamMs / 1000).toFixed(1);
           timerText.style.display = 'block';
         } else {

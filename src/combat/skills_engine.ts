@@ -63,7 +63,10 @@ function usarSkill(nomeSkill: string) {
         return;
     }
 
-    if (typeof window.globalCooldownAtivo !== 'undefined' && Date.now() < window.globalCooldownAtivo) return;
+    // Shared skill GCD — prevents machine-gun chaining when several skills are off CD.
+    if (typeof window.isSkillGcdBlocked === 'function' ? window.isSkillGcdBlocked() : (Date.now() < (window.globalCooldownAtivo || 0))) {
+        return;
+    }
 
     const skill = getBancoDeSkills()?.[nomeSkill];
     if (!skill || (window.cooldownsAtivos[nomeSkill] > Date.now())) return;
@@ -79,7 +82,8 @@ function usarSkill(nomeSkill: string) {
         return;
     }
 
-    window.globalCooldownAtivo = Date.now() + 1200; 
+    if (typeof window.armSkillGcd === 'function') window.armSkillGcd();
+    else window.globalCooldownAtivo = Date.now() + 1500;
     window.playerMP -= mpCost;
     window.dispararAnimacaoCooldown?.(nomeSkill, resolveSkillCooldownMs(skill.cd));
     if (typeof window.registrarProgressoMissaoDiaria === 'function') {

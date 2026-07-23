@@ -186,6 +186,16 @@
     transition: height 0.05s linear !important;
 }
 
+/* Shared skill GCD — brief dim on ready skills while another skill is resolving */
+.shortcut-slot.skill-gcd-locked .cd-overlay {
+    background: rgba(20, 16, 12, 0.55) !important;
+    box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.15) !important;
+}
+
+.shortcut-slot.skill-gcd-locked {
+    filter: saturate(0.65) brightness(0.9);
+}
+
 .shortcut-key {
     position: absolute !important;
     top: 2px !important;
