@@ -734,6 +734,11 @@
                         <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesPathTitle">Roguelike loop</div>
                         <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesPathDesc">Journey 1: Fight or Elite only. Safe paths and gifts from journey 2. Boss gate every 10 journeys.</div>
                     </div>
+                    <div class="expedition-rules-card">
+                        <div class="expedition-rules-card__icon" aria-hidden="true">⚡</div>
+                        <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesBuildsTitle">Run builds</div>
+                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesBuildsDesc">Upgrade cards fill build paths. Unlock as many as you can — bonuses stack. Mastery rewards at 3, 5, and 7 builds. Track them on the Builds tab.</div>
+                    </div>
                 </div>
                 <div class="expedition-rules-legend">
                     <div class="expedition-rules-legend__title" data-i18n="game.hunt.expedition.rulesLegendTitle">Path cards</div>
@@ -764,14 +769,15 @@
                 <div id="exp-node-icon" class="exp-node-icon">⚔️</div>
             </div>
             <p id="exp-node-desc" class="exp-node-desc">Description</p>
-            <div class="exp-node-outcomes">
+            <div id="exp-node-outcomes-wrap" class="exp-node-outcomes">
                 <div class="exp-node-outcomes__label" data-i18n="game.hunt.expedition.nodeOutcomesLabel">What may happen</div>
                 <ul id="exp-node-outcomes-list" class="exp-node-outcomes__list"></ul>
             </div>
+            <div id="exp-node-offers" class="exp-offer-grid" style="display:none;" role="group" aria-label="Offers"></div>
             <div id="exp-node-tags" class="exp-node-tags"></div>
             <div class="exp-node-actions">
-                <button type="button" class="btn-l2 exp-node-actions__enter" onclick="ExpeditionEngine.confirmNode()" data-i18n="game.hunt.expedition.nodeEnter">Enter</button>
-                <button type="button" class="btn-l2 exp-node-actions__cancel" onclick="ExpeditionEngine.cancelNode()" data-i18n="game.hunt.expedition.nodeCancel">Cancel</button>
+                <button type="button" id="exp-node-enter" class="btn-l2 exp-node-actions__enter" onclick="ExpeditionEngine.confirmNode()" data-i18n="game.hunt.expedition.nodeEnter">Enter</button>
+                <button type="button" id="exp-node-cancel" class="btn-l2 exp-node-actions__cancel" onclick="ExpeditionEngine.cancelNode()" data-i18n="game.hunt.expedition.nodeCancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -806,6 +812,7 @@
                 </div>
                 <div class="exp-upgrade-pick-label" data-i18n="game.hunt.expedition.upgradePickLabel">Choose 1 of 3</div>
                 <div id="exp-upgrade-cards" class="exp-upgrade-cards"></div>
+                <div id="exp-upgrade-builds" class="exp-upgrade-builds"></div>
             </div>
         </div>
     </div>

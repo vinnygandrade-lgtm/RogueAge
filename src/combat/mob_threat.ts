@@ -24,13 +24,15 @@ const THREAT_RESIST_CAP_PCT = 75;
 
 let poisonTickTimer: ReturnType<typeof setInterval> | null = null;
 
-/** Poison/bleed resist from active expedition run upgrades (0–75% reduction). */
+/** Poison/bleed resist from active expedition run upgrades + build bonuses (0–75% reduction). */
 function getExpeditionThreatDamageMult(kind: 'poison' | 'bleed'): number {
     const win = window as any;
     const exp = win.ExpeditionEngine;
     if (!exp?.state?.active) return 1;
-    const b = exp.state.runBuffs || {};
-    const raw = kind === 'poison' ? Number(b.poisonResPct) || 0 : Number(b.bleedResPct) || 0;
+    const stat = kind === 'poison' ? 'poisonResPct' : 'bleedResPct';
+    const raw = typeof exp.getCombinedBuffPct === 'function'
+        ? Number(exp.getCombinedBuffPct(stat)) || 0
+        : Number((exp.state.runBuffs || {})[stat]) || 0;
     const pct = Math.max(0, Math.min(THREAT_RESIST_CAP_PCT, raw));
     return 1 - pct / 100;
 }

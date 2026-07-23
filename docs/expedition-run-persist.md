@@ -26,12 +26,22 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - Run % buffs and temporary forge enchants **do not** apply in town
 - Resume reapplies them on the expedition map
 
+## Path choices (merchant / rare / warhorn)
+
+- **Merchant** — pick 1 of 3 deals (heal / free mats / named +8% pact); paid deals spend **bag Adena**
+- **Rare events** — 2 choices per type (shrine / gambler / cache / storm); storm “Focused” opens a secondary +8% pick
+- **Warhorn** — Assault / Tempo / Iron Rally packages (not a fixed buff)
+- **Scout / Tracks** — real foresight: Scout (J2+) sets `nextPathBias` (`fight`|`safe`) for the next journey; Tracks (~50%) sets `nextPathGuarantee` (forced path type). Consumed in `generatePathChoices` (ignored on milestone boss / combat-only). Persisted on `expeditionRun`.
+- Offers resolve in the same click (no extra save fields for merchant/rare/warhorn)
+
 ## Run builds (synergy)
 
-- First completed synergy build locks for the run (`activeBuildId` on `expeditionRun`)
-- Builds: **Swift Caster** (skill CD ≥ 24%), **Spell Fortress** (M.Def ≥ 14% + HP/MP regen ≥ 10%), **Blade Dancer** (Atk Spd ≥ 20% + Crit ≥ 10%)
-- Bonus % live in `buildBonusBuffs` (rebuilt from catalog on load) — separate from card picks
-- Dedicated **Builds** tab on the run panel (with Path / Stats / Gear) — progress bars per requirement
+- Unlock **as many builds as you complete** — bonuses **stack** (`unlockedBuildIds` on `expeditionRun`; legacy `activeBuildId` migrates on load)
+- 8 builds in Offense / Defense / Sustain (Swift Caster, Blade Dancer, Executioner, Spell Fortress, Iron Wall, Trail Warden, Mana Well, Vital Pulse)
+- Thresholds tuned for **~4–7 dedicated card picks** per build (not 1–2); mastery at **3 / 5 / 7** is a mid/late-run goal
+- Mastery tiers at **3 / 5 / 7** unlocked builds (extra stacked % via `BUILD_MASTERY_TIERS`)
+- Bonus % live in `buildBonusBuffs` (rebuilt from catalog on load) — separate from card picks; combat uses `getCombinedBuffPct` (cards + builds)
+- Dedicated **Builds** tab — role groups, mastery track, stacked-bonus list, closest-build tip; upgrade cards show **Toward** / **Unlocks** hints; Stats chips mark ★ when builds contribute
 - Compact chips still on the upgrade pick modal
 
 ## Honesty (§12.7)

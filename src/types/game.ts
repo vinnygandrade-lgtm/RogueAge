@@ -769,8 +769,16 @@ export interface ExpeditionRunSave {
   combatInterrupted?: boolean;
   combatOnlyNextJourney: boolean;
   combatOnlyThisJourney: boolean;
+  /** Scout foresight pending for next journey (`fight` | `safe`). */
+  nextPathBias?: 'fight' | 'safe' | null;
+  /** Tracks foresight — guaranteed path type on next journey. */
+  nextPathGuarantee?: string | null;
+  /** Bias that shaped the current journey (UI banner). */
+  pathBiasThisJourney?: 'fight' | 'safe' | null;
   runBuffs: Record<string, number>;
-  /** Locked synergy build id for this run (optional — older saves omit). */
+  /** Unlocked synergy build ids this run (optional — older saves may use activeBuildId). */
+  unlockedBuildIds?: string[];
+  /** @deprecated Prefer unlockedBuildIds — migrated on load. */
   activeBuildId?: string | null;
   runEnchantBonus: Record<string, number>;
   runStats: Record<string, number | string | null>;
