@@ -108,17 +108,21 @@
 @keyframes pulse-profile-slot-aura {
     0% {
         box-shadow:
-            inset 0 2px 10px rgba(0, 0, 0, 0.85),
-            0 0 6px var(--profile-slot-soft, rgba(250, 204, 21, 0.35)),
-            0 0 12px var(--profile-slot-glow, #facc15);
+            inset 0 2px 10px rgba(0, 0, 0, 0.88),
+            inset 0 0 calc(10px * var(--profile-slot-mul, 1)) color-mix(in srgb, var(--profile-slot-glow, #facc15) 45%, transparent),
+            0 0 calc(5px * var(--profile-slot-mul, 1)) var(--profile-slot-core, #fff8e7),
+            0 0 calc(12px * var(--profile-slot-mul, 1)) var(--profile-slot-soft, rgba(250, 204, 21, 0.4)),
+            0 0 calc(22px * var(--profile-slot-mul, 1)) var(--profile-slot-glow, #facc15);
         border-color: var(--profile-slot-glow, #ca8a04);
     }
     100% {
         box-shadow:
-            inset 0 2px 10px rgba(0, 0, 0, 0.75),
-            0 0 14px var(--profile-slot-soft, rgba(250, 204, 21, 0.5)),
-            0 0 22px var(--profile-slot-glow, #fde68a);
-        border-color: color-mix(in srgb, var(--profile-slot-glow, #facc15) 70%, #fff 30%);
+            inset 0 2px 10px rgba(0, 0, 0, 0.72),
+            inset 0 0 calc(14px * var(--profile-slot-mul, 1)) color-mix(in srgb, var(--profile-slot-glow, #facc15) 55%, transparent),
+            0 0 calc(8px * var(--profile-slot-mul, 1)) var(--profile-slot-core, #fff8e7),
+            0 0 calc(18px * var(--profile-slot-mul, 1)) var(--profile-slot-soft, rgba(250, 204, 21, 0.55)),
+            0 0 calc(34px * var(--profile-slot-mul, 1)) var(--profile-slot-glow, #fde68a);
+        border-color: color-mix(in srgb, var(--profile-slot-glow, #facc15) 62%, #fff 38%);
     }
 }
 
@@ -126,15 +130,19 @@
     0% {
         box-shadow:
             inset 0 2px 10px rgba(0, 0, 0, 0.8),
-            0 0 10px rgba(255, 255, 255, 0.35),
-            0 0 18px rgba(250, 204, 21, 0.45);
+            inset 0 0 14px rgba(250, 204, 21, 0.28),
+            0 0 10px rgba(255, 255, 255, 0.45),
+            0 0 20px rgba(250, 204, 21, 0.55),
+            0 0 36px rgba(230, 194, 138, 0.35);
         border-color: #fde68a;
     }
     100% {
         box-shadow:
-            inset 0 2px 10px rgba(0, 0, 0, 0.65),
-            0 0 18px rgba(255, 255, 255, 0.65),
-            0 0 28px rgba(250, 204, 21, 0.75);
+            inset 0 2px 10px rgba(0, 0, 0, 0.6),
+            inset 0 0 18px rgba(255, 255, 255, 0.35),
+            0 0 16px rgba(255, 255, 255, 0.75),
+            0 0 28px rgba(250, 204, 21, 0.8),
+            0 0 48px rgba(250, 204, 21, 0.4);
         border-color: #fff;
     }
 }

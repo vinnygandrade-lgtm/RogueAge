@@ -184,25 +184,23 @@ a:focus-visible,
 @keyframes fadeOutToast { from { opacity: 1; } to { opacity: 0; } }
 @keyframes pulse-opacity { 0% { opacity: 0.2; } 100% { opacity: 0.95; } }
 @keyframes pulse-opacity-weapon { 0% { opacity: 0.84; } 100% { opacity: 1; } }
-/* Paperdoll enchant: força do halo/brilho escala com --paperdoll-aura-mul-* e nível (via JS) */
+/* Paperdoll enchant (legado): preferir pulse-weapon-aura-paperdoll — só silhueta da arma */
 @keyframes pulse-weapon-aura {
     0% {
         filter:
-            drop-shadow(0 0 calc(1px * var(--paperdoll-aura-mul-a, 1)) rgba(10, 9, 8, 0.82))
-            drop-shadow(0 0 calc(1px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-glow, #e6c28a))
-            drop-shadow(0 0 calc(2px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(1px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-core, #fff8e7))
             drop-shadow(0 0 calc(3px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-glow, #e6c28a))
             drop-shadow(0 0 calc(7px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.45)))
-            brightness(var(--paperdoll-pulse-lo, 0.74)) contrast(1.1) saturate(var(--paperdoll-sat-lo, 1.04));
+            drop-shadow(0 0 calc(12px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-corona, rgba(179, 138, 77, 0.28)))
+            brightness(var(--paperdoll-pulse-lo, 0.88)) contrast(1.08) saturate(var(--paperdoll-sat-lo, 1.08));
     }
     100% {
         filter:
-            drop-shadow(0 0 calc(1px * var(--paperdoll-aura-mul-b, 1)) rgba(10, 9, 8, 0.42))
-            drop-shadow(0 0 calc(2px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
-            drop-shadow(0 0 calc(4px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
-            drop-shadow(0 0 calc(8px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
-            drop-shadow(0 0 calc(15px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.4)))
-            brightness(var(--paperdoll-pulse-hi, 1.03)) contrast(1.06) saturate(var(--paperdoll-sat-hi, 1.18));
+            drop-shadow(0 0 calc(2px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-core, #fff8e7))
+            drop-shadow(0 0 calc(5px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
+            drop-shadow(0 0 calc(11px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.5)))
+            drop-shadow(0 0 calc(18px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-corona, rgba(179, 138, 77, 0.32)))
+            brightness(var(--paperdoll-pulse-hi, 1.1)) contrast(1.06) saturate(var(--paperdoll-sat-hi, 1.22));
     }
 }
 @keyframes notif-flash {

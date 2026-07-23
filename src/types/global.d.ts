@@ -853,6 +853,7 @@ declare global {
   function syncPaperdollFootShadow(): void;
   function getEnchantTierGlowColor(lvl: number | string): string;
   function getEnchantPulseSpeedSeconds(lvl: number | string): number;
+  function getEnchantGlowClass(lvl: number | string): string;
   function abrirJanelaCraft(categoria?: string): void;
   function fecharJanelaCraft(): void;
   function mudarAbaCraft(categoria: string): void;

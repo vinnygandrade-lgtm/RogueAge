@@ -163,7 +163,9 @@ function _applyPaperdollWeaponGlow(
       weaponLayer.style.filter = 'none';
       weaponLayer.style.animation = 'none';
       weaponLayer.style.removeProperty('--paperdoll-weapon-glow');
+      weaponLayer.style.removeProperty('--paperdoll-weapon-core');
       weaponLayer.style.removeProperty('--paperdoll-weapon-soft');
+      weaponLayer.style.removeProperty('--paperdoll-weapon-corona');
       weaponLayer.style.removeProperty('--paperdoll-aura-mul-a');
       weaponLayer.style.removeProperty('--paperdoll-aura-mul-b');
       weaponLayer.style.removeProperty('--paperdoll-pulse-lo');
@@ -206,16 +208,19 @@ function _applyPaperdollWeaponGlow(
 
   if (lvl >= 25) {
     weaponLayer.style.removeProperty('--paperdoll-weapon-glow');
+    weaponLayer.style.removeProperty('--paperdoll-weapon-core');
     weaponLayer.style.removeProperty('--paperdoll-weapon-soft');
+    weaponLayer.style.removeProperty('--paperdoll-weapon-corona');
     weaponLayer.style.removeProperty('--paperdoll-aura-mul-a');
     weaponLayer.style.removeProperty('--paperdoll-aura-mul-b');
     weaponLayer.style.removeProperty('--paperdoll-pulse-lo');
     weaponLayer.style.removeProperty('--paperdoll-pulse-hi');
     weaponLayer.style.removeProperty('--paperdoll-sat-lo');
     weaponLayer.style.removeProperty('--paperdoll-sat-hi');
+    // Tight divino halo — follows weapon silhouette only (no full-stage overlay).
     weaponLayer.style.setProperty(
       '--paperdoll-divino-strength',
-      String(cfg.divinoStrength != null ? cfg.divinoStrength : 1.22),
+      String(cfg.divinoStrength != null ? cfg.divinoStrength : 1.45),
     );
     weaponLayer.style.filter = '';
     weaponLayer.style.animation = '';
@@ -230,18 +235,23 @@ function _applyPaperdollWeaponGlow(
       window.syncPaperdollFistWeaponLayerClass(weaponLayer, weaponItem);
     }
     weaponLayer.style.removeProperty('--paperdoll-divino-strength');
-    let tierProgress = (lvl - 4) / 20;
-    if (tierProgress < 0) tierProgress = 0;
-    if (tierProgress > 1) tierProgress = 1;
-    const mulA = 1.0 + 0.15 * tierProgress;
-    const mulB = 1.0 + 0.38 * tierProgress;
-    const pulseLo = 0.74 - 0.1 * tierProgress;
-    const pulseHi = 1.03 + 0.11 * tierProgress;
-    const satLo = 1.04 + 0.03 * tierProgress;
-    const satHi = 1.18 + 0.06 * tierProgress;
-    const softA = 0.45 + 0.14 * tierProgress;
+    // Moderate scale — drop-shadow hugs the weapon pixels; keep corona compact.
+    let tierLinear = (lvl - 4) / 20;
+    if (tierLinear < 0) tierLinear = 0;
+    if (tierLinear > 1) tierLinear = 1;
+    const tierProgress = Math.pow(tierLinear, 1.2);
+    const mulA = 1.05 + 0.85 * tierProgress;
+    const mulB = 1.2 + 1.35 * tierProgress;
+    const pulseLo = 0.88 - 0.06 * tierProgress;
+    const pulseHi = 1.08 + 0.18 * tierProgress;
+    const satLo = 1.08 + 0.08 * tierProgress;
+    const satHi = 1.2 + 0.16 * tierProgress;
+    const softA = 0.4 + 0.28 * tierProgress;
+    const coronaA = 0.18 + 0.22 * tierProgress;
     weaponLayer.style.setProperty('--paperdoll-weapon-glow', color);
+    weaponLayer.style.setProperty('--paperdoll-weapon-core', paperdollWeaponGlowCore(color));
     weaponLayer.style.setProperty('--paperdoll-weapon-soft', paperdollWeaponGlowSoft(color, softA));
+    weaponLayer.style.setProperty('--paperdoll-weapon-corona', paperdollWeaponGlowSoft(color, coronaA));
     weaponLayer.style.setProperty('--paperdoll-aura-mul-a', String(mulA));
     weaponLayer.style.setProperty('--paperdoll-aura-mul-b', String(mulB));
     weaponLayer.style.setProperty('--paperdoll-pulse-lo', String(pulseLo));
@@ -453,6 +463,13 @@ function getGlowClass(lvl: number): string {
   return '';
 }
 
+/** Slot/bag glow class for enchant tier (same palette as paperdoll). */
+window.getEnchantGlowClass = function (lvl: number | string): string {
+  let l = parseInt(String(lvl), 10);
+  if (!Number.isFinite(l) || l < 0) l = 0;
+  return getGlowClass(l);
+};
+
 /** Cor do tier do encantamento (paperdoll + slots do perfil). */
 window.getEnchantTierGlowColor = function (lvl: number | string): string {
   let l = parseInt(String(lvl), 10);
@@ -467,6 +484,7 @@ window.getEnchantTierGlowColor = function (lvl: number | string): string {
   else if (l === 22) color = '#22d3ee';
   else if (l === 23) color = '#f472b6';
   else if (l === 24) color = '#f8fafc';
+  else if (l >= 25) color = '#facc15';
   return color;
 };
 
@@ -509,7 +527,9 @@ function clearProfileSlotEnchantGlow(el: HTMLElement | null): void {
   el.classList.remove('profile-slot-enchant-glow', 'profile-slot-enchant-divino');
   el.style.animation = 'none';
   el.style.removeProperty('--profile-slot-glow');
+  el.style.removeProperty('--profile-slot-core');
   el.style.removeProperty('--profile-slot-soft');
+  el.style.removeProperty('--profile-slot-mul');
 }
 
 function applyProfileSlotEnchantGlow(el: HTMLElement | null, lvl: number): void {
@@ -524,9 +544,15 @@ function applyProfileSlotEnchantGlow(el: HTMLElement | null, lvl: number): void 
     return;
   }
   const color = window.getEnchantTierGlowColor(l);
+  let tierLinear = (l - 4) / 20;
+  if (tierLinear < 0) tierLinear = 0;
+  if (tierLinear > 1) tierLinear = 1;
+  const intensity = 0.7 + 0.85 * Math.pow(tierLinear, 1.18);
   el.classList.add('profile-slot-enchant-glow');
   el.style.setProperty('--profile-slot-glow', color);
-  el.style.setProperty('--profile-slot-soft', paperdollWeaponGlowSoft(color, 0.48));
+  el.style.setProperty('--profile-slot-core', paperdollWeaponGlowCore(color));
+  el.style.setProperty('--profile-slot-soft', paperdollWeaponGlowSoft(color, 0.4 + 0.3 * Math.min(1, intensity - 0.4)));
+  el.style.setProperty('--profile-slot-mul', String(intensity));
   el.style.animation = 'pulse-profile-slot-aura ' + sp + 's infinite alternate ease-in-out';
 }
 
@@ -986,6 +1012,21 @@ function paperdollWeaponGlowSoft(hex: string, alpha: number): string {
     alpha +
     ')'
   );
+}
+
+/** Hot edge for weapon aura — same hue, lifted toward white for readable weight. */
+function paperdollWeaponGlowCore(hex: string): string {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || '');
+  if (!m) return '#fff8e7';
+  const r = parseInt(m[1]!, 16);
+  const g = parseInt(m[2]!, 16);
+  const b = parseInt(m[3]!, 16);
+  const lift = 0.42;
+  const toHex = (n: number) => {
+    const v = Math.max(0, Math.min(255, Math.round(n + (255 - n) * lift)));
+    return v.toString(16).padStart(2, '0');
+  };
+  return '#' + toHex(r) + toHex(g) + toHex(b);
 }
 
 window.atualizarBrilhoArma = function (): void {

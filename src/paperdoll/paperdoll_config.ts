@@ -85,7 +85,7 @@ const PAPERDOLL_CONFIG: PaperdollConfig = {
   charLayerMaxWidth: '100%',
   layerClipInset: '0',
   baseClipInset: '0',
-  divinoStrength: 1.22,
+  divinoStrength: 1.45,
   weaponAuraKeyframe: 'pulse-weapon-aura-paperdoll',
   weaponDivinoKeyframe: 'weapon-divino-paperdoll-global',
   artAnchors: {

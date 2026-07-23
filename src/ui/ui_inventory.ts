@@ -161,6 +161,10 @@ function renderizarInventario(): void {
         let badgeAugment = (equip.augmented || itemBase.augmented) ? `<div class="augment-label" style="background:#a855f7;"></div>` : '';
 
         let slotClass = 'inv-slot';
+        if (nivelEnchant >= 4 && typeof window.getEnchantGlowClass === 'function') {
+            const glowCls = window.getEnchantGlowClass(nivelEnchant);
+            if (glowCls) slotClass += ' ' + glowCls;
+        }
         let badgeLock = '';
         let slotTitle = '';
         if (typeof window.validarEquipPorGrade === 'function') {
