@@ -7,6 +7,8 @@
 /** Default lock between skills (ms). */
 export const SKILL_GCD_MS = 1500;
 
+let lastGcdCastSkill: string | null = null;
+
 function nowMs(): number {
   return Date.now();
 }
@@ -30,10 +32,24 @@ export function isSkillGcdBlocked(): boolean {
   return getSkillGcdRemainingMs() > 0;
 }
 
-/** Arm the shared skill lock. Duration is fixed — not shortened by skill CDR. */
-export function armSkillGcd(ms: number = SKILL_GCD_MS): void {
-  const dur = Math.max(200, Math.floor(Number(ms) || SKILL_GCD_MS));
+/** Skill that armed the current GCD (for hotbar cast highlight). */
+export function getSkillGcdCastName(): string | null {
+  if (getSkillGcdRemainingMs() <= 0) {
+    lastGcdCastSkill = null;
+    return null;
+  }
+  return lastGcdCastSkill;
+}
+
+/**
+ * Arm the shared skill lock.
+ * @param ms optional duration (default SKILL_GCD_MS) — not shortened by skill CDR
+ * @param castSkillName skill that started the GCD (UI highlight)
+ */
+export function armSkillGcd(ms?: number, castSkillName?: string): void {
+  const dur = Math.max(200, Math.floor(ms != null && ms > 0 ? ms : SKILL_GCD_MS));
   window.globalCooldownAtivo = nowMs() + dur;
+  if (castSkillName) lastGcdCastSkill = castSkillName;
 }
 
 /**
@@ -56,12 +72,21 @@ export function getHotbarSlotLockTotalMs(nome: string, personalCdTotalMs: number
   return Math.max(1, personalCdTotalMs);
 }
 
+/** 0–100 progress remaining on the shared GCD (for the top rail). */
+export function getSkillGcdProgressPct(): number {
+  const left = getSkillGcdRemainingMs();
+  if (left <= 0) return 0;
+  return Math.max(0, Math.min(100, (left / SKILL_GCD_MS) * 100));
+}
+
 window.getSkillGcdRemainingMs = getSkillGcdRemainingMs;
 window.isSkillGcdBlocked = isSkillGcdBlocked;
 window.armSkillGcd = armSkillGcd;
 window.slotUsesSkillGcd = slotUsesSkillGcd;
 window.getHotbarSlotLockRemainingMs = getHotbarSlotLockRemainingMs;
 window.getHotbarSlotLockTotalMs = getHotbarSlotLockTotalMs;
+window.getSkillGcdCastName = getSkillGcdCastName;
+window.getSkillGcdProgressPct = getSkillGcdProgressPct;
 window.SKILL_GCD_MS = SKILL_GCD_MS;
 
 export {};

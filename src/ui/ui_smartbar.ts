@@ -434,7 +434,9 @@ function renderizarBarraAtalhos(): void {
             conteudo = `
                         <div class="cd-overlay" data-cd="${nomeSlot}" style="height: ${pct}%;"></div>
                         ${htmlTimer}
-                        <span style="font-size:1.75em; filter: drop-shadow(0 0 3px #000); z-index: 1;">${skill.icone || ''}</span>
+                        <div class="gcd-veil" aria-hidden="true"></div>
+                        <div class="gcd-rail" aria-hidden="true"><span class="gcd-rail__fill"></span></div>
+                        <span class="shortcut-skill-icon" style="font-size:1.75em; filter: drop-shadow(0 0 3px #000); z-index: 1;">${skill.icone || ''}</span>
                         <span class="shortcut-key" style="${secondRow ? 'color: #facc15;' : ''}">${keyLabel}</span>
                     `;
             styleExtra = `border-color: ${skill.cor || '#888'}88; box-shadow: inset 0 0 8px ${skill.cor || '#888'}20;`;
@@ -695,7 +697,7 @@ function executarSkillNaRaid(nomeSlot: string, skill: SkillCatalogEntry): void {
 
   window.playerMP -= skill.mp || 0;
   if (typeof window.atualizar === 'function') window.atualizar();
-  if (typeof window.armSkillGcd === 'function') window.armSkillGcd();
+  if (typeof window.armSkillGcd === 'function') window.armSkillGcd(undefined, nomeSlot);
   else window.globalCooldownAtivo = Date.now() + 1500;
   window.dispararAnimacaoCooldown(nomeSlot, skill.cd || 1000);
   if (typeof window.escreverLog === 'function') {
@@ -758,34 +760,44 @@ setInterval(() => {
   const agora = Date.now();
   const gcdLeft =
     typeof window.getSkillGcdRemainingMs === 'function' ? window.getSkillGcdRemainingMs() : 0;
+  const gcdPct =
+    typeof window.getSkillGcdProgressPct === 'function' ? window.getSkillGcdProgressPct() : 0;
+  const castName =
+    typeof window.getSkillGcdCastName === 'function' ? window.getSkillGcdCastName() : null;
+  const bar = document.getElementById('barra-de-atalhos-dinamica');
+  if (bar) bar.classList.toggle('skill-gcd-active', gcdLeft > 0);
 
   overlays.forEach((overlay) => {
     const el = overlay as HTMLElement;
     const nome = el.getAttribute('data-cd');
     if (!nome) return;
     const timerText = el.nextElementSibling as HTMLElement | null;
-    const slotEl = el.closest('.shortcut-slot');
+    const slotEl = el.closest('.shortcut-slot') as HTMLElement | null;
 
-    const restamMs =
-      typeof window.getHotbarSlotLockRemainingMs === 'function'
-        ? window.getHotbarSlotLockRemainingMs(nome)
-        : Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
-    const usesGcd = typeof window.slotUsesSkillGcd === 'function' && window.slotUsesSkillGcd(nome);
     const personalLeft = Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
-    const gcdOnly = usesGcd && gcdLeft > personalLeft && gcdLeft > 0;
+    const usesGcd = typeof window.slotUsesSkillGcd === 'function' && window.slotUsesSkillGcd(nome);
+    // Ready skills wait on GCD → full dark veil (not the personal CD drain).
+    const gcdWaiting = usesGcd && gcdLeft > 0 && personalLeft <= 0;
+    const isCastSource = !!(castName && nome === castName && gcdLeft > 0);
 
     if (slotEl) {
-      slotEl.classList.toggle('skill-gcd-locked', gcdOnly);
+      slotEl.classList.toggle('skill-gcd-locked', gcdWaiting);
+      slotEl.classList.toggle('skill-gcd-cast', isCastSource);
+      slotEl.style.setProperty('--gcd-pct', `${gcdPct}%`);
+      const railFill = slotEl.querySelector('.gcd-rail__fill') as HTMLElement | null;
+      if (railFill) railFill.style.width = `${gcdPct}%`;
     }
 
-    if (restamMs > 0) {
-      const personalTotal = getSkillCdTotal(nome);
-      const cdTotal =
-        typeof window.getHotbarSlotLockTotalMs === 'function'
-          ? window.getHotbarSlotLockTotalMs(nome, personalTotal)
-          : personalTotal;
+    if (gcdWaiting) {
+      // Veil handles the look — keep CD overlay clear so it does not double-darken.
+      el.style.height = '0%';
+      if (timerText?.classList.contains('cd-timer-text')) timerText.style.display = 'none';
+      return;
+    }
 
-      let porcentagem = (restamMs / Math.max(1, cdTotal)) * 100;
+    if (personalLeft > 0) {
+      const personalTotal = getSkillCdTotal(nome);
+      let porcentagem = (personalLeft / Math.max(1, personalTotal)) * 100;
       if (porcentagem < 0) porcentagem = 0;
       if (porcentagem > 100) porcentagem = 100;
 
@@ -793,9 +805,8 @@ setInterval(() => {
       el.style.width = '100%';
 
       if (timerText?.classList.contains('cd-timer-text')) {
-        // Show timer for personal skill CD; hide during short shared GCD flash (Attack never shows).
-        if (nome !== 'Attack' && !gcdOnly) {
-          timerText.innerText = (restamMs / 1000).toFixed(1);
+        if (nome !== 'Attack') {
+          timerText.innerText = (personalLeft / 1000).toFixed(1);
           timerText.style.display = 'block';
         } else {
           timerText.style.display = 'none';

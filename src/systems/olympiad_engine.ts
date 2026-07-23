@@ -1744,7 +1744,7 @@ const OlympiadEngine = {
         }
 
         window.playerMP -= skill.mp;
-        if (typeof window.armSkillGcd === 'function') window.armSkillGcd();
+        if (typeof window.armSkillGcd === 'function') window.armSkillGcd(undefined, nomeSkill);
         else window.globalCooldownAtivo = agora + 1500;
 
         const skillCD = skill.cd || 1000;

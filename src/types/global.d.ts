@@ -564,10 +564,12 @@ declare global {
     SKILL_GCD_MS?: number;
     getSkillGcdRemainingMs?: () => number;
     isSkillGcdBlocked?: () => boolean;
-    armSkillGcd?: (ms?: number) => void;
+    armSkillGcd?: (ms?: number, castSkillName?: string) => void;
     slotUsesSkillGcd?: (nome: string | null | undefined) => boolean;
     getHotbarSlotLockRemainingMs?: (nome: string) => number;
     getHotbarSlotLockTotalMs?: (nome: string, personalCdTotalMs: number) => number;
+    getSkillGcdCastName?: () => string | null;
+    getSkillGcdProgressPct?: () => number;
 
     I18N_LOCALES?: Record<import('./game').UiLocale, Record<string, unknown>>;
   }

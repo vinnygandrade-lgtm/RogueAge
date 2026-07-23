@@ -82,7 +82,7 @@ function usarSkill(nomeSkill: string) {
         return;
     }
 
-    if (typeof window.armSkillGcd === 'function') window.armSkillGcd();
+    if (typeof window.armSkillGcd === 'function') window.armSkillGcd(undefined, nomeSkill);
     else window.globalCooldownAtivo = Date.now() + 1500;
     window.playerMP -= mpCost;
     window.dispararAnimacaoCooldown?.(nomeSkill, resolveSkillCooldownMs(skill.cd));
