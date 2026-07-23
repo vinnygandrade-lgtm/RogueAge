@@ -344,6 +344,31 @@ function scheduleNextAutoAttackSwing(delayMs: number): void {
 }
 
 /**
+ * After a skill cast, restart basic Attack load from full CD so a nearly-ready
+ * swing does not fire immediately on top of the skill.
+ */
+window.resetBasicAttackAposSkill = function () {
+  const atkCdMs = getAttackSwingCdMs();
+  if (typeof dispararAnimacaoGCD === 'function') dispararAnimacaoGCD(atkCdMs, 'Attack');
+  else if (typeof window.dispararAnimacaoCooldown === 'function') window.dispararAnimacaoCooldown('Attack', atkCdMs);
+  else if (window.cooldownsAtivos) window.cooldownsAtivos['Attack'] = Date.now() + atkCdMs;
+
+  if (window.autoAtaqueAtivo) {
+    scheduleNextAutoAttackSwing(atkCdMs);
+  }
+
+  const raid = window.RaidEngine as { ativo?: boolean; ultimoAtaquePlayer?: number } | undefined;
+  if (raid?.ativo) {
+    raid.ultimoAtaquePlayer = Date.now();
+  }
+
+  const oly = window.OlympiadEngine as { ativo?: boolean; olyBasicAttackLockUntil?: number } | undefined;
+  if (oly?.ativo) {
+    oly.olyBasicAttackLockUntil = Date.now() + atkCdMs;
+  }
+};
+
+/**
  * One basic Attack swing (forest / raid). Respects Attack CD.
  * Returns true if a swing was performed.
  */
