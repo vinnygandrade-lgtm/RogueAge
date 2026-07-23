@@ -515,6 +515,7 @@ declare global {
     usarSkill?: (nomeSkill: string) => void;
     iniciarAtaqueMonstro?: () => void;
     autoShotAtivo?: boolean;
+    toggleAutoShot?: () => void;
     zonaAtual?: import('./game').HuntZoneData;
     tutorialFirstAttackDone?: boolean;
     TutorialEngine?: {

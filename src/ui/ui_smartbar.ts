@@ -17,6 +17,29 @@ let segurouDedo = false;
 
 window.autoShotAtivo = window.autoShotAtivo ?? false;
 
+/** Small AUTO chip above Soulshot/Spiritshot — toggle auto-consume on hit. */
+window.toggleAutoShot = function () {
+  const telaOly = document.getElementById('tela-olympiad-arena');
+  if (telaOly && telaOly.style.display === 'flex') {
+    if (typeof window.escreverLog === 'function') {
+      window.escreverLog(`<span style="color:#facc15;">${smartbarT('game.smartbar.olympiadShotsDisabled')}</span>`);
+    }
+    window.autoShotAtivo = false;
+    renderizarBarraAtalhos();
+    return;
+  }
+
+  window.autoShotAtivo = !window.autoShotAtivo;
+  if (typeof window.escreverLog === 'function') {
+    if (window.autoShotAtivo) {
+      window.escreverLog(`<span style="color:#60a5fa; font-weight:bold;">${smartbarT('game.smartbar.autoShotOn')}</span>`);
+    } else {
+      window.escreverLog(`<span style="color:#aaa;">${smartbarT('game.smartbar.autoShotOff')}</span>`);
+    }
+  }
+  renderizarBarraAtalhos();
+};
+
 function smartbarT(key: string, params?: Record<string, string | number>): string {
   return typeof window.t === 'function' ? window.t(key, params) : key;
 }
@@ -444,26 +467,39 @@ function renderizarBarraAtalhos(): void {
                 </div>
             `;
 
-      // AUTO chip sits above basic Attack (forest / raid / expedition). Olympiad & clan war keep click-to-hit only.
+      // AUTO chips sit above Attack / Soulshot|Spiritshot. Olympiad: no attack auto chip; shots disabled entirely.
       const naGuerraHotbar = !!window.ClanWarEngine?.ativo;
-      const showAutoChip =
+      const isShotSlot =
+        !!nomeSlot && (nomeSlot.includes('Soulshot') || nomeSlot.includes('Spiritshot'));
+      const showAttackAutoChip =
         nomeSlot === 'Attack' && !estaNaOlympiad && !naGuerraHotbar;
-      if (showAutoChip) {
-        const autoOn = window.autoAtaqueAtivo === true;
+      const showShotAutoChip = isShotSlot && !estaNaOlympiad;
+
+      if (showAttackAutoChip || showShotAutoChip) {
+        const autoOn = showAttackAutoChip
+          ? window.autoAtaqueAtivo === true
+          : window.autoShotAtivo === true;
         const autoLabel = smartbarT('game.smartbar.autoAttackChip');
-        const autoTitle = autoOn
-          ? smartbarT('game.smartbar.autoAttackChipTitleOn')
-          : smartbarT('game.smartbar.autoAttackChipTitleOff');
+        const autoTitle = showAttackAutoChip
+          ? (autoOn
+            ? smartbarT('game.smartbar.autoAttackChipTitleOn')
+            : smartbarT('game.smartbar.autoAttackChipTitleOff'))
+          : (autoOn
+            ? smartbarT('game.smartbar.autoShotChipTitleOn')
+            : smartbarT('game.smartbar.autoShotChipTitleOff'));
+        const toggleFn = showAttackAutoChip ? 'toggleAutoAtaque' : 'toggleAutoShot';
+        const onClass = showShotAutoChip ? 'is-on is-on-shot' : 'is-on';
+        const stackMod = showShotAutoChip ? 'shortcut-slot-stack--shot' : 'shortcut-slot-stack--attack';
         novoHtml += `
-                <div class="shortcut-slot-stack shortcut-slot-stack--attack">
+                <div class="shortcut-slot-stack ${stackMod}">
                     <button type="button"
-                        class="hotbar-auto-atk-btn${autoOn ? ' is-on' : ''}"
+                        class="hotbar-auto-atk-btn${autoOn ? ` ${onClass}` : ''}"
                         title="${autoTitle.replace(/"/g, '&quot;')}"
                         aria-pressed="${autoOn ? 'true' : 'false'}"
                         aria-label="${autoTitle.replace(/"/g, '&quot;')}"
                         onmousedown="event.stopPropagation();"
                         ontouchstart="event.stopPropagation();"
-                        onclick="event.stopPropagation(); event.preventDefault(); if (typeof window.toggleAutoAtaque === 'function') window.toggleAutoAtaque();">
+                        onclick="event.stopPropagation(); event.preventDefault(); if (typeof window.${toggleFn} === 'function') window.${toggleFn}();">
                         ${autoLabel}
                     </button>
                     ${slotHtml}
@@ -575,25 +611,8 @@ function ativarAtalhoSlot(index: number): void {
       } else if (nomeSlot === 'Mana Potion' || nomeSlot === 'MP Potion') {
         if (typeof window.usarPocaoMP === 'function') window.usarPocaoMP(nomeSlot);
       } else if (nomeSlot.includes('Soulshot') || nomeSlot.includes('Spiritshot')) {
-        const telaOly = document.getElementById('tela-olympiad-arena');
-        if (telaOly && telaOly.style.display === 'flex') {
-          if (typeof window.escreverLog === 'function') {
-            window.escreverLog(`<span style="color:#facc15;">${smartbarT('game.smartbar.olympiadShotsDisabled')}</span>`);
-          }
-          window.autoShotAtivo = false;
-          renderizarBarraAtalhos();
-          return;
-        }
-
-        window.autoShotAtivo = !window.autoShotAtivo;
-        if (typeof window.escreverLog === 'function') {
-          if (window.autoShotAtivo) {
-            window.escreverLog(`<span style="color:#60a5fa; font-weight:bold;">${smartbarT('game.smartbar.autoShotOn')}</span>`);
-          } else {
-            window.escreverLog(`<span style="color:#aaa;">${smartbarT('game.smartbar.autoShotOff')}</span>`);
-          }
-        }
-        renderizarBarraAtalhos();
+        // Slot tap keeps toggle for F-keys; primary UX is the AUTO chip above the shot.
+        if (typeof window.toggleAutoShot === 'function') window.toggleAutoShot();
       }
     }
   }

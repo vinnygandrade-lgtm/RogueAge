@@ -75,7 +75,8 @@
     overflow: visible !important;
 }
 
-.shortcut-slot-stack--attack .shortcut-slot {
+.shortcut-slot-stack--attack .shortcut-slot,
+.shortcut-slot-stack--shot .shortcut-slot {
     width: 100% !important;
 }
 
@@ -115,6 +116,16 @@
     background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%) !important;
     box-shadow:
         0 0 8px rgba(245, 158, 11, 0.75),
+        0 1px 3px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Soulshot / Spiritshot AUTO chip — blue when armed */
+.hotbar-auto-atk-btn.is-on.is-on-shot {
+    color: #0a1524 !important;
+    border-color: #60a5fa !important;
+    background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%) !important;
+    box-shadow:
+        0 0 8px rgba(96, 165, 250, 0.8),
         0 1px 3px rgba(0, 0, 0, 0.55) !important;
 }
 
