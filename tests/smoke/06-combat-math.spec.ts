@@ -11,6 +11,7 @@ test.describe('Combat math (TS module)', () => {
   test('atacar applies damage to mob via aplicarDanoNoMonstro', async ({ page }) => {
     const state = await page.evaluate(() => {
       window.globalCooldownAtivo = 0;
+      if (window.cooldownsAtivos) delete window.cooldownsAtivos['Attack'];
       window.monstrosAtivos = [
         {
           idUnico: 'smoke-mob-1',
@@ -27,15 +28,22 @@ test.describe('Combat math (TS module)', () => {
       window.playerStats = { ...window.playerStats, pAtk: 200, mAtk: 100, atkSpeed: 500 };
       window.autoAtaqueAtivo = false;
 
+      // Manual Attack = one swing (AUTO chip toggles continuous attack).
       window.atacar?.();
-      const mob = window.monstrosAtivos[0] as { hp?: number } | undefined;
+      const mobAfterSwing = window.monstrosAtivos[0] as { hp?: number } | undefined;
+      const hpAfterSwing = mobAfterSwing ? Math.floor(Number(mobAfterSwing.hp)) : 0;
+      const autoAfterSwing = window.autoAtaqueAtivo;
+
+      window.toggleAutoAtaque?.();
       return {
-        hp: mob ? Math.floor(Number(mob.hp)) : 0,
-        mobGone: !mob,
+        hp: hpAfterSwing,
+        mobGone: !mobAfterSwing,
+        autoAfterSwing,
         autoOn: window.autoAtaqueAtivo,
       };
     });
 
+    expect(state.autoAfterSwing).toBe(false);
     expect(state.autoOn).toBe(true);
     expect(state.mobGone || state.hp < 5000).toBe(true);
   });
