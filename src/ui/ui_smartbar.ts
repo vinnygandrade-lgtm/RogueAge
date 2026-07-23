@@ -434,9 +434,7 @@ function renderizarBarraAtalhos(): void {
             conteudo = `
                         <div class="cd-overlay" data-cd="${nomeSlot}" style="height: ${pct}%;"></div>
                         ${htmlTimer}
-                        <div class="gcd-veil" aria-hidden="true"></div>
-                        <div class="gcd-rail" aria-hidden="true"><span class="gcd-rail__fill"></span></div>
-                        <span class="shortcut-skill-icon" style="font-size:1.75em; filter: drop-shadow(0 0 3px #000); z-index: 1;">${skill.icone || ''}</span>
+                        <span style="font-size:1.75em; filter: drop-shadow(0 0 3px #000); z-index: 1;">${skill.icone || ''}</span>
                         <span class="shortcut-key" style="${secondRow ? 'color: #facc15;' : ''}">${keyLabel}</span>
                     `;
             styleExtra = `border-color: ${skill.cor || '#888'}88; box-shadow: inset 0 0 8px ${skill.cor || '#888'}20;`;
@@ -758,64 +756,63 @@ window.dispararAnimacaoGCD = function (tempoMs: number, nome: string): void {
 setInterval(() => {
   const overlays = document.querySelectorAll('.cd-overlay');
   const agora = Date.now();
-  const gcdLeft =
+  const castLeft =
     typeof window.getSkillGcdRemainingMs === 'function' ? window.getSkillGcdRemainingMs() : 0;
-  const gcdPct =
-    typeof window.getSkillGcdProgressPct === 'function' ? window.getSkillGcdProgressPct() : 0;
+  const castTotal = Math.max(1, Number(window.SKILL_GCD_MS) || 1500);
   const castName =
     typeof window.getSkillGcdCastName === 'function' ? window.getSkillGcdCastName() : null;
-  const bar = document.getElementById('barra-de-atalhos-dinamica');
-  if (bar) bar.classList.toggle('skill-gcd-active', gcdLeft > 0);
 
   overlays.forEach((overlay) => {
     const el = overlay as HTMLElement;
     const nome = el.getAttribute('data-cd');
     if (!nome) return;
     const timerText = el.nextElementSibling as HTMLElement | null;
-    const slotEl = el.closest('.shortcut-slot') as HTMLElement | null;
 
     const personalLeft = Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
-    const usesGcd = typeof window.slotUsesSkillGcd === 'function' && window.slotUsesSkillGcd(nome);
-    // Ready skills wait on GCD → full dark veil (not the personal CD drain).
-    const gcdWaiting = usesGcd && gcdLeft > 0 && personalLeft <= 0;
-    const isCastSource = !!(castName && nome === castName && gcdLeft > 0);
+    const usesCastLock = typeof window.slotUsesSkillGcd === 'function' && window.slotUsesSkillGcd(nome);
+    const isCastSource = !!(castName && nome === castName && castLeft > 0);
+    // Cast lock: red drain like personal CD. Blocks all other skills until it finishes.
+    const underCastLock = usesCastLock && castLeft > 0 && (personalLeft <= 0 || isCastSource);
 
-    if (slotEl) {
-      slotEl.classList.toggle('skill-gcd-locked', gcdWaiting);
-      slotEl.classList.toggle('skill-gcd-cast', isCastSource);
-      slotEl.style.setProperty('--gcd-pct', `${gcdPct}%`);
-      const railFill = slotEl.querySelector('.gcd-rail__fill') as HTMLElement | null;
-      if (railFill) railFill.style.width = `${gcdPct}%`;
+    let restamMs = 0;
+    let totalMs = 1;
+    let showCastRed = false;
+
+    if (underCastLock) {
+      // Launch CD (red) — same visual language as skill recharge, shorter shared lock.
+      restamMs = castLeft;
+      totalMs = castTotal;
+      showCastRed = true;
+    } else if (personalLeft > 0) {
+      restamMs = personalLeft;
+      totalMs = getSkillCdTotal(nome);
+      showCastRed = false;
     }
 
-    if (gcdWaiting) {
-      // Veil handles the look — keep CD overlay clear so it does not double-darken.
-      el.style.height = '0%';
-      if (timerText?.classList.contains('cd-timer-text')) timerText.style.display = 'none';
-      return;
-    }
+    el.classList.toggle('cd-overlay--cast', showCastRed);
 
-    if (personalLeft > 0) {
-      const personalTotal = getSkillCdTotal(nome);
-      let porcentagem = (personalLeft / Math.max(1, personalTotal)) * 100;
+    if (restamMs > 0) {
+      let porcentagem = (restamMs / Math.max(1, totalMs)) * 100;
       if (porcentagem < 0) porcentagem = 0;
       if (porcentagem > 100) porcentagem = 100;
-
       el.style.height = porcentagem + '%';
       el.style.width = '100%';
 
       if (timerText?.classList.contains('cd-timer-text')) {
         if (nome !== 'Attack') {
-          timerText.innerText = (personalLeft / 1000).toFixed(1);
+          timerText.innerText = (restamMs / 1000).toFixed(1);
           timerText.style.display = 'block';
+          timerText.classList.toggle('cd-timer-text--cast', showCastRed);
         } else {
           timerText.style.display = 'none';
+          timerText.classList.remove('cd-timer-text--cast');
         }
       }
     } else {
       el.style.height = '0%';
       if (timerText?.classList.contains('cd-timer-text')) {
         timerText.style.display = 'none';
+        timerText.classList.remove('cd-timer-text--cast');
       }
     }
   });

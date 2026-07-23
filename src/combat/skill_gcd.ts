@@ -1,10 +1,11 @@
 /**
- * Shared skill GCD (global cooldown) — professional cast pacing.
- * Blocks skill → skill chaining; does NOT gate basic Attack / potions / shots.
+ * Shared skill cast / launch lock.
+ * After casting a skill, a short red CD (same drain visual as personal CD) blocks
+ * other skills. Does NOT gate basic Attack / potions / shots.
  * Fixed duration (not reduced by expedition skill CDR).
  */
 
-/** Default lock between skills (ms). */
+/** Default cast-lock duration between skills (ms). */
 export const SKILL_GCD_MS = 1500;
 
 let lastGcdCastSkill: string | null = null;
