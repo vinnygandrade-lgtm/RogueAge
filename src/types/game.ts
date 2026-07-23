@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 18 as const;
+export const L2MINI_SAVE_VERSION = 19 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -798,6 +798,32 @@ export interface ExpeditionRunSave {
   lastCombatLoot?: { adenas: number; xp: number; drops: Record<string, number> } | null;
 }
 
+/** Between-run Forest Expedition ledger (persists across extracts). */
+export type ExpeditionMetaOutcome = 'extract' | 'death';
+
+export interface ExpeditionZoneMeta {
+  bestJourney: number;
+  extracts: number;
+  deaths: number;
+  runsStarted: number;
+  /** Best Adena kept on a successful extract in this zone. */
+  bestExtractAdena: number;
+  lastOutcome: ExpeditionMetaOutcome | null;
+  lastJourney: number;
+  lastAdenaKept: number;
+  lastAt: number;
+}
+
+export interface ExpeditionMetaSave {
+  v: 1;
+  totalExtracts: number;
+  totalDeaths: number;
+  totalRunsStarted: number;
+  bestJourneyEver: number;
+  bestExtractAdenaEver: number;
+  byZone: Record<string, ExpeditionZoneMeta>;
+}
+
 /** Payload persistido (localStorage + characters.data JSONB). */
 export interface CharacterSave {
   saveVersion?: number;
@@ -854,6 +880,8 @@ export interface CharacterSave {
    * Client-authoritative until extract RPC (§12.7).
    */
   expeditionRun?: ExpeditionRunSave | null;
+  /** Between-run expedition ledger (PB journey, extracts, last run) — survives extract. */
+  expeditionMeta?: ExpeditionMetaSave | null;
   playerClanId?: number | string | null;
   mailboxCloud?: unknown[];
   inventarioRecentLog?: InventarioRecentEntry[];
@@ -1216,6 +1244,8 @@ export type DailyMissionId =
   | 'hunt_pack'
   | 'champion_hunter'
   | 'zone_ranger'
+  | 'forest_runner'
+  | 'deep_delver'
   | 'forge_minter'
   | 'adena_farmer'
   | 'coin_collector'
@@ -1225,7 +1255,8 @@ export type DailyMissionId =
   | 'olympiad_grinder'
   | 'daily_boss_slayer'
   | 'battle_alchemist'
-  | 'skill_sparks';
+  | 'skill_sparks'
+  | 'bag_extractor';
 
 export type DailyMissionGroup = 'farm' | 'economy' | 'challenge';
 
@@ -1241,7 +1272,9 @@ export type DailyMissionEventType =
   | 'usar_pocoes'
   | 'usar_skills'
   | 'tentar_enchant'
-  | 'craft_item';
+  | 'craft_item'
+  | 'expedition_journey'
+  | 'expedition_complete';
 
 export type DailyMissionRewardPackage = 'base' | 'farm' | 'champion' | 'arena' | 'pocao';
 

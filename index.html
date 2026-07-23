@@ -732,12 +732,22 @@
                     <div class="expedition-rules-card">
                         <div class="expedition-rules-card__icon" aria-hidden="true">🗺️</div>
                         <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesPathTitle">Roguelike loop</div>
-                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesPathDesc">Journey 1: Fight or Elite only. Safe paths and gifts from journey 2. Boss gate every 10 journeys.</div>
+                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesPathDesc">Journey 1 is fight-only. From journey 2: safe paths, merchants, and gifts. Boss gate every 10 journeys. Taking a safe path can force the next journey to be combat-only.</div>
                     </div>
                     <div class="expedition-rules-card">
                         <div class="expedition-rules-card__icon" aria-hidden="true">⚡</div>
                         <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesBuildsTitle">Run builds</div>
                         <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesBuildsDesc">Upgrade cards fill build paths. Unlock as many as you can — bonuses stack. Mastery rewards at 3, 5, and 7 builds. Track them on the Builds tab.</div>
+                    </div>
+                    <div class="expedition-rules-card">
+                        <div class="expedition-rules-card__icon" aria-hidden="true">🎯</div>
+                        <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesOffersTitle">Deals &amp; rare events</div>
+                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesOffersDesc">Merchant and Warhorn open a pick (deals or rally packages; paid deals spend bag Adena). Rare events — shrine, gambler, cache, storm — also ask you to choose.</div>
+                    </div>
+                    <div class="expedition-rules-card">
+                        <div class="expedition-rules-card__icon" aria-hidden="true">🔭</div>
+                        <div class="expedition-rules-card__title" data-i18n="game.hunt.expedition.rulesIntelTitle">Scout &amp; Tracks</div>
+                        <div class="expedition-rules-card__text" data-i18n="game.hunt.expedition.rulesIntelDesc">Scout biases the next journey toward fight-heavy or safer paths. Tracks can guarantee a path type appears. Watch the map banners before you pick.</div>
                     </div>
                 </div>
                 <div class="expedition-rules-legend">
@@ -746,13 +756,14 @@
                         <li><span aria-hidden="true">⚔️</span> <span data-i18n="game.hunt.expedition.legendPathCombat">Fight — win to pick a run upgrade</span></li>
                         <li><span aria-hidden="true">👹</span> <span data-i18n="game.hunt.expedition.legendPathBoss">Boss — brutal fight, ×2 bag loot</span></li>
                         <li><span aria-hidden="true">💀</span> <span data-i18n="game.hunt.expedition.legendPathElite">Elite — champions, premium loot</span></li>
-                        <li><span aria-hidden="true">🎁</span> <span data-i18n="game.hunt.expedition.legendPathChest">Chest — loot (from journey 2)</span></li>
-                        <li><span aria-hidden="true">🧳</span> <span data-i18n="game.hunt.expedition.legendPathMerchant">Merchant — trade (from journey 2)</span></li>
-                        <li><span aria-hidden="true">🚶</span> <span data-i18n="game.hunt.expedition.legendPathPatrol">Patrol — XP march, opening-safe</span></li>
-                        <li><span aria-hidden="true">👣</span> <span data-i18n="game.hunt.expedition.legendPathTracks">Tracks — next journey trait</span></li>
-                        <li><span aria-hidden="true">🔨</span> <span data-i18n="game.hunt.expedition.legendPathForge">Forge — run stat boost</span></li>
-                        <li><span aria-hidden="true">📯</span> <span data-i18n="game.hunt.expedition.legendPathWarhorn">Warhorn — class atk + speed</span></li>
-                        <li><span aria-hidden="true">🌿</span> <span data-i18n="game.hunt.expedition.legendPathAmbush">Ambush — loot or HP loss</span></li>
+                        <li><span aria-hidden="true">🎁</span> <span data-i18n="game.hunt.expedition.legendPathChest">Chest — bag loot (from journey 2)</span></li>
+                        <li><span aria-hidden="true">🧳</span> <span data-i18n="game.hunt.expedition.legendPathMerchant">Merchant — pick 1 of 3 deals (bag Adena)</span></li>
+                        <li><span aria-hidden="true">🔨</span> <span data-i18n="game.hunt.expedition.legendPathForge">Forge — temporary +1 gear enchant for the run</span></li>
+                        <li><span aria-hidden="true">🔭</span> <span data-i18n="game.hunt.expedition.legendPathScout">Scout — foresight for next journey · bag bonus</span></li>
+                        <li><span aria-hidden="true">🚶</span> <span data-i18n="game.hunt.expedition.legendPathPatrol">Patrol — safe XP march (early journeys)</span></li>
+                        <li><span aria-hidden="true">👣</span> <span data-i18n="game.hunt.expedition.legendPathTracks">Tracks — next trait · chance to force a path</span></li>
+                        <li><span aria-hidden="true">📯</span> <span data-i18n="game.hunt.expedition.legendPathWarhorn">Warhorn — pick Assault, Tempo, or Iron Rally</span></li>
+                        <li><span aria-hidden="true">🌿</span> <span data-i18n="game.hunt.expedition.legendPathAmbush">Ambush — bag loot or HP loss</span></li>
                     </ul>
                 </div>
             </div>
@@ -1729,6 +1740,36 @@
                                 </div>
                             </div>
                             <p class="expedition-hub__desc" data-i18n="game.hunt.expedition.hubDesc">Pick a path each journey, grow stronger as you go, and extract when the bag is worth the risk.</p>
+                            <div class="expedition-hub__actions">
+                                <button id="btn-iniciar-caca" type="button" class="btn-l2 expedition-hub__begin" data-i18n="game.hunt.expedition.startBtn">Begin Expedition</button>
+                                <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">How it works</button>
+                            </div>
+                            <div id="expedition-hub-ledger" class="expedition-hub-ledger" hidden aria-hidden="true">
+                                <div class="expedition-hub-ledger__head">
+                                    <span class="expedition-hub-ledger__kicker" data-i18n="game.hunt.expedition.ledgerKicker">Trail ledger</span>
+                                    <span class="expedition-hub-ledger__title" data-i18n="game.hunt.expedition.ledgerTitle">This zone</span>
+                                </div>
+                                <div class="expedition-hub-ledger__grid" role="list">
+                                    <div class="expedition-hub-ledger__stat" role="listitem">
+                                        <span class="expedition-hub-ledger__stat-label" data-i18n="game.hunt.expedition.ledgerPbLabel">Best journey</span>
+                                        <span id="expedition-ledger-pb" class="expedition-hub-ledger__stat-value">—</span>
+                                    </div>
+                                    <div class="expedition-hub-ledger__stat" role="listitem">
+                                        <span class="expedition-hub-ledger__stat-label" data-i18n="game.hunt.expedition.ledgerExtractsLabel">Extracts</span>
+                                        <span id="expedition-ledger-extracts" class="expedition-hub-ledger__stat-value">0</span>
+                                    </div>
+                                    <div class="expedition-hub-ledger__stat" role="listitem">
+                                        <span class="expedition-hub-ledger__stat-label" data-i18n="game.hunt.expedition.ledgerDeathsLabel">Falls</span>
+                                        <span id="expedition-ledger-deaths" class="expedition-hub-ledger__stat-value">0</span>
+                                    </div>
+                                    <div class="expedition-hub-ledger__stat" role="listitem">
+                                        <span class="expedition-hub-ledger__stat-label" data-i18n="game.hunt.expedition.ledgerBagLabel">Best bag</span>
+                                        <span id="expedition-ledger-bag" class="expedition-hub-ledger__stat-value">—</span>
+                                    </div>
+                                </div>
+                                <p id="expedition-ledger-last" class="expedition-hub-ledger__last"></p>
+                                <p id="expedition-ledger-life" class="expedition-hub-ledger__life"></p>
+                            </div>
                             <div class="expedition-hub__steps" role="list">
                                 <div class="expedition-hub__step" role="listitem">
                                     <span class="expedition-hub__step-num" aria-hidden="true">1</span>
@@ -1743,10 +1784,6 @@
                                     <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep3">Extract to keep the bag</span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="expedition-hub__actions">
-                            <button id="btn-iniciar-caca" type="button" class="btn-l2 expedition-hub__begin" data-i18n="game.hunt.expedition.startBtn">Begin Expedition</button>
-                            <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">How it works</button>
                         </div>
                     </div>
                 </div>

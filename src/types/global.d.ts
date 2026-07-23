@@ -532,6 +532,9 @@ declare global {
       render?: () => void;
     };
     ExpeditionEngine?: typeof import('../systems/expedition_engine').ExpeditionEngine;
+    ExpeditionMeta?: typeof import('../systems/expedition_meta').ExpeditionMeta;
+    getExpeditionMetaSavePayload?: () => import('./game').ExpeditionMetaSave;
+    applyExpeditionMetaFromSave?: (raw: unknown) => void;
     handleForestPlayerDefeat?: () => void;
     mostrarDanoVisualMobPoison?: (valor: number) => void;
     setLootTurno?: (loot: unknown) => void;

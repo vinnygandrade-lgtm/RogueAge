@@ -103,6 +103,7 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_inventory');
   tickBoot(91, bootMsg('loading.phaseUi', 'Preparing interface...'));
   await import('./systems/endgame_pursuits');
+  await import('./systems/expedition_meta');
   await import('./systems/expedition_engine');
   await import('./ui/ui_chat');
   await import('./ui/ui_clans');

@@ -3156,6 +3156,10 @@ export class ExpeditionEngine {
     /** Toggle hub copy when a run is parked vs a fresh start. */
     static syncHubParkedHint() {
         this.syncHubZoneCard();
+        const zoneId = this.getCurrentHuntZoneId();
+        if (typeof (window as any).ExpeditionMeta?.renderHubLedger === 'function') {
+            (window as any).ExpeditionMeta.renderHubLedger(zoneId);
+        }
         const hub = document.getElementById('expedition-hub');
         const desc = document.querySelector('#expedition-hub .expedition-hub__desc') as HTMLElement | null;
         if (!desc) return;
@@ -3368,6 +3372,9 @@ export class ExpeditionEngine {
         const win = window as any;
         this.ensureRunVitalsForCombat();
         if (typeof win.atualizar === 'function') win.atualizar();
+        if (typeof win.ExpeditionMeta?.recordRunStarted === 'function') {
+            win.ExpeditionMeta.recordRunStarted(zoneId);
+        }
         this.persistRun({ silent: true });
         try {
             if (typeof win.TutorialEngine !== 'undefined' && typeof win.TutorialEngine.notifyHuntSearch === 'function') {
@@ -5026,6 +5033,7 @@ export class ExpeditionEngine {
 
         let deathSummaryHtml = '';
         let xpReward = 0;
+        let adenaKeptForMeta = 0;
 
         if (success) {
             win.adenas = (Number(win.adenas) || 0) + bagSnapshot.adenas;
@@ -5040,6 +5048,7 @@ export class ExpeditionEngine {
                 else win.inventario[itemDrop] = bagSnapshot.drops[itemDrop];
             }
             xpReward = bagSnapshot.xp;
+            adenaKeptForMeta = bagSnapshot.adenas;
         } else {
             const deathSplit = this.computeDeathBagSplit(bagSnapshot);
             deathSummaryHtml = this.buildDeathSummaryHtml(deathSplit, journeySnapshot);
@@ -5057,10 +5066,21 @@ export class ExpeditionEngine {
                 else win.inventario[itemDrop] = keptAmount;
             }
             xpReward = deathSplit.kept.xp;
+            adenaKeptForMeta = deathSplit.kept.adenas;
         }
 
         if (typeof win.aplicarXpGanhoFloresta === 'function' && xpReward > 0) {
             win.aplicarXpGanhoFloresta(xpReward);
+        }
+
+        const zoneForMeta = this.state.zoneId || this.getCurrentHuntZoneId();
+        if (typeof win.ExpeditionMeta?.recordOutcome === 'function') {
+            win.ExpeditionMeta.recordOutcome({
+                zoneId: zoneForMeta,
+                journey: journeySnapshot,
+                adenaKept: adenaKeptForMeta,
+                outcome: success ? 'extract' : 'death',
+            });
         }
 
         // Clear run BEFORE save so expeditionRun is null after extract/death payout.
@@ -5072,11 +5092,9 @@ export class ExpeditionEngine {
         if (typeof win.salvarJogo === 'function') win.salvarJogo();
 
         if (success) {
+            // registrarProgressoMissaoDiaria also forwards to RetentionEngine.onGameEvent
             if (typeof win.registrarProgressoMissaoDiaria === 'function') {
                 win.registrarProgressoMissaoDiaria('expedition_complete', 1);
-            }
-            if (typeof win.RetentionEngine?.onGameEvent === 'function') {
-                win.RetentionEngine.onGameEvent('expedition_complete', 1);
             }
             if (!opts?.skipVictoryModal) {
                 if (typeof win.setLootTurno === 'function') {
@@ -5096,6 +5114,7 @@ export class ExpeditionEngine {
         if (!this.state.active) {
             this.restoreGameHotbar();
             this.showHub();
+            this.syncHubParkedHint();
         }
         this.wireStartButton();
     }

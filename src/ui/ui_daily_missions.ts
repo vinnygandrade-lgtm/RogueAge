@@ -61,9 +61,9 @@ function hintMissaoDiaria(m: Pick<DailyMissionInstance, 'id'> | null | undefined
 }
 
 const GRUPOS_MISSAO: Record<DailyMissionGroup, DailyMissionId[]> = {
-  farm: ['hunt_pack', 'champion_hunter', 'zone_ranger'],
+  farm: ['hunt_pack', 'champion_hunter', 'zone_ranger', 'forest_runner', 'deep_delver'],
   economy: ['forge_minter', 'adena_farmer', 'coin_collector', 'enchant_seeker', 'craft_hand'],
-  challenge: ['arena_blood', 'olympiad_grinder', 'daily_boss_slayer', 'battle_alchemist', 'skill_sparks'],
+  challenge: ['arena_blood', 'olympiad_grinder', 'daily_boss_slayer', 'battle_alchemist', 'skill_sparks', 'bag_extractor'],
 };
 
 /** @deprecated alias — prefer GRUPOS_MISSAO */
@@ -298,6 +298,26 @@ function gerarPoolMissoes(
       grupo: 'farm',
     },
     {
+      id: 'forest_runner',
+      titulo: 'Forest Runner',
+      desc: 'Advance through Forest Expedition journeys.',
+      tipo: 'expedition_journey',
+      alvo: alvo(3, 3, 131, 2),
+      recompensa: montarRecompensaPorGrade(gradeAtual, 'farm', rScale),
+      icone: '🌲',
+      grupo: 'farm',
+    },
+    {
+      id: 'deep_delver',
+      titulo: 'Deep Delver',
+      desc: 'Push deep — complete many expedition journeys.',
+      tipo: 'expedition_journey',
+      alvo: alvo(8, 6, 141, 5),
+      recompensa: montarRecompensaPorGrade(gradeAtual, 'champion', rScale * 0.9),
+      icone: '🧭',
+      grupo: 'farm',
+    },
+    {
       id: 'forge_minter',
       titulo: 'Rogue Mint',
       desc: 'Try minting an Ancient Coin at the forge (Materials tab).',
@@ -395,6 +415,16 @@ function gerarPoolMissoes(
       alvo: alvo(12, 12, 121),
       recompensa: montarRecompensaPorGrade(gradeAtual, 'arena', rScale * 0.85),
       icone: '⚡',
+      grupo: 'challenge',
+    },
+    {
+      id: 'bag_extractor',
+      titulo: 'Bag Extractor',
+      desc: 'Extract successfully from a Forest Expedition.',
+      tipo: 'expedition_complete',
+      alvo: Math.max(1, tScale >= 4 ? 3 : 1),
+      recompensa: montarRecompensaPorGrade(gradeAtual, 'champion', rScale),
+      icone: '🎒',
       grupo: 'challenge',
     },
   ];

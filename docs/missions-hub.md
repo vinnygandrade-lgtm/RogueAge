@@ -13,10 +13,11 @@ Not in character JSONB / cloud save. Multi-device progress will diverge until a 
 
 ## Selection
 
-- Pool of ~13 templates in three groups: **farm** / **economy** / **challenge**.
+- Pool of ~16 templates in three groups: **farm** / **economy** / **challenge**.
 - Each period picks **1 per group** (seeded by `charName` + day or week key).
 - Weekly uses higher target scale (~5×) and reward scale (~2.75×). Rewards are Adena, shots, enchant scrolls and potions — **never Ancient Coins** (AC is craft-only).
 - Mission cards and the final bonus strip show **reward icons** (shared helper `src/ui/ui_reward_icons.ts` — same catalog paths as inventory/achievements).
+- **Expedition templates:** `forest_runner` / `deep_delver` (`expedition_journey`, farm) and `bag_extractor` (`expedition_complete`, challenge). Progress comes from `ExpeditionEngine` via `registrarProgressoMissaoDiaria` (which also forwards to Retention / achievements).
 
 ## Skip (reroll)
 
@@ -38,6 +39,8 @@ Not in character JSONB / cloud save. Multi-device progress will diverge until a 
 | `usar_skills` | `skills_engine.ts` |
 | `vencer_olympiad` | `olympiad_engine.ts` |
 | `derrotar_daily_boss` | `raid_engine.ts` |
+| `expedition_journey` | `expedition_engine.ts` (`advanceJourney`) |
+| `expedition_complete` | `expedition_engine.ts` (successful extract only) |
 
 ## UI entry
 

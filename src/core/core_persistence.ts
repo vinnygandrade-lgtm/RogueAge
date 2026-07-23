@@ -569,6 +569,13 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 18;
     }
 
+    if (v < 19) {
+        if (data.expeditionMeta != null && typeof data.expeditionMeta !== 'object') {
+            data.expeditionMeta = null;
+        }
+        v = 19;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -662,6 +669,9 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
         expeditionRun: (typeof window.ExpeditionEngine !== 'undefined'
             && typeof window.ExpeditionEngine.getRunSavePayload === 'function')
             ? window.ExpeditionEngine.getRunSavePayload()
+            : null,
+        expeditionMeta: typeof window.getExpeditionMetaSavePayload === 'function'
+            ? window.getExpeditionMetaSavePayload()
             : null,
     };
     
@@ -967,6 +977,9 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             && typeof window.ExpeditionEngine.applyRunFromSave === 'function'
         ) {
             window.ExpeditionEngine.applyRunFromSave(data.expeditionRun ?? null);
+        }
+        if (typeof window.applyExpeditionMetaFromSave === 'function') {
+            window.applyExpeditionMetaFromSave(data.expeditionMeta ?? null);
         }
 
         if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();

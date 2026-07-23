@@ -4,9 +4,10 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 
 ## Save field
 
-- `expeditionRun` on `characters.data` / local save (`L2MINI_SAVE_VERSION` **18**)
+- `expeditionRun` on `characters.data` / local save (`L2MINI_SAVE_VERSION` **19**)
 - Payload builder: `ExpeditionEngine.getRunSavePayload()`
 - Restore: `ExpeditionEngine.applyRunFromSave()` in `carregarJogo`
+- **Between-run ledger:** `expeditionMeta` (`ExpeditionMeta` / `src/systems/expedition_meta.ts`) — best journey, extracts/deaths, best bag Adena, last run line (per zone + lifetime). Survives extract; not cleared with `expeditionRun`.
 
 ## Lifecycle
 
@@ -33,6 +34,7 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - **Warhorn** — Assault / Tempo / Iron Rally packages (not a fixed buff)
 - **Scout / Tracks** — real foresight: Scout (J2+) sets `nextPathBias` (`fight`|`safe`) for the next journey; Tracks (~50%) sets `nextPathGuarantee` (forced path type). Consumed in `generatePathChoices` (ignored on milestone boss / combat-only). Persisted on `expeditionRun`.
 - Offers resolve in the same click (no extra save fields for merchant/rare/warhorn)
+- **Rules modal** (`#janela-expedition-rules`) + path legend must stay aligned with these systems (i18n `game.hunt.expedition.rules*` / `legendPath*`)
 
 ## Run builds (synergy)
 
