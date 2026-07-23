@@ -82,10 +82,14 @@ function usarSkill(nomeSkill: string) {
         return;
     }
 
-    if (typeof window.armSkillGcd === 'function') window.armSkillGcd(undefined, nomeSkill);
-    else window.globalCooldownAtivo = Date.now() + 1500;
     window.playerMP -= mpCost;
-    window.dispararAnimacaoCooldown?.(nomeSkill, resolveSkillCooldownMs(skill.cd));
+    // Red cast lock first; personal recharge CD starts only after cast ends.
+    if (typeof window.beginSkillCast === 'function') {
+        window.beginSkillCast(nomeSkill, resolveSkillCooldownMs(skill.cd));
+    } else {
+        window.globalCooldownAtivo = Date.now() + 1500;
+        window.dispararAnimacaoCooldown?.(nomeSkill, resolveSkillCooldownMs(skill.cd));
+    }
     if (typeof window.registrarProgressoMissaoDiaria === 'function') {
         window.registrarProgressoMissaoDiaria('usar_skills', 1);
     }

@@ -9,9 +9,19 @@
 export const SKILL_GCD_MS = 1500;
 
 let lastGcdCastSkill: string | null = null;
+/** Personal recharge timers deferred until cast lock ends. */
+const pendingRechargeTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 
 function nowMs(): number {
   return Date.now();
+}
+
+function clearPendingRecharge(skillName: string): void {
+  const t = pendingRechargeTimers[skillName];
+  if (t != null) {
+    clearTimeout(t);
+    delete pendingRechargeTimers[skillName];
+  }
 }
 
 /** True for hotbar entries that share the skill GCD. */
@@ -54,6 +64,37 @@ export function armSkillGcd(ms?: number, castSkillName?: string): void {
 }
 
 /**
+ * Cast lock (red) first, then personal recharge CD starts when cast ends.
+ * Use this instead of armSkillGcd + dispararAnimacaoCooldown for skills.
+ */
+export function beginSkillCast(skillName: string, rechargeMs: number, castMs?: number): void {
+  const name = String(skillName || '');
+  if (!name) return;
+
+  const castDur = Math.max(200, Math.floor(castMs != null && castMs > 0 ? castMs : SKILL_GCD_MS));
+  const recharge = Math.max(0, Math.floor(Number(rechargeMs) || 0));
+
+  clearPendingRecharge(name);
+  // Keep personal CD clear during cast so the red launch bar is the only overlay.
+  if (window.cooldownsAtivos && Object.prototype.hasOwnProperty.call(window.cooldownsAtivos, name)) {
+    delete window.cooldownsAtivos[name];
+  }
+
+  armSkillGcd(castDur, name);
+
+  if (recharge <= 0) return;
+
+  pendingRechargeTimers[name] = setTimeout(() => {
+    delete pendingRechargeTimers[name];
+    if (typeof window.dispararAnimacaoCooldown === 'function') {
+      window.dispararAnimacaoCooldown(name, recharge);
+    } else if (window.cooldownsAtivos) {
+      window.cooldownsAtivos[name] = nowMs() + recharge;
+    }
+  }, castDur);
+}
+
+/**
  * Remaining lock shown on a hotbar slot: max(personal CD, skill GCD).
  * Attack / potions / shots only use personal CD.
  */
@@ -83,6 +124,7 @@ export function getSkillGcdProgressPct(): number {
 window.getSkillGcdRemainingMs = getSkillGcdRemainingMs;
 window.isSkillGcdBlocked = isSkillGcdBlocked;
 window.armSkillGcd = armSkillGcd;
+window.beginSkillCast = beginSkillCast;
 window.slotUsesSkillGcd = slotUsesSkillGcd;
 window.getHotbarSlotLockRemainingMs = getHotbarSlotLockRemainingMs;
 window.getHotbarSlotLockTotalMs = getHotbarSlotLockTotalMs;

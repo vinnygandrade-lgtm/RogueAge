@@ -695,9 +695,12 @@ function executarSkillNaRaid(nomeSlot: string, skill: SkillCatalogEntry): void {
 
   window.playerMP -= skill.mp || 0;
   if (typeof window.atualizar === 'function') window.atualizar();
-  if (typeof window.armSkillGcd === 'function') window.armSkillGcd(undefined, nomeSlot);
-  else window.globalCooldownAtivo = Date.now() + 1500;
-  window.dispararAnimacaoCooldown(nomeSlot, skill.cd || 1000);
+  if (typeof window.beginSkillCast === 'function') {
+    window.beginSkillCast(nomeSlot, skill.cd || 1000);
+  } else {
+    window.globalCooldownAtivo = Date.now() + 1500;
+    window.dispararAnimacaoCooldown(nomeSlot, skill.cd || 1000);
+  }
   if (typeof window.escreverLog === 'function') {
     window.escreverLog(`<span style="color:${skill.cor || '#fff'}; font-weight:bold;">${smartbarT('game.smartbar.youCast', { skill: hotbarLabel(nomeSlot) })}</span>`);
   }
@@ -759,8 +762,6 @@ setInterval(() => {
   const castLeft =
     typeof window.getSkillGcdRemainingMs === 'function' ? window.getSkillGcdRemainingMs() : 0;
   const castTotal = Math.max(1, Number(window.SKILL_GCD_MS) || 1500);
-  const castName =
-    typeof window.getSkillGcdCastName === 'function' ? window.getSkillGcdCastName() : null;
 
   overlays.forEach((overlay) => {
     const el = overlay as HTMLElement;
@@ -770,9 +771,8 @@ setInterval(() => {
 
     const personalLeft = Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
     const usesCastLock = typeof window.slotUsesSkillGcd === 'function' && window.slotUsesSkillGcd(nome);
-    const isCastSource = !!(castName && nome === castName && castLeft > 0);
-    // Cast lock: red drain like personal CD. Blocks all other skills until it finishes.
-    const underCastLock = usesCastLock && castLeft > 0 && (personalLeft <= 0 || isCastSource);
+    // Cast lock (red) while launch resolves; personal recharge starts only after cast ends.
+    const underCastLock = usesCastLock && castLeft > 0 && personalLeft <= 0;
 
     let restamMs = 0;
     let totalMs = 1;

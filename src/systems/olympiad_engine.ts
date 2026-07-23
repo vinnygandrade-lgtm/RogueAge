@@ -1744,12 +1744,15 @@ const OlympiadEngine = {
         }
 
         window.playerMP -= skill.mp;
-        if (typeof window.armSkillGcd === 'function') window.armSkillGcd(undefined, nomeSkill);
-        else window.globalCooldownAtivo = agora + 1500;
 
         const skillCD = skill.cd || 1000;
-        if (typeof window.dispararAnimacaoCooldown === 'function') {
-            window.dispararAnimacaoCooldown(nomeSkill, skillCD);
+        if (typeof window.beginSkillCast === 'function') {
+            window.beginSkillCast(nomeSkill, skillCD);
+        } else {
+            window.globalCooldownAtivo = agora + 1500;
+            if (typeof window.dispararAnimacaoCooldown === 'function') {
+                window.dispararAnimacaoCooldown(nomeSkill, skillCD);
+            }
         }
         
         if (skill.tipo === "cura") {
