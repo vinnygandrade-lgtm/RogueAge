@@ -432,7 +432,7 @@ function renderizarBarraAtalhos(): void {
         conteudo = `<span class="shortcut-key" style="color:#333; ${secondRow ? 'color: #665544;' : ''}">${keyLabel}</span>`;
       }
 
-      novoHtml += `
+      const slotHtml = `
                 <div class="shortcut-slot ${classExtra}" style="${styleExtra}"
                      ${nomeSlot ? `title="${hotbarLabel(nomeSlot).replace(/"/g, '&quot;')}"` : ''}
                      onmousedown="iniciarToqueAtalho(${i})"
@@ -443,6 +443,35 @@ function renderizarBarraAtalhos(): void {
                     ${conteudo}
                 </div>
             `;
+
+      // AUTO chip sits above basic Attack (forest / raid / expedition). Olympiad & clan war keep click-to-hit only.
+      const naGuerraHotbar = !!window.ClanWarEngine?.ativo;
+      const showAutoChip =
+        nomeSlot === 'Attack' && !estaNaOlympiad && !naGuerraHotbar;
+      if (showAutoChip) {
+        const autoOn = window.autoAtaqueAtivo === true;
+        const autoLabel = smartbarT('game.smartbar.autoAttackChip');
+        const autoTitle = autoOn
+          ? smartbarT('game.smartbar.autoAttackChipTitleOn')
+          : smartbarT('game.smartbar.autoAttackChipTitleOff');
+        novoHtml += `
+                <div class="shortcut-slot-stack shortcut-slot-stack--attack">
+                    <button type="button"
+                        class="hotbar-auto-atk-btn${autoOn ? ' is-on' : ''}"
+                        title="${autoTitle.replace(/"/g, '&quot;')}"
+                        aria-pressed="${autoOn ? 'true' : 'false'}"
+                        aria-label="${autoTitle.replace(/"/g, '&quot;')}"
+                        onmousedown="event.stopPropagation();"
+                        ontouchstart="event.stopPropagation();"
+                        onclick="event.stopPropagation(); event.preventDefault(); if (typeof window.toggleAutoAtaque === 'function') window.toggleAutoAtaque();">
+                        ${autoLabel}
+                    </button>
+                    ${slotHtml}
+                </div>
+            `;
+      } else {
+        novoHtml += slotHtml;
+      }
     }
     container.innerHTML = novoHtml;
 
@@ -510,6 +539,7 @@ function ativarAtalhoSlot(index: number): void {
   const naGuerra = !!window.ClanWarEngine?.ativo;
 
   if (nomeSlot === 'Attack') {
+    // Attack uses atkSpeed swing CD (cooldownsAtivos). Olympiad/Raid enforce their own locks.
     if (naOlympiad) window.OlympiadEngine?.playerAtaca?.();
     else if (naRaid) {
       if (typeof window.atacar === 'function') window.atacar();

@@ -58,6 +58,7 @@ function usarSkill(nomeSkill: string) {
     if (typeof window.monstrosAtivos === 'undefined' || window.monstrosAtivos.length === 0) return;
 
     if (nomeSkill === 'Attack') {
+        // Swing lock lives in cooldownsAtivos['Attack'] (atkSpeed). Do not bypass via spam clicks.
         window.atacar?.();
         return;
     }

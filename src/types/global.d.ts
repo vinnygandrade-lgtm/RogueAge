@@ -556,6 +556,7 @@ declare global {
     getForestTargetMobIndex?: () => number;
     aplicarDanoNoMonstro?: (index: number, dano: number, isCrit?: boolean) => void;
     atacar?: () => void;
+    toggleAutoAtaque?: () => void;
     isAutoAtaqueLigado?: () => boolean;
     pararAutoAtaque?: () => void;
 

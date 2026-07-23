@@ -324,76 +324,56 @@ window.isAutoAtaqueLigado = function () {
   return window.autoAtaqueAtivo;
 };
 
-window.atacar = function () {
-  if (window.playerHP <= 0) return;
-  const naRaid = estaEmCombateRaid();
-  const naFloresta = estaEmCombateFloresta();
-  if (!naRaid && !naFloresta) {
-    escreverLog(
-      `<span style="color:#aaa;">${
-        typeof window.t === 'function' ? window.t('game.combat.noTarget') : 'No target to attack!'
-      }</span>`,
-    );
-    return;
-  }
-  window.autoAtaqueAtivo = !window.autoAtaqueAtivo;
-  if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
-  if (window.autoAtaqueAtivo) {
-    escreverLog(
-      `<span style="color:#10b981; font-weight:bold;">${
-        typeof window.t === 'function' ? window.t('game.combatMath.autoAttackOn') : '⚔️ Auto-Attack: ON'
-      }</span>`,
-    );
-    realizarGolpeAutoAtaque();
-  } else {
-    escreverLog(
-      `<span style="color:#ef4444; font-weight:bold;">${
-        typeof window.t === 'function' ? window.t('game.combatMath.autoAttackOff') : '🛑 Auto-Attack: OFF'
-      }</span>`,
-    );
-    if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
-    loopAutoAtaque = null;
-  }
-};
+/** Remaining Attack swing lock (ms). Spam-toggling auto-attack must not ignore this. */
+function getAttackCooldownRemainingMs(): number {
+  const end = Number(window.cooldownsAtivos?.['Attack']) || 0;
+  const left = end - Date.now();
+  return left > 0 ? left : 0;
+}
 
-function realizarGolpeAutoAtaque() {
-  if (window.playerHP <= 0 || !window.autoAtaqueAtivo) {
-    window.pararAutoAtaque?.();
-    return;
-  }
+function getAttackSwingCdMs(): number {
+  return typeof window.playerStats !== 'undefined' && window.playerStats.atkSpeed > 0
+    ? window.playerStats.atkSpeed
+    : 3800;
+}
+
+function scheduleNextAutoAttackSwing(delayMs: number): void {
+  if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
+  const wait = Math.max(16, Math.floor(Number(delayMs) || 0));
+  loopAutoAtaque = setTimeout(realizarGolpeAutoAtaque, wait);
+}
+
+/**
+ * One basic Attack swing (forest / raid). Respects Attack CD.
+ * Returns true if a swing was performed.
+ */
+function tentarGolpeAtaqueBasico(): boolean {
+  if (window.playerHP <= 0) return false;
+
+  const cdLeft = getAttackCooldownRemainingMs();
+  if (cdLeft > 0) return false;
 
   if (estaEmCombateRaid()) {
-    if (typeof window.RaidEngine.playerAtaca === 'function') {
+    if (typeof window.RaidEngine?.playerAtaca === 'function') {
       window.RaidEngine.playerAtaca();
     }
-    const atkCdMs =
-      typeof window.playerStats !== 'undefined' && window.playerStats.atkSpeed > 0
-        ? window.playerStats.atkSpeed
-        : 3800;
+    const atkCdMs = getAttackSwingCdMs();
     if (typeof dispararAnimacaoGCD === 'function') dispararAnimacaoGCD(atkCdMs, 'Attack');
-    loopAutoAtaque = setTimeout(realizarGolpeAutoAtaque, atkCdMs);
-    return;
+    return true;
   }
 
-  if (
-    typeof window.monstrosAtivos === 'undefined' ||
-    window.monstrosAtivos.length === 0
-  ) {
-    window.pararAutoAtaque?.();
-    return;
-  }
+  if (!estaEmCombateFloresta()) return false;
+
   if (typeof window.globalCooldownAtivo !== 'undefined' && Date.now() < window.globalCooldownAtivo) {
-    loopAutoAtaque = setTimeout(realizarGolpeAutoAtaque, 100);
-    return;
+    return false;
   }
   if (typeof tocarSom === 'function') tocarSom('ataque');
   const isMage = typeof window.isClasseMagica === 'function' ? window.isClasseMagica(window.charClass) : false;
   let tIdx =
     typeof window.getForestTargetMobIndex === 'function' ? window.getForestTargetMobIndex() : 0;
   if (tIdx < 0) {
-    window.autoAtaqueAtivo = false;
-    if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
-    return;
+    window.pararAutoAtaque?.();
+    return false;
   }
   const monstro = window.monstrosAtivos[tIdx] as ForestMob;
   let defAlvo = mobDefenseAgainstPlayer(isMage, monstro);
@@ -464,13 +444,101 @@ function realizarGolpeAutoAtaque() {
   }
 
   window.aplicarDanoNoMonstro(tIdx, danoFinal, foiCritico);
-  const atkCdMs =
-    typeof window.playerStats !== 'undefined' && window.playerStats.atkSpeed > 0
-      ? window.playerStats.atkSpeed
-      : 3800;
+  const atkCdMs = getAttackSwingCdMs();
   if (typeof dispararAnimacaoGCD === 'function') dispararAnimacaoGCD(atkCdMs, 'Attack');
   if (typeof atualizar === 'function') atualizar();
-  loopAutoAtaque = setTimeout(realizarGolpeAutoAtaque, atkCdMs);
+  return true;
+}
+
+/** Manual Attack: one swing. Does not toggle auto-attack (use toggleAutoAtaque). */
+window.atacar = function () {
+  if (window.playerHP <= 0) return;
+  const naRaid = estaEmCombateRaid();
+  const naFloresta = estaEmCombateFloresta();
+  if (!naRaid && !naFloresta) {
+    escreverLog(
+      `<span style="color:#aaa;">${
+        typeof window.t === 'function' ? window.t('game.combat.noTarget') : 'No target to attack!'
+      }</span>`,
+    );
+    return;
+  }
+  const swung = tentarGolpeAtaqueBasico();
+  if (swung && window.autoAtaqueAtivo) {
+    scheduleNextAutoAttackSwing(getAttackSwingCdMs());
+  }
+};
+
+/** Small AUTO chip above Attack — toggle continuous basic attacks. */
+window.toggleAutoAtaque = function () {
+  if (window.playerHP <= 0) return;
+  const naRaid = estaEmCombateRaid();
+  const naFloresta = estaEmCombateFloresta();
+  if (!naRaid && !naFloresta) {
+    escreverLog(
+      `<span style="color:#aaa;">${
+        typeof window.t === 'function' ? window.t('game.combat.noTarget') : 'No target to attack!'
+      }</span>`,
+    );
+    return;
+  }
+  window.autoAtaqueAtivo = !window.autoAtaqueAtivo;
+  if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
+  if (window.autoAtaqueAtivo) {
+    escreverLog(
+      `<span style="color:#10b981; font-weight:bold;">${
+        typeof window.t === 'function' ? window.t('game.combatMath.autoAttackOn') : '⚔️ Auto-Attack: ON'
+      }</span>`,
+    );
+    const cdLeft = getAttackCooldownRemainingMs();
+    if (cdLeft > 0) scheduleNextAutoAttackSwing(cdLeft);
+    else realizarGolpeAutoAtaque();
+  } else {
+    escreverLog(
+      `<span style="color:#ef4444; font-weight:bold;">${
+        typeof window.t === 'function' ? window.t('game.combatMath.autoAttackOff') : '🛑 Auto-Attack: OFF'
+      }</span>`,
+    );
+    if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
+    loopAutoAtaque = null;
+  }
+};
+
+function realizarGolpeAutoAtaque() {
+  if (window.playerHP <= 0 || !window.autoAtaqueAtivo) {
+    window.pararAutoAtaque?.();
+    return;
+  }
+
+  const cdLeft = getAttackCooldownRemainingMs();
+  if (cdLeft > 0) {
+    scheduleNextAutoAttackSwing(cdLeft);
+    return;
+  }
+
+  if (
+    !estaEmCombateRaid() &&
+    (typeof window.monstrosAtivos === 'undefined' || window.monstrosAtivos.length === 0)
+  ) {
+    window.pararAutoAtaque?.();
+    return;
+  }
+
+  if (
+    !estaEmCombateRaid() &&
+    typeof window.globalCooldownAtivo !== 'undefined' &&
+    Date.now() < window.globalCooldownAtivo
+  ) {
+    scheduleNextAutoAttackSwing(100);
+    return;
+  }
+
+  const swung = tentarGolpeAtaqueBasico();
+  if (!swung) {
+    if (window.autoAtaqueAtivo) scheduleNextAutoAttackSwing(100);
+    return;
+  }
+  scheduleNextAutoAttackSwing(getAttackSwingCdMs());
 }
 
 export {};

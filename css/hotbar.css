@@ -20,7 +20,9 @@
     grid-template-columns: repeat(6, 1fr) !important;
     grid-template-rows: repeat(2, 1fr) !important;
     gap: 6px !important;
-    padding: 8px 6px calc(8px + var(--l2-safe-bottom, 0px)) !important;
+    /* Extra top padding so AUTO chip above Attack is not clipped */
+    padding: 18px 6px calc(8px + var(--l2-safe-bottom, 0px)) !important;
+    overflow: visible !important;
     background: linear-gradient(180deg, #181411 0%, #100d0a 100%) !important;
     border-top: 2px solid var(--l2-border-strong, #5a4634) !important;
     border-bottom: 1px solid var(--l2-border-soft, #2a241e) !important;
@@ -62,6 +64,58 @@
     box-shadow:
         0 0 20px rgba(0, 0, 0, 0.8),
         inset 0 0 10px rgba(126, 34, 206, 0.2) !important;
+}
+
+.shortcut-slot-stack {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+}
+
+.shortcut-slot-stack--attack .shortcut-slot {
+    width: 100% !important;
+}
+
+.hotbar-auto-atk-btn {
+    position: absolute !important;
+    bottom: calc(100% + 2px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 12 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: 14px !important;
+    padding: 0 5px !important;
+    margin: 0 !important;
+    border: 1px solid #5a4634 !important;
+    border-radius: 3px !important;
+    background: linear-gradient(180deg, #2a2218 0%, #1a1410 100%) !important;
+    color: #a89878 !important;
+    font-size: 8px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em !important;
+    line-height: 12px !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.55) !important;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.hotbar-auto-atk-btn:active {
+    transform: translateX(-50%) scale(0.96) !important;
+}
+
+.hotbar-auto-atk-btn.is-on {
+    color: #1a1008 !important;
+    border-color: #f59e0b !important;
+    background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%) !important;
+    box-shadow:
+        0 0 8px rgba(245, 158, 11, 0.75),
+        0 1px 3px rgba(0, 0, 0, 0.55) !important;
 }
 
 .shortcut-slot {
