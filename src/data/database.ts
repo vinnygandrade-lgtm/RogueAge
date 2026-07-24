@@ -8,8 +8,8 @@ import type { GameSoundKey, RaceInitialStats } from '../types/game';
 // BANCO DE DADOS E VARIÁVEIS DO JOGADOR
 // ==========================================
 
+/** Sparse UI cues only — combat stays silent (SimpleMMO-style). */
 const sons: Record<GameSoundKey, HTMLAudioElement | null> = {
-  ataque: new Audio('assets/sons/hit.wav'),
   enchant: new Audio('assets/sons/sucesso.wav'),
   lvlup: new Audio('assets/sons/levelup.mp3'),
   adenas: null,
@@ -21,6 +21,7 @@ function tocarSom(nome: GameSoundKey): void {
   const clip = sons[nome];
   if (clip) {
     clip.currentTime = 0;
+    clip.volume = 1;
     clip.play().catch(() => {});
   }
 }

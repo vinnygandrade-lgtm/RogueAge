@@ -3,6 +3,8 @@
  * Survives calcularStatusGlobais — applied at the end of every recalc while active.
  */
 
+import { MAX_CAST_SPEED_PCT } from './skill_cast';
+
 export type SkillCombatBuffKind = 'atk' | 'def' | 'spd';
 
 export interface SkillCombatBuffEntry {
@@ -13,6 +15,8 @@ export interface SkillCombatBuffEntry {
   pDefMult: number;
   /** Multiplier on atkSpeed ms (< 1 = faster). */
   atkSpeedMult: number;
+  /** Additive Casting Speed % (shortens skill castMs). */
+  castSpeedBonus: number;
 }
 
 const DEFAULT_DURATION_MS = 30_000;
@@ -65,6 +69,7 @@ export function setSkillCombatBuff(
     mAtkMult?: number;
     pDefMult?: number;
     atkSpeedMult?: number;
+    castSpeedBonus?: number;
     durationMs?: number;
   },
 ): void {
@@ -74,6 +79,7 @@ export function setSkillCombatBuff(
   }
 
   const durationMs = opts.durationMs != null && opts.durationMs > 0 ? opts.durationMs : DEFAULT_DURATION_MS;
+  const castBonusRaw = Number(opts.castSpeedBonus);
   slots[kind] = {
     skillName: opts.skillName,
     expiresAt: Date.now() + durationMs,
@@ -81,6 +87,8 @@ export function setSkillCombatBuff(
     mAtkMult: opts.mAtkMult != null && opts.mAtkMult > 0 ? opts.mAtkMult : 1,
     pDefMult: opts.pDefMult != null && opts.pDefMult > 0 ? opts.pDefMult : 1,
     atkSpeedMult: opts.atkSpeedMult != null && opts.atkSpeedMult > 0 ? opts.atkSpeedMult : 1,
+    castSpeedBonus:
+      Number.isFinite(castBonusRaw) && castBonusRaw > 0 ? Math.floor(castBonusRaw) : 0,
   };
 
   timers[kind] = setTimeout(() => {
@@ -104,6 +112,7 @@ export function applySkillCombatBuffsToPlayerStats(): void {
   let mAtkM = 1;
   let pDefM = 1;
   let spdM = 1;
+  let castSpdBonus = 0;
 
   (['atk', 'def', 'spd'] as const).forEach((kind) => {
     const entry = slots[kind];
@@ -112,6 +121,7 @@ export function applySkillCombatBuffsToPlayerStats(): void {
     mAtkM *= entry.mAtkMult;
     pDefM *= entry.pDefMult;
     spdM *= entry.atkSpeedMult;
+    castSpdBonus += entry.castSpeedBonus || 0;
   });
 
   if (pAtkM !== 1) window.playerStats.pAtk = Math.floor(window.playerStats.pAtk * pAtkM);
@@ -121,6 +131,13 @@ export function applySkillCombatBuffsToPlayerStats(): void {
     window.playerStats.atkSpeed = Math.floor(window.playerStats.atkSpeed * spdM);
     if (window.playerStats.atkSpeed < 250) window.playerStats.atkSpeed = 250;
   }
+
+  // Additive on top of gear/title castSpeed already set in calcularStatusGlobais.
+  const baseCast = Math.max(0, Math.floor(Number(window.playerStats.castSpeed) || 0));
+  window.playerStats.castSpeed = Math.min(
+    MAX_CAST_SPEED_PCT,
+    Math.max(0, baseCast + Math.floor(castSpdBonus)),
+  );
 }
 
 export function getActiveSkillCombatBuffSnapshot(): Record<SkillCombatBuffKind, SkillCombatBuffEntry | null> {

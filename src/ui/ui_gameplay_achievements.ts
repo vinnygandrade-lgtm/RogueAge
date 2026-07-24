@@ -128,7 +128,7 @@ export function getEquippedTitleId(): string | null {
 
 export function getTitleStatBonusForId(titleId: string | null | undefined): TitleStatBonus {
   if (!titleId) {
-    return { pAtk: 0, mAtk: 0, pDef: 0, mDef: 0, maxHp: 0, maxMp: 0, critRate: 0, atkSpeedMs: 0 };
+    return { pAtk: 0, mAtk: 0, pDef: 0, mDef: 0, maxHp: 0, maxMp: 0, critRate: 0, atkSpeedMs: 0, castSpeedPct: 0 };
   }
   return getTitleStatBonus(titleId);
 }
@@ -138,6 +138,7 @@ function formatTitleBonusLine(key: TitleBonusStatKey, value: number): string {
   const formatted = gaT(i18nKey, { value: key === 'critRate' ? value.toFixed(1) : String(value) });
   if (formatted !== i18nKey) return formatted;
   if (key === 'atkSpeedMs') return `−${value} ms`;
+  if (key === 'castSpeedPct') return `+${value}% Cast`;
   if (key === 'critRate') return `+${value.toFixed(1)}% Crit`;
   return `+${value} ${key}`;
 }

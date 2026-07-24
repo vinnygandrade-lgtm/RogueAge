@@ -565,15 +565,36 @@ declare global {
     pararAutoAtaque?: () => void;
     /** Shared skill GCD (ms remaining / helpers) — see src/combat/skill_gcd.ts */
     SKILL_GCD_MS?: number;
+    MIN_CAST_MS?: number;
+    MAX_CAST_SPEED_PCT?: number;
     getSkillGcdRemainingMs?: () => number;
     isSkillGcdBlocked?: () => boolean;
     armSkillGcd?: (ms?: number, castSkillName?: string) => void;
-    beginSkillCast?: (skillName: string, rechargeMs: number, castMs?: number) => void;
+    beginSkillCast?: (
+      skillName: string,
+      rechargeMs: number,
+      castMs?: number,
+      onCastComplete?: (() => void) | null,
+    ) => void;
+    cancelSkillCast?: (opts?: { keepGcd?: boolean }) => void;
     slotUsesSkillGcd?: (nome: string | null | undefined) => boolean;
     getHotbarSlotLockRemainingMs?: (nome: string) => number;
     getHotbarSlotLockTotalMs?: (nome: string, personalCdTotalMs: number) => number;
     getSkillGcdCastName?: () => string | null;
     getSkillGcdProgressPct?: () => number;
+    getActiveSkillCastTotalMs?: () => number;
+    skillCastUi?: { name: string | null; endsAt: number; totalMs: number };
+    onSkillCastStarted?: (skillName: string) => void;
+    onSkillCastReleased?: (skillName: string) => void;
+    onSkillCastCancelled?: () => void;
+    maybeCancelInvalidSkillCast?: () => void;
+    resolveSkillCastMs?: (
+      skill: import('./game').SkillCatalogEntry | null | undefined,
+      castSpeedPct?: number,
+    ) => number;
+    getSkillBaseCastMs?: (
+      skill: import('./game').SkillCatalogEntry | null | undefined,
+    ) => number;
 
     I18N_LOCALES?: Record<import('./game').UiLocale, Record<string, unknown>>;
   }

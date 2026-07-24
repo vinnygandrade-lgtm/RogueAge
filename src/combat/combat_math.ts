@@ -370,7 +370,6 @@ function tentarGolpeAtaqueBasico(): boolean {
 
   if (!estaEmCombateFloresta()) return false;
 
-  if (typeof tocarSom === 'function') tocarSom('ataque');
   const isMage = typeof window.isClasseMagica === 'function' ? window.isClasseMagica(window.charClass) : false;
   let tIdx =
     typeof window.getForestTargetMobIndex === 'function' ? window.getForestTargetMobIndex() : 0;

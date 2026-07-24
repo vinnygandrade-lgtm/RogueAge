@@ -87,7 +87,9 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_main');
   await import('./ui/ui_forest_battle_bg');
   await import('./combat/combat');
+  await import('./combat/skill_cast');
   await import('./combat/skill_gcd');
+  await import('./combat/skill_cast_fx');
   await import('./combat/skills_engine');
   await import('./game/classes');
   await import('./game/skills');

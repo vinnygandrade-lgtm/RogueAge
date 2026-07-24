@@ -222,6 +222,7 @@ export interface PlayerStatBreakdown {
     maxMp: number;
     critRate: number;
     atkSpeedMs: number;
+    castSpeedPct?: number;
   };
   hp: StatBreakdownSection & {
     total: number;
@@ -299,6 +300,15 @@ export interface PlayerStatBreakdown {
   };
   critParts: StatBreakdownSection & { rawBeforeCap?: number; cap?: number; title?: number };
   atkSpeed: StatBreakdownSection & { totalMs: number; floored250?: boolean; reduceTitleMs?: number };
+  /** Casting Speed: % reduction on skill cast time (capped). */
+  castSpeed: StatBreakdownSection & {
+    totalPct: number;
+    fromArmor?: number;
+    fromWeapon?: number;
+    fromTitle?: number;
+    fromBuffs?: number;
+    capped?: boolean;
+  };
   joiasPorStat?: Array<{ value?: number; stat?: string; nome?: string; slot?: string }>;
 }
 
@@ -493,6 +503,8 @@ export interface SkillCatalogEntry {
   mp: number;
   cd: number;
   poder?: number;
+  /** Base cast / launch lock in ms (before castSpeed %). Omit → default by `tipo`. */
+  castMs?: number;
   desc?: string;
   cor?: string;
   icone?: string;
@@ -1231,7 +1243,6 @@ export interface RaceInitialStats {
 }
 
 export type GameSoundKey =
-  | 'ataque'
   | 'enchant'
   | 'lvlup'
   | 'adenas'

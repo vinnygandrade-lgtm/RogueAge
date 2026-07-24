@@ -20,8 +20,8 @@
     grid-template-columns: repeat(6, 1fr) !important;
     grid-template-rows: repeat(2, 1fr) !important;
     gap: 6px !important;
-    /* Extra top padding so AUTO chip above Attack is not clipped */
-    padding: 18px 6px calc(8px + var(--l2-safe-bottom, 0px)) !important;
+    /* Extra top padding so AUTO chip + cast rail above slots are not clipped */
+    padding: 22px 6px calc(8px + var(--l2-safe-bottom, 0px)) !important;
     overflow: visible !important;
     background: linear-gradient(180deg, #181411 0%, #100d0a 100%) !important;
     border-top: 2px solid var(--l2-border-strong, #5a4634) !important;
@@ -78,6 +78,40 @@
 .shortcut-slot-stack--attack .shortcut-slot,
 .shortcut-slot-stack--shot .shortcut-slot {
     width: 100% !important;
+}
+
+/* Cast rail on top edge of skill icon — drains (scaleX) until empty, then launches */
+.shortcut-cast-rail {
+    position: absolute !important;
+    top: 2px !important;
+    left: 3px !important;
+    right: 3px !important;
+    height: 5px !important;
+    border-radius: 2px !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    border: 1px solid rgba(185, 28, 28, 0.35) !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: 14 !important;
+    box-sizing: border-box !important;
+}
+
+.shortcut-cast-rail--active {
+    opacity: 1 !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.7) !important;
+}
+
+.shortcut-cast-rail__fill {
+    display: block !important;
+    height: 100% !important;
+    width: 100% !important;
+    transform: scaleX(0);
+    transform-origin: left center;
+    background: linear-gradient(90deg, #ef4444 0%, #fbbf24 100%);
+    transition: transform 0.05s linear;
+    will-change: transform;
 }
 
 .hotbar-auto-atk-btn {

@@ -398,7 +398,7 @@ const RaidEngine = {
 
         let agora = Date.now();
         let delay = window.playerStats.atkSpeed || 3800;
-        if (agora - this.ultimoAtaquePlayer < delay) return; 
+        if (agora - this.ultimoAtaquePlayer < delay) return;
         this.ultimoAtaquePlayer = agora;
 
         if (typeof window.dispararAnimacaoCooldown === 'function') {
@@ -412,7 +412,7 @@ const RaidEngine = {
         let danoFinal = Math.floor(danoBruto * multDef);
         
         if (Math.random() * 100 <= window.playerStats.critRate) {
-            danoFinal *= isMage ? 1.5 : 2; 
+            danoFinal *= isMage ? 1.5 : 2;
             this.mostrarDanoVisual(danoFinal, true);
         } else {
             this.mostrarDanoVisual(danoFinal, false);

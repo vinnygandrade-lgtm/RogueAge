@@ -214,7 +214,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
 
     const equippedTitleId = resolveEquippedTitleIdForStats();
     const titleBonus: TitleStatBonus = equippedTitleId ? getTitleStatBonus(equippedTitleId) : {
-      pAtk: 0, mAtk: 0, pDef: 0, mDef: 0, maxHp: 0, maxMp: 0, critRate: 0, atkSpeedMs: 0,
+      pAtk: 0, mAtk: 0, pDef: 0, mDef: 0, maxHp: 0, maxMp: 0, critRate: 0, atkSpeedMs: 0, castSpeedPct: 0,
     };
     
     let hpBaseDaClasse = Math.floor((baseHp + ((safeNivel - 1) * hpPerLvl) + bonusAugHp) * mod.hp);
@@ -273,6 +273,32 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     window.playerStats.atkSpeed = Math.floor(spdTotal * 1.0);
     const atkSpdFlooredBelowMin = window.playerStats.atkSpeed < 250;
     if (atkSpdFlooredBelowMin) { window.playerStats.atkSpeed = 250; }
+
+    // Casting Speed % — gear + title first; skill buffs (Concentration) add on top.
+    const gradeCastTable: Record<string, number> = {
+      'No-Grade': 2, D: 4, C: 6, B: 8, A: 11, S: 14,
+    };
+    const armorBase = (armor?.base || armor) as ItemCatalogBase | null | undefined;
+    const weaponBase = (arma?.base || arma) as ItemCatalogBase | null | undefined;
+    const armorTipo = String(armorBase?.tipo || '');
+    const weaponTipo = String(weaponBase?.tipo || '');
+    const armorGrade = String(armorBase?.grade || 'No-Grade');
+    const weaponGrade = String(weaponBase?.grade || 'No-Grade');
+
+    let castFromArmor = Math.max(0, Math.floor(getStat(armor, 'bonusCastSpeed')));
+    if (castFromArmor <= 0 && armorTipo === 'Robe') {
+      castFromArmor = gradeCastTable[armorGrade] ?? 2;
+      // Light enchant scaling on robe innate cast speed
+      castFromArmor += Math.min(4, Math.floor(lvlArm / 6));
+    }
+    let castFromWeapon = Math.max(0, Math.floor(getStat(arma, 'bonusCastSpeed')));
+    if (castFromWeapon <= 0 && (weaponTipo === 'Magic Sword' || /staff/i.test(String(weaponBase?.nome || '')))) {
+      castFromWeapon = Math.max(1, Math.floor((gradeCastTable[weaponGrade] ?? 2) * 0.75));
+      castFromWeapon += Math.min(3, Math.floor(lvlWpn / 8));
+    }
+    const castFromTitle = Math.max(0, Math.floor(titleBonus.castSpeedPct || 0));
+    const castBeforeBuffs = Math.min(40, castFromArmor + castFromWeapon + castFromTitle);
+    window.playerStats.castSpeed = castBeforeBuffs;
 
         if (
         typeof window.ExpeditionEngine !== 'undefined'
@@ -337,6 +363,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             maxMp: titleBonus.maxMp,
             critRate: titleBonus.critRate,
             atkSpeedMs: titleBonus.atkSpeedMs,
+            castSpeedPct: titleBonus.castSpeedPct,
         },
         hp: {
             raceBaseHp: baseHp,
@@ -438,6 +465,14 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             computedMsBeforeFloor: spdTotal,
             floored250: atkSpdFlooredBelowMin,
             totalMs: window.playerStats.atkSpeed
+        },
+        castSpeed: {
+            fromArmor: castFromArmor,
+            fromWeapon: castFromWeapon,
+            fromTitle: castFromTitle,
+            fromBuffs: Math.max(0, (window.playerStats.castSpeed || 0) - castBeforeBuffs),
+            totalPct: window.playerStats.castSpeed || 0,
+            capped: (window.playerStats.castSpeed || 0) >= 40,
         },
         joiasPorStat: joiasContribLinhas
     };
@@ -560,7 +595,8 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
             pDef: window.playerStats.pDef,
             mDef: window.playerStats.mDef,
             critRate: window.playerStats.critRate,
-            atkSpeed: window.playerStats.atkSpeed
+            atkSpeed: window.playerStats.atkSpeed,
+            castSpeed: window.playerStats.castSpeed
         };
     } finally {
         for (var fj = 0; fj < backupKeys.length; fj++) {

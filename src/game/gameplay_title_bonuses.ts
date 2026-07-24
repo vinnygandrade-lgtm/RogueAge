@@ -17,7 +17,8 @@ export type TitleBonusStatKey =
   | 'maxHp'
   | 'maxMp'
   | 'critRate'
-  | 'atkSpeedMs';
+  | 'atkSpeedMs'
+  | 'castSpeedPct';
 
 export interface TitleStatBonus {
   pAtk: number;
@@ -29,6 +30,8 @@ export interface TitleStatBonus {
   critRate: number;
   /** Positive = faster attack (ms removed from atk speed). */
   atkSpeedMs: number;
+  /** Casting Speed % (shortens skill cast time). */
+  castSpeedPct: number;
 }
 
 export interface TitleBonusDisplayLine {
@@ -45,6 +48,7 @@ const EMPTY_BONUS: TitleStatBonus = {
   maxMp: 0,
   critRate: 0,
   atkSpeedMs: 0,
+  castSpeedPct: 0,
 };
 
 const GRADE_SCALE: Record<GameplayAchievementGrade, number> = {
@@ -66,6 +70,7 @@ const STAT_PRIMARY_BASE: Record<TitleBonusStatKey, number> = {
   maxMp: 40,
   critRate: 0.9,
   atkSpeedMs: 12,
+  castSpeedPct: 3,
 };
 
 interface AchievementBonusProfile {
@@ -83,16 +88,16 @@ const ACHIEVEMENT_BONUS_PROFILES: Record<string, AchievementBonusProfile> = {
   coin_hoarder: { primary: 'mDef', secondary: 'maxMp', tertiary: 'mAtk', tierAccent: ['mDef', 'maxMp', 'mAtk', 'mDef', 'maxMp', 'mDef'] },
   enchant_seeker: { primary: 'mAtk', secondary: 'critRate', tertiary: 'atkSpeedMs', tierAccent: ['mAtk', 'critRate', 'atkSpeedMs', 'mAtk', 'critRate', 'mAtk'] },
   forge_hand: { primary: 'pDef', secondary: 'maxHp', tertiary: 'pAtk', tierAccent: ['pDef', 'maxHp', 'pAtk', 'pDef', 'maxHp', 'pDef'] },
-  skill_weaver: { primary: 'mAtk', secondary: 'maxMp', tertiary: 'atkSpeedMs', tierAccent: ['mAtk', 'maxMp', 'atkSpeedMs', 'mAtk', 'maxMp', 'mAtk'] },
+  skill_weaver: { primary: 'mAtk', secondary: 'maxMp', tertiary: 'castSpeedPct', tierAccent: ['mAtk', 'maxMp', 'castSpeedPct', 'mAtk', 'maxMp', 'mAtk'] },
   arena_legend: { primary: 'pAtk', secondary: 'pDef', tertiary: 'critRate', tierAccent: ['pAtk', 'pDef', 'critRate', 'pAtk', 'pDef', 'pAtk'] },
   arena_reaper: { primary: 'pAtk', secondary: 'critRate', tertiary: 'atkSpeedMs', tierAccent: ['pAtk', 'critRate', 'atkSpeedMs', 'pAtk', 'critRate', 'pAtk'] },
   boss_breaker: { primary: 'pDef', secondary: 'maxHp', tertiary: 'pAtk', tierAccent: ['pDef', 'maxHp', 'pAtk', 'pDef', 'maxHp', 'pDef'] },
   battle_alchemist: { primary: 'maxHp', secondary: 'maxMp', tertiary: 'mDef', tierAccent: ['maxHp', 'maxMp', 'mDef', 'maxHp', 'maxMp', 'maxHp'] },
-  mint_scholar: { primary: 'mAtk', secondary: 'maxMp', tertiary: 'critRate', tierAccent: ['mAtk', 'maxMp', 'critRate', 'mAtk', 'maxMp', 'mAtk'] },
+  mint_scholar: { primary: 'mAtk', secondary: 'maxMp', tertiary: 'castSpeedPct', tierAccent: ['mAtk', 'maxMp', 'castSpeedPct', 'mAtk', 'maxMp', 'mAtk'] },
   elite_nemesis: { primary: 'pAtk', secondary: 'mAtk', tertiary: 'critRate', tierAccent: ['pAtk', 'mAtk', 'critRate', 'pAtk', 'mAtk', 'pAtk'] },
   pathfinder: { primary: 'maxHp', secondary: 'atkSpeedMs', tertiary: 'pDef', tierAccent: ['maxHp', 'atkSpeedMs', 'pDef', 'maxHp', 'atkSpeedMs', 'maxHp'] },
   enchant_master: { primary: 'mAtk', secondary: 'critRate', tertiary: 'pAtk', tierAccent: ['mAtk', 'critRate', 'pAtk', 'mAtk', 'critRate', 'mAtk'] },
-  rune_binder: { primary: 'mAtk', secondary: 'mDef', tertiary: 'maxMp', tierAccent: ['mAtk', 'mDef', 'maxMp', 'mAtk', 'mDef', 'mAtk'] },
+  rune_binder: { primary: 'mAtk', secondary: 'castSpeedPct', tertiary: 'maxMp', tierAccent: ['mAtk', 'castSpeedPct', 'maxMp', 'mAtk', 'castSpeedPct', 'mAtk'] },
   exchange_mogul: { primary: 'maxHp', secondary: 'pDef', tertiary: 'mDef', tierAccent: ['maxHp', 'pDef', 'mDef', 'maxHp', 'pDef', 'maxHp'] },
   war_banner: { primary: 'pAtk', secondary: 'pDef', tertiary: 'maxHp', tierAccent: ['pAtk', 'pDef', 'maxHp', 'pAtk', 'pDef', 'pAtk'] },
   level_climber: { primary: 'maxHp', secondary: 'maxMp', tertiary: 'pDef', tierAccent: ['maxHp', 'maxMp', 'pDef', 'maxHp', 'maxMp', 'maxHp'] },
@@ -161,7 +166,7 @@ export function getTitleStatBonus(titleId: string): TitleStatBonus {
 
 export function listTitleBonusLines(bonus: TitleStatBonus): TitleBonusDisplayLine[] {
   const order: TitleBonusStatKey[] = [
-    'pAtk', 'mAtk', 'pDef', 'mDef', 'maxHp', 'maxMp', 'critRate', 'atkSpeedMs',
+    'pAtk', 'mAtk', 'pDef', 'mDef', 'maxHp', 'maxMp', 'critRate', 'atkSpeedMs', 'castSpeedPct',
   ];
   const lines: TitleBonusDisplayLine[] = [];
   order.forEach((key) => {
@@ -174,7 +179,7 @@ export function listTitleBonusLines(bonus: TitleStatBonus): TitleBonusDisplayLin
 export function sumTitleBonusPower(bonus: TitleStatBonus): number {
   return bonus.pAtk + bonus.mAtk + bonus.pDef + bonus.mDef
     + Math.floor(bonus.maxHp / 10) + Math.floor(bonus.maxMp / 8)
-    + Math.floor(bonus.critRate * 4) + bonus.atkSpeedMs;
+    + Math.floor(bonus.critRate * 4) + bonus.atkSpeedMs + bonus.castSpeedPct;
 }
 
 export {};

@@ -190,6 +190,35 @@
     0%, 100% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
     40% { filter: brightness(1.2) drop-shadow(0 0 10px rgba(239, 68, 68, 0.45)); }
 }
+/* Skill cast channel — HUD avatar pulse while the cast rail drains */
+.hud-avatar-circle.is-casting {
+    box-shadow:
+        0 0 0 2px rgba(167, 139, 250, 0.85),
+        0 0 14px rgba(168, 85, 247, 0.75),
+        0 0 28px rgba(251, 191, 36, 0.35) !important;
+    animation: l2-cast-avatar-pulse 0.7s ease-in-out infinite alternate;
+}
+.hud-avatar-circle.is-casting img {
+    filter: brightness(1.15) saturate(1.2);
+}
+@keyframes l2-cast-avatar-pulse {
+    from {
+        box-shadow:
+            0 0 0 2px rgba(167, 139, 250, 0.55),
+            0 0 10px rgba(168, 85, 247, 0.45),
+            0 0 18px rgba(251, 191, 36, 0.2);
+    }
+    to {
+        box-shadow:
+            0 0 0 3px rgba(196, 181, 253, 0.95),
+            0 0 18px rgba(168, 85, 247, 0.9),
+            0 0 32px rgba(251, 191, 36, 0.45);
+    }
+}
+body.l2-skill-casting #barra-de-atalhos-dinamica .shortcut-cast-rail--active {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.85) !important;
+}
+
 .tomando-dano { animation: combatSpriteHitRed 0.32s ease-out; }
 
 @keyframes combatSpriteDeal {

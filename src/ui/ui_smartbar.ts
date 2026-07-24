@@ -335,6 +335,46 @@ function getSkillCdTotal(nomeSlot: string): number {
   return 1000;
 }
 
+/** Sync cast rails from skillCastUi (safe after full hotbar rebuild). */
+function syncHotbarCastRails(): void {
+  const ui = window.skillCastUi;
+  const now = Date.now();
+  let castingName: string | null = null;
+  let remainRatio = 0;
+
+  if (ui && ui.name && ui.endsAt > now && ui.totalMs > 0) {
+    castingName = ui.name;
+    remainRatio = Math.max(0, Math.min(1, (ui.endsAt - now) / ui.totalMs));
+  } else {
+    // Fallback if skillCastUi not published yet
+    const castLeft =
+      typeof window.getSkillGcdRemainingMs === 'function' ? window.getSkillGcdRemainingMs() : 0;
+    const castTotal = Math.max(
+      1,
+      typeof window.getActiveSkillCastTotalMs === 'function'
+        ? window.getActiveSkillCastTotalMs()
+        : Number(window.SKILL_GCD_MS) || 1500,
+    );
+    castingName =
+      castLeft > 0 && typeof window.getSkillGcdCastName === 'function'
+        ? window.getSkillGcdCastName()
+        : null;
+    remainRatio = castLeft > 0 ? Math.max(0, Math.min(1, castLeft / castTotal)) : 0;
+  }
+
+  document.querySelectorAll('.shortcut-cast-rail').forEach((railNode) => {
+    const rail = railNode as HTMLElement;
+    const nome = rail.getAttribute('data-cast-rail');
+    const fill = rail.querySelector('.shortcut-cast-rail__fill') as HTMLElement | null;
+    const active = !!nome && !!castingName && nome === castingName && remainRatio > 0;
+    rail.classList.toggle('shortcut-cast-rail--active', active);
+    if (fill) {
+      // scaleX avoids CSS width:!important fighting inline width
+      fill.style.transform = `scaleX(${active ? remainRatio : 0})`;
+    }
+  });
+}
+
 function renderizarBarraAtalhos(): void {
   try {
     const container = document.getElementById('barra-de-atalhos-dinamica');
@@ -392,18 +432,11 @@ function renderizarBarraAtalhos(): void {
       let styleExtra = '';
 
       if (nomeSlot) {
+        // Icon overlay = personal recharge only. Cast uses the top rail (not the old red wash).
         let pct = 0;
-        const lockLeft =
-          typeof window.getHotbarSlotLockRemainingMs === 'function'
-            ? window.getHotbarSlotLockRemainingMs(nomeSlot)
-            : Math.max(0, (Number(window.cooldownsAtivos[nomeSlot]) || 0) - agora);
-        if (lockLeft > 0) {
-          const personalTotal = getSkillCdTotal(nomeSlot);
-          const cdTotal =
-            typeof window.getHotbarSlotLockTotalMs === 'function'
-              ? window.getHotbarSlotLockTotalMs(nomeSlot, personalTotal)
-              : personalTotal;
-          pct = (lockLeft / Math.max(1, cdTotal)) * 100;
+        const personalLeft = Math.max(0, (Number(window.cooldownsAtivos[nomeSlot]) || 0) - agora);
+        if (personalLeft > 0) {
+          pct = (personalLeft / Math.max(1, getSkillCdTotal(nomeSlot))) * 100;
           if (pct < 0) pct = 0;
           if (pct > 100) pct = 100;
         }
@@ -431,7 +464,9 @@ function renderizarBarraAtalhos(): void {
         } else {
           const skill = window.bancoDeSkills?.[nomeSlot];
           if (skill) {
+            const castRailInside = `<div class="shortcut-cast-rail" data-cast-rail="${String(nomeSlot).replace(/"/g, '&quot;')}" aria-hidden="true"><div class="shortcut-cast-rail__fill"></div></div>`;
             conteudo = `
+                        ${castRailInside}
                         <div class="cd-overlay" data-cd="${nomeSlot}" style="height: ${pct}%;"></div>
                         ${htmlTimer}
                         <span style="font-size:1.75em; filter: drop-shadow(0 0 3px #000); z-index: 1;">${skill.icone || ''}</span>
@@ -517,6 +552,7 @@ function renderizarBarraAtalhos(): void {
       }
     }
     container.innerHTML = novoHtml;
+    syncHotbarCastRails();
 
     if (!estaNaRaid && !estaNaOlympiad) {
       syncExpeditionHotbarDockIfNeeded();
@@ -590,7 +626,6 @@ function ativarAtalhoSlot(index: number): void {
     } else if (naGuerra) window.ClanWarEngine?.usarSkillPlayer?.('Attack');
     else {
       window.atacar?.();
-      renderizarBarraAtalhos();
     }
   } else {
     const skill = window.bancoDeSkills?.[nomeSlot];
@@ -677,7 +712,6 @@ function iniciarToqueAtalho(index: number): void {
       window.barraAtalhos[index] = null;
       renderizarBarraAtalhos();
       if (typeof window.salvarJogo === 'function') window.salvarJogo();
-      if (typeof window.tocarSom === 'function') window.tocarSom('ataque');
     }
   }, LONG_PRESS_MS);
 }
@@ -695,44 +729,54 @@ function executarSkillNaRaid(nomeSlot: string, skill: SkillCatalogEntry): void {
 
   window.playerMP -= skill.mp || 0;
   if (typeof window.atualizar === 'function') window.atualizar();
-  if (typeof window.beginSkillCast === 'function') {
-    window.beginSkillCast(nomeSlot, skill.cd || 1000);
-  } else {
-    window.globalCooldownAtivo = Date.now() + 1500;
-    window.dispararAnimacaoCooldown(nomeSlot, skill.cd || 1000);
-  }
-  if (typeof window.escreverLog === 'function') {
-    window.escreverLog(`<span style="color:${skill.cor || '#fff'}; font-weight:bold;">${smartbarT('game.smartbar.youCast', { skill: hotbarLabel(nomeSlot) })}</span>`);
-  }
 
-  const raid = window.RaidEngine;
-  const bossData = raid?.bossData;
-  if (!raid || !bossData) return;
+  const launch = () => {
+    if (window.playerHP <= 0) return;
+    const raidNow = window.RaidEngine;
+    const bossNow = raidNow?.bossData;
+    if (!raidNow || !bossNow) return;
 
-  if (skill.tipo !== 'cura' && skill.tipo !== 'buff') {
-    const isMage = typeof window.isClasseMagica === 'function'
-      ? window.isClasseMagica(window.charClass)
-      : false;
-    const danoBruto = isMage ? window.playerStats.mAtk : window.playerStats.pAtk;
-    const multSkill = skill.danoMult || 1.5;
-    const defDoBoss = isMage ? bossData.mDef : bossData.pDef;
-
-    const multiplicadorDefesa = 1000 / (1000 + defDoBoss);
-    let danoFinal = Math.floor(danoBruto * multSkill * multiplicadorDefesa);
-
-    if (Math.random() * 100 <= window.playerStats.critRate) {
-      danoFinal *= isMage ? 1.5 : 2;
-      raid.escreverLogRaid(`<span style="color:${skill.cor || '#fff'}; font-weight:bold;">${smartbarT('game.raid.criticalSkillDamage', { damage: danoFinal })}</span>`);
-    } else {
-      raid.escreverLogRaid(smartbarT('game.raid.magicDamageBoss', { damage: danoFinal }));
+    if (typeof window.escreverLog === 'function') {
+      window.escreverLog(`<span style="color:${skill.cor || '#fff'}; font-weight:bold;">${smartbarT('game.smartbar.youCast', { skill: hotbarLabel(nomeSlot) })}</span>`);
     }
-    raid.receberDanoBoss(danoFinal, true);
-  } else if (skill.tipo === 'cura') {
-    const cura = skill.curaFixa || Math.floor(window.playerStats.mAtk * (skill.curaMult || 1));
-    window.playerHP += cura;
-    if (window.playerHP > window.playerStats.maxHp) window.playerHP = window.playerStats.maxHp;
-    raid.escreverLogRaid(`<span style="color:#10b981; font-weight:bold;">${smartbarT('game.raid.healFor', { amount: cura })}</span>`);
-    if (typeof window.atualizar === 'function') window.atualizar();
+
+    if (skill.tipo !== 'cura' && skill.tipo !== 'buff') {
+      const isMage = typeof window.isClasseMagica === 'function'
+        ? window.isClasseMagica(window.charClass)
+        : false;
+      const danoBruto = isMage ? window.playerStats.mAtk : window.playerStats.pAtk;
+      const multSkill = skill.danoMult || 1.5;
+      const defDoBoss = isMage ? bossNow.mDef : bossNow.pDef;
+
+      const multiplicadorDefesa = 1000 / (1000 + defDoBoss);
+      let danoFinal = Math.floor(danoBruto * multSkill * multiplicadorDefesa);
+
+      if (Math.random() * 100 <= window.playerStats.critRate) {
+        danoFinal *= isMage ? 1.5 : 2;
+        raidNow.escreverLogRaid(`<span style="color:${skill.cor || '#fff'}; font-weight:bold;">${smartbarT('game.raid.criticalSkillDamage', { damage: danoFinal })}</span>`);
+      } else {
+        raidNow.escreverLogRaid(smartbarT('game.raid.magicDamageBoss', { damage: danoFinal }));
+      }
+      raidNow.receberDanoBoss(danoFinal, true);
+    } else if (skill.tipo === 'cura') {
+      const cura = skill.curaFixa || Math.floor(window.playerStats.mAtk * (skill.curaMult || 1));
+      window.playerHP += cura;
+      if (window.playerHP > window.playerStats.maxHp) window.playerHP = window.playerStats.maxHp;
+      raidNow.escreverLogRaid(`<span style="color:#10b981; font-weight:bold;">${smartbarT('game.raid.healFor', { amount: cura })}</span>`);
+      if (typeof window.atualizar === 'function') window.atualizar();
+    }
+  };
+
+  const castMs =
+    typeof window.resolveSkillCastMs === 'function'
+      ? window.resolveSkillCastMs(skill)
+      : 1500;
+  if (typeof window.beginSkillCast === 'function') {
+    window.beginSkillCast(nomeSlot, skill.cd || 1000, castMs, launch);
+  } else {
+    window.globalCooldownAtivo = Date.now() + Math.max(200, castMs || 1500);
+    window.dispararAnimacaoCooldown(nomeSlot, skill.cd || 1000);
+    launch();
   }
 }
 
@@ -759,9 +803,8 @@ window.dispararAnimacaoGCD = function (tempoMs: number, nome: string): void {
 setInterval(() => {
   const overlays = document.querySelectorAll('.cd-overlay');
   const agora = Date.now();
-  const castLeft =
-    typeof window.getSkillGcdRemainingMs === 'function' ? window.getSkillGcdRemainingMs() : 0;
-  const castTotal = Math.max(1, Number(window.SKILL_GCD_MS) || 1500);
+
+  syncHotbarCastRails();
 
   overlays.forEach((overlay) => {
     const el = overlay as HTMLElement;
@@ -769,30 +812,13 @@ setInterval(() => {
     if (!nome) return;
     const timerText = el.nextElementSibling as HTMLElement | null;
 
+    // Personal recharge only (grey). Never paint cast as red overlay on the icon.
     const personalLeft = Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
-    const usesCastLock = typeof window.slotUsesSkillGcd === 'function' && window.slotUsesSkillGcd(nome);
-    // Cast lock (red) while launch resolves; personal recharge starts only after cast ends.
-    const underCastLock = usesCastLock && castLeft > 0 && personalLeft <= 0;
+    el.classList.remove('cd-overlay--cast');
 
-    let restamMs = 0;
-    let totalMs = 1;
-    let showCastRed = false;
-
-    if (underCastLock) {
-      // Launch CD (red) — same visual language as skill recharge, shorter shared lock.
-      restamMs = castLeft;
-      totalMs = castTotal;
-      showCastRed = true;
-    } else if (personalLeft > 0) {
-      restamMs = personalLeft;
-      totalMs = getSkillCdTotal(nome);
-      showCastRed = false;
-    }
-
-    el.classList.toggle('cd-overlay--cast', showCastRed);
-
-    if (restamMs > 0) {
-      let porcentagem = (restamMs / Math.max(1, totalMs)) * 100;
+    if (personalLeft > 0) {
+      const totalMs = getSkillCdTotal(nome);
+      let porcentagem = (personalLeft / Math.max(1, totalMs)) * 100;
       if (porcentagem < 0) porcentagem = 0;
       if (porcentagem > 100) porcentagem = 100;
       el.style.height = porcentagem + '%';
@@ -800,9 +826,9 @@ setInterval(() => {
 
       if (timerText?.classList.contains('cd-timer-text')) {
         if (nome !== 'Attack') {
-          timerText.innerText = (restamMs / 1000).toFixed(1);
+          timerText.innerText = (personalLeft / 1000).toFixed(1);
           timerText.style.display = 'block';
-          timerText.classList.toggle('cd-timer-text--cast', showCastRed);
+          timerText.classList.remove('cd-timer-text--cast');
         } else {
           timerText.style.display = 'none';
           timerText.classList.remove('cd-timer-text--cast');

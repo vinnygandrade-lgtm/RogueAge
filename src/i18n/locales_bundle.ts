@@ -990,6 +990,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     seconds: 's',
                     mpLabel: 'MP cost',
                     cdLabel: 'Cooldown',
+                    castLabel: 'Cast',
                     powerLabel: 'Power / scaling',
                     typeLabel: 'Category',
                     powerFmt: '{n}× base',
@@ -1393,6 +1394,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         maxMp: '+{value} Max MP',
                         critRate: '+{value}% Crit Rate',
                         atkSpeedMs: '−{value} ms attack delay',
+                        castSpeedPct: '+{value}% Casting Speed',
                     },
                     profileTitlesBtn: 'TITLES',
                     equippedNow: 'Equipped in chat',
@@ -1882,7 +1884,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             pDef: 'P.Def',
                             mDef: 'M.Def',
                             crit: 'Crit',
-                            atkSpd: 'Attack interval'
+                            atkSpd: 'Attack interval',
+                            castSpd: 'Casting Speed'
                         }
                     },
                     detail: {
@@ -1971,6 +1974,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         lblAtkSpdShown: 'Time between attacks (lower hits faster)',
                         lblSpdTitle: '· equipped title (faster)',
                         lblAtkFloor: 'Attack cadence cannot go below 0.25s on the portrait.',
+                        lblCastSpdShown: 'Casting Speed (shortens skill cast time)',
+                        lblCastSpdArmor: '· robe / armor',
+                        lblCastSpdWeapon: '· staff / weapon',
+                        lblCastSpdTitle: '· equipped title',
+                        lblCastSpdBuffs: '· skill buffs',
                         pillFighterBuffLine: 'Grand Master fighter blessing active — melee-focused bonuses.',
                         pillMageBuffLine: 'Grand Master mystic blessing active — stronger spells and tougher against magic.',
                         hudTrustLine: 'The totals at the top are the same ones the game uses in combat.',
@@ -3996,6 +4004,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     seconds: 's',
                     mpLabel: 'Custo de MP',
                     cdLabel: 'Tempo de recarga',
+                    castLabel: 'Cast',
                     powerLabel: 'Poder / multiplicador',
                     typeLabel: 'Categoria',
                     powerFmt: '{n}× base',
@@ -4399,6 +4408,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         maxMp: '+{value} MP Máx.',
                         critRate: '+{value}% Taxa de Crítico',
                         atkSpeedMs: '−{value} ms de delay de ataque',
+                        castSpeedPct: '+{value}% Vel. de Conjuração',
                     },
                     profileTitlesBtn: 'TÍTULOS',
                     equippedNow: 'Equipado no chat',
@@ -4888,7 +4898,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             pDef: 'P.Def',
                             mDef: 'M.Def',
                             crit: 'Crít.',
-                            atkSpd: 'Intervalo de ataque'
+                            atkSpd: 'Intervalo de ataque',
+                            castSpd: 'Vel. de conjuração'
                         }
                     },
                     detail: {
@@ -4977,6 +4988,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         lblAtkSpdShown: 'Intervalo entre ataques (menor = mais rápido)',
                         lblSpdTitle: '· título equipado (mais rápido)',
                         lblAtkFloor: 'A cadência de ataque não fica abaixo de 0,25 s no retrato.',
+                        lblCastSpdShown: 'Velocidade de Conjuração (encurta o cast das skills)',
+                        lblCastSpdArmor: '· robe / armadura',
+                        lblCastSpdWeapon: '· cajado / arma',
+                        lblCastSpdTitle: '· título equipado',
+                        lblCastSpdBuffs: '· buffs de skill',
                         pillFighterBuffLine: 'Bênção do Grande Mestre (guerreiro) ativa — foco em combate corpo a corpo.',
                         pillMageBuffLine: 'Bênção do Grande Mestre (místico) ativa — magias mais fortes e resistência mágica.',
                         hudTrustLine: 'Os totais no topo são os mesmos usados pelo combate.',

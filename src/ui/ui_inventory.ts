@@ -1065,7 +1065,12 @@ window.buildCombatStatsHeroBlockHtml = function (placement) {
         { sub: 'pDef', val: String(ps.pDef), mod: 'combat-stats-hero__cell--pdef' },
         { sub: 'mDef', val: String(ps.mDef), mod: 'combat-stats-hero__cell--mdef' },
         { sub: 'crit', val: (typeof ps.critRate !== 'undefined' ? ps.critRate : 0) + '%', mod: 'combat-stats-hero__cell--crit' },
-        { sub: 'atkSpd', val: atkSec.toFixed(2) + 's', mod: 'combat-stats-hero__cell--spd' }
+        { sub: 'atkSpd', val: atkSec.toFixed(2) + 's', mod: 'combat-stats-hero__cell--spd' },
+        {
+            sub: 'castSpd',
+            val: '+' + String(typeof ps.castSpeed === 'number' ? ps.castSpeed : 0) + '%',
+            mod: 'combat-stats-hero__cell--cast',
+        },
     ];
     var extraClass = placement === 'profile' ? 'combat-stats-hero--profile' : 'combat-stats-hero--modal';
     var parts = [];
@@ -1386,6 +1391,20 @@ window.renderPainelStatsDetalhado = function (): void {
     otherParts.push(rowFb(L('lblAtkSpdShown', 'Time between hits (lower = faster)'), (b.atkSpeed.totalMs / 1000).toFixed(2) + 's'));
     if (b.atkSpeed.floored250) {
         otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L('lblAtkFloor', 'Floored at 250ms minimum delay')) + '</div>');
+    }
+    var castPct = (b.castSpeed && typeof b.castSpeed.totalPct === 'number') ? b.castSpeed.totalPct : 0;
+    otherParts.push(rowFb(L('lblCastSpdShown', 'Casting Speed (shortens skill cast time)'), '+' + String(castPct) + '%'));
+    if (b.castSpeed && b.castSpeed.fromArmor) {
+        otherParts.push(rowKey('lblCastSpdArmor', '  · robe / armor', '+' + String(b.castSpeed.fromArmor) + '%'));
+    }
+    if (b.castSpeed && b.castSpeed.fromWeapon) {
+        otherParts.push(rowKey('lblCastSpdWeapon', '  · staff / weapon', '+' + String(b.castSpeed.fromWeapon) + '%'));
+    }
+    if (b.castSpeed && b.castSpeed.fromTitle) {
+        otherParts.push(rowKey('lblCastSpdTitle', '  · equipped title', '+' + String(b.castSpeed.fromTitle) + '%'));
+    }
+    if (b.castSpeed && b.castSpeed.fromBuffs) {
+        otherParts.push(rowKey('lblCastSpdBuffs', '  · skill buffs', '+' + String(b.castSpeed.fromBuffs) + '%'));
     }
     if (Array.isArray(b.joiasPorStat) && b.joiasPorStat.length > 0) {
         otherParts.push('<div class="status-detail__h-sm">' + L('secJewelry', 'Each jewelry piece') + '</div>');

@@ -5,7 +5,9 @@
 
 import { petDisplayName, writeSkillLog } from './combat_i18n';
 import { mobDefenseAgainstPlayer } from './mob_combat_stats';
+import { resolveSkillCastMs } from './skill_cast';
 import { setSkillCombatBuff } from './skill_combat_buffs';
+import type { SkillCatalogEntry } from '../types/game';
 
 interface ForestMob {
   hp?: number;
@@ -20,14 +22,7 @@ interface ForestMob {
   debuffs?: Record<string, unknown>;
 }
 
-interface SkillDef {
-  tipo: string;
-  mp: number;
-  cd: number;
-  poder: number;
-  cor?: string;
-  icone?: string;
-}
+type SkillDef = SkillCatalogEntry;
 
 function getBancoDeSkills(): Record<string, SkillDef> | undefined {
     return window.bancoDeSkills as Record<string, SkillDef> | undefined;
@@ -82,32 +77,49 @@ function usarSkill(nomeSkill: string) {
         return;
     }
 
+    // Commit MP + cast bar now; damage/buffs resolve when cast finishes.
     window.playerMP -= mpCost;
-    // Red cast lock first; personal recharge CD starts only after cast ends.
-    if (typeof window.beginSkillCast === 'function') {
-        window.beginSkillCast(nomeSkill, resolveSkillCooldownMs(skill.cd));
-    } else {
-        window.globalCooldownAtivo = Date.now() + 1500;
-        window.dispararAnimacaoCooldown?.(nomeSkill, resolveSkillCooldownMs(skill.cd));
-    }
     if (typeof window.registrarProgressoMissaoDiaria === 'function') {
         window.registrarProgressoMissaoDiaria('usar_skills', 1);
     }
-
-    if(typeof tocarSom === 'function') tocarSom('enchant');
     window.atualizar();
 
+    const launch = () => {
+        if (window.playerHP <= 0) return;
+        // Release SFX is played by skill_cast_fx on cast complete.
+        aplicarEfeitoSkillFloresta(nomeSkill, skill);
+    };
+
+    const castMs = resolveSkillCastMs(skill);
+    if (typeof window.beginSkillCast === 'function') {
+        window.beginSkillCast(nomeSkill, resolveSkillCooldownMs(skill.cd), castMs, launch);
+    } else {
+        window.globalCooldownAtivo = Date.now() + Math.max(200, castMs || 1500);
+        launch();
+        window.dispararAnimacaoCooldown?.(nomeSkill, resolveSkillCooldownMs(skill.cd));
+    }
+}
+
+/** Resolves skill payload after the cast bar completes. */
+function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
     let tIdx = typeof window.getForestTargetMobIndex === 'function' ? window.getForestTargetMobIndex() : 0;
-    if (tIdx < 0) return;
-    let monstro = window.monstrosAtivos[tIdx] as ForestMob;
+    const needsTarget = skill.tipo !== 'cura' && skill.tipo !== 'cura_mp'
+        && skill.tipo !== 'buff_spd' && skill.tipo !== 'buff_def' && skill.tipo !== 'buff_atk'
+        && skill.tipo !== 'utilidade' && skill.tipo !== 'pet';
+    if (needsTarget && (tIdx < 0 || !window.monstrosAtivos?.length)) return;
+    if (tIdx < 0) tIdx = 0;
+    let monstro = (window.monstrosAtivos && window.monstrosAtivos[tIdx]
+        ? window.monstrosAtivos[tIdx]
+        : null) as ForestMob | null;
     let isMagico = (typeof window.isClasseMagica === 'function' && window.isClasseMagica(window.charClass)) || window.charClass === "Dark Avenger" || window.charClass === "Hell Knight";
-    
+
    switch(skill.tipo) {
         case "ataque":
         case "ataque_area":
         case "ataque_cura":
         case "ataque_ultimate":
         case "ataque_dreno":
+            if (!monstro) return;
             let atkBase = isMagico ? window.playerStats.mAtk : window.playerStats.pAtk;
             let defAlvo = mobDefenseAgainstPlayer(isMagico, monstro);
             const defMult = monstro.debuffs?.defMult;
@@ -210,16 +222,30 @@ function usarSkill(nomeSkill: string) {
             }
             break;
 
-        case "buff_spd":
+        case "buff_spd": {
             writeSkillLog('buffSpeedActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
+            const poderSpd = Math.max(0.01, Number(skill.poder) || 1);
+            // Concentration → Casting Speed % only (not Attack atkSpeed).
+            // Agility / Chant of Fury → both cast + attack speed (flavor text).
+            const castOnly = nomeSkill === 'Concentration';
+            const dualCast =
+                nomeSkill === 'Agility' || nomeSkill === 'Chant of Fury';
+            const castSpeedBonus =
+                castOnly || dualCast
+                    ? Math.min(40, Math.max(0, Math.round((poderSpd - 1) * 100)))
+                    : 0;
+            const atkSpeedMult =
+                castOnly ? 1 : 1 / poderSpd;
             setSkillCombatBuff('spd', {
                 skillName: nomeSkill,
-                atkSpeedMult: 1 / Math.max(0.01, Number(skill.poder) || 1),
+                atkSpeedMult,
+                castSpeedBonus,
             });
             if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
             window.atualizar();
             break;
+        }
 
         case "utilidade": 
             writeSkillLog('utilityActivated', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
@@ -273,6 +299,7 @@ function usarSkill(nomeSkill: string) {
             break;
 
         case "debuff_spoil":
+            if (!monstro) return;
             if (!monstro.debuffs) monstro.debuffs = {}; monstro.debuffs.spoil = true;
             writeSkillLog('spoilSwallowed', undefined, 'color:#3b82f6; font-weight:bold;');
             { let _ix = window.monstrosAtivos.indexOf(monstro); if (_ix >= 0) atualizarIconesDebuffMonstro(_ix, nomeSkill, 20000, skill.icone); }
@@ -280,6 +307,7 @@ function usarSkill(nomeSkill: string) {
             break;
 
        case "debuff":
+            if (!monstro) return;
             if (!monstro.debuffs) monstro.debuffs = {}; writeSkillLog('monsterCursed', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             if (["Hex", "Curse Weakness", "Curse Gloom", "Surrender To Fire", "Poison Arrow", "Poison Dance", "Surrender To Water", "Crippling Blow"].includes(nomeSkill)) { monstro.debuffs.defMult = 0.7; writeSkillLog('defenseShattered', undefined, `color:${skill.cor}; font-weight:bold;`); }
             if (["Howl", "Freezing Strike", "Sand Bomb", "Wind Shackle"].includes(nomeSkill)) { monstro.debuffs.atkMult = 0.7; writeSkillLog('enemySlowed', undefined, `color:${skill.cor}; font-weight:bold;`); }
@@ -369,7 +397,7 @@ function usarSkill(nomeSkill: string) {
             }
             window.atualizar();
             break;
-    }   
+    }
 }
 
 

@@ -1678,11 +1678,9 @@ const OlympiadEngine = {
     playerAtaca() {
         if (!this.ativo || !this.inimigo) return;
         const agora = Date.now();
-        // Wait for skill cast-lock; Attack CD keeps loading independently.
+        // Wait for skill cast-lock; Attack keeps its own personal swing CD.
         if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) return;
         if (agora < (this.olyBasicAttackLockUntil || 0)) return;
-
-        // Trava física anti-spam (debounce de segurança)
         if (this._lastAttackTime && agora - this._lastAttackTime < 200) return;
         this._lastAttackTime = agora;
 
@@ -1691,7 +1689,7 @@ const OlympiadEngine = {
         const atkRaw = isMage ? window.playerStats.mAtk : window.playerStats.pAtk;
         const atk = Math.max(1, Math.floor(atkRaw * (this.olyPlayerPAtkMult || 1)));
         const def = this.getRivalDefVsPlayer(isMage);
-        
+
         let dano = Math.floor((atk * 1100) / (350 + def));
         const floorA = Math.max(0.02, Math.min(0.12, Number(this.olyFloorPlayerAuto) || 0.045));
         dano = Math.max(Math.floor(atk * floorA), dano);
@@ -1711,8 +1709,7 @@ const OlympiadEngine = {
         this.danoCausado += dano;
         this.escreverLog(`You dealt <span style="color:#fff;">${dano}</span> damage.`);
 
-        // Feedback Visual de Dano
-        const isCrit = Math.random() < 0.1; // Simulação de crítico visual
+        const isCrit = Math.random() < 0.1;
         this.mostrarDanoVisual(dano, 'player', isCrit);
         if (isCrit) this.shakeScreen(true);
 
@@ -1723,8 +1720,7 @@ const OlympiadEngine = {
 
         this.renderizarUI();
         if (typeof window.atualizar === 'function') window.atualizar();
-        
-        // Swing do Attack: não bloqueia skills; só o próximo Attack
+
         const tempoCD = Math.max(300, window.playerStats.atkSpeed || 3800);
         this.olyBasicAttackLockUntil = agora + tempoCD;
         if (typeof window.dispararAnimacaoCooldown === 'function') {
@@ -1748,59 +1744,69 @@ const OlympiadEngine = {
         window.playerMP -= skill.mp;
 
         const skillCD = skill.cd || 1000;
+        const launch = () => {
+            if (!this.ativo || !this.inimigo || window.playerHP <= 0) return;
+
+            if (skill.tipo === "cura") {
+                const cura = Math.floor(window.playerStats.maxHp * (skill.poder || 0.3));
+                window.playerHP = Math.min(window.playerStats.maxHp, window.playerHP + cura);
+                this.escreverLog(`<span style="color:#10b981;">[${nomeSkill}] Healed +${cura} HP.</span>`);
+            } else {
+                const isMage = window.isClasseMagica(window.charClass);
+                this.olyPrunePlayerDebuff(Date.now());
+                const atkRaw = isMage ? window.playerStats.mAtk : window.playerStats.pAtk;
+                const atk = Math.max(1, Math.floor(atkRaw * (this.olyPlayerPAtkMult || 1)));
+                const def = this.getRivalDefVsPlayer(isMage);
+
+                let dano = Math.floor(((atk * (skill.poder || 1.5)) * 1100) / (350 + def));
+                const floorS = Math.max(0.025, Math.min(0.15, Number(this.olyFloorPlayerSkill) || 0.06));
+                dano = Math.max(Math.floor(atk * floorS), dano);
+                dano = Math.floor(dano * this.multDanoPlayer);
+
+                if (this.inimigo.cp > 0) {
+                    if (this.inimigo.cp >= dano) this.inimigo.cp -= dano;
+                    else {
+                        const sobra = dano - this.inimigo.cp;
+                        this.inimigo.cp = 0;
+                        this.inimigo.hp -= sobra;
+                    }
+                } else {
+                    this.inimigo.hp -= dano;
+                }
+
+                this.danoCausado += dano;
+                this.escreverLog(`[${nomeSkill}] Dealt <span style="color:#fff;">${dano}</span> damage.`);
+            }
+
+            if (this.inimigo.hp <= 0) {
+                this.inimigo.hp = 0;
+                this.finalizarDuelo(true);
+            }
+
+            this.renderizarUI();
+            if (typeof window.atualizar === 'function') window.atualizar();
+        };
+
+        const castMs =
+            typeof window.resolveSkillCastMs === 'function'
+                ? window.resolveSkillCastMs(skill)
+                : 1500;
         if (typeof window.beginSkillCast === 'function') {
-            window.beginSkillCast(nomeSkill, skillCD);
+            window.beginSkillCast(nomeSkill, skillCD, castMs, launch);
         } else {
-            window.globalCooldownAtivo = agora + 1500;
+            window.globalCooldownAtivo = agora + Math.max(200, castMs || 1500);
             if (typeof window.dispararAnimacaoCooldown === 'function') {
                 window.dispararAnimacaoCooldown(nomeSkill, skillCD);
             }
+            launch();
         }
-        
-        if (skill.tipo === "cura") {
-            const cura = Math.floor(window.playerStats.maxHp * (skill.poder || 0.3));
-            window.playerHP = Math.min(window.playerStats.maxHp, window.playerHP + cura);
-            this.escreverLog(`<span style="color:#10b981;">[${nomeSkill}] Healed +${cura} HP.</span>`);
-        } else {
-            const isMage = window.isClasseMagica(window.charClass);
-            this.olyPrunePlayerDebuff(Date.now());
-            const atkRaw = isMage ? window.playerStats.mAtk : window.playerStats.pAtk;
-            const atk = Math.max(1, Math.floor(atkRaw * (this.olyPlayerPAtkMult || 1)));
-            const def = this.getRivalDefVsPlayer(isMage);
-            
-            let dano = Math.floor(((atk * (skill.poder || 1.5)) * 1100) / (350 + def));
-            const floorS = Math.max(0.025, Math.min(0.15, Number(this.olyFloorPlayerSkill) || 0.06));
-            dano = Math.max(Math.floor(atk * floorS), dano);
-            dano = Math.floor(dano * this.multDanoPlayer);
-
-            if (this.inimigo.cp > 0) {
-                if (this.inimigo.cp >= dano) this.inimigo.cp -= dano;
-                else {
-                    const sobra = dano - this.inimigo.cp;
-                    this.inimigo.cp = 0;
-                    this.inimigo.hp -= sobra;
-                }
-            } else {
-                this.inimigo.hp -= dano;
-            }
-
-            this.danoCausado += dano;
-            this.escreverLog(`[${nomeSkill}] Dealt <span style="color:#fff;">${dano}</span> damage.`);
-        }
-
-        if (this.inimigo.hp <= 0) {
-            this.inimigo.hp = 0;
-            this.finalizarDuelo(true);
-        }
-
-        this.renderizarUI();
-        if (typeof window.atualizar === 'function') window.atualizar();
     },
 
     // --- FINALIZAÇÃO E RECOMPENSAS ---
 
     async finalizarDuelo(vitoria) {
         this.ativo = false;
+        if (typeof window.cancelSkillCast === 'function') window.cancelSkillCast();
         if (typeof window.restorePlayerVitalsIfDowned === 'function') window.restorePlayerVitalsIfDowned();
         if (this.loopInimigo) clearInterval(this.loopInimigo);
         if (Array.isArray(this._olyRivalBurstTimers)) {

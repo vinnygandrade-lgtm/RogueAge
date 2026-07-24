@@ -1418,6 +1418,9 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 .combat-stats-hero__cell--spd .combat-stats-hero__val {
     color: #94a3b8;
 }
+.combat-stats-hero__cell--cast .combat-stats-hero__val {
+    color: #a78bfa;
+}
 @media (max-width: 360px) {
     .combat-stats-hero__grid {
         grid-template-columns: repeat(2, 1fr);

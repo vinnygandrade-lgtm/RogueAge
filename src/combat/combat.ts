@@ -68,6 +68,7 @@ window.motorPet = window.motorPet ?? null;
 
 function prepararTelaCacada() {
     travarFlorestaResumoVitoria(false);
+    if (typeof window.cancelSkillCast === 'function') window.cancelSkillCast();
 
     const exp = (window as any).ExpeditionEngine;
     const inExpeditionCombat = !!(

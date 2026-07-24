@@ -107,7 +107,8 @@ window.playerStats = {
   mDef: 10,
   critRate: 5,
   atkSpeed: 3800,
-  castSpeed: 600,
+  /** Casting Speed: % reduction on skill cast time (0–40). */
+  castSpeed: 0,
   runSpeed: 120,
 };
 
