@@ -39,7 +39,11 @@ export interface ExpeditionRunBuffs {
     mDefPct: number;
     critRatePct: number;
     atkSpeedPct: number;
+    /** Shortens skill cast time during the run (+8% per card; combined with gear, hard-capped at 40%). */
+    castSpeedPct: number;
     maxHpPct: number;
+    /** Raises Max MP during the run (+8% per card). */
+    maxMpPct: number;
     poisonResPct: number;
     bleedResPct: number;
     /** Bonus to passive HP regen ticks during the run (+10% per card, capped). */
@@ -61,7 +65,8 @@ export type ExpeditionBuildId =
     | 'mana_well'
     | 'vital_pulse'
     | 'executioner'
-    | 'warden';
+    | 'warden'
+    | 'arcane_channel';
 
 export type ExpeditionBuildRole = 'offense' | 'defense' | 'sustain';
 
@@ -211,7 +216,7 @@ const JOURNEY_TRAITS: JourneyMobTrait[] = ['brutal', 'swift', 'lethal', 'armored
 
 const RUN_BUILD_IDS: ExpeditionBuildId[] = [
     'swift_caster', 'spell_fortress', 'blade_dancer', 'iron_wall',
-    'mana_well', 'vital_pulse', 'executioner', 'warden'
+    'mana_well', 'vital_pulse', 'executioner', 'warden', 'arcane_channel'
 ];
 
 /** Mastery — extra stacked bonus when you unlock many builds in one run. */
@@ -235,7 +240,7 @@ const BUILD_MASTERY_TIERS: {
     },
     {
         count: 7,
-        bonuses: { maxHpPct: 6, pAtkPct: 4, mAtkPct: 4, atkSpeedPct: 5 },
+        bonuses: { maxHpPct: 6, pAtkPct: 4, mAtkPct: 4, atkSpeedPct: 5, castSpeedPct: 4, maxMpPct: 4 },
         titleKey: 'game.hunt.expedition.buildMastery7',
         titleFallback: 'Legend of the Trail (7 builds)'
     }
@@ -254,13 +259,13 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         titleKey: 'game.hunt.expedition.buildSwiftCaster',
         titleFallback: 'Swift Caster',
         bonusKey: 'game.hunt.expedition.buildSwiftCasterBonus',
-        bonusFallback: '+6% M.Atk · −6% skill MP cost',
-        // CDR ×3 (+12) + MP efficiency ×2 (+15) ≈ 5 picks
+        bonusFallback: '+6% Casting Speed · +5% M.Atk',
+        // Cast Speed ×3 (+8) + Skill CD ×2 (+12) ≈ 5 picks
         requirements: [
-            { kind: 'stat', stat: 'skillCdReductionPct', minPct: 36 },
-            { kind: 'stat', stat: 'mpCostReductionPct', minPct: 30 }
+            { kind: 'stat', stat: 'castSpeedPct', minPct: 24 },
+            { kind: 'stat', stat: 'skillCdReductionPct', minPct: 24 }
         ],
-        bonuses: { mAtkPct: 6, mpCostReductionPct: 6 }
+        bonuses: { castSpeedPct: 6, mAtkPct: 5 }
     },
     {
         id: 'blade_dancer',
@@ -351,14 +356,14 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         titleKey: 'game.hunt.expedition.buildManaWell',
         titleFallback: 'Mana Well',
         bonusKey: 'game.hunt.expedition.buildManaWellBonus',
-        bonusFallback: '+10% MP regen · −10% skill MP cost',
-        // MP regen ×2 (+10) + MP cost ×2 (+15) + CDR ×1 (+12) ≈ 5 picks
+        bonusFallback: '+10% Max MP · +8% MP regen · −6% skill MP cost',
+        // Max MP ×3 (+8) + MP regen ×2 (+10) + MP cost ×1 (+15) ≈ 6 picks
         requirements: [
+            { kind: 'stat', stat: 'maxMpPct', minPct: 24 },
             { kind: 'stat', stat: 'mpRegenPct', minPct: 20 },
-            { kind: 'stat', stat: 'mpCostReductionPct', minPct: 30 },
-            { kind: 'stat', stat: 'skillCdReductionPct', minPct: 12 }
+            { kind: 'stat', stat: 'mpCostReductionPct', minPct: 15 }
         ],
-        bonuses: { mpRegenPct: 10, mpCostReductionPct: 10 }
+        bonuses: { maxMpPct: 10, mpRegenPct: 8, mpCostReductionPct: 6 }
     },
     {
         id: 'vital_pulse',
@@ -375,6 +380,22 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
             { kind: 'stat', stat: 'maxHpPct', minPct: 16 }
         ],
         bonuses: { hpRegenPct: 14, maxHpPct: 6 }
+    },
+    {
+        id: 'arcane_channel',
+        icon: '🌀',
+        role: 'sustain',
+        priority: 9,
+        titleKey: 'game.hunt.expedition.buildArcaneChannel',
+        titleFallback: 'Arcane Channel',
+        bonusKey: 'game.hunt.expedition.buildArcaneChannelBonus',
+        bonusFallback: '+6% Casting Speed · +8% Max MP · +3% M.Atk',
+        // Cast Speed ×3 (+8) + Max MP ×3 (+8) ≈ 6 picks
+        requirements: [
+            { kind: 'stat', stat: 'castSpeedPct', minPct: 24 },
+            { kind: 'stat', stat: 'maxMpPct', minPct: 24 }
+        ],
+        bonuses: { castSpeedPct: 6, maxMpPct: 8, mAtkPct: 3 }
     }
 ];
 
@@ -387,7 +408,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradePatkTitle',
         titleFallback: 'Sharpened Blade',
         descKey: 'game.hunt.expedition.upgradePatkDesc',
-        descFallback: '+8% P.Atk for this run'
+        descFallback: '+8% P.Atk — physical hits deal more damage this run.'
     },
     {
         id: 'matk',
@@ -397,7 +418,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeMatkTitle',
         titleFallback: 'Arcane Focus',
         descKey: 'game.hunt.expedition.upgradeMatkDesc',
-        descFallback: '+8% M.Atk for this run'
+        descFallback: '+8% M.Atk — magic skills deal more damage this run.'
     },
     {
         id: 'crit',
@@ -407,7 +428,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeCritTitle',
         titleFallback: 'Deadly Precision',
         descKey: 'game.hunt.expedition.upgradeCritDesc',
-        descFallback: '+5% Crit Rate for this run'
+        descFallback: '+5% Crit Rate — more critical hits this run.'
     },
     {
         id: 'speed',
@@ -415,9 +436,9 @@ const UPGRADE_POOL: UpgradeDef[] = [
         stat: 'atkSpeedPct',
         value: 10,
         titleKey: 'game.hunt.expedition.upgradeSpeedTitle',
-        titleFallback: 'Battle Rhythm',
+        titleFallback: 'Faster Auto-Attacks',
         descKey: 'game.hunt.expedition.upgradeSpeedDesc',
-        descFallback: '+10% Attack Speed for this run'
+        descFallback: '+10% Attack Speed — Attack swings more often. Not skill cast or cooldown.'
     },
     {
         id: 'pdef',
@@ -427,7 +448,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradePdefTitle',
         titleFallback: 'Iron Guard',
         descKey: 'game.hunt.expedition.upgradePdefDesc',
-        descFallback: '+7% P.Def for this run'
+        descFallback: '+7% P.Def — take less physical damage this run.'
     },
     {
         id: 'mdef',
@@ -437,7 +458,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeMdefTitle',
         titleFallback: 'Spell Ward',
         descKey: 'game.hunt.expedition.upgradeMdefDesc',
-        descFallback: '+7% M.Def for this run'
+        descFallback: '+7% M.Def — take less magic damage this run.'
     },
     {
         id: 'vitality',
@@ -447,7 +468,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeVitalityTitle',
         titleFallback: 'Survival Instinct',
         descKey: 'game.hunt.expedition.upgradeVitalityDesc',
-        descFallback: '+8% Max HP for this run'
+        descFallback: '+8% Max HP — bigger health pool this run.'
     },
     {
         id: 'poison_res',
@@ -457,7 +478,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradePoisonResTitle',
         titleFallback: 'Toxic Ward',
         descKey: 'game.hunt.expedition.upgradePoisonResDesc',
-        descFallback: '-10% poison damage for this run'
+        descFallback: '−10% poison damage taken this run.'
     },
     {
         id: 'bleed_res',
@@ -467,7 +488,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeBleedResTitle',
         titleFallback: 'Hemostatic Wrap',
         descKey: 'game.hunt.expedition.upgradeBleedResDesc',
-        descFallback: '-10% bleed damage for this run'
+        descFallback: '−10% bleed damage taken this run.'
     },
     {
         id: 'hp_regen',
@@ -477,7 +498,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeHpRegenTitle',
         titleFallback: 'Field Medic',
         descKey: 'game.hunt.expedition.upgradeHpRegenDesc',
-        descFallback: '+10% HP regeneration during this run (map and combat)'
+        descFallback: '+10% HP regen on the map and in combat this run.'
     },
     {
         id: 'mp_regen',
@@ -487,7 +508,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeMpRegenTitle',
         titleFallback: 'Mana Flow',
         descKey: 'game.hunt.expedition.upgradeMpRegenDesc',
-        descFallback: '+10% MP regeneration during this run (map and combat)'
+        descFallback: '+10% MP regen on the map and in combat this run.'
     },
     {
         id: 'mp_efficiency',
@@ -497,7 +518,7 @@ const UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeMpEfficiencyTitle',
         titleFallback: 'Arcane Efficiency',
         descKey: 'game.hunt.expedition.upgradeMpEfficiencyDesc',
-        descFallback: '−15% MP cost on skills for this run'
+        descFallback: '−15% skill MP cost this run — same power, less mana.'
     },
     {
         id: 'skill_cdr',
@@ -505,9 +526,29 @@ const UPGRADE_POOL: UpgradeDef[] = [
         stat: 'skillCdReductionPct',
         value: 12,
         titleKey: 'game.hunt.expedition.upgradeSkillCdrTitle',
-        titleFallback: 'Swift Cast',
+        titleFallback: 'Shorter Skill Cooldown',
         descKey: 'game.hunt.expedition.upgradeSkillCdrDesc',
-        descFallback: '−12% skill cooldown for this run'
+        descFallback: '−12% skill cooldown — icons recharge faster after use. Not cast-bar speed.'
+    },
+    {
+        id: 'cast_speed',
+        icon: '✴️',
+        stat: 'castSpeedPct',
+        value: 8,
+        titleKey: 'game.hunt.expedition.upgradeCastSpeedTitle',
+        titleFallback: 'Faster Skill Launch',
+        descKey: 'game.hunt.expedition.upgradeCastSpeedDesc',
+        descFallback: '+8% Casting Speed — cast bars finish sooner so skills launch earlier. Not cooldown.'
+    },
+    {
+        id: 'max_mp',
+        icon: '💧',
+        stat: 'maxMpPct',
+        value: 8,
+        titleKey: 'game.hunt.expedition.upgradeMaxMpTitle',
+        titleFallback: 'Expanded Reservoir',
+        descKey: 'game.hunt.expedition.upgradeMaxMpDesc',
+        descFallback: '+8% Max MP — bigger mana pool this run.'
     }
 ];
 
@@ -521,7 +562,7 @@ const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeLegendPatkTitle',
         titleFallback: 'Legendary Edge',
         descKey: 'game.hunt.expedition.upgradeLegendPatkDesc',
-        descFallback: '+16% P.Atk for this run'
+        descFallback: '+16% P.Atk — physical hits deal much more damage this run.'
     },
     {
         id: 'matk',
@@ -532,7 +573,7 @@ const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeLegendMatkTitle',
         titleFallback: 'Arcane Crown',
         descKey: 'game.hunt.expedition.upgradeLegendMatkDesc',
-        descFallback: '+16% M.Atk for this run'
+        descFallback: '+16% M.Atk — magic skills deal much more damage this run.'
     },
     {
         id: 'crit',
@@ -543,7 +584,7 @@ const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeLegendCritTitle',
         titleFallback: 'Fatal Star',
         descKey: 'game.hunt.expedition.upgradeLegendCritDesc',
-        descFallback: '+10% Crit Rate for this run'
+        descFallback: '+10% Crit Rate — far more critical hits this run.'
     },
     {
         id: 'vitality',
@@ -554,7 +595,29 @@ const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeLegendVitalityTitle',
         titleFallback: 'Ironheart',
         descKey: 'game.hunt.expedition.upgradeLegendVitalityDesc',
-        descFallback: '+15% Max HP for this run'
+        descFallback: '+15% Max HP — much bigger health pool this run.'
+    },
+    {
+        id: 'cast_speed',
+        icon: '✴️',
+        stat: 'castSpeedPct',
+        value: 14,
+        legendary: true,
+        titleKey: 'game.hunt.expedition.upgradeLegendCastSpeedTitle',
+        titleFallback: 'Lightning Launch',
+        descKey: 'game.hunt.expedition.upgradeLegendCastSpeedDesc',
+        descFallback: '+14% Casting Speed — cast bars finish much sooner. Not cooldown.'
+    },
+    {
+        id: 'max_mp',
+        icon: '💧',
+        stat: 'maxMpPct',
+        value: 15,
+        legendary: true,
+        titleKey: 'game.hunt.expedition.upgradeLegendMaxMpTitle',
+        titleFallback: 'Abyssal Well',
+        descKey: 'game.hunt.expedition.upgradeLegendMaxMpDesc',
+        descFallback: '+15% Max MP — much bigger mana pool this run.'
     }
 ];
 
@@ -1192,7 +1255,9 @@ export class ExpeditionEngine {
             mDefPct: 0,
             critRatePct: 0,
             atkSpeedPct: 0,
+            castSpeedPct: 0,
             maxHpPct: 0,
+            maxMpPct: 0,
             poisonResPct: 0,
             bleedResPct: 0,
             hpRegenPct: 0,
@@ -1797,7 +1862,7 @@ export class ExpeditionEngine {
 
     static rollRandomRunStat(): keyof ExpeditionRunBuffs {
         const statKeys: (keyof ExpeditionRunBuffs)[] = [
-            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct',
+            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'castSpeedPct', 'maxHpPct', 'maxMpPct',
             'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpRegenPct', 'mpCostReductionPct', 'skillCdReductionPct'
         ];
         return statKeys[Math.floor(Math.random() * statKeys.length)];
@@ -1947,8 +2012,10 @@ export class ExpeditionEngine {
             pDefPct: ['game.hunt.expedition.runStatPdef', 'P.Def'],
             mDefPct: ['game.hunt.expedition.runStatMdef', 'M.Def'],
             critRatePct: ['game.hunt.expedition.runStatCrit', 'Crit'],
-            atkSpeedPct: ['game.hunt.expedition.runStatSpd', 'Spd'],
+            atkSpeedPct: ['game.hunt.expedition.runStatSpd', 'Auto-Atk'],
+            castSpeedPct: ['game.hunt.expedition.runStatCastSpd', 'Cast bar'],
             maxHpPct: ['game.hunt.expedition.runStatHp', 'HP'],
+            maxMpPct: ['game.hunt.expedition.runStatMp', 'MP'],
             poisonResPct: ['game.hunt.expedition.runStatPoisonRes', 'Poison res'],
             bleedResPct: ['game.hunt.expedition.runStatBleedRes', 'Bleed res'],
             hpRegenPct: ['game.hunt.expedition.runStatHpRegen', 'HP regen'],
@@ -2162,7 +2229,17 @@ export class ExpeditionEngine {
         };
     }
 
-    static getRunBuffMults(): { pAtk: number; mAtk: number; pDef: number; mDef: number; crit: number; atkSpeed: number; maxHp: number } {
+    static getRunBuffMults(): {
+        pAtk: number;
+        mAtk: number;
+        pDef: number;
+        mDef: number;
+        crit: number;
+        atkSpeed: number;
+        maxHp: number;
+        maxMp: number;
+        castSpeedAdd: number;
+    } {
         return {
             pAtk: 1 + this.getCombinedBuffPct('pAtkPct') / 100,
             mAtk: 1 + this.getCombinedBuffPct('mAtkPct') / 100,
@@ -2170,7 +2247,9 @@ export class ExpeditionEngine {
             mDef: 1 + this.getCombinedBuffPct('mDefPct') / 100,
             crit: 1 + this.getCombinedBuffPct('critRatePct') / 100,
             atkSpeed: Math.max(0.5, 1 - this.getCombinedBuffPct('atkSpeedPct') / 100),
-            maxHp: 1 + this.getCombinedBuffPct('maxHpPct') / 100
+            maxHp: 1 + this.getCombinedBuffPct('maxHpPct') / 100,
+            maxMp: 1 + this.getCombinedBuffPct('maxMpPct') / 100,
+            castSpeedAdd: Math.max(0, this.getCombinedBuffPct('castSpeedPct'))
         };
     }
 
@@ -2186,9 +2265,12 @@ export class ExpeditionEngine {
             mDef: ps.mDef,
             critRate: ps.critRate,
             atkSpeed: ps.atkSpeed,
-            maxHp: ps.maxHp
+            maxHp: ps.maxHp,
+            maxMp: ps.maxMp,
+            castSpeed: ps.castSpeed
         });
         const oldMax = ps.maxHp;
+        const oldMaxMp = ps.maxMp;
         ps.pAtk = buffed.pAtk;
         ps.mAtk = buffed.mAtk;
         ps.pDef = buffed.pDef;
@@ -2196,11 +2278,19 @@ export class ExpeditionEngine {
         ps.critRate = buffed.critRate;
         ps.atkSpeed = buffed.atkSpeed;
         ps.maxHp = buffed.maxHp;
+        ps.maxMp = buffed.maxMp;
+        ps.castSpeed = buffed.castSpeed;
         if (typeof win.playerHP === 'number' && oldMax > 0) {
             const scaled = Math.floor(win.playerHP * (ps.maxHp / oldMax));
             win.playerHP = Math.max(1, Math.min(ps.maxHp, scaled));
         } else if (!Number.isFinite(win.playerHP) || win.playerHP <= 0) {
             win.playerHP = ps.maxHp;
+        }
+        if (typeof win.playerMP === 'number' && oldMaxMp > 0) {
+            const scaledMp = Math.floor(win.playerMP * (ps.maxMp / oldMaxMp));
+            win.playerMP = Math.max(0, Math.min(ps.maxMp, scaledMp));
+        } else if (!Number.isFinite(win.playerMP) || win.playerMP < 0) {
+            win.playerMP = ps.maxMp;
         }
     }
 
@@ -2212,9 +2302,15 @@ export class ExpeditionEngine {
         critRate: number;
         atkSpeed: number;
         maxHp: number;
+        maxMp: number;
+        castSpeed: number;
     }) {
         const win = window as any;
         const m = this.getRunBuffMults();
+        const castCap =
+            typeof win.MAX_CAST_SPEED_PCT === 'number' && win.MAX_CAST_SPEED_PCT > 0
+                ? win.MAX_CAST_SPEED_PCT
+                : 40;
         return {
             pAtk: Math.floor(base.pAtk * m.pAtk),
             mAtk: Math.floor(base.mAtk * m.mAtk),
@@ -2224,13 +2320,38 @@ export class ExpeditionEngine {
                 ? win.applyCritRateCap(Math.floor(base.critRate * m.crit))
                 : Math.min(70, Math.floor(base.critRate * m.crit)),
             atkSpeed: Math.max(250, Math.floor(base.atkSpeed * m.atkSpeed)),
-            maxHp: Math.floor(base.maxHp * m.maxHp)
+            maxHp: Math.floor(base.maxHp * m.maxHp),
+            maxMp: Math.floor(base.maxMp * m.maxMp),
+            castSpeed: Math.min(
+                castCap,
+                Math.max(0, Math.floor(Number(base.castSpeed) || 0) + m.castSpeedAdd)
+            )
         };
     }
 
     static getUpgradeStatSnapshot(): {
-        base: { pAtk: number; mAtk: number; pDef: number; mDef: number; critRate: number; atkSpeed: number; maxHp: number };
-        total: { pAtk: number; mAtk: number; pDef: number; mDef: number; critRate: number; atkSpeed: number; maxHp: number };
+        base: {
+            pAtk: number;
+            mAtk: number;
+            pDef: number;
+            mDef: number;
+            critRate: number;
+            atkSpeed: number;
+            maxHp: number;
+            maxMp: number;
+            castSpeed: number;
+        };
+        total: {
+            pAtk: number;
+            mAtk: number;
+            pDef: number;
+            mDef: number;
+            critRate: number;
+            atkSpeed: number;
+            maxHp: number;
+            maxMp: number;
+            castSpeed: number;
+        };
     } {
         const win = window as any;
         this._skipRunBuffApply = true;
@@ -2247,7 +2368,9 @@ export class ExpeditionEngine {
             mDef: Math.floor(Number(ps.mDef) || 0),
             critRate: Math.floor(Number(ps.critRate) || 0),
             atkSpeed: Math.floor(Number(ps.atkSpeed) || 0),
-            maxHp: Math.floor(Number(ps.maxHp) || 0)
+            maxHp: Math.floor(Number(ps.maxHp) || 0),
+            maxMp: Math.floor(Number(ps.maxMp) || 0),
+            castSpeed: Math.floor(Number(ps.castSpeed) || 0)
         };
         return {
             base,
@@ -2277,12 +2400,14 @@ export class ExpeditionEngine {
             { label: this.t('game.hunt.expedition.upgradeStatPatk', 'P.Atk'), baseVal: base.pAtk, totalVal: total.pAtk },
             { label: this.t('game.hunt.expedition.upgradeStatMatk', 'M.Atk'), baseVal: base.mAtk, totalVal: total.mAtk },
             { label: this.t('game.hunt.expedition.upgradeStatCrit', 'Crit'), baseVal: base.critRate, totalVal: total.critRate },
-            { label: this.t('game.hunt.expedition.upgradeStatSpd', 'Atk Spd'), baseVal: base.atkSpeed, totalVal: total.atkSpeed }
+            { label: this.t('game.hunt.expedition.upgradeStatSpd', 'Atk Spd'), baseVal: base.atkSpeed, totalVal: total.atkSpeed },
+            { label: this.t('game.hunt.expedition.upgradeStatCastSpd', 'Cast Spd'), baseVal: base.castSpeed, totalVal: total.castSpeed }
         ];
         const defenseRows = [
             { label: this.t('game.hunt.expedition.upgradeStatPdef', 'P.Def'), baseVal: base.pDef, totalVal: total.pDef },
             { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, totalVal: total.mDef },
-            { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, totalVal: total.maxHp }
+            { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, totalVal: total.maxHp },
+            { label: this.t('game.hunt.expedition.upgradeStatMp', 'Max MP'), baseVal: base.maxMp, totalVal: total.maxMp }
         ];
 
         const renderRow = (row: { label: string; baseVal: number; totalVal: number; noRunBuff?: boolean }) => {
@@ -2325,10 +2450,12 @@ export class ExpeditionEngine {
             ['mAtkPct', '✨', 'offense'],
             ['critRatePct', '🎯', 'offense'],
             ['atkSpeedPct', '💨', 'offense'],
+            ['castSpeedPct', '✴️', 'offense'],
             ['skillCdReductionPct', '⏱️', 'offense'],
             ['pDefPct', '🛡️', 'defense'],
             ['mDefPct', '🔮', 'defense'],
             ['maxHpPct', '❤️', 'defense'],
+            ['maxMpPct', '💧', 'defense'],
             ['hpRegenPct', '💚', 'regen'],
             ['mpRegenPct', '💙', 'regen'],
             ['poisonResPct', '☠️', 'resist'],
@@ -2384,7 +2511,9 @@ export class ExpeditionEngine {
             { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, bonus: total.mDef - base.mDef },
             { label: this.t('game.hunt.expedition.upgradeStatCrit', 'Crit'), baseVal: base.critRate, bonus: total.critRate - base.critRate },
             { label: this.t('game.hunt.expedition.upgradeStatSpd', 'Atk Spd'), baseVal: base.atkSpeed, bonus: total.atkSpeed - base.atkSpeed },
-            { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, bonus: total.maxHp - base.maxHp }
+            { label: this.t('game.hunt.expedition.upgradeStatCastSpd', 'Cast Spd'), baseVal: base.castSpeed, bonus: total.castSpeed - base.castSpeed },
+            { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, bonus: total.maxHp - base.maxHp },
+            { label: this.t('game.hunt.expedition.upgradeStatMp', 'Max MP'), baseVal: base.maxMp, bonus: total.maxMp - base.maxMp }
         ];
 
         return rows.map((row) => {
@@ -2409,7 +2538,9 @@ export class ExpeditionEngine {
             ['mDefPct', '🔮'],
             ['critRatePct', '🎯'],
             ['atkSpeedPct', '💨'],
+            ['castSpeedPct', '✴️'],
             ['maxHpPct', '❤️'],
+            ['maxMpPct', '💧'],
             ['hpRegenPct', '💚'],
             ['mpRegenPct', '💙'],
             ['poisonResPct', '☠️'],
@@ -3437,9 +3568,11 @@ export class ExpeditionEngine {
         if (b.mAtkPct) chips.push(`✨ +${b.mAtkPct}%`);
         if (b.critRatePct) chips.push(`🎯 +${b.critRatePct}%`);
         if (b.atkSpeedPct) chips.push(`💨 +${b.atkSpeedPct}%`);
+        if (b.castSpeedPct) chips.push(`✴️ +${b.castSpeedPct}%`);
         if (b.pDefPct) chips.push(`🛡️ +${b.pDefPct}%`);
         if (b.mDefPct) chips.push(`🔮 +${b.mDefPct}%`);
         if (b.maxHpPct) chips.push(`❤️ +${b.maxHpPct}%`);
+        if (b.maxMpPct) chips.push(`💧 +${b.maxMpPct}%`);
         if (b.hpRegenPct) chips.push(`💚 +${b.hpRegenPct}% regen`);
         if (b.mpRegenPct) chips.push(`💙 +${b.mpRegenPct}% MP regen`);
         if (b.poisonResPct) chips.push(`☠️ -${b.poisonResPct}%`);
@@ -3678,7 +3811,7 @@ export class ExpeditionEngine {
 
     static openStormFocusOffers(): void {
         const pool: (keyof ExpeditionRunBuffs)[] = [
-            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'maxHpPct',
+            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'castSpeedPct', 'maxHpPct', 'maxMpPct',
             'hpRegenPct', 'mpRegenPct', 'skillCdReductionPct', 'mpCostReductionPct'
         ];
         const shuffled = this.shuffle(pool);
@@ -3926,9 +4059,11 @@ export class ExpeditionEngine {
         if (runBuffs.mAtkPct) buffParts.push(`+${runBuffs.mAtkPct}% M.Atk`);
         if (runBuffs.critRatePct) buffParts.push(`+${runBuffs.critRatePct}% Crit`);
         if (runBuffs.atkSpeedPct) buffParts.push(`+${runBuffs.atkSpeedPct}% Spd`);
+        if (runBuffs.castSpeedPct) buffParts.push(`+${runBuffs.castSpeedPct}% ${this.runStatLabel('castSpeedPct')}`);
         if (runBuffs.pDefPct) buffParts.push(`+${runBuffs.pDefPct}% P.Def`);
         if (runBuffs.mDefPct) buffParts.push(`+${runBuffs.mDefPct}% M.Def`);
         if (runBuffs.maxHpPct) buffParts.push(`+${runBuffs.maxHpPct}% ${this.runStatLabel('maxHpPct')}`);
+        if (runBuffs.maxMpPct) buffParts.push(`+${runBuffs.maxMpPct}% ${this.runStatLabel('maxMpPct')}`);
         if (runBuffs.hpRegenPct) buffParts.push(`+${runBuffs.hpRegenPct}% ${this.runStatLabel('hpRegenPct')}`);
         if (runBuffs.mpRegenPct) buffParts.push(`+${runBuffs.mpRegenPct}% ${this.runStatLabel('mpRegenPct')}`);
         if (runBuffs.poisonResPct) buffParts.push(`-${runBuffs.poisonResPct}% ${this.runStatLabel('poisonResPct')}`);
@@ -4841,7 +4976,7 @@ export class ExpeditionEngine {
                     titleKey: 'game.hunt.expedition.offerWarhornTempoTitle',
                     titleFallback: 'Tempo',
                     descKey: 'game.hunt.expedition.offerWarhornTempoDesc',
-                    descFallback: '+8% Atk Spd · −12% skill CD.'
+                    descFallback: '+8% Atk Spd · +8% Casting Speed · −12% skill CD.'
                 },
                 {
                     id: 'iron',
@@ -4849,7 +4984,7 @@ export class ExpeditionEngine {
                     titleKey: 'game.hunt.expedition.offerWarhornIronTitle',
                     titleFallback: 'Iron Rally',
                     descKey: 'game.hunt.expedition.offerWarhornIronDesc',
-                    descFallback: '+7% P.Def · +8% Max HP.'
+                    descFallback: '+7% P.Def · +8% Max HP · +8% Max MP.'
                 }
             ],
             onPick: (offerId) => this.applyWarhornOffer(offerId)
@@ -4866,14 +5001,16 @@ export class ExpeditionEngine {
 
         if (id === 'tempo') {
             this.state.runBuffs.atkSpeedPct += 8;
+            this.state.runBuffs.castSpeedPct += 8;
             this.state.runBuffs.skillCdReductionPct += 12;
-            buffText = `+8% ${this.runStatLabel('atkSpeedPct')} · −12% ${this.runStatLabel('skillCdReductionPct')}`;
+            buffText = `+8% ${this.runStatLabel('atkSpeedPct')} · +8% ${this.runStatLabel('castSpeedPct')} · −12% ${this.runStatLabel('skillCdReductionPct')}`;
             summaryKey = 'game.hunt.expedition.resultWarhornTempoDesc';
             summaryFallback = 'Tempo cry — cast and swing faster.';
         } else if (id === 'iron') {
             this.state.runBuffs.pDefPct += 7;
             this.state.runBuffs.maxHpPct += 8;
-            buffText = `+7% ${this.runStatLabel('pDefPct')} · +8% ${this.runStatLabel('maxHpPct')}`;
+            this.state.runBuffs.maxMpPct += 8;
+            buffText = `+7% ${this.runStatLabel('pDefPct')} · +8% ${this.runStatLabel('maxHpPct')} · +8% ${this.runStatLabel('maxMpPct')}`;
             summaryKey = 'game.hunt.expedition.resultWarhornIronDesc';
             summaryFallback = 'Iron Rally — hold the line.';
         } else {
