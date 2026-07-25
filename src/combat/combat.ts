@@ -431,13 +431,35 @@ function renderizarMonstros() {
     });
 
     container.innerHTML = htmlFinal;
+    _forestMobDomCache = Object.create(null) as ForestMobDomCache;
+}
+
+type ForestMobDomCache = Record<string, { fill: HTMLElement | null; img: HTMLImageElement | null }>;
+let _forestMobDomCache: ForestMobDomCache = Object.create(null) as ForestMobDomCache;
+let _forestMobReconcileAccMs = 0;
+
+function getForestMobDom(idUnico: string | number): { fill: HTMLElement | null; img: HTMLImageElement | null } {
+    const key = String(idUnico);
+    let cached = _forestMobDomCache[key];
+    if (!cached) {
+        cached = {
+            fill: document.getElementById(`mob-cd-fill-${key}`),
+            img: document.getElementById(`monster-img-${key}`) as HTMLImageElement | null,
+        };
+        _forestMobDomCache[key] = cached;
+    }
+    return cached;
 }
 
 function iniciarAtaqueMonstro() {
     if (loopAtaqueMonstro) clearInterval(loopAtaqueMonstro);
+    _forestMobDomCache = Object.create(null) as ForestMobDomCache;
+    _forestMobReconcileAccMs = 0;
 
+    const TICK_MS = 50;
     loopAtaqueMonstro = setInterval(() => {
-        if (window.monstrosAtivos.length === 0 || window.playerHP <= 0) return;
+        const mobs = window.monstrosAtivos;
+        if (!mobs.length || window.playerHP <= 0) return;
 
         // Tutorial: O monstro espera o primeiro ataque do jogador no Step 8
         if (typeof window.TutorialEngine !== 'undefined' && window.TutorialEngine.isRunning()) {
@@ -446,20 +468,23 @@ function iniciarAtaqueMonstro() {
             }
         }
 
-        window.monstrosAtivos.forEach((mobRaw) => {
-            const mob = mobRaw as ForestMob;
-            if (!mob || mob.__forestDeathProcessing) return;
-            if (Math.floor(Number(mob.hp)) <= 0) return;
+        let anyAlive = false;
+        for (let i = 0; i < mobs.length; i++) {
+            const mob = mobs[i] as ForestMob;
+            if (!mob || mob.__forestDeathProcessing) continue;
+            if (Math.floor(Number(mob.hp)) <= 0) continue;
+            anyAlive = true;
 
             let velocidadeMonstro = mob.atkSpd;
             if (mob.debuffs && mob.debuffs.preso) velocidadeMonstro *= 1.5;
 
-            mob.progresso += (50 / velocidadeMonstro) * 100;
+            mob.progresso += (TICK_MS / velocidadeMonstro) * 100;
 
             if (mob.progresso >= 100) {
-                mob.progresso = 0; 
+                mob.progresso = 0;
 
-                const mobImg = document.getElementById(`monster-img-${mob.idUnico}`) as HTMLImageElement | null;
+                const dom = getForestMobDom(mob.idUnico);
+                const mobImg = dom.img;
                 if (mobImg) {
                     mobImg.src = `assets/mobs/${mob.idImg}_atk.png`;
                     setTimeout(() => {
@@ -471,12 +496,24 @@ function iniciarAtaqueMonstro() {
                 window.executarDanoDeUmMonstro?.(mob);
             }
 
-            let fill = document.getElementById(`mob-cd-fill-${mob.idUnico}`);
-            if (fill) fill.style.width = mob.progresso + '%';
-        });
+            const fill = getForestMobDom(mob.idUnico).fill;
+            if (fill) {
+                // Integer % avoids style thrash when float progress barely moves
+                const w = Math.min(100, Math.max(0, Math.floor(mob.progresso)));
+                if (fill.dataset.progW !== String(w)) {
+                    fill.dataset.progW = String(w);
+                    fill.style.width = w + '%';
+                }
+            }
+        }
 
-        if (typeof reconciliarMobsFlorestHpZero === 'function') reconciliarMobsFlorestHpZero();
-    }, 50);
+        // Death reconcile every ~200ms is enough; saves work on the hot 50ms path.
+        _forestMobReconcileAccMs += TICK_MS;
+        if (anyAlive && _forestMobReconcileAccMs >= 200) {
+            _forestMobReconcileAccMs = 0;
+            if (typeof reconciliarMobsFlorestHpZero === 'function') reconciliarMobsFlorestHpZero();
+        }
+    }, TICK_MS);
 }
 
 function pararAtaqueMonstro() {

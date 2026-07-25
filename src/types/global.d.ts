@@ -267,6 +267,8 @@ declare global {
     abrirHarmonyInfo: () => void;
     fecharHarmonyInfo: () => void;
     renderHarmonyInfoModal?: () => void;
+    kickHotbarCdLoop?: () => void;
+    ensureSkillCastWatch?: () => void;
     isCreationRaceUnlocked?: (race: string) => boolean;
     isCreationGenderUnlocked?: (race: string, gender: string) => boolean;
     isCreationClassUnlocked?: (race: string, gender: string, charClass: string) => boolean;

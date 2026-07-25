@@ -26,6 +26,8 @@ function setCastingVisual(active: boolean): void {
 /** Called when a skill cast bar starts. */
 export function onSkillCastStarted(_skillName: string): void {
   setCastingVisual(true);
+  if (typeof window.kickHotbarCdLoop === 'function') window.kickHotbarCdLoop();
+  ensureSkillCastWatch();
 }
 
 /** Called when cast completes and the effect is about to launch. */
@@ -82,17 +84,48 @@ export function maybeCancelInvalidSkillCast(): void {
   }
 }
 
+let _castWatchTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleCastWatch(delayMs: number): void {
+  if (_castWatchTimer != null) clearTimeout(_castWatchTimer);
+  _castWatchTimer = setTimeout(() => {
+    _castWatchTimer = null;
+    try {
+      maybeCancelInvalidSkillCast();
+    } catch {
+      /* ignore */
+    }
+    const casting =
+      typeof window.getSkillGcdCastName === 'function' ? window.getSkillGcdCastName() : null;
+    if (casting && casting !== 'Attack') {
+      scheduleCastWatch(200);
+    }
+  }, delayMs);
+}
+
+/** Start/refresh invalid-cast watcher only while a cast is in flight. */
+export function ensureSkillCastWatch(): void {
+  scheduleCastWatch(0);
+}
+
+// Keep a slow idle probe so mid-cast state still gets watched if kick was missed.
 setInterval(() => {
   try {
-    maybeCancelInvalidSkillCast();
+    const casting =
+      typeof window.getSkillGcdCastName === 'function' ? window.getSkillGcdCastName() : null;
+    if (casting && casting !== 'Attack') {
+      maybeCancelInvalidSkillCast();
+      if (_castWatchTimer == null) scheduleCastWatch(200);
+    }
   } catch {
     /* ignore */
   }
-}, 200);
+}, 1000);
 
 window.onSkillCastStarted = onSkillCastStarted;
 window.onSkillCastReleased = onSkillCastReleased;
 window.onSkillCastCancelled = onSkillCastCancelled;
 window.maybeCancelInvalidSkillCast = maybeCancelInvalidSkillCast;
+window.ensureSkillCastWatch = ensureSkillCastWatch;
 
 export {};

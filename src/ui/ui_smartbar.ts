@@ -552,7 +552,9 @@ function renderizarBarraAtalhos(): void {
       }
     }
     container.innerHTML = novoHtml;
+    invalidateHotbarCdOverlayCache();
     syncHotbarCastRails();
+    kickHotbarCdLoop();
 
     if (!estaNaRaid && !estaNaOlympiad) {
       syncExpeditionHotbarDockIfNeeded();
@@ -791,25 +793,46 @@ function cancelarToqueAtalho(): void {
   if (timerSegurarDedo) clearTimeout(timerSegurarDedo);
 }
 
-window.dispararAnimacaoCooldown = function (nome: string, tempoMs: number): void {
-  window.cooldownsAtivos[nome] = Date.now() + tempoMs;
-};
+const HOTBAR_CD_FAST_MS = 50;
+const HOTBAR_CD_IDLE_MS = 250;
 
-/** Personal swing/skill CD animation (not the shared skill GCD). */
-window.dispararAnimacaoGCD = function (tempoMs: number, nome: string): void {
-  window.dispararAnimacaoCooldown(nome, tempoMs);
-};
+let _hotbarCdLoopTimer: ReturnType<typeof setTimeout> | null = null;
+let _hotbarCdOverlays: HTMLElement[] | null = null;
+let _hotbarCdBusy = false;
 
-setInterval(() => {
-  const overlays = document.querySelectorAll('.cd-overlay');
-  const agora = Date.now();
+function invalidateHotbarCdOverlayCache(): void {
+  _hotbarCdOverlays = null;
+}
 
+function getHotbarCdOverlays(): HTMLElement[] {
+  if (!_hotbarCdOverlays) {
+    _hotbarCdOverlays = Array.from(document.querySelectorAll('.cd-overlay')) as HTMLElement[];
+  }
+  return _hotbarCdOverlays;
+}
+
+function hotbarHasActiveVisuals(agora: number): boolean {
+  const ui = window.skillCastUi;
+  if (ui && ui.name && ui.endsAt > agora) return true;
+  if (typeof window.getSkillGcdRemainingMs === 'function' && window.getSkillGcdRemainingMs() > 0) {
+    return true;
+  }
+  const cds = window.cooldownsAtivos;
+  if (!cds) return false;
+  for (const k of Object.keys(cds)) {
+    if ((Number(cds[k]) || 0) > agora) return true;
+  }
+  return false;
+}
+
+function paintHotbarCooldownOverlays(agora: number): void {
   syncHotbarCastRails();
-
-  overlays.forEach((overlay) => {
-    const el = overlay as HTMLElement;
+  const overlays = getHotbarCdOverlays();
+  for (let i = 0; i < overlays.length; i++) {
+    const el = overlays[i];
+    if (!el) continue;
     const nome = el.getAttribute('data-cd');
-    if (!nome) return;
+    if (!nome) continue;
     const timerText = el.nextElementSibling as HTMLElement | null;
 
     // Personal recharge only (grey). Never paint cast as red overlay on the icon.
@@ -841,8 +864,41 @@ setInterval(() => {
         timerText.classList.remove('cd-timer-text--cast');
       }
     }
-  });
-}, 50);
+  }
+}
+
+function scheduleHotbarCdLoop(delayMs: number): void {
+  if (_hotbarCdLoopTimer != null) clearTimeout(_hotbarCdLoopTimer);
+  _hotbarCdLoopTimer = setTimeout(tickHotbarCooldownLoop, delayMs);
+}
+
+function tickHotbarCooldownLoop(): void {
+  const agora = Date.now();
+  const busy = hotbarHasActiveVisuals(agora);
+  if (busy || _hotbarCdBusy) {
+    paintHotbarCooldownOverlays(agora);
+  }
+  _hotbarCdBusy = busy;
+  scheduleHotbarCdLoop(busy ? HOTBAR_CD_FAST_MS : HOTBAR_CD_IDLE_MS);
+}
+
+/** Wake CD/cast rails immediately when a skill/CD starts (avoids idle 250ms lag). */
+function kickHotbarCdLoop(): void {
+  scheduleHotbarCdLoop(0);
+}
+
+window.dispararAnimacaoCooldown = function (nome: string, tempoMs: number): void {
+  window.cooldownsAtivos[nome] = Date.now() + tempoMs;
+  kickHotbarCdLoop();
+};
+
+/** Personal swing/skill CD animation (not the shared skill GCD). */
+window.dispararAnimacaoGCD = function (tempoMs: number, nome: string): void {
+  window.dispararAnimacaoCooldown(nome, tempoMs);
+};
+
+window.kickHotbarCdLoop = kickHotbarCdLoop;
+scheduleHotbarCdLoop(HOTBAR_CD_IDLE_MS);
 
 window.renderizarBarraAtalhos = renderizarBarraAtalhos;
 window.iniciarToqueAtalho = iniciarToqueAtalho;

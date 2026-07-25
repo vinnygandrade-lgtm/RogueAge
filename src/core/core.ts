@@ -287,17 +287,35 @@ function atualizar(): void {
             if (window.isAugmented) armaHud.classList.add('augmented');
         }
     }
-    if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
-    if (typeof window.atualizarVisualPaperdoll === 'function') window.atualizarVisualPaperdoll();
-    if (window.EndgamePursuits && typeof window.EndgamePursuits.refreshPublicAscensionHUD === 'function') {
-        window.EndgamePursuits.refreshPublicAscensionHUD();
-    }
+    // Hotbar full rebuild is expensive — callers that change slots/qty call renderizarBarraAtalhos().
+    // Paperdoll only when Profile is actually on screen (combat/regen must not pay for 1080× layers).
     try {
-        var navPerf = document.getElementById('btn-tab-perfil');
-        if (navPerf && navPerf.classList && navPerf.classList.contains('active') && typeof window.renderProfileStatsPreview === 'function') {
+        const perfil = document.getElementById('tela-perfil');
+        const perfilVisivel = !!(
+            perfil
+            && (perfil.style.display === 'contents' || perfil.style.display === 'flex' || perfil.style.display === 'block')
+        );
+        if (perfilVisivel && typeof window.atualizarVisualPaperdoll === 'function') {
+            window.atualizarVisualPaperdoll();
+        }
+        const navPerf = document.getElementById('btn-tab-perfil');
+        if (
+            perfilVisivel
+            && navPerf
+            && navPerf.classList
+            && navPerf.classList.contains('active')
+            && typeof window.renderProfileStatsPreview === 'function'
+        ) {
             window.renderProfileStatsPreview();
         }
-    } catch (ePrv) {}
+        if (
+            perfilVisivel
+            && window.EndgamePursuits
+            && typeof window.EndgamePursuits.refreshPublicAscensionHUD === 'function'
+        ) {
+            window.EndgamePursuits.refreshPublicAscensionHUD();
+        }
+    } catch (ePrv) { /* ignore */ }
 }
 
 // === INTERVALS & REGEN ===
