@@ -2930,9 +2930,23 @@ export class ExpeditionEngine {
         this.persistRun({ silent: true });
     }
 
+    /**
+     * Chance that one of the three post-fight upgrade cards is legendary.
+     * Harder paths pay better — Storm `luckLegendaryNext` still forces 100%.
+     * combat 15% · elite 30% · boss 50% · other 18%.
+     */
+    static getLegendaryUpgradeChance(): number {
+        const path = this.state.currentPath;
+        if (path === 'boss') return 0.5;
+        if (path === 'elite') return 0.3;
+        if (path === 'combat') return 0.15;
+        return 0.18;
+    }
+
     static rollUpgradeOptions(count = 3): UpgradeDef[] {
         const picks = this.shuffle(UPGRADE_POOL).slice(0, Math.min(count, UPGRADE_POOL.length));
-        const forceLegendary = this.state.luckLegendaryNext || Math.random() < 0.22;
+        const forceLegendary =
+            this.state.luckLegendaryNext || Math.random() < this.getLegendaryUpgradeChance();
         if (forceLegendary) {
             this.state.luckLegendaryNext = false;
             const leg = this.shuffle(LEGENDARY_UPGRADE_POOL)[0];

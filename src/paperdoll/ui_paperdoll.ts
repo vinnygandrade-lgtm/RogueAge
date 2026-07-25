@@ -556,7 +556,7 @@ function applyProfileSlotEnchantGlow(el: HTMLElement | null, lvl: number): void 
   el.style.animation = 'pulse-profile-slot-aura ' + sp + 's infinite alternate ease-in-out';
 }
 
-/** Slots do perfil: brilho por nível de encantamento (mesma cor e ritmo da arma). */
+/** Slots do perfil: cada um brilha só pelo seu próprio encantamento. */
 window.syncProfileEquipmentSlotGlows = function (): void {
   const w = typeof window !== 'undefined' ? window : ({} as Window);
   let wEnc = 0;
@@ -584,7 +584,10 @@ window.syncProfileEquipmentSlotGlows = function (): void {
   const r2 = jewelEnc(w.anelEquipado2 as ProfileJewelEquip | undefined);
   const sig =
     (typeof w.charName === 'string' ? w.charName : '') + '|' + [wEnc, aEnc, n, e1, e2, r1, r2].join('|');
-  if (sig === _PROFILE_SLOT_GLOW_SIG) return;
+  if (sig === _PROFILE_SLOT_GLOW_SIG) {
+    if (typeof w.syncProfileHarmonyBadge === 'function') w.syncProfileHarmonyBadge();
+    return;
+  }
   _PROFILE_SLOT_GLOW_SIG = sig;
 
   applyProfileSlotEnchantGlow(document.getElementById('profile-slot-weapon'), wEnc);
@@ -594,6 +597,105 @@ window.syncProfileEquipmentSlotGlows = function (): void {
   applyProfileSlotEnchantGlow(document.getElementById('slot-ear2-perfil'), e2);
   applyProfileSlotEnchantGlow(document.getElementById('slot-ring1-perfil'), r1);
   applyProfileSlotEnchantGlow(document.getElementById('slot-ring2-perfil'), r2);
+
+  if (typeof w.syncProfileHarmonyBadge === 'function') w.syncProfileHarmonyBadge();
+};
+
+/** Card Harmony no perfil: brilha só aqui (tier do enchant mais baixo); toque abre o modal. */
+window.syncProfileHarmonyBadge = function (): void {
+  const el = document.getElementById('profile-harmony-badge');
+  if (!el) return;
+  const titleEl = document.getElementById('profile-harmony-title');
+  const subEl = document.getElementById('profile-harmony-sub');
+
+  let complete = false;
+  let active = false;
+  let level = 0;
+  let pct = 0;
+  try {
+    if (typeof window.resolveEquipHarmony === 'function') {
+      const h = window.resolveEquipHarmony();
+      complete = !!(h && h.complete);
+      active = !!(h && h.active && h.pct > 0);
+      level = Math.max(0, Math.floor(Number(h?.level) || 0));
+      pct = Math.max(0, Math.floor(Number(h?.pct) || 0));
+    }
+  } catch {
+    /* ignore */
+  }
+
+  el.classList.remove(
+    'profile-harmony-card--on',
+    'profile-harmony-card--idle',
+    'profile-harmony-badge--glow',
+    'profile-slot-enchant-glow',
+    'profile-slot-enchant-divino',
+  );
+  el.style.removeProperty('--profile-slot-glow');
+  el.style.removeProperty('--profile-slot-core');
+  el.style.removeProperty('--profile-slot-soft');
+  el.style.removeProperty('--profile-slot-mul');
+  el.style.removeProperty('--harmony-glow');
+  el.style.animation = 'none';
+
+  const tFn = typeof window.t === 'function' ? window.t : null;
+  const L = (k: string, fb: string, params?: Record<string, string | number>) => {
+    if (!tFn) return fb;
+    try {
+      const v = tFn('game.inventoryUi.harmony.' + k, params || {});
+      if (v && v !== 'game.inventoryUi.harmony.' + k) return v;
+    } catch {
+      /* ignore */
+    }
+    return fb;
+  };
+
+  el.hidden = false;
+  const hint = L('hint', 'Tap for details.');
+  el.setAttribute('title', hint);
+  el.setAttribute('aria-label', hint);
+
+  if (active && pct > 0) {
+    el.classList.add('profile-harmony-card--on');
+    if (titleEl) titleEl.textContent = L('cardActiveTitle', '+{level} active', { level: String(level) });
+    if (subEl) subEl.textContent = L('cardActiveSub', '+{pct}% to combat stats · tap to learn more', { pct: String(pct) });
+
+    const sp = typeof window.getEnchantPulseSpeedSeconds === 'function'
+      ? window.getEnchantPulseSpeedSeconds(level)
+      : 2;
+    if (level >= 25) {
+      el.classList.add('profile-slot-enchant-divino');
+      el.style.animation = 'pulse-profile-slot-divino ' + sp + 's infinite alternate ease-in-out';
+      return;
+    }
+    const color = typeof window.getEnchantTierGlowColor === 'function'
+      ? window.getEnchantTierGlowColor(level)
+      : '#1d4ed8';
+    let tierLinear = (level - 4) / 20;
+    if (tierLinear < 0) tierLinear = Math.max(0, level / 4) * 0.35;
+    if (tierLinear > 1) tierLinear = 1;
+    const intensity = level < 4
+      ? 0.55 + 0.1 * level
+      : 0.7 + 0.85 * Math.pow(tierLinear, 1.18);
+    el.classList.add('profile-slot-enchant-glow');
+    el.style.setProperty('--harmony-glow', color);
+    el.style.setProperty('--profile-slot-glow', color);
+    el.style.setProperty('--profile-slot-core', paperdollWeaponGlowCore(color));
+    el.style.setProperty('--profile-slot-soft', paperdollWeaponGlowSoft(color, 0.4 + 0.3 * Math.min(1, intensity - 0.4)));
+    el.style.setProperty('--profile-slot-mul', String(intensity));
+    el.style.animation = 'pulse-profile-slot-aura ' + sp + 's infinite alternate ease-in-out';
+    return;
+  }
+
+  el.classList.add('profile-harmony-card--idle');
+  el.style.setProperty('--harmony-glow', '#64748b');
+  if (complete && level === 0) {
+    if (titleEl) titleEl.textContent = L('cardZeroTitle', 'Set complete · +0');
+    if (subEl) subEl.textContent = L('cardZeroSub', 'Enchant every piece to at least +1 · tap to learn');
+  } else {
+    if (titleEl) titleEl.textContent = L('cardIdleTitle', 'Not active yet');
+    if (subEl) subEl.textContent = L('cardIdleSub', 'Equip a full set to awaken Harmony · tap to learn');
+  }
 };
 
 let _pdFootShadowRaf = 0;

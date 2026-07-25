@@ -41,6 +41,7 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - Unlock **as many builds as you complete** — bonuses **stack** (`unlockedBuildIds` on `expeditionRun`; legacy `activeBuildId` migrates on load)
 - 9 builds in Offense / Defense / Sustain (Swift Caster, Blade Dancer, Executioner, Spell Fortress, Iron Wall, Trail Warden, Mana Well, Vital Pulse, Arcane Channel)
 - Post-fight upgrade pool includes **Casting Speed** (`castSpeedPct`) and **Max MP** (`maxMpPct`) alongside Atk Spd / HP / CDR / etc.
+- **Legendary upgrade chance** after a win scales by path: combat **15%**, elite **30%**, boss **50%** (fallback 18%). Storm `luckLegendaryNext` still forces one legendary on the next win.
 - Thresholds tuned for **~4–7 dedicated card picks** per build (not 1–2); mastery at **3 / 5 / 7** is a mid/late-run goal
 - Mastery tiers at **3 / 5 / 7** unlocked builds (extra stacked % via `BUILD_MASTERY_TIERS`)
 - Bonus % live in `buildBonusBuffs` (rebuilt from catalog on load) — separate from card picks; combat uses `getCombinedBuffPct` (cards + builds)

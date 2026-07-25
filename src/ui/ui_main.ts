@@ -560,6 +560,7 @@ function fecharTopModal() {
     else if (topModalId === 'janela-player-titles') { if(typeof fecharPlayerTitles === 'function') fecharPlayerTitles(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-daily-boss') { if(typeof window.fecharJanelaDailyBoss === 'function') window.fecharJanelaDailyBoss(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-status-detalhado') { if(typeof fecharStatusDetalhado === 'function') fecharStatusDetalhado(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-harmony-info') { if (typeof window.fecharHarmonyInfo === 'function') window.fecharHarmonyInfo(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-game-settings') { if(typeof fecharGameSettings === 'function') fecharGameSettings(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-nav-menu') { if(typeof window.fecharNavMenu === 'function') window.fecharNavMenu(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-rules') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.closeRulesModal === 'function') window.ExpeditionEngine.closeRulesModal(); else fecharModal(topModalId); }

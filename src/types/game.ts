@@ -306,10 +306,30 @@ export interface PlayerStatBreakdown {
     fromArmor?: number;
     fromWeapon?: number;
     fromTitle?: number;
+    fromHarmony?: number;
     fromBuffs?: number;
     capped?: boolean;
   };
+  /** Equip Harmony — min enchant of a complete 7-slot set → +N% combat stats. */
+  harmony?: {
+    complete: boolean;
+    level: number;
+    pct: number;
+    active: boolean;
+  };
   joiasPorStat?: Array<{ value?: number; stat?: string; nome?: string; slot?: string }>;
+}
+
+export interface EquipHarmonyResult {
+  complete: boolean;
+  level: number;
+  pct: number;
+  mult: number;
+  active: boolean;
+  /** Slot keys still empty (weapon, armor, neck, ear1, ear2, ring1, ring2). */
+  missingSlots?: string[];
+  /** Per-slot enchant (null = empty). */
+  pieces?: Array<{ slot: string; enchant: number | null }>;
 }
 
 export interface ItemCatalogBase {

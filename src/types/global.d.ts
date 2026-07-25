@@ -261,6 +261,12 @@ declare global {
     cloudRpcMessage: (code: unknown, options?: { prefix?: string; fallbackKey?: string; keyStyle?: 'error_' | 'dot' }) => string;
     slugRpcErrorCode: (raw: string) => string;
     calcularStatusGlobais: () => void;
+    resolveEquipHarmony: () => import('./game').EquipHarmonyResult;
+    syncProfileHarmonyBadge: () => void;
+    syncProfileEquipmentSlotGlows: () => void;
+    abrirHarmonyInfo: () => void;
+    fecharHarmonyInfo: () => void;
+    renderHarmonyInfoModal?: () => void;
     restorePlayerVitalsIfDowned: () => void;
     calcularStatusGlobaisFromData: (
       saveLike: Partial<CharacterSave>,
@@ -871,6 +877,10 @@ declare global {
   function atualizarPaperdollCharSelect(charData: import('./game').PaperdollCharSelectData): void;
   function atualizarBrilhoArma(): void;
   function syncProfileEquipmentSlotGlows(): void;
+  function syncProfileHarmonyBadge(): void;
+  function abrirHarmonyInfo(): void;
+  function fecharHarmonyInfo(): void;
+  function resolveEquipHarmony(): import('./game').EquipHarmonyResult;
   function syncPaperdollFootShadow(): void;
   function getEnchantTierGlowColor(lvl: number | string): string;
   function getEnchantPulseSpeedSeconds(lvl: number | string): number;

@@ -5,6 +5,7 @@
 import type { CharacterSave, EquipInstance, ItemCatalogBase, StatPerLevel } from '../types/game';
 import { getTitleStatBonus, type TitleStatBonus } from '../game/gameplay_title_bonuses';
 import { applySkillCombatBuffsToPlayerStats } from '../combat/skill_combat_buffs';
+import { resolveEquipHarmony } from './equip_harmony';
 
 type StatItem = EquipInstance | ItemCatalogBase | null | undefined;
 
@@ -300,6 +301,30 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     const castBeforeBuffs = Math.min(40, castFromArmor + castFromWeapon + castFromTitle);
     window.playerStats.castSpeed = castBeforeBuffs;
 
+    // Equip Harmony: +N% to combat stats where N = min enchant of a complete set (7 slots).
+    const harmony = resolveEquipHarmony();
+    let harmonyAppliedPct = 0;
+    if (harmony.active && harmony.pct > 0) {
+        const hm = harmony.mult;
+        harmonyAppliedPct = harmony.pct;
+        window.playerStats.maxHp = Math.floor(window.playerStats.maxHp * hm);
+        window.playerStats.maxMp = Math.floor(window.playerStats.maxMp * hm);
+        window.playerStats.maxCp = Math.floor(window.playerStats.maxHp * multCP);
+        window.playerStats.pAtk = Math.floor(window.playerStats.pAtk * hm);
+        window.playerStats.mAtk = Math.floor(window.playerStats.mAtk * hm);
+        window.playerStats.pDef = Math.floor(window.playerStats.pDef * hm);
+        window.playerStats.mDef = Math.floor(window.playerStats.mDef * hm);
+        const critAfterH = Math.floor(window.playerStats.critRate * hm);
+        window.playerStats.critRate = (typeof window.applyCritRateCap === 'function')
+            ? window.applyCritRateCap(critAfterH)
+            : Math.min(Math.max(0, critAfterH), 70);
+        window.playerStats.atkSpeed = Math.max(
+            250,
+            Math.floor(window.playerStats.atkSpeed * (1 - harmony.pct / 100)),
+        );
+        window.playerStats.castSpeed = Math.min(40, window.playerStats.castSpeed + harmony.pct);
+    }
+
         if (
         typeof window.ExpeditionEngine !== 'undefined'
         && window.ExpeditionEngine.state
@@ -470,9 +495,19 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             fromArmor: castFromArmor,
             fromWeapon: castFromWeapon,
             fromTitle: castFromTitle,
-            fromBuffs: Math.max(0, (window.playerStats.castSpeed || 0) - castBeforeBuffs),
+            fromHarmony: harmonyAppliedPct,
+            fromBuffs: Math.max(
+                0,
+                (window.playerStats.castSpeed || 0) - castBeforeBuffs - harmonyAppliedPct,
+            ),
             totalPct: window.playerStats.castSpeed || 0,
             capped: (window.playerStats.castSpeed || 0) >= 40,
+        },
+        harmony: {
+            complete: harmony.complete,
+            level: harmony.level,
+            pct: harmony.pct,
+            active: harmony.active,
         },
         joiasPorStat: joiasContribLinhas
     };

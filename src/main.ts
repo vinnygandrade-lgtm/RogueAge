@@ -54,6 +54,7 @@ async function bootGame(): Promise<void> {
   initI18nAndLanguageBar();
   tickBoot(58, bootMsg('loading.phaseI18n', 'Loading languages...'));
 
+  await import('./core/equip_harmony');
   await import('./core/core_stats');
   await import('./systems/tutorial_engine');
   await import('./core/core_persistence');

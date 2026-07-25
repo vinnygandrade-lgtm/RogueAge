@@ -407,6 +407,19 @@
         </div>
     </div>
 
+    <div id="janela-harmony-info" class="store-window store-window--harmony" style="display: none;">
+        <div class="store-header store-header--harmony">
+            <span data-i18n="game.inventoryUi.harmony.modalTitle">HARMONY</span>
+            <button type="button" class="fechar-store" onclick="fecharHarmonyInfo()" aria-label="Close">&times;</button>
+        </div>
+        <div class="store-body store-body--harmony">
+            <div id="harmony-info-root" class="harmony-info" role="document"></div>
+        </div>
+        <div class="store-footer store-footer--harmony">
+            <button type="button" class="btn-l2 btn-harmony-close" data-i18n="game.inventoryUi.harmony.closeBtn" onclick="fecharHarmonyInfo()">GOT IT</button>
+        </div>
+    </div>
+
     <div id="janela-oly-preview" class="store-window store-window--oly-preview" style="display: none;">
         <div class="store-header"><span data-i18n="olympiad.previewTitle">VERSUS PREVIEW</span></div>
         <div class="store-body store-body--oly-preview">
@@ -2414,6 +2427,16 @@
                     </button>
                 </aside>
             </div>
+
+            <button type="button" id="profile-harmony-badge" class="profile-harmony-card" hidden aria-live="polite" onclick="abrirHarmonyInfo()">
+                <span class="profile-harmony-card__orb" aria-hidden="true"></span>
+                <span class="profile-harmony-card__body">
+                    <span class="profile-harmony-card__kicker" data-i18n="game.inventoryUi.harmony.name">Harmony</span>
+                    <span class="profile-harmony-card__title" id="profile-harmony-title">—</span>
+                    <span class="profile-harmony-card__sub" id="profile-harmony-sub"></span>
+                </span>
+                <span class="profile-harmony-card__chev" aria-hidden="true">›</span>
+            </button>
 
             <div id="profile-stats-preview" class="profile-stats-preview" role="region"></div>
 

@@ -1025,6 +1025,7 @@ function renderizarPerfil(): void {
         if (typeof window.renderProfileStatsPreview === 'function') window.renderProfileStatsPreview();
     } catch (eRp) {}
     if (typeof window.syncProfileEquipmentSlotGlows === 'function') window.syncProfileEquipmentSlotGlows();
+    else if (typeof window.syncProfileHarmonyBadge === 'function') window.syncProfileHarmonyBadge();
 }
 
 /** Display name for equipped instance (supports .base) */
@@ -1219,6 +1220,13 @@ window.renderPainelStatsDetalhado = function (): void {
             { armPct: String(pctArm), wpnPct: String(pctWpn), armLv: String(b.armorEnchant), wpnLv: String(b.weaponEnchant) }
         )) + '</div>');
     }
+    if (b.harmony && b.harmony.active && b.harmony.pct > 0) {
+        h.push('<div class="status-detail__pill status-detail__pill--harmony">' + escapeStatHtml(L(
+            'harmonySummary',
+            'Harmony +{level}: +{pct}% to combat stats (lowest enchant on a complete set)',
+            { level: String(b.harmony.level), pct: String(b.harmony.pct) }
+        )) + '</div>');
+    }
     h.push('</div>');
 
     if (b.buffs.fighter || b.buffs.mage) {
@@ -1403,6 +1411,9 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.castSpeed && b.castSpeed.fromTitle) {
         otherParts.push(rowKey('lblCastSpdTitle', '  · equipped title', '+' + String(b.castSpeed.fromTitle) + '%'));
     }
+    if (b.castSpeed && b.castSpeed.fromHarmony) {
+        otherParts.push(rowKey('lblCastSpdHarmony', '  · Harmony', '+' + String(b.castSpeed.fromHarmony) + '%'));
+    }
     if (b.castSpeed && b.castSpeed.fromBuffs) {
         otherParts.push(rowKey('lblCastSpdBuffs', '  · skill buffs', '+' + String(b.castSpeed.fromBuffs) + '%'));
     }
@@ -1436,6 +1447,108 @@ function abrirStatusDetalhado(): void {
     window.abrirModal('janela-status-detalhado', 1600);
 }
 function fecharStatusDetalhado(): void { window.fecharModal('janela-status-detalhado'); }
+
+function _harmonySlotLabel(slot: string): string {
+    const map: Record<string, string> = {
+        weapon: 'slotWeapon',
+        armor: 'slotArmor',
+        neck: 'slotNeck',
+        ear1: 'slotEar1',
+        ear2: 'slotEar2',
+        ring1: 'slotRing1',
+        ring2: 'slotRing2',
+    };
+    const key = map[slot] || slot;
+    try {
+        if (typeof window.t === 'function') {
+            const v = window.t('game.inventoryUi.harmony.' + key);
+            if (v && v !== 'game.inventoryUi.harmony.' + key) return v;
+        }
+    } catch { /* noop */ }
+    return slot;
+}
+
+function renderHarmonyInfoModal(): void {
+    const root = document.getElementById('harmony-info-root');
+    const win = document.getElementById('janela-harmony-info');
+    if (!root) return;
+    const h = (typeof window.resolveEquipHarmony === 'function')
+        ? window.resolveEquipHarmony()
+        : { complete: false, level: 0, pct: 0, mult: 1, active: false, missingSlots: [] as string[] };
+    const L = (k: string, fb: string, params?: Record<string, string | number>) => {
+        try {
+            if (typeof window.t === 'function') {
+                const v = window.t('game.inventoryUi.harmony.' + k, params || {});
+                if (v && v !== 'game.inventoryUi.harmony.' + k) return v;
+            }
+        } catch { /* noop */ }
+        return fb;
+    };
+    const active = !!(h.active && h.pct > 0);
+    const level = Math.max(0, Math.floor(Number(h.level) || 0));
+    const pct = Math.max(0, Math.floor(Number(h.pct) || 0));
+    const glow = (active && typeof window.getEnchantTierGlowColor === 'function')
+        ? window.getEnchantTierGlowColor(level)
+        : '#64748b';
+    if (win) win.style.setProperty('--harmony-modal-glow', glow);
+
+    let statusHtml: string;
+    if (active) {
+        statusHtml = '<span class="harmony-info__status">' + escapeStatHtml(L('statusActive', 'Active · +{pct}% combat power', { pct: String(pct) })) + '</span>';
+    } else if (h.complete) {
+        statusHtml = '<span class="harmony-info__status harmony-info__status--idle">' + escapeStatHtml(L('statusZero', 'Full set equipped, but every piece is still +0')) + '</span>';
+    } else {
+        const n = Array.isArray(h.missingSlots) ? h.missingSlots.length : 0;
+        statusHtml = '<span class="harmony-info__status harmony-info__status--idle">' + escapeStatHtml(L('statusIncomplete', 'Incomplete set · {n} slot(s) empty', { n: String(n) })) + '</span>';
+    }
+
+    const heroTitle = active
+        ? L('heroActive', 'Harmony +{level}', { level: String(level) })
+        : L('heroIdle', 'Harmony asleep');
+    const heroLead = active
+        ? L('heroLeadActive', 'Your complete set resonates at the lowest enchant — granting +{pct}% to combat stats.', { pct: String(pct) })
+        : L('heroLeadIdle', 'Fill every equipment slot, then raise the weakest piece. Harmony follows the lowest enchant.');
+
+    let missingBlock = '';
+    if (!h.complete && Array.isArray(h.missingSlots) && h.missingSlots.length) {
+        const chips = h.missingSlots.map((s) =>
+            '<span class="harmony-info__chip">' + escapeStatHtml(_harmonySlotLabel(s)) + '</span>'
+        ).join('');
+        missingBlock = ''
+            + '<div class="harmony-info__missing">'
+            + '<p class="harmony-info__missing-label">' + escapeStatHtml(L('missingLabel', 'Still empty')) + '</p>'
+            + '<div class="harmony-info__chips">' + chips + '</div>'
+            + '</div>';
+    }
+
+    root.innerHTML = ''
+        + '<div class="harmony-info__hero">'
+        + '<p class="harmony-info__hero-level">' + escapeStatHtml(heroTitle) + '</p>'
+        + '<p class="harmony-info__hero-lead">' + escapeStatHtml(heroLead) + '</p>'
+        + statusHtml
+        + '</div>'
+        + '<div class="harmony-info__grid">'
+        + '<div class="harmony-info__card"><p class="harmony-info__card-title">' + escapeStatHtml(L('cardSetTitle', 'Complete set')) + '</p>'
+        + '<p class="harmony-info__card-text">' + escapeStatHtml(L('cardSetDesc', 'Weapon, armor, necklace, both earrings, and both rings must all be equipped.')) + '</p></div>'
+        + '<div class="harmony-info__card"><p class="harmony-info__card-title">' + escapeStatHtml(L('cardFloorTitle', 'Lowest enchant wins')) + '</p>'
+        + '<p class="harmony-info__card-text">' + escapeStatHtml(L('cardFloorDesc', 'If your gear is +8 but one jewel is +5, Harmony is +5 — and the bonus is +5%.')) + '</p></div>'
+        + '<div class="harmony-info__card"><p class="harmony-info__card-title">' + escapeStatHtml(L('cardBonusTitle', 'What you gain')) + '</p>'
+        + '<p class="harmony-info__card-text">' + escapeStatHtml(L('cardBonusDesc', 'HP, MP, CP, P.Atk, M.Atk, P.Def, M.Def, Crit, faster attack interval, and Casting Speed all benefit.')) + '</p></div>'
+        + '</div>'
+        + '<div class="harmony-info__tip"><p class="harmony-info__tip-title">' + escapeStatHtml(L('tipTitle', 'Tip')) + '</p>'
+        + '<p class="harmony-info__tip-text">' + escapeStatHtml(L('tipText', 'Raising your weakest piece raises Harmony for the whole set. Balance beats one oversized enchant.')) + '</p></div>'
+        + missingBlock;
+}
+
+function abrirHarmonyInfo(): void {
+    try {
+        renderHarmonyInfoModal();
+    } catch (eH) {
+        console.warn('[abrirHarmonyInfo]', eH);
+    }
+    window.abrirModal('janela-harmony-info', 1650);
+}
+function fecharHarmonyInfo(): void { window.fecharModal('janela-harmony-info'); }
 
 // === EQUIP LOGIC SEGURA ===
 function equiparItemSeguro(indexNaBolsa: number): void {
@@ -1498,6 +1611,9 @@ window.renderizarInventario = renderizarInventario;
 window.renderizarPerfil = renderizarPerfil;
 window.abrirStatusDetalhado = abrirStatusDetalhado;
 window.fecharStatusDetalhado = fecharStatusDetalhado;
+window.abrirHarmonyInfo = abrirHarmonyInfo;
+window.fecharHarmonyInfo = fecharHarmonyInfo;
+window.renderHarmonyInfoModal = renderHarmonyInfoModal;
 window.abrirAcaoInventario = abrirAcaoInventario;
 window.abrirAcaoPerfil = abrirAcaoPerfil;
 window.formatarTooltipEquipamento = formatarTooltipEquipamento;
