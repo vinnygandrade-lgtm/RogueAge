@@ -571,6 +571,169 @@
     color: #facc15;
 }
 
+/* Locked / coming-soon options in character creation */
+.creation-card-chip {
+    position: relative;
+}
+
+.creation-card-chip--soon {
+    opacity: 0.72;
+    filter: saturate(0.55);
+    border-color: #2a3344;
+    background: linear-gradient(180deg, rgba(18, 24, 36, 0.75) 0%, rgba(8, 10, 16, 0.95) 100%);
+}
+
+.creation-card-chip--soon:hover {
+    border-color: #475569;
+    transform: translateY(-2px);
+}
+
+.creation-card-chip--soon.selected {
+    border-color: #64748b;
+    background: linear-gradient(180deg, rgba(51, 65, 85, 0.35) 0%, rgba(15, 23, 42, 0.85) 100%);
+    box-shadow: 0 0 16px rgba(100, 116, 139, 0.25), 0 5px 15px rgba(0, 0, 0, 0.55);
+    transform: translateY(-4px) scale(1.02);
+}
+
+.creation-card-chip--soon.selected .creation-card-label {
+    color: #cbd5e1;
+}
+
+.creation-soon-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.52rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #e2e8f0;
+    background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+    border: 1px solid #64748b;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+}
+
+.creation-list-item {
+    position: relative;
+}
+
+.creation-list-item--soon {
+    opacity: 0.78;
+    filter: saturate(0.6);
+    border-color: #2a3344;
+}
+
+.creation-list-item--soon.selected {
+    border-color: #64748b;
+    background: linear-gradient(90deg, rgba(51, 65, 85, 0.35) 0%, rgba(10, 12, 18, 0.95) 100%);
+    box-shadow: inset 0 0 15px rgba(100, 116, 139, 0.12), 0 5px 15px rgba(0, 0, 0, 0.7);
+}
+
+.creation-list-item--soon .creation-soon-badge {
+    position: static;
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
+.creation-unlock-hint {
+    margin: 10px 0 0;
+    max-width: 360px;
+    text-align: center;
+    font-size: 0.68rem;
+    line-height: 1.35;
+    color: #8a8070;
+    letter-spacing: 0.02em;
+}
+
+#screen-criacao .creation-confirm--soon,
+#btn-confirmar-criacao.creation-confirm--soon {
+    opacity: 0.85;
+    cursor: not-allowed;
+    background: linear-gradient(180deg, #334155 0%, #1e293b 100%) !important;
+    border-color: #64748b !important;
+    color: #e2e8f0 !important;
+    box-shadow: none !important;
+}
+
+.creation-stage-soon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.creation-stage-soon__portrait {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: grayscale(0.85) brightness(0.45) contrast(1.05);
+}
+
+.creation-stage-soon__portrait img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.creation-stage-soon__veil {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 70% 55% at 50% 40%, rgba(30, 41, 59, 0.15), transparent 70%),
+        linear-gradient(180deg, rgba(8, 10, 16, 0.25) 0%, rgba(8, 10, 16, 0.72) 100%);
+}
+
+.creation-stage-soon__panel {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 18%;
+    padding: 12px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: linear-gradient(180deg, rgba(30, 41, 59, 0.82) 0%, rgba(15, 23, 42, 0.92) 100%);
+    box-shadow: 0 0 24px rgba(59, 130, 246, 0.15), 0 10px 28px rgba(0, 0, 0, 0.55);
+    text-align: center;
+    max-width: 86%;
+}
+
+.creation-stage-soon__tag {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #93c5fd;
+}
+
+.creation-stage-soon__title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f1f5f9;
+    letter-spacing: 0.04em;
+}
+
+.creation-stage-soon__sub {
+    font-size: 0.72rem;
+    line-height: 1.35;
+    color: #94a3b8;
+}
+
+.creation-stage-glow--soon {
+    opacity: 0.35;
+    filter: hue-rotate(180deg) saturate(0.6);
+}
+
 /* Vertical list for Classes */
 .creation-vertical-list {
     display: flex;

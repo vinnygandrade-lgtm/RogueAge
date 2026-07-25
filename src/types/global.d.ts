@@ -267,6 +267,10 @@ declare global {
     abrirHarmonyInfo: () => void;
     fecharHarmonyInfo: () => void;
     renderHarmonyInfoModal?: () => void;
+    isCreationRaceUnlocked?: (race: string) => boolean;
+    isCreationGenderUnlocked?: (race: string, gender: string) => boolean;
+    isCreationClassUnlocked?: (race: string, gender: string, charClass: string) => boolean;
+    isCreationComboUnlocked?: (race: string, gender: string, charClass: string) => boolean;
     restorePlayerVitalsIfDowned: () => void;
     calcularStatusGlobaisFromData: (
       saveLike: Partial<CharacterSave>,

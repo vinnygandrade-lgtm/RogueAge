@@ -89,7 +89,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 genderMale: 'MALE',
                 genderFemale: 'FEMALE',
                 back: 'BACK',
-                continue: 'CONTINUE'
+                continue: 'CONTINUE',
+                comingSoonBadge: 'SOON',
+                comingSoonTitle: 'Coming soon',
+                comingSoonStageSub: 'New looks are being forged for Aden.',
+                comingSoonBtn: 'COMING SOON',
+                comingSoonRaceDesc: 'This race will join the roster when its paperdoll art is ready. Only Human is playable for now.',
+                comingSoonGenderDesc: 'This look is still in the forge. Male Human Fighter is available today.',
+                comingSoonClassDesc: 'This path unlocks with its own art set. Human Fighter is ready to adventure.',
+                optionComingSoon: 'This option is coming soon — new character art is on the way.',
+                unlockHint: 'More races, looks, and paths unlock as new art arrives.'
             },
             nav: {
                 profile: 'PROFILE',
@@ -3155,7 +3164,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 genderMale: 'MASCULINO',
                 genderFemale: 'FEMININO',
                 back: 'VOLTAR',
-                continue: 'CONTINUAR'
+                continue: 'CONTINUAR',
+                comingSoonBadge: 'EM BREVE',
+                comingSoonTitle: 'Em breve',
+                comingSoonStageSub: 'Novos visuais estão a ser forjados para Aden.',
+                comingSoonBtn: 'EM BREVE',
+                comingSoonRaceDesc: 'Esta raça entra no jogo quando a arte do paperdoll estiver pronta. Por agora só Humano está jogável.',
+                comingSoonGenderDesc: 'Este visual ainda está na forja. Hoje está disponível o Guerreiro Humano masculino.',
+                comingSoonClassDesc: 'Este caminho libera com o seu próprio set de arte. O Guerreiro Humano já pode aventurar.',
+                optionComingSoon: 'Esta opção chega em breve — nova arte de personagem a caminho.',
+                unlockHint: 'Mais raças, visuais e caminhos liberam conforme a arte chegar.'
             },
             nav: {
                 profile: 'PERFIL',

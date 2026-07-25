@@ -85,6 +85,7 @@ async function bootGame(): Promise<void> {
   await import('./systems/raid_engine');
   await import('./combat/combat_feedback');
   await import('./combat/combat_math');
+  await import('./game/creation_unlocks');
   await import('./ui/ui_main');
   await import('./ui/ui_forest_battle_bg');
   await import('./combat/combat');

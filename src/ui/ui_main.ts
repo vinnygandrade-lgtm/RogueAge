@@ -5,6 +5,12 @@
 import type { MergedRankingEntry } from '../types/game';
 import { registerGlobalFn } from '../runtime/register-global';
 import { creationRaceDesc, creationRaceDisplayName, olympiadRankDisplay } from '../i18n/polish12_display';
+import {
+    isCreationClassUnlocked,
+    isCreationComboUnlocked,
+    isCreationGenderUnlocked,
+    isCreationRaceUnlocked,
+} from '../game/creation_unlocks';
 
 type SeasonRewardEntry = {
     adena?: number;
@@ -126,7 +132,10 @@ async function proximaEtapa() {
             mudarTela('screen-char-select');
             return;
         }
-        window.charRace = opcoes.RACE[window.indexSelecao]; 
+        window.charRace = opcoes.RACE[window.indexSelecao];
+        if (!isCreationGenderUnlocked(window.charRace, window.charGender)) {
+            window.charGender = isCreationGenderUnlocked(window.charRace, 'Male') ? 'Male' : 'Female';
+        }
         etapaAtual = "GENDER"; 
         window.indexSelecao = 0; 
         document.getElementById('btn-voltar-criacao').style.display = "block"; 
@@ -134,6 +143,10 @@ async function proximaEtapa() {
         etapaAtual = "CLASS"; 
         window.indexSelecao = 0; 
         opcoes.CLASS = radarDeRacas[window.charRace].classesBase;
+        const unlockedClassIdx = opcoes.CLASS.findIndex((c) =>
+            isCreationClassUnlocked(window.charRace, window.charGender, c),
+        );
+        if (unlockedClassIdx >= 0) window.indexSelecao = unlockedClassIdx;
     } else if (etapaAtual === "CLASS") { 
         window.charClass = opcoes.CLASS[window.indexSelecao]; 
         etapaAtual = "NAME";
@@ -211,6 +224,91 @@ function getRaceIcon(race: string): string {
     }
 }
 
+function creationSoonBadgeHtml(tt: (k: string, p?: Record<string, string | number>) => string): string {
+    return `<span class="creation-soon-badge">${tt('creation.comingSoonBadge')}</span>`;
+}
+
+function creationStageHtml(
+    race: string,
+    gender: string,
+    charClass: string,
+    locked: boolean,
+    tt: (k: string, p?: Record<string, string | number>) => string,
+): string {
+    const portrait = creationPortraitImg(race, gender, charClass, '');
+    if (!locked) {
+        return `<div class="creation-stage-glow"></div>${portrait}`;
+    }
+    return `
+        <div class="creation-stage-glow creation-stage-glow--soon"></div>
+        <div class="creation-stage-soon" aria-hidden="true">
+            <div class="creation-stage-soon__portrait">${portrait}</div>
+            <div class="creation-stage-soon__veil"></div>
+            <div class="creation-stage-soon__panel">
+                <span class="creation-stage-soon__tag">${tt('creation.comingSoonBadge')}</span>
+                <span class="creation-stage-soon__title">${tt('creation.comingSoonTitle')}</span>
+                <span class="creation-stage-soon__sub">${tt('creation.comingSoonStageSub')}</span>
+            </div>
+        </div>
+    `;
+}
+
+function syncCreationConfirmButton(
+    btn: HTMLElement | null,
+    unlocked: boolean,
+    unlockedLabel: string,
+    tt: (k: string, p?: Record<string, string | number>) => string,
+): void {
+    if (!btn) return;
+    const b = btn as HTMLButtonElement;
+    if (unlocked) {
+        b.disabled = false;
+        b.classList.remove('creation-confirm--soon');
+        b.innerText = unlockedLabel;
+        b.removeAttribute('aria-disabled');
+    } else {
+        b.disabled = true;
+        b.classList.add('creation-confirm--soon');
+        b.innerText = tt('creation.comingSoonBtn');
+        b.setAttribute('aria-disabled', 'true');
+    }
+}
+
+function alertCreationComingSoon(): void {
+    const msg = typeof window.t === 'function'
+        ? window.t('creation.optionComingSoon')
+        : 'This option is coming soon.';
+    if (typeof window.l2Alert === 'function') window.l2Alert(msg);
+}
+
+async function proximaEtapaGuarded(): Promise<void> {
+    // Re-entry protection for the async NAME path lives in proximaEtapa.
+    if (etapaAtual === 'RACE') {
+        const race = opcoes.RACE[window.indexSelecao];
+        if (!isCreationRaceUnlocked(race)) {
+            alertCreationComingSoon();
+            return;
+        }
+    } else if (etapaAtual === 'GENDER') {
+        if (!isCreationGenderUnlocked(window.charRace, window.charGender)) {
+            alertCreationComingSoon();
+            return;
+        }
+    } else if (etapaAtual === 'CLASS') {
+        const cl = opcoes.CLASS[window.indexSelecao];
+        if (!isCreationClassUnlocked(window.charRace, window.charGender, cl)) {
+            alertCreationComingSoon();
+            return;
+        }
+    } else if (etapaAtual === 'NAME') {
+        if (!isCreationComboUnlocked(window.charRace, window.charGender, window.charClass)) {
+            alertCreationComingSoon();
+            return;
+        }
+    }
+    await proximaEtapa();
+}
+
 function atualizarPreview() {
     const tt = typeof window.t === 'function' ? window.t : function (k) { return k; };
     const container = document.getElementById('selection-container'); 
@@ -240,46 +338,59 @@ function atualizarPreview() {
         stepTitle.innerText = tt('creation.stepRace');
         const raca = (radarDeRacas && radarDeRacas[opcoes.RACE[window.indexSelecao]]) ? opcoes.RACE[window.indexSelecao] : "Human";
         const dados = radarDeRacas[raca];
+        const raceUnlocked = isCreationRaceUnlocked(raca);
         infoName.innerText = creationRaceDisplayName(raca);
-        infoDesc.innerText = creationRaceDesc(raca, dados.desc);
-        btnConfirm.innerText = tt('creation.confirmRace');
+        infoDesc.innerText = raceUnlocked
+            ? creationRaceDesc(raca, dados.desc)
+            : tt('creation.comingSoonRaceDesc');
+        syncCreationConfirmButton(btnConfirm, raceUnlocked, tt('creation.confirmRace'), tt);
 
         if (stage) {
-            stage.innerHTML = `<div class="creation-stage-glow"></div>` + creationPortraitImg(raca, window.charGender, 'Fighter', '');
+            stage.innerHTML = creationStageHtml(raca, window.charGender || 'Male', 'Fighter', !raceUnlocked, tt);
         }
 
         container.innerHTML = `
             <div class="creation-horizontal-list">
-                ${opcoes.RACE.map((r, i) => `
-                    <div class="creation-card-chip ${window.indexSelecao === i ? 'selected' : ''}" onclick="window.indexSelecao=${i}; atualizarPreview();">
+                ${opcoes.RACE.map((r, i) => {
+                    const locked = !isCreationRaceUnlocked(r);
+                    return `
+                    <div class="creation-card-chip ${window.indexSelecao === i ? 'selected' : ''} ${locked ? 'creation-card-chip--soon' : ''}" onclick="window.indexSelecao=${i}; atualizarPreview();">
                         <div class="creation-card-icon">${getRaceIcon(r)}</div>
                         <div class="creation-card-label">${creationRaceDisplayName(r)}</div>
-                    </div>
-                `).join('')}
+                        ${locked ? creationSoonBadgeHtml(tt) : ''}
+                    </div>`;
+                }).join('')}
             </div>
+            <p class="creation-unlock-hint">${tt('creation.unlockHint')}</p>
         `;
     } 
     else if (etapaAtual === "GENDER") {
         stepTitle.innerText = tt('creation.stepGender');
-        infoName.innerText = window.charRace;
-        infoDesc.innerText = tt('creation.genderBlurb');
-        btnConfirm.innerText = tt('creation.confirmGender');
+        infoName.innerText = creationRaceDisplayName(window.charRace);
+        const genderUnlocked = isCreationGenderUnlocked(window.charRace, window.charGender);
+        infoDesc.innerText = genderUnlocked
+            ? tt('creation.genderBlurb')
+            : tt('creation.comingSoonGenderDesc');
+        syncCreationConfirmButton(btnConfirm, genderUnlocked, tt('creation.confirmGender'), tt);
 
         if (stage) {
-            stage.innerHTML = `<div class="creation-stage-glow"></div>` + creationPortraitImg(window.charRace, window.charGender, 'Fighter', '');
+            stage.innerHTML = creationStageHtml(window.charRace, window.charGender, 'Fighter', !genderUnlocked, tt);
         }
 
         container.innerHTML = `
             <div class="creation-horizontal-list">
-                <div class="creation-card-chip ${window.charGender === 'Male' ? 'selected' : ''}" onclick="window.charGender='Male'; atualizarPreview();">
+                <div class="creation-card-chip ${window.charGender === 'Male' ? 'selected' : ''} ${!isCreationGenderUnlocked(window.charRace, 'Male') ? 'creation-card-chip--soon' : ''}" onclick="window.charGender='Male'; atualizarPreview();">
                     <div class="creation-card-icon">♂️</div>
                     <div class="creation-card-label">${tt('creation.genderMale')}</div>
+                    ${!isCreationGenderUnlocked(window.charRace, 'Male') ? creationSoonBadgeHtml(tt) : ''}
                 </div>
-                <div class="creation-card-chip ${window.charGender === 'Female' ? 'selected' : ''}" onclick="window.charGender='Female'; atualizarPreview();">
+                <div class="creation-card-chip ${window.charGender === 'Female' ? 'selected' : ''} ${!isCreationGenderUnlocked(window.charRace, 'Female') ? 'creation-card-chip--soon' : ''}" onclick="window.charGender='Female'; atualizarPreview();">
                     <div class="creation-card-icon">♀️</div>
                     <div class="creation-card-label">${tt('creation.genderFemale')}</div>
+                    ${!isCreationGenderUnlocked(window.charRace, 'Female') ? creationSoonBadgeHtml(tt) : ''}
                 </div>
             </div>
+            <p class="creation-unlock-hint">${tt('creation.unlockHint')}</p>
         `;
     } 
     else if (etapaAtual === "CLASS") {
@@ -288,23 +399,28 @@ function atualizarPreview() {
         infoName.innerText = cl.replace("_", " ");
         
         const isMage = cl.toLowerCase().includes('mage') || cl.toLowerCase().includes('shaman') || cl.toLowerCase().includes('oracle') || cl.toLowerCase().includes('wizard');
-        infoDesc.innerText = isMage ? tt('creation.classDescMage') : tt('creation.classDescWarrior');
-        btnConfirm.innerText = tt('creation.nextIdentity');
+        const classUnlocked = isCreationClassUnlocked(window.charRace, window.charGender, cl);
+        infoDesc.innerText = classUnlocked
+            ? (isMage ? tt('creation.classDescMage') : tt('creation.classDescWarrior'))
+            : tt('creation.comingSoonClassDesc');
+        syncCreationConfirmButton(btnConfirm, classUnlocked, tt('creation.nextIdentity'), tt);
 
         if (stage) {
-            stage.innerHTML = `<div class="creation-stage-glow"></div>` + creationPortraitImg(window.charRace, window.charGender, cl, '');
+            stage.innerHTML = creationStageHtml(window.charRace, window.charGender, cl, !classUnlocked, tt);
         }
 
         let classCards = opcoes.CLASS.map((c, i) => {
             const isMageItem = c.toLowerCase().includes('mage') || c.toLowerCase().includes('shaman') || c.toLowerCase().includes('oracle') || c.toLowerCase().includes('wizard');
             const icon = isMageItem ? "🔮" : "⚔️";
+            const locked = !isCreationClassUnlocked(window.charRace, window.charGender, c);
             return `
-                <div class="creation-list-item ${window.indexSelecao === i ? 'selected' : ''}" onclick="window.indexSelecao=${i}; atualizarPreview();">
+                <div class="creation-list-item ${window.indexSelecao === i ? 'selected' : ''} ${locked ? 'creation-list-item--soon' : ''}" onclick="window.indexSelecao=${i}; atualizarPreview();">
                     <div class="creation-list-icon">${icon}</div>
                     <div style="flex: 1;">
                         <div class="creation-list-title">${c.replace("_", " ")}</div>
-                        <div class="creation-list-sub">${isMageItem ? tt('creation.pathMystic') : tt('creation.pathWarrior')}</div>
+                        <div class="creation-list-sub">${locked ? tt('creation.comingSoonBadge') : (isMageItem ? tt('creation.pathMystic') : tt('creation.pathWarrior'))}</div>
                     </div>
+                    ${locked ? creationSoonBadgeHtml(tt) : ''}
                 </div>
             `;
         }).join('');
@@ -313,16 +429,18 @@ function atualizarPreview() {
             <div class="creation-vertical-list">
                 ${classCards}
             </div>
+            <p class="creation-unlock-hint">${tt('creation.unlockHint')}</p>
         `;
     }
     else if (etapaAtual === "NAME") {
         stepTitle.innerText = tt('creation.stepName');
         infoName.innerText = tt('creation.heroIdentity');
-        infoDesc.innerText = tt('creation.nameBlurb');
-        btnConfirm.innerText = tt('creation.createCharacter');
+        const comboOk = isCreationComboUnlocked(window.charRace, window.charGender, window.charClass);
+        infoDesc.innerText = comboOk ? tt('creation.nameBlurb') : tt('creation.comingSoonClassDesc');
+        syncCreationConfirmButton(btnConfirm, comboOk, tt('creation.createCharacter'), tt);
 
         if (stage) {
-            stage.innerHTML = `<div class="creation-stage-glow"></div>` + creationPortraitImg(window.charRace, window.charGender, window.charClass, '');
+            stage.innerHTML = creationStageHtml(window.charRace, window.charGender, window.charClass, !comboOk, tt);
         }
 
         container.innerHTML = `
@@ -1813,7 +1931,7 @@ window.abrirMenuSocial = abrirMenuSocial;
 window.fecharNpcSocial = fecharNpcSocial;
 window.navegarSelecao = navegarSelecao;
 window.setGender = setGender;
-window.proximaEtapa = proximaEtapa;
+window.proximaEtapa = proximaEtapaGuarded;
 window.voltarEtapa = voltarEtapa;
 window.atualizarPreview = atualizarPreview;
 window.resetCriacaoFluxo = resetCriacaoFluxo;
