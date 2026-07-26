@@ -1,5 +1,6 @@
 import { itemDropDisplayName } from '../combat/combat_i18n';
 import type { ExpeditionRunSave } from '../types/game';
+import { syncExpeditionBgm } from './expedition_bgm';
 
 /** Path card picked each journey (roguelike route). */
 export type ExpeditionPathType = 'combat' | 'boss' | 'chest' | 'elite' | 'merchant' | 'forge' | 'scout' | 'patrol' | 'tracks' | 'warhorn' | 'ambush';
@@ -881,6 +882,14 @@ export class ExpeditionEngine {
         return !!(this.state.active && !this.state.suspended);
     }
 
+    static syncRunBgm(): void {
+        syncExpeditionBgm(
+            !!this.state.active,
+            !!this.state.suspended,
+            String(this.state.zoneId || 'No-Grade'),
+        );
+    }
+
     static hasActiveRun(): boolean {
         return !!this.state.active;
     }
@@ -1180,6 +1189,7 @@ export class ExpeditionEngine {
             );
             win.escreverLog(`<span style="color:#fbbf24; font-weight:bold;">⛺ ${msg}</span>`);
         }
+        this.syncRunBgm();
     }
 
     /** Resume a parked run when entering Forest. */
@@ -1217,6 +1227,7 @@ export class ExpeditionEngine {
             this.startCombatPath(pathToResume);
             this.persistRun({ silent: true });
             this.syncHubParkedHint();
+            this.syncRunBgm();
             return;
         }
 
@@ -1231,6 +1242,7 @@ export class ExpeditionEngine {
 
         this.persistRun({ silent: true });
         this.syncHubParkedHint();
+        this.syncRunBgm();
     }
 
     static emptyRunStats(): ExpeditionRunStats {
@@ -3246,6 +3258,7 @@ export class ExpeditionEngine {
                 } else {
                     this.refreshHubStartButton();
                 }
+                this.syncRunBgm();
                 return;
             }
             this.hideHub();
@@ -3258,6 +3271,7 @@ export class ExpeditionEngine {
             this.refreshHubStartButton();
             this.syncHubParkedHint();
         }
+        this.syncRunBgm();
     }
 
     /** Sync zone name / grade badge on the trailhead hub. */
@@ -3515,6 +3529,7 @@ export class ExpeditionEngine {
         this.renderMap();
         this.syncNavigationLock();
         const win = window as any;
+        if (typeof win.tocarSom === 'function') win.tocarSom('teleport');
         this.ensureRunVitalsForCombat();
         if (typeof win.atualizar === 'function') win.atualizar();
         if (typeof win.ExpeditionMeta?.recordRunStarted === 'function') {
@@ -3526,6 +3541,7 @@ export class ExpeditionEngine {
                 win.TutorialEngine.notifyHuntSearch();
             }
         } catch (e) { /* ignore */ }
+        this.syncRunBgm();
     }
 
     static getPathCardMeta(type: ExpeditionPathType, opts?: { milestone?: boolean }) {
@@ -5160,6 +5176,7 @@ export class ExpeditionEngine {
         this.syncNavigationLock();
         this.showHub();
         this.wireStartButton();
+        this.syncRunBgm();
     }
 
     static finishExpedition(success: boolean, opts?: { skipVictoryModal?: boolean }) {
@@ -5268,6 +5285,7 @@ export class ExpeditionEngine {
             this.syncHubParkedHint();
         }
         this.wireStartButton();
+        this.syncRunBgm();
     }
 
     static onPlayerDeath() {

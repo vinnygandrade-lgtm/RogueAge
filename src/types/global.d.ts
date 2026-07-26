@@ -640,6 +640,8 @@ declare global {
   function renderizarBarraAtalhos(): void;
   function dispararAnimacaoGCD(ms: number, skillName: string): void;
   function tocarSom(nome: import('./game').GameSoundKey): void;
+  function tocarSomCritico(): void;
+  function unlockGameAudio(): void;
   function renderizarMailbox(): void;
 
   /** Legado (script tags) — espelham window.* após core_globals */

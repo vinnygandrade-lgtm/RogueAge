@@ -8,22 +8,74 @@ import type { GameSoundKey, RaceInitialStats } from '../types/game';
 // BANCO DE DADOS E VARIÁVEIS DO JOGADOR
 // ==========================================
 
-/** Sparse UI cues only — combat stays silent (SimpleMMO-style). */
-const sons: Record<GameSoundKey, HTMLAudioElement | null> = {
-  enchant: new Audio('assets/sons/sucesso.wav'),
-  lvlup: new Audio('assets/sons/levelup.mp3'),
-  adenas: null,
-  potion: null,
-  enchant_success: null,
+/** UI + combat cues — new assets live under assets/sounds/ (legacy under assets/sons/). */
+const SOUND_SRC: Partial<Record<GameSoundKey, string>> = {
+  enchant: 'assets/sons/sucesso.wav',
+  lvlup: 'assets/sounds/levelup.mp3',
+  critical: 'assets/sounds/critical.mp3',
+  teleport: 'assets/sounds/teleport.mp3',
+  soulshot: 'assets/sounds/soulshot.mp3',
 };
 
-function tocarSom(nome: GameSoundKey): void {
-  const clip = sons[nome];
-  if (clip) {
-    clip.currentTime = 0;
-    clip.volume = 1;
-    clip.play().catch(() => {});
+let gameAudioUnlocked = false;
+
+function sfxVolume(nome: GameSoundKey): number {
+  if (nome === 'critical') return 0.85;
+  if (nome === 'teleport') return 0.9;
+  if (nome === 'soulshot') return 0.8;
+  return 1;
+}
+
+/** Mobile browsers block Audio created at boot — unlock on first tap/key. */
+function unlockGameAudio(): void {
+  if (gameAudioUnlocked) return;
+  gameAudioUnlocked = true;
+  const primerSrc = SOUND_SRC.soulshot || SOUND_SRC.critical;
+  if (!primerSrc) return;
+  try {
+    const primer = new Audio(primerSrc);
+    primer.volume = 0.01;
+    primer.play()
+      .then(() => {
+        primer.pause();
+        primer.currentTime = 0;
+      })
+      .catch(() => {});
+  } catch {
+    /* ignore */
   }
+}
+
+function bindGameAudioUnlock(): void {
+  if (typeof document === 'undefined') return;
+  const once = { once: true, capture: true } as AddEventListenerOptions;
+  const onUnlock = () => unlockGameAudio();
+  document.addEventListener('pointerdown', onUnlock, once);
+  document.addEventListener('keydown', onUnlock, once);
+  document.addEventListener('touchstart', onUnlock, once);
+}
+
+bindGameAudioUnlock();
+
+/**
+ * Play a one-shot SFX. Fresh `Audio` per call so mobile autoplay works after
+ * the first user gesture and crit + soulshot can overlap.
+ */
+function tocarSom(nome: GameSoundKey): void {
+  const src = SOUND_SRC[nome];
+  if (!src) return;
+  unlockGameAudio();
+  try {
+    const clip = new Audio(src);
+    clip.volume = sfxVolume(nome);
+    clip.play().catch(() => {});
+  } catch {
+    /* ignore */
+  }
+}
+
+function tocarSomCritico(): void {
+  tocarSom('critical');
 }
 
 // Banco de Dados de Status Iniciais por Raça
@@ -91,5 +143,7 @@ window.statusIniciais = {
 // para centralização e segurança de escopo.
 
 window.tocarSom = tocarSom;
+window.tocarSomCritico = tocarSomCritico;
+window.unlockGameAudio = unlockGameAudio;
 
 export {};

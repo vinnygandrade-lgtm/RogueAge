@@ -226,6 +226,7 @@ function aplicarDanoNoMonstro(index: number, dano: number, isCrit = false) {
 
   mostrarDanoVisualMob(dano, 'player', isCrit, monstro.idUnico ?? null);
   if (isCrit) {
+    if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
     triggerCombatImpact({
       rootId: 'area-cacada',
       tone: 'deal',
@@ -409,6 +410,7 @@ function tentarGolpeAtaqueBasico(): boolean {
     if (window.inventario[shotKey] && window.inventario[shotKey] > 0) {
       window.inventario[shotKey]--;
       danoFinal = Math.floor(danoFinal * 1.2);
+      if (typeof window.tocarSom === 'function') window.tocarSom('soulshot');
       if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
       if (window.inventario[shotKey] <= 0) {
         window.autoShotAtivo = false;

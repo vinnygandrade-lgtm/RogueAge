@@ -414,6 +414,7 @@ const RaidEngine = {
         if (Math.random() * 100 <= window.playerStats.critRate) {
             danoFinal *= isMage ? 1.5 : 2;
             this.mostrarDanoVisual(danoFinal, true);
+            if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
         } else {
             this.mostrarDanoVisual(danoFinal, false);
         }

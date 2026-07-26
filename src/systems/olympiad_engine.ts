@@ -1711,7 +1711,10 @@ const OlympiadEngine = {
 
         const isCrit = Math.random() < 0.1;
         this.mostrarDanoVisual(dano, 'player', isCrit);
-        if (isCrit) this.shakeScreen(true);
+        if (isCrit) {
+            this.shakeScreen(true);
+            if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
+        }
 
         if (this.inimigo.hp <= 0) {
             this.inimigo.hp = 0;

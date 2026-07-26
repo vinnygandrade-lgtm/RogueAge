@@ -137,6 +137,7 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
                 if (window.inventario[shot] && window.inventario[shot] > 0) {
                     window.inventario[shot]--;
                     danoFinal = Math.floor(danoFinal * 1.2);
+                    if (typeof window.tocarSom === 'function') window.tocarSom('soulshot');
                     if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
                 }
             }

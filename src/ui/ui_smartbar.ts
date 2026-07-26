@@ -32,6 +32,7 @@ window.toggleAutoShot = function () {
   window.autoShotAtivo = !window.autoShotAtivo;
   if (typeof window.escreverLog === 'function') {
     if (window.autoShotAtivo) {
+      if (typeof window.tocarSom === 'function') window.tocarSom('soulshot');
       window.escreverLog(`<span style="color:#60a5fa; font-weight:bold;">${smartbarT('game.smartbar.autoShotOn')}</span>`);
     } else {
       window.escreverLog(`<span style="color:#aaa;">${smartbarT('game.smartbar.autoShotOff')}</span>`);
@@ -756,6 +757,7 @@ function executarSkillNaRaid(nomeSlot: string, skill: SkillCatalogEntry): void {
       if (Math.random() * 100 <= window.playerStats.critRate) {
         danoFinal *= isMage ? 1.5 : 2;
         raidNow.escreverLogRaid(`<span style="color:${skill.cor || '#fff'}; font-weight:bold;">${smartbarT('game.raid.criticalSkillDamage', { damage: danoFinal })}</span>`);
+        if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
       } else {
         raidNow.escreverLogRaid(smartbarT('game.raid.magicDamageBoss', { damage: danoFinal }));
       }

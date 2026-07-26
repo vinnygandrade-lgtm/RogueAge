@@ -1269,7 +1269,10 @@ export type GameSoundKey =
   | 'lvlup'
   | 'adenas'
   | 'potion'
-  | 'enchant_success';
+  | 'enchant_success'
+  | 'critical'
+  | 'teleport'
+  | 'soulshot';
 
 export type CraftRecipeCatalog = Record<string, CraftRecipe[]>;
 
