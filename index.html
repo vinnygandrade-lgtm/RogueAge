@@ -375,28 +375,59 @@
     <div id="janela-game-settings" class="store-window store-window--settings">
         <div class="store-header"><span data-i18n="game.settings.title">SETTINGS</span></div>
         <div class="store-body store-body--settings">
-            <section class="settings-section" aria-labelledby="settings-lang-heading">
-                <h3 id="settings-lang-heading" class="settings-section__title" data-i18n="game.settings.language">Language</h3>
-                <div class="settings-lang-row" role="group" aria-labelledby="settings-lang-heading">
-                    <button type="button" id="settings-lang-en" class="settings-lang-btn" data-i18n-title="game.settings.languageEn" title="English">
-                        <img src="https://flagcdn.com/w40/us.png" width="28" height="20" alt="" class="settings-lang-btn__flag">
-                        <span class="settings-lang-btn__label" data-i18n="game.settings.languageEn">English</span>
-                    </button>
-                    <button type="button" id="settings-lang-pt" class="settings-lang-btn" data-i18n-title="game.settings.languagePt" title="Português">
-                        <img src="https://flagcdn.com/w40/br.png" width="28" height="20" alt="" class="settings-lang-btn__flag">
-                        <span class="settings-lang-btn__label" data-i18n="game.settings.languagePt">Português</span>
-                    </button>
+            <section class="settings-section settings-section--display" aria-labelledby="settings-display-heading">
+                <h3 id="settings-display-heading" class="settings-section__title" data-i18n="game.settings.displayTitle">Display</h3>
+                <div class="settings-block">
+                    <h4 class="settings-block__label" id="settings-lang-heading" data-i18n="game.settings.language">Language</h4>
+                    <div class="settings-lang-row" role="group" aria-labelledby="settings-lang-heading">
+                        <button type="button" id="settings-lang-en" class="settings-lang-btn" data-i18n-title="game.settings.languageEn" title="English">
+                            <img src="https://flagcdn.com/w40/us.png" width="28" height="20" alt="" class="settings-lang-btn__flag">
+                            <span class="settings-lang-btn__label" data-i18n="game.settings.languageEn">English</span>
+                        </button>
+                        <button type="button" id="settings-lang-pt" class="settings-lang-btn" data-i18n-title="game.settings.languagePt" title="Português">
+                            <img src="https://flagcdn.com/w40/br.png" width="28" height="20" alt="" class="settings-lang-btn__flag">
+                            <span class="settings-lang-btn__label" data-i18n="game.settings.languagePt">Português</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="settings-block">
+                    <h4 class="settings-block__label" id="settings-layout-heading" data-i18n="game.settings.layout.title">Layout</h4>
+                    <p class="settings-layout-lead" data-i18n="game.settings.layout.lead">Auto follows your screen size. Mobile keeps the tall phone layout; PC uses a wide view.</p>
+                    <div class="settings-layout-row" role="group" aria-labelledby="settings-layout-heading">
+                        <button type="button" class="settings-layout-btn" data-layout-pref="auto" data-i18n="game.settings.layout.auto">Auto</button>
+                        <button type="button" class="settings-layout-btn" data-layout-pref="portrait" data-i18n="game.settings.layout.mobile">Mobile</button>
+                        <button type="button" class="settings-layout-btn" data-layout-pref="landscape" data-i18n="game.settings.layout.pc">PC</button>
+                    </div>
                 </div>
             </section>
-            <section class="settings-section" aria-labelledby="settings-layout-heading">
-                <h3 id="settings-layout-heading" class="settings-section__title" data-i18n="game.settings.layout.title">Layout</h3>
-                <p class="settings-layout-lead" data-i18n="game.settings.layout.lead">Auto follows your screen size. Mobile keeps the tall phone layout; PC uses a wide view.</p>
-                <div class="settings-layout-row" role="group" aria-labelledby="settings-layout-heading">
-                    <button type="button" class="settings-layout-btn" data-layout-pref="auto" data-i18n="game.settings.layout.auto">Auto</button>
-                    <button type="button" class="settings-layout-btn" data-layout-pref="portrait" data-i18n="game.settings.layout.mobile">Mobile</button>
-                    <button type="button" class="settings-layout-btn" data-layout-pref="landscape" data-i18n="game.settings.layout.pc">PC</button>
+
+            <section class="settings-section settings-section--sound" aria-labelledby="settings-sound-heading">
+                <h3 id="settings-sound-heading" class="settings-section__title" data-i18n="game.settings.sound.title">Sound</h3>
+                <p class="settings-sound-lead" data-i18n="game.settings.sound.lead">Turn music and battle cues on or off. UI sounds stay available.</p>
+                <div class="settings-toggle-list" role="group" aria-labelledby="settings-sound-heading">
+                    <div class="settings-toggle-row">
+                        <div class="settings-toggle-row__text">
+                            <span class="settings-toggle-row__title" data-i18n="game.settings.sound.music">Music</span>
+                            <span class="settings-toggle-row__hint" data-i18n="game.settings.sound.musicHint">Expedition and map background tracks.</span>
+                        </div>
+                        <button type="button" id="settings-toggle-music" class="settings-switch" role="switch" aria-checked="true" aria-labelledby="settings-sound-music-label">
+                            <span id="settings-sound-music-label" class="settings-switch__track" aria-hidden="true"><span class="settings-switch__thumb"></span></span>
+                            <span class="settings-switch__state" data-i18n="game.settings.sound.on">ON</span>
+                        </button>
+                    </div>
+                    <div class="settings-toggle-row">
+                        <div class="settings-toggle-row__text">
+                            <span class="settings-toggle-row__title" data-i18n="game.settings.sound.battle">Battle sounds</span>
+                            <span class="settings-toggle-row__hint" data-i18n="game.settings.sound.battleHint">Weapon swings, critical hits, soulshots, teleport.</span>
+                        </div>
+                        <button type="button" id="settings-toggle-battle" class="settings-switch" role="switch" aria-checked="true" aria-labelledby="settings-sound-battle-label">
+                            <span id="settings-sound-battle-label" class="settings-switch__track" aria-hidden="true"><span class="settings-switch__thumb"></span></span>
+                            <span class="settings-switch__state" data-i18n="game.settings.sound.on">ON</span>
+                        </button>
+                    </div>
                 </div>
             </section>
+
             <section id="settings-pwa-section" class="settings-section settings-section--pwa" aria-labelledby="settings-pwa-heading">
                 <h3 id="settings-pwa-heading" class="settings-section__title" data-i18n="game.settings.pwa.title">Install app</h3>
                 <p class="settings-pwa-lead" data-i18n="game.settings.pwa.lead">Open without browser tabs for more screen space on mobile.</p>
@@ -406,7 +437,9 @@
                 </div>
                 <p id="settings-pwa-hint" class="settings-pwa-hint" hidden></p>
             </section>
+
             <section class="settings-section settings-section--meta">
+                <h3 class="settings-section__title" data-i18n="game.settings.aboutTitle">About</h3>
                 <div class="settings-meta-row">
                     <span class="settings-meta-row__label" data-i18n="game.settings.version">Client version</span>
                     <span class="settings-meta-row__value" data-i18n="meta.verLine">VER: 1.5.0</span>

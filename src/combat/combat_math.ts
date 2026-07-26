@@ -426,6 +426,7 @@ function tentarGolpeAtaqueBasico(): boolean {
       window.autoShotAtivo = false;
     }
   }
+  if (typeof window.tocarSomEspada === 'function') window.tocarSomEspada();
   escreverLog(
     foiCritico
       ? `<span style="color:#ff3333; font-weight:bold;">${

@@ -32,8 +32,17 @@ function ensureBgmAudio(src: string): HTMLAudioElement {
 
 /** Play / pause expedition BGM from current run state. */
 export function syncExpeditionBgm(active: boolean, suspended: boolean, zoneId: string): void {
-  const src = active && !suspended ? resolveExpeditionBgm(zoneId) : null;
+  const musicOn =
+    typeof window.AudioPrefs?.isMusicEnabled === 'function'
+      ? window.AudioPrefs.isMusicEnabled()
+      : true;
+  const src = active && !suspended && musicOn ? resolveExpeditionBgm(zoneId) : null;
   if (!src) {
+    // Keep track loaded when only muted — resume without reloading.
+    if (active && !suspended && !musicOn) {
+      stopExpeditionBgm(false);
+      return;
+    }
     stopExpeditionBgm(true);
     return;
   }

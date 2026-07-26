@@ -2,7 +2,7 @@
  * Migrado: js/database.js
  */
 
-import type { GameSoundKey, RaceInitialStats } from '../types/game';
+import type { GameSoundKey, ItemCatalogBase, RaceInitialStats } from '../types/game';
 
 // ==========================================
 // BANCO DE DADOS E VARIÁVEIS DO JOGADOR
@@ -16,6 +16,32 @@ const SOUND_SRC: Partial<Record<GameSoundKey, string>> = {
   teleport: 'assets/sounds/teleport.mp3',
   soulshot: 'assets/sounds/soulshot.mp3',
 };
+
+const BLADE_SWING_SRC = [
+  'assets/sounds/espada1.mp3',
+  'assets/sounds/espada2.mp3',
+  'assets/sounds/espada3.mp3',
+  'assets/sounds/espada4.mp3',
+] as const;
+
+/** Sword, long sword, dagger, sabre — not bow/mace/fist/staff. */
+const CUTTING_WEAPON_TIPOS = new Set(['Sword', 'Dagger']);
+
+function resolveEquippedWeaponTipo(): string | null {
+  const wpn = window.armaEquipadaBase;
+  if (!wpn) return null;
+  const base = (wpn.base || wpn) as ItemCatalogBase;
+  if (base?.tipo) return String(base.tipo);
+  const id = base?.id != null ? String(base.id) : '';
+  if (!id || !Array.isArray(window.catalogoArmas)) return null;
+  const hit = window.catalogoArmas.find((a) => String(a.id) === id);
+  return hit?.tipo ? String(hit.tipo) : null;
+}
+
+function isCuttingWeaponEquipped(): boolean {
+  const tipo = resolveEquippedWeaponTipo();
+  return !!tipo && CUTTING_WEAPON_TIPOS.has(tipo);
+}
 
 let gameAudioUnlocked = false;
 
@@ -57,6 +83,13 @@ function bindGameAudioUnlock(): void {
 
 bindGameAudioUnlock();
 
+function battleSfxAllowed(): boolean {
+  if (typeof window.AudioPrefs?.isBattleSfxEnabled === 'function') {
+    return window.AudioPrefs.isBattleSfxEnabled();
+  }
+  return true;
+}
+
 /**
  * Play a one-shot SFX. Fresh `Audio` per call so mobile autoplay works after
  * the first user gesture and crit + soulshot can overlap.
@@ -64,6 +97,11 @@ bindGameAudioUnlock();
 function tocarSom(nome: GameSoundKey): void {
   const src = SOUND_SRC[nome];
   if (!src) return;
+  const isBattle =
+    typeof window.AudioPrefs?.isBattleSoundKey === 'function'
+      ? window.AudioPrefs.isBattleSoundKey(nome)
+      : nome === 'critical' || nome === 'soulshot' || nome === 'teleport';
+  if (isBattle && !battleSfxAllowed()) return;
   unlockGameAudio();
   try {
     const clip = new Audio(src);
@@ -76,6 +114,21 @@ function tocarSom(nome: GameSoundKey): void {
 
 function tocarSomCritico(): void {
   tocarSom('critical');
+}
+
+/** Random blade swing for basic attack (Sword / Dagger only). */
+function tocarSomEspada(): void {
+  if (!isCuttingWeaponEquipped()) return;
+  if (!battleSfxAllowed()) return;
+  unlockGameAudio();
+  const src = BLADE_SWING_SRC[Math.floor(Math.random() * BLADE_SWING_SRC.length)];
+  try {
+    const clip = new Audio(src);
+    clip.volume = 0.78;
+    clip.play().catch(() => {});
+  } catch {
+    /* ignore */
+  }
 }
 
 // Banco de Dados de Status Iniciais por Raça
@@ -144,6 +197,7 @@ window.statusIniciais = {
 
 window.tocarSom = tocarSom;
 window.tocarSomCritico = tocarSomCritico;
+window.tocarSomEspada = tocarSomEspada;
 window.unlockGameAudio = unlockGameAudio;
 
 export {};

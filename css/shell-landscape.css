@@ -79,7 +79,19 @@ html[data-l2-layout="landscape"] #janela-oly-rewards.store-window {
 }
 
 html[data-l2-layout="landscape"] #janela-game-settings.store-window {
-    width: min(520px, 90vw);
+    width: min(560px, 90vw);
+    max-height: min(86vh, 720px);
+}
+html[data-l2-layout="landscape"] #janela-game-settings .store-body--settings {
+    gap: 14px;
+    padding: 10px 14px 8px;
+}
+html[data-l2-layout="landscape"] #janela-game-settings .settings-toggle-row {
+    min-height: 52px;
+}
+html[data-l2-layout="landscape"] #janela-game-settings .settings-lang-row,
+html[data-l2-layout="landscape"] #janela-game-settings .settings-layout-row {
+    gap: 10px;
 }
 
 html[data-l2-layout="landscape"] #janela-stat-ranking.store-window {

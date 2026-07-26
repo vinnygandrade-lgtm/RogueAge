@@ -420,6 +420,16 @@ declare global {
       bindSettingsButtons: () => void;
       normalizePreference: (raw: unknown) => import('./game').UiLayoutMode;
     };
+    AudioPrefs?: {
+      get: () => { musicEnabled: boolean; battleSfxEnabled: boolean };
+      isMusicEnabled: () => boolean;
+      isBattleSfxEnabled: () => boolean;
+      isBattleSoundKey: (nome: string) => boolean;
+      setMusicEnabled: (enabled: boolean) => void;
+      setBattleSfxEnabled: (enabled: boolean) => void;
+      toggleMusicEnabled: () => boolean;
+      toggleBattleSfxEnabled: () => boolean;
+    };
     refreshGameSettingsUi?: () => void;
     abrirGameSettings?: () => void;
     abrirNavMenu?: () => void;
@@ -641,6 +651,7 @@ declare global {
   function dispararAnimacaoGCD(ms: number, skillName: string): void;
   function tocarSom(nome: import('./game').GameSoundKey): void;
   function tocarSomCritico(): void;
+  function tocarSomEspada(): void;
   function unlockGameAudio(): void;
   function renderizarMailbox(): void;
 

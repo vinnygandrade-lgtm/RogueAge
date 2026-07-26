@@ -2941,6 +2941,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 settings: {
                     title: 'SETTINGS',
                     openTitle: 'Settings',
+                    displayTitle: 'Display',
+                    aboutTitle: 'About',
                     language: 'Language',
                     languageEn: 'English',
                     languagePt: 'Português',
@@ -2952,6 +2954,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         auto: 'Auto',
                         mobile: 'Mobile',
                         pc: 'PC'
+                    },
+                    sound: {
+                        title: 'Sound',
+                        lead: 'Turn music and battle cues on or off. UI sounds stay available.',
+                        music: 'Music',
+                        musicHint: 'Expedition and map background tracks.',
+                        battle: 'Battle sounds',
+                        battleHint: 'Weapon swings, critical hits, soulshots, teleport.',
+                        on: 'ON',
+                        off: 'OFF'
                     },
                     pwa: {
                         title: 'Install app',
@@ -6016,6 +6028,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 settings: {
                     title: 'CONFIGURAÇÕES',
                     openTitle: 'Configurações',
+                    displayTitle: 'Exibição',
+                    aboutTitle: 'Sobre',
                     language: 'Idioma',
                     languageEn: 'English',
                     languagePt: 'Português',
@@ -6027,6 +6041,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         auto: 'Auto',
                         mobile: 'Celular',
                         pc: 'PC'
+                    },
+                    sound: {
+                        title: 'Som',
+                        lead: 'Liga ou desliga música e sons de batalha. Sons de interface continuam ativos.',
+                        music: 'Música',
+                        musicHint: 'Trilhas de fundo da expedição e do mapa.',
+                        battle: 'Sons de batalha',
+                        battleHint: 'Golpes de arma, críticos, soulshots e teleporte.',
+                        on: 'ON',
+                        off: 'OFF'
                     },
                     pwa: {
                         title: 'Instalar app',
