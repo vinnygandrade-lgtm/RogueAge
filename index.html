@@ -72,6 +72,27 @@
     <script type="module" src="/src/main.ts"></script>
 </head>
 <body class="l2-boot-pending">
+    <!-- Paperdoll weapon enchant aura (SourceAlpha → blur → flood colour). Tuned per level in ui_paperdoll.ts -->
+    <svg class="pd-weapon-aura-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;left:0;top:0;overflow:hidden">
+        <defs>
+            <filter id="pd-weapon-enchant-aura" x="-100%" y="-100%" width="300%" height="300%" color-interpolation-filters="sRGB">
+                <feGaussianBlur id="pd-aura-blur-wide" in="SourceAlpha" stdDeviation="14" result="blurWide"/>
+                <feGaussianBlur id="pd-aura-blur-mid" in="SourceAlpha" stdDeviation="7" result="blurMid"/>
+                <feFlood id="pd-aura-flood-wide" flood-color="#facc15" flood-opacity="0.45" result="floodWide"/>
+                <feFlood id="pd-aura-flood-mid" flood-color="#facc15" flood-opacity="0.75" result="floodMid"/>
+                <feFlood id="pd-aura-flood-core" flood-color="#fff8e7" flood-opacity="0.9" result="floodCore"/>
+                <feComposite in="floodWide" in2="blurWide" operator="in" result="glowWide"/>
+                <feComposite in="floodMid" in2="blurMid" operator="in" result="glowMid"/>
+                <feGaussianBlur id="pd-aura-blur-core" in="SourceAlpha" stdDeviation="2.5" result="blurCore"/>
+                <feComposite in="floodCore" in2="blurCore" operator="in" result="glowCore"/>
+                <feMerge>
+                    <feMergeNode in="glowWide"/>
+                    <feMergeNode in="glowMid"/>
+                    <feMergeNode in="glowCore"/>
+                </feMerge>
+            </filter>
+        </defs>
+    </svg>
     <div id="loading-overlay" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-busy="true" aria-live="polite">
         <div class="loading-content">
             <div class="loading-logo">ROGUE<span>AGE</span></div>
@@ -2374,9 +2395,10 @@
                     <div class="paperdoll-foot-shadow" aria-hidden="true"></div>
                     <img id="char-base-layer" data-pd-layer="base" class="char-layer char-base-layer" src="assets/chars/base_fighter.png" alt="">
                     <img id="char-armor-layer" data-pd-layer="armor" class="char-layer" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" hidden>
+                    <!-- SVG alpha glow: SourceAlpha blur + flood colour (reliable silhouette aura) -->
+                    <img id="char-weapon-glow" data-pd-layer="weaponGlow" class="char-layer paperdoll-weapon-glow-img" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" hidden>
                     <img id="char-weapon-layer" data-pd-layer="weapon" class="char-layer" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" hidden>
                     <img id="char-weapon-grip-layer" data-pd-layer="weaponGrip" class="char-layer char-weapon-grip-layer" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" hidden>
-                    <img id="char-weapon-glow" data-pd-layer="weaponGlow" class="char-layer" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" hidden>
                     <img id="char-hands-layer" data-pd-layer="hands" class="char-layer char-hands-layer" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" hidden>
                 </div>
 

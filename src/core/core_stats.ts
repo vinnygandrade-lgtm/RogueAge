@@ -515,11 +515,20 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     if (window.playerHP > window.playerStats.maxHp) window.playerHP = window.playerStats.maxHp;
     if (window.playerMP > window.playerStats.maxMp) window.playerMP = window.playerStats.maxMp;
     if (window.playerCP > window.playerStats.maxCp) window.playerCP = window.playerStats.maxCp;
-    
+
+    // Glow/slots only (no 1080× layer rebuild) when Profile is visible — e.g. after enchant.
     const _tpPerf = document.getElementById('tela-perfil');
-    const _tpVis = _tpPerf && (_tpPerf.style.display === 'contents' || _tpPerf.style.display === 'flex' || _tpPerf.style.display === 'block');
+    const _tpVis = !!(
+        _tpPerf
+        && (_tpPerf.style.display === 'contents' || _tpPerf.style.display === 'flex' || _tpPerf.style.display === 'block')
+    );
     if (_tpVis) {
-        if (typeof window.atualizarVisualPaperdoll === 'function') window.atualizarVisualPaperdoll();
+        try {
+            if (typeof window.atualizarBrilhoArma === 'function') window.atualizarBrilhoArma();
+            if (typeof window.syncProfileEquipmentSlotGlows === 'function') {
+                window.syncProfileEquipmentSlotGlows();
+            }
+        } catch (eGlow) { /* ignore */ }
     }
 };
 

@@ -41,6 +41,7 @@ function setPaperdollLayerVisible(layer: HTMLImageElement | null, visible: boole
     if (layer.src !== PAPERDOLL_BLANK_SRC) {
       layer.src = PAPERDOLL_BLANK_SRC;
     }
+    delete layer.dataset.pdSrcChain;
   }
 }
 
@@ -74,7 +75,7 @@ function isHumanPaperdollFighter(): boolean {
   return typeof window.charRace !== 'undefined' && window.charRace === 'Human' && !isMage;
 }
 
-/** Tenta src em cadeia; onAllFail quando nenhum URL carrega */
+/** Tenta src em cadeia; onAllFail quando nenhum URL carrega. Skip se a cadeia já está activa. */
 function setPaperdollLayerSrcChain(
   layer: HTMLImageElement | null,
   srcList: string[],
@@ -84,10 +85,37 @@ function setPaperdollLayerSrcChain(
     if (onAllFail) onAllFail();
     return;
   }
+  const chainKey = srcList.join('\n');
+  if (
+    layer.dataset.pdSrcChain === chainKey &&
+    !_isPaperdollBlankLayer(layer) &&
+    layer.complete &&
+    (layer.naturalWidth || 0) > 1
+  ) {
+    return;
+  }
+  layer.dataset.pdSrcChain = chainKey;
   let idx = 0;
   layer.onload = () => {
     layer.onerror = null;
     _handlePaperdollLayerLoad(layer);
+    const role = layer.getAttribute('data-pd-layer');
+    if (role !== 'weapon' && layer.id !== 'char-weapon-layer' && layer.id !== 'char-select-weapon-layer') {
+      return;
+    }
+    const root = layer.closest('.l2-paperdoll') as
+      | (HTMLElement & { _pdLastWeaponItem?: EquipInstance | null })
+      | null;
+    if (root && Object.prototype.hasOwnProperty.call(root, '_pdLastWeaponItem')) {
+      _applyPaperdollWeaponGlow(root, _getPaperdollLayer(root, 'weapon'), root._pdLastWeaponItem ?? null);
+      return;
+    }
+    if (
+      (root?.classList.contains('l2-paperdoll--profile') || layer.id === 'char-weapon-layer') &&
+      typeof window.atualizarBrilhoArma === 'function'
+    ) {
+      window.atualizarBrilhoArma();
+    }
   };
   layer.onerror = () => {
     idx += 1;
@@ -96,6 +124,7 @@ function setPaperdollLayerSrcChain(
       return;
     }
     layer.onerror = null;
+    delete layer.dataset.pdSrcChain;
     if (onAllFail) onAllFail();
   };
   layer.src = srcList[0]!;
@@ -146,44 +175,133 @@ function _handlePaperdollLayerLoad(layer: HTMLImageElement | null): void {
   schedulePaperdollFootShadowSyncWithRetries();
 }
 
-function _applyPaperdollWeaponGlow(
-  weaponLayer: HTMLImageElement | null,
-  glowLayer: HTMLImageElement | null,
-  weaponItem: EquipInstance | null | undefined,
-): void {
-  const cfg = _paperdollCfg();
-  const auraKeyframe = cfg.weaponAuraKeyframe || 'pulse-weapon-aura-paperdoll';
+type PaperdollWeaponGlowEl = HTMLImageElement & { _pdGlowSig?: string };
+type PaperdollAuraImgEl = HTMLImageElement & { _pdAuraSig?: string };
 
-  function limparBrilho(): void {
-    if (weaponLayer) {
-      weaponLayer.classList.remove('weapon-glow-divino');
-      if (typeof window.syncPaperdollFistWeaponLayerClass === 'function') {
-        window.syncPaperdollFistWeaponLayerClass(weaponLayer, weaponItem ?? null);
-      }
-      weaponLayer.style.filter = 'none';
-      weaponLayer.style.animation = 'none';
-      weaponLayer.style.removeProperty('--paperdoll-weapon-glow');
-      weaponLayer.style.removeProperty('--paperdoll-weapon-core');
-      weaponLayer.style.removeProperty('--paperdoll-weapon-soft');
-      weaponLayer.style.removeProperty('--paperdoll-weapon-corona');
-      weaponLayer.style.removeProperty('--paperdoll-aura-mul-a');
-      weaponLayer.style.removeProperty('--paperdoll-aura-mul-b');
-      weaponLayer.style.removeProperty('--paperdoll-pulse-lo');
-      weaponLayer.style.removeProperty('--paperdoll-pulse-hi');
-      weaponLayer.style.removeProperty('--paperdoll-sat-lo');
-      weaponLayer.style.removeProperty('--paperdoll-sat-hi');
-      weaponLayer.style.removeProperty('--paperdoll-divino-strength');
+/**
+ * Option 1 (fixed): SVG filter on a weapon-silhouette copy.
+ * SourceAlpha → gaussian blur → flood with tier colour. Blur stdDeviation steps per level.
+ * CSS mask+blur on the same node was clipped (looked like zero effect).
+ */
+function _setSvgAuraParams(lvl: number, color: string): void {
+  const blurWide = document.getElementById('pd-aura-blur-wide');
+  const blurMid = document.getElementById('pd-aura-blur-mid');
+  const blurCore = document.getElementById('pd-aura-blur-core');
+  const floodWide = document.getElementById('pd-aura-flood-wide');
+  const floodMid = document.getElementById('pd-aura-flood-mid');
+  const floodCore = document.getElementById('pd-aura-flood-core');
+
+  if (lvl >= 25) {
+    if (blurWide) blurWide.setAttribute('stdDeviation', '22');
+    if (blurMid) blurMid.setAttribute('stdDeviation', '11');
+    if (blurCore) blurCore.setAttribute('stdDeviation', '3.5');
+    if (floodWide) {
+      floodWide.setAttribute('flood-color', '#ef4444');
+      floodWide.setAttribute('flood-opacity', '0.55');
     }
-    if (glowLayer) {
-      glowLayer.className = 'char-layer';
-      setPaperdollLayerVisible(glowLayer, false);
-      glowLayer.style.filter = 'none';
-      glowLayer.style.animation = 'none';
+    if (floodMid) {
+      floodMid.setAttribute('flood-color', '#facc15');
+      floodMid.setAttribute('flood-opacity', '0.85');
     }
+    if (floodCore) {
+      floodCore.setAttribute('flood-color', '#fff8e7');
+      floodCore.setAttribute('flood-opacity', '0.95');
+    }
+    return;
   }
 
-  if (!weaponLayer || !weaponItem) {
-    limparBrilho();
+  const step = Math.max(0, Math.min(20, Math.floor(lvl) - 4));
+  // +4 → tight; +24 → wide. Each +1 adds a clear blur step.
+  const wide = 4 + step * 1.15; // 4 → 27
+  const mid = 2 + step * 0.65; // 2 → 15
+  const core = 1 + step * 0.2; // 1 → 5
+  const opWide = Math.min(0.7, 0.28 + step * 0.02);
+  const opMid = Math.min(0.92, 0.5 + step * 0.02);
+  const opCore = Math.min(0.98, 0.7 + step * 0.012);
+  const coreColor = paperdollWeaponGlowCore(color);
+
+  if (blurWide) blurWide.setAttribute('stdDeviation', wide.toFixed(2));
+  if (blurMid) blurMid.setAttribute('stdDeviation', mid.toFixed(2));
+  if (blurCore) blurCore.setAttribute('stdDeviation', core.toFixed(2));
+  if (floodWide) {
+    floodWide.setAttribute('flood-color', color);
+    floodWide.setAttribute('flood-opacity', opWide.toFixed(3));
+  }
+  if (floodMid) {
+    floodMid.setAttribute('flood-color', color);
+    floodMid.setAttribute('flood-opacity', opMid.toFixed(3));
+  }
+  if (floodCore) {
+    floodCore.setAttribute('flood-color', coreColor);
+    floodCore.setAttribute('flood-opacity', opCore.toFixed(3));
+  }
+}
+
+function _clearPaperdollWeaponAura(
+  weaponLayer: PaperdollWeaponGlowEl | null,
+  glowLayer: PaperdollAuraImgEl | null,
+  weaponItem: EquipInstance | null | undefined,
+): void {
+  if (weaponLayer) {
+    weaponLayer._pdGlowSig = '';
+    weaponLayer.classList.remove('weapon-glow-divino', 'weapon-glow-aura');
+    if (typeof window.syncPaperdollFistWeaponLayerClass === 'function') {
+      window.syncPaperdollFistWeaponLayerClass(weaponLayer, weaponItem ?? null);
+    }
+    weaponLayer.style.filter = 'none';
+    weaponLayer.style.animation = 'none';
+    weaponLayer.style.opacity = '1';
+  }
+  if (glowLayer) {
+    glowLayer._pdAuraSig = '';
+    glowLayer.classList.remove('paperdoll-weapon-glow-img--on', 'char-layer--fist');
+    glowLayer.style.filter = 'none';
+    glowLayer.style.animation = 'none';
+    glowLayer.style.opacity = '';
+    setPaperdollLayerVisible(glowLayer, false);
+  }
+}
+
+function _syncGlowImgToWeapon(
+  weaponLayer: HTMLImageElement,
+  glowLayer: HTMLImageElement,
+): boolean {
+  if (_isPaperdollBlankLayer(weaponLayer) || !weaponLayer.complete || (weaponLayer.naturalWidth || 0) <= 1) {
+    return false;
+  }
+  const src = weaponLayer.currentSrc || weaponLayer.src;
+  if (!src || src === PAPERDOLL_BLANK_SRC) return false;
+  if (glowLayer.getAttribute('src') !== src && glowLayer.src !== src) {
+    glowLayer.onerror = null;
+    glowLayer.onload = null;
+    glowLayer.src = src;
+  }
+  glowLayer.dataset.pdSrcChain = weaponLayer.dataset.pdSrcChain || src;
+  setPaperdollLayerVisible(glowLayer, true);
+  if (weaponLayer.classList.contains('char-layer--fist')) {
+    glowLayer.classList.add('char-layer--fist');
+  } else {
+    glowLayer.classList.remove('char-layer--fist');
+  }
+  return true;
+}
+
+function _applyPaperdollWeaponGlow(
+  root: Element | null,
+  weaponLayer: HTMLImageElement | null,
+  weaponItem: EquipInstance | null | undefined,
+): void {
+  const weapon = weaponLayer as PaperdollWeaponGlowEl | null;
+  const glow = _getPaperdollLayer(root, 'weaponGlow') as PaperdollAuraImgEl | null;
+
+  // Remove leftover CSS-mask host from earlier attempt (if present in old DOM).
+  const legacyMask = root ? root.querySelector('[data-pd-weapon-aura]') : null;
+  if (legacyMask instanceof HTMLElement) {
+    legacyMask.hidden = true;
+  }
+
+  if (!weapon || !weaponItem) {
+    _clearPaperdollWeaponAura(weapon, glow, weaponItem ?? null);
     return;
   }
 
@@ -193,76 +311,79 @@ function _applyPaperdollWeaponGlow(
       ? Number(_we)
       : 0;
   if (!Number.isFinite(lvl) || lvl < 0) lvl = 0;
+  lvl = Math.floor(lvl);
 
   if (lvl < 4) {
-    limparBrilho();
+    _clearPaperdollWeaponAura(weapon, glow, weaponItem);
     return;
   }
 
   const color = window.getEnchantTierGlowColor(lvl);
-  const speed = window.getEnchantPulseSpeedSeconds(lvl);
+  const srcHint = weapon.currentSrc || weapon.src || '';
+  const glowSig = 'svg-v1|' + lvl + '|' + color + '|' + srcHint;
 
-  if (glowLayer) {
-    setPaperdollLayerVisible(glowLayer, false);
+  if (
+    weapon._pdGlowSig === glowSig &&
+    glow &&
+    glow._pdAuraSig === glowSig &&
+    !glow.hasAttribute('hidden') &&
+    !_isPaperdollBlankLayer(glow)
+  ) {
+    weapon.style.filter = 'none';
+    weapon.style.opacity = '1';
+    weapon.style.animation = 'none';
+    return;
   }
 
-  if (lvl >= 25) {
-    weaponLayer.style.removeProperty('--paperdoll-weapon-glow');
-    weaponLayer.style.removeProperty('--paperdoll-weapon-core');
-    weaponLayer.style.removeProperty('--paperdoll-weapon-soft');
-    weaponLayer.style.removeProperty('--paperdoll-weapon-corona');
-    weaponLayer.style.removeProperty('--paperdoll-aura-mul-a');
-    weaponLayer.style.removeProperty('--paperdoll-aura-mul-b');
-    weaponLayer.style.removeProperty('--paperdoll-pulse-lo');
-    weaponLayer.style.removeProperty('--paperdoll-pulse-hi');
-    weaponLayer.style.removeProperty('--paperdoll-sat-lo');
-    weaponLayer.style.removeProperty('--paperdoll-sat-hi');
-    // Tight divino halo — follows weapon silhouette only (no full-stage overlay).
-    weaponLayer.style.setProperty(
-      '--paperdoll-divino-strength',
-      String(cfg.divinoStrength != null ? cfg.divinoStrength : 1.45),
-    );
-    weaponLayer.style.filter = '';
-    weaponLayer.style.animation = '';
-    weaponLayer.classList.remove('weapon-glow-divino');
-    weaponLayer.classList.add('weapon-glow-divino');
-    if (typeof window.syncPaperdollFistWeaponLayerClass === 'function') {
-      window.syncPaperdollFistWeaponLayerClass(weaponLayer, weaponItem);
-    }
-  } else {
-    weaponLayer.classList.remove('weapon-glow-divino');
-    if (typeof window.syncPaperdollFistWeaponLayerClass === 'function') {
-      window.syncPaperdollFistWeaponLayerClass(weaponLayer, weaponItem);
-    }
-    weaponLayer.style.removeProperty('--paperdoll-divino-strength');
-    // Moderate scale — drop-shadow hugs the weapon pixels; keep corona compact.
-    let tierLinear = (lvl - 4) / 20;
-    if (tierLinear < 0) tierLinear = 0;
-    if (tierLinear > 1) tierLinear = 1;
-    const tierProgress = Math.pow(tierLinear, 1.2);
-    const mulA = 1.05 + 0.85 * tierProgress;
-    const mulB = 1.2 + 1.35 * tierProgress;
-    const pulseLo = 0.88 - 0.06 * tierProgress;
-    const pulseHi = 1.08 + 0.18 * tierProgress;
-    const satLo = 1.08 + 0.08 * tierProgress;
-    const satHi = 1.2 + 0.16 * tierProgress;
-    const softA = 0.4 + 0.28 * tierProgress;
-    const coronaA = 0.18 + 0.22 * tierProgress;
-    weaponLayer.style.setProperty('--paperdoll-weapon-glow', color);
-    weaponLayer.style.setProperty('--paperdoll-weapon-core', paperdollWeaponGlowCore(color));
-    weaponLayer.style.setProperty('--paperdoll-weapon-soft', paperdollWeaponGlowSoft(color, softA));
-    weaponLayer.style.setProperty('--paperdoll-weapon-corona', paperdollWeaponGlowSoft(color, coronaA));
-    weaponLayer.style.setProperty('--paperdoll-aura-mul-a', String(mulA));
-    weaponLayer.style.setProperty('--paperdoll-aura-mul-b', String(mulB));
-    weaponLayer.style.setProperty('--paperdoll-pulse-lo', String(pulseLo));
-    weaponLayer.style.setProperty('--paperdoll-pulse-hi', String(pulseHi));
-    weaponLayer.style.setProperty('--paperdoll-sat-lo', String(satLo));
-    weaponLayer.style.setProperty('--paperdoll-sat-hi', String(satHi));
-    weaponLayer.style.filter = '';
-    weaponLayer.style.animation = 'none';
-    void weaponLayer.offsetWidth;
-    weaponLayer.style.animation = auraKeyframe + ' ' + speed + 's infinite alternate ease-in-out';
+  weapon._pdGlowSig = glowSig;
+  weapon.classList.remove('weapon-glow-divino', 'weapon-glow-aura');
+  weapon.style.filter = 'none';
+  weapon.style.animation = 'none';
+  weapon.style.opacity = '1';
+  if (typeof window.syncPaperdollFistWeaponLayerClass === 'function') {
+    window.syncPaperdollFistWeaponLayerClass(weapon, weaponItem);
   }
+
+  if (!glow) return;
+
+  if (!_syncGlowImgToWeapon(weapon, glow)) {
+    _clearPaperdollWeaponAura(null, glow, weaponItem);
+    weapon._pdGlowSig = '';
+    return;
+  }
+
+  _setSvgAuraParams(lvl, color);
+  glow._pdAuraSig = glowSig;
+  glow.classList.add('paperdoll-weapon-glow-img--on');
+  // Sharp weapon stays filter-free; glow img is only the SVG aura silhouette.
+  glow.style.filter = 'url(#pd-weapon-enchant-aura)';
+  glow.style.animation = 'none';
+  glow.style.opacity = '1';
+}
+
+type PaperdollRootEl = HTMLElement & {
+  _pdRefreshSig?: string;
+  _pdLastWeaponItem?: EquipInstance | null;
+};
+
+function _paperdollRefreshSignature(
+  presetId: string,
+  armEquip: EquipInstance | ItemCatalogBase | null | undefined,
+  armaEquip: EquipInstance | ItemCatalogBase | null | undefined,
+): string {
+  const armId = resolveEquipCatalogId(armEquip);
+  const armEnc =
+    armEquip && typeof (armEquip as EquipInstance).enchant !== 'undefined'
+      ? String((armEquip as EquipInstance).enchant ?? 0)
+      : '0';
+  const wId = resolveEquipCatalogId(armaEquip);
+  const wEnc =
+    armaEquip && typeof (armaEquip as EquipInstance).enchant !== 'undefined'
+      ? String((armaEquip as EquipInstance).enchant ?? 0)
+      : '0';
+  const aug =
+    typeof window.isAugmented !== 'undefined' && window.isAugmented ? '1' : '0';
+  return [presetId, armId, armEnc, wId, wEnc, aug].join('|');
 }
 
 function _refreshPaperdollRoot(
@@ -278,6 +399,22 @@ function _refreshPaperdollRoot(
   const armaEquip = options.armaEquipadaBase;
   const syncProfileGlows = options.syncProfileGlows !== false;
   const syncWeaponGlow = options.syncWeaponGlow !== false;
+  const force = options.force === true;
+
+  const host = root instanceof HTMLElement ? (root as PaperdollRootEl) : null;
+  const refreshSig = _paperdollRefreshSignature(String(presetId), armEquip, armaEquip);
+  if (!force && host && host._pdRefreshSig === refreshSig) {
+    // Still refresh glow (cheap) so algorithm tweaks apply without changing equip.
+    if (syncWeaponGlow) {
+      _applyPaperdollWeaponGlow(root, _getPaperdollLayer(root, 'weapon'), armaEquip);
+    }
+    if (syncProfileGlows && typeof window.syncProfileEquipmentSlotGlows === 'function') {
+      window.syncProfileEquipmentSlotGlows();
+    }
+    return;
+  }
+  if (host) host._pdRefreshSig = refreshSig;
+  if (host) host._pdLastWeaponItem = armaEquip ?? null;
 
   if (root && typeof window.applyPaperdollConfig === 'function') {
     window.applyPaperdollConfig(root as HTMLElement, undefined, { presetId: String(presetId) });
@@ -438,7 +575,7 @@ function _refreshPaperdollRoot(
   }
 
   if (syncWeaponGlow) {
-    _applyPaperdollWeaponGlow(layerWeapon, layerGlow, armaEquip);
+    _applyPaperdollWeaponGlow(root, layerWeapon, armaEquip);
   }
 
   if (syncProfileGlows && typeof window.syncProfileEquipmentSlotGlows === 'function') {
@@ -530,6 +667,7 @@ function clearProfileSlotEnchantGlow(el: HTMLElement | null): void {
   el.style.removeProperty('--profile-slot-core');
   el.style.removeProperty('--profile-slot-soft');
   el.style.removeProperty('--profile-slot-mul');
+  el.style.removeProperty('--profile-slot-speed');
 }
 
 function applyProfileSlotEnchantGlow(el: HTMLElement | null, lvl: number): void {
@@ -538,22 +676,22 @@ function applyProfileSlotEnchantGlow(el: HTMLElement | null, lvl: number): void 
   const l = _parseEnchantLevelForProfile(lvl);
   if (l < 4) return;
   const sp = window.getEnchantPulseSpeedSeconds(l);
+  el.style.setProperty('--profile-slot-speed', sp + 's');
   if (l >= 25) {
     el.classList.add('profile-slot-enchant-divino');
-    el.style.animation = 'pulse-profile-slot-divino ' + sp + 's infinite alternate ease-in-out';
     return;
   }
   const color = window.getEnchantTierGlowColor(l);
   let tierLinear = (l - 4) / 20;
   if (tierLinear < 0) tierLinear = 0;
   if (tierLinear > 1) tierLinear = 1;
-  const intensity = 0.7 + 0.85 * Math.pow(tierLinear, 1.18);
+  // Match weapon curve: low enchant subtle, high enchant clearly larger aura.
+  const intensity = 0.45 + 1.55 * Math.pow(tierLinear, 0.85);
   el.classList.add('profile-slot-enchant-glow');
   el.style.setProperty('--profile-slot-glow', color);
   el.style.setProperty('--profile-slot-core', paperdollWeaponGlowCore(color));
-  el.style.setProperty('--profile-slot-soft', paperdollWeaponGlowSoft(color, 0.4 + 0.3 * Math.min(1, intensity - 0.4)));
+  el.style.setProperty('--profile-slot-soft', paperdollWeaponGlowSoft(color, 0.35 + 0.45 * Math.min(1, intensity / 2)));
   el.style.setProperty('--profile-slot-mul', String(intensity));
-  el.style.animation = 'pulse-profile-slot-aura ' + sp + 's infinite alternate ease-in-out';
 }
 
 /** Slots do perfil: cada um brilha só pelo seu próprio encantamento. */
@@ -583,7 +721,10 @@ window.syncProfileEquipmentSlotGlows = function (): void {
   const r1 = jewelEnc(w.anelEquipado1 as ProfileJewelEquip | undefined);
   const r2 = jewelEnc(w.anelEquipado2 as ProfileJewelEquip | undefined);
   const sig =
-    (typeof w.charName === 'string' ? w.charName : '') + '|' + [wEnc, aEnc, n, e1, e2, r1, r2].join('|');
+    'v3|' +
+    (typeof w.charName === 'string' ? w.charName : '') +
+    '|' +
+    [wEnc, aEnc, n, e1, e2, r1, r2].join('|');
   if (sig === _PROFILE_SLOT_GLOW_SIG) {
     if (typeof w.syncProfileHarmonyBadge === 'function') w.syncProfileHarmonyBadge();
     return;
@@ -635,6 +776,7 @@ window.syncProfileHarmonyBadge = function (): void {
   el.style.removeProperty('--profile-slot-core');
   el.style.removeProperty('--profile-slot-soft');
   el.style.removeProperty('--profile-slot-mul');
+  el.style.removeProperty('--profile-slot-speed');
   el.style.removeProperty('--harmony-glow');
   el.style.animation = 'none';
 
@@ -663,9 +805,9 @@ window.syncProfileHarmonyBadge = function (): void {
     const sp = typeof window.getEnchantPulseSpeedSeconds === 'function'
       ? window.getEnchantPulseSpeedSeconds(level)
       : 2;
+    el.style.setProperty('--profile-slot-speed', sp + 's');
     if (level >= 25) {
       el.classList.add('profile-slot-enchant-divino');
-      el.style.animation = 'pulse-profile-slot-divino ' + sp + 's infinite alternate ease-in-out';
       return;
     }
     const color = typeof window.getEnchantTierGlowColor === 'function'
@@ -683,7 +825,6 @@ window.syncProfileHarmonyBadge = function (): void {
     el.style.setProperty('--profile-slot-core', paperdollWeaponGlowCore(color));
     el.style.setProperty('--profile-slot-soft', paperdollWeaponGlowSoft(color, 0.4 + 0.3 * Math.min(1, intensity - 0.4)));
     el.style.setProperty('--profile-slot-mul', String(intensity));
-    el.style.animation = 'pulse-profile-slot-aura ' + sp + 's infinite alternate ease-in-out';
     return;
   }
 
@@ -1132,9 +1273,10 @@ function paperdollWeaponGlowCore(hex: string): string {
 }
 
 window.atualizarBrilhoArma = function (): void {
+  const root = document.querySelector('.l2-paperdoll--profile');
   _applyPaperdollWeaponGlow(
-    _getPaperdollLayer(null, 'weapon'),
-    _getPaperdollLayer(null, 'weaponGlow'),
+    root,
+    _getPaperdollLayer(root, 'weapon'),
     typeof window.armaEquipadaBase !== 'undefined' ? window.armaEquipadaBase : null,
   );
 };

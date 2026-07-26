@@ -56,9 +56,11 @@
     background-repeat: no-repeat;
     background-position: center var(--pd-scenery-pos-y);
     background-size: cover;
+    /* Static grade — avoid stacking extra live filters on the figure stack */
     filter: brightness(1.06) contrast(1.04) saturate(1.05);
     transform: translateY(var(--pd-scenery-shift-y));
     border-radius: inherit;
+    contain: paint;
 }
 
 .l2-paperdoll .paperdoll-frame-vignette {
@@ -334,7 +336,7 @@
     pointer-events: none;
 }
 
-.l2-paperdoll .paperdoll-character-stack .char-layer:not([hidden]):not(#char-weapon-layer):not([data-pd-layer="weapon"]) {
+.l2-paperdoll .paperdoll-character-stack .char-layer:not([hidden]):not(#char-weapon-layer):not([data-pd-layer="weapon"]):not(#char-weapon-glow):not([data-pd-layer="weaponGlow"]):not(#char-select-weapon-glow) {
     filter: none !important;
     animation: none !important;
 }
@@ -353,36 +355,54 @@
     --pd-layer-ty: var(--pd-off-armor-y, 0px);
 }
 
-.l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer:not([hidden]),
-.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer:not([hidden]) {
+/* Glow copy (SVG filter) behind sharp weapon */
+.l2-paperdoll .paperdoll-character-stack #char-weapon-glow.char-layer:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGlow"].char-layer:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack #char-select-weapon-glow.char-layer:not([hidden]) {
     z-index: 3;
     --pd-layer-tx: var(--pd-off-weapon-x, 0px);
     --pd-layer-ty: var(--pd-off-weapon-y, 0px);
+    overflow: visible;
+    pointer-events: none;
+    opacity: 1;
+    animation: none !important;
+}
+
+.l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer:not([hidden]) {
+    z-index: 4;
+    --pd-layer-tx: var(--pd-off-weapon-x, 0px);
+    --pd-layer-ty: var(--pd-off-weapon-y, 0px);
+    opacity: 1 !important;
+    animation: none !important;
+    filter: none !important;
 }
 
 .l2-paperdoll .paperdoll-character-stack #char-weapon-grip-layer.char-layer:not([hidden]),
 .l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGrip"].char-layer:not([hidden]) {
-    z-index: 4;
+    z-index: 5;
     --pd-layer-tx: var(--pd-off-weapon-grip-x, 0px);
     --pd-layer-ty: var(--pd-off-weapon-grip-y, 0px);
 }
 
 .l2-paperdoll .paperdoll-character-stack #char-hands-layer.char-layer:not([hidden]),
 .l2-paperdoll .paperdoll-character-stack [data-pd-layer="hands"].char-layer:not([hidden]) {
-    z-index: 5;
+    z-index: 6;
     --pd-layer-tx: var(--pd-off-hands-x, 0px);
     --pd-layer-ty: var(--pd-off-hands-y, 0px);
 }
 
-/* Fist (punho): arma por cima de mãos e grip — tipo Fist no catálogo */
 .l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer.char-layer--fist:not([hidden]),
 .l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer.char-layer--fist:not([hidden]) {
+    z-index: 7;
+}
+
+.l2-paperdoll .paperdoll-character-stack #char-weapon-glow.char-layer.char-layer--fist:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGlow"].char-layer.char-layer--fist:not([hidden]) {
     z-index: 6;
 }
 
-.l2-paperdoll .paperdoll-character-stack .char-layer[hidden],
-.l2-paperdoll .paperdoll-character-stack #char-weapon-glow,
-.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGlow"] {
+.l2-paperdoll .paperdoll-character-stack .char-layer[hidden] {
     display: none !important;
     visibility: hidden !important;
     width: 0 !important;
@@ -392,49 +412,22 @@
     pointer-events: none !important;
 }
 
-/* Brilho só na silhueta da arma (drop-shadow) — sem overlay full-stage */
+/* Allow SVG filter on the glow img (do not zero filter here) */
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-glow-img--on:not([hidden]) {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+}
+
 @keyframes pulse-weapon-aura-paperdoll {
-    0% {
-        filter:
-            drop-shadow(0 0 calc(1px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-core, #fff8e7))
-            drop-shadow(0 0 calc(3px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-glow, #e6c28a))
-            drop-shadow(0 0 calc(7px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.5)))
-            drop-shadow(0 0 calc(12px * var(--paperdoll-aura-mul-a, 1)) var(--paperdoll-weapon-corona, rgba(179, 138, 77, 0.28)))
-            brightness(var(--paperdoll-pulse-lo, 0.88)) contrast(1.08) saturate(var(--paperdoll-sat-lo, 1.08));
-    }
-    100% {
-        filter:
-            drop-shadow(0 0 calc(2px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-core, #fff8e7))
-            drop-shadow(0 0 calc(5px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-glow, #e6c28a))
-            drop-shadow(0 0 calc(11px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-soft, rgba(179, 138, 77, 0.55)))
-            drop-shadow(0 0 calc(18px * var(--paperdoll-aura-mul-b, 1)) var(--paperdoll-weapon-corona, rgba(179, 138, 77, 0.32)))
-            brightness(var(--paperdoll-pulse-hi, 1.1)) contrast(1.06) saturate(var(--paperdoll-sat-hi, 1.22));
-    }
+    0%, 100% { opacity: 1; }
 }
 
 @keyframes weapon-divino-paperdoll-global {
-    0% {
-        filter:
-            drop-shadow(0 0 calc(2px * var(--paperdoll-divino-strength, 1)) #fff8e7)
-            drop-shadow(0 0 calc(4px * var(--paperdoll-divino-strength, 1)) #facc15)
-            drop-shadow(0 0 calc(9px * var(--paperdoll-divino-strength, 1)) rgba(239, 68, 68, 0.55))
-            drop-shadow(0 0 calc(14px * var(--paperdoll-divino-strength, 1)) rgba(250, 204, 21, 0.4))
-            brightness(0.98) saturate(1.18) contrast(1.08) hue-rotate(0deg);
-    }
-    100% {
-        filter:
-            drop-shadow(0 0 calc(2px * var(--paperdoll-divino-strength, 1)) #ffffff)
-            drop-shadow(0 0 calc(6px * var(--paperdoll-divino-strength, 1)) #fff8e7)
-            drop-shadow(0 0 calc(12px * var(--paperdoll-divino-strength, 1)) rgba(250, 204, 21, 0.65))
-            drop-shadow(0 0 calc(18px * var(--paperdoll-divino-strength, 1)) rgba(239, 68, 68, 0.4))
-            brightness(1.16) saturate(1.3) contrast(1.06) hue-rotate(360deg);
-    }
-}
-
-.l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer.weapon-glow-divino,
-.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer.weapon-glow-divino {
-    animation: pulse-opacity-weapon 1.5s infinite alternate ease-in-out,
-        weapon-divino-paperdoll-global 6.5s infinite linear !important;
+    0%, 100% { opacity: 1; }
 }
 
 /* Legado: colunas antigas sem modificador */

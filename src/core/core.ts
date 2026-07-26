@@ -288,16 +288,14 @@ function atualizar(): void {
         }
     }
     // Hotbar full rebuild is expensive — callers that change slots/qty call renderizarBarraAtalhos().
-    // Paperdoll only when Profile is actually on screen (combat/regen must not pay for 1080× layers).
+    // Profile paperdoll is NOT refreshed here (1080× layers + glow). Equip/nav call renderizarPerfil().
+    // Only cheap DOM sync for stats/ascension text when the Profile tab is visible.
     try {
         const perfil = document.getElementById('tela-perfil');
         const perfilVisivel = !!(
             perfil
             && (perfil.style.display === 'contents' || perfil.style.display === 'flex' || perfil.style.display === 'block')
         );
-        if (perfilVisivel && typeof window.atualizarVisualPaperdoll === 'function') {
-            window.atualizarVisualPaperdoll();
-        }
         const navPerf = document.getElementById('btn-tab-perfil');
         if (
             perfilVisivel
@@ -306,7 +304,7 @@ function atualizar(): void {
             && navPerf.classList.contains('active')
             && typeof window.renderProfileStatsPreview === 'function'
         ) {
-            window.renderProfileStatsPreview();
+            window.renderProfileStatsPreview({ recalc: false });
         }
         if (
             perfilVisivel

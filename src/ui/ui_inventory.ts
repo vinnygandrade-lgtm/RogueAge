@@ -1090,13 +1090,24 @@ window.buildCombatStatsHeroBlockHtml = function (placement) {
     return parts.join('');
 };
 
-window.renderProfileStatsPreview = function () {
+window.renderProfileStatsPreview = function (opts) {
     var host = document.getElementById('profile-stats-preview');
     if (!host) return;
     var tFn = typeof window.t === 'function' ? window.t : null;
-    try {
-        if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
-    } catch (eC) {}
+    if (!opts || opts.recalc !== false) {
+        try {
+            if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
+        } catch (eC) {}
+    }
+    var ps = window.playerStats;
+    if (!ps) return;
+    var statsSig = [
+        ps.maxHp, ps.maxMp, ps.maxCp, ps.pAtk, ps.mAtk, ps.pDef, ps.mDef,
+        ps.critRate, ps.atkSpeed, ps.castSpeed,
+        tFn ? (window.I18n && window.I18n.getLocale ? window.I18n.getLocale() : '') : ''
+    ].join('|');
+    if (host.dataset.l2StatsSig === statsSig) return;
+    host.dataset.l2StatsSig = statsSig;
     var headline = tFn ? tFn('game.inventoryUi.profilePreview.headline') : 'Your combat totals';
     if (!headline || headline === 'game.inventoryUi.profilePreview.headline') headline = 'Your combat totals';
     var badgeTxt = tFn ? tFn('game.inventoryUi.profilePreview.badge') : 'MATCHES HUD';

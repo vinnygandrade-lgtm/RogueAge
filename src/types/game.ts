@@ -155,6 +155,8 @@ export interface PaperdollRefreshOptions {
   armaEquipadaBase?: EquipInstance | null;
   syncProfileGlows?: boolean;
   syncWeaponGlow?: boolean;
+  /** Force full layer rebuild even if equip/preset signature is unchanged. */
+  force?: boolean;
 }
 
 export interface PaperdollCharSelectData {

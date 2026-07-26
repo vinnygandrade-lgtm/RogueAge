@@ -956,8 +956,7 @@ function executarTrocaSubScreen(lugar) {
     if (lugar === 'perfil') {
         var _psp = document.querySelector('#tela-perfil .profile-scroll-pane');
         if (_psp) _psp.scrollTop = 0;
-        if(typeof renderizarPerfil === 'function') renderizarPerfil(); 
-        if(typeof window.atualizarVisualPaperdoll === 'function') window.atualizarVisualPaperdoll(); 
+        if(typeof renderizarPerfil === 'function') renderizarPerfil();
         if (typeof window.schedulePaperdollFootShadowSyncWithRetries === 'function') {
             requestAnimationFrame(function () {
                 window.schedulePaperdollFootShadowSyncWithRetries();

@@ -162,6 +162,14 @@ export const EXPANSION_ARMOR_ICON_SLUGS: Record<string, string> = Object.fromEnt
 );
 
 /**
+ * Expansion armors whose dedicated PNG already ships in `assets/itens/<iconSlug>.png`.
+ * Add the armor id here when you drop the file — otherwise the shop/bag uses FALLBACK.
+ */
+export const EXPANSION_ARMOR_OWN_ICON_READY = new Set<string>([
+    'arm_ng_f_chain', // set_bronze_chain_ng.png
+]);
+
+/**
  * Mage NG–C: só 1 linha/grade reutiliza ícone legacy (resto → generic até nova arte).
  * NG Spellweave · D Knowledge (a6) · C Warden.
  */
@@ -174,8 +182,8 @@ export const MAGE_ARMOR_AWAITING_SHOP_ICON = new Set([
     'arm_c_m_woven',
 ]);
 
+/** Temporary borrow of an existing set icon until own art is READY. */
 export const EXPANSION_ARMOR_ICON_FALLBACK: Record<string, string> = {
-    arm_ng_f_chain: 'set_brigandine_d',
     arm_ng_m_woven: 'set_devotion_ng',
     arm_d_f_chain: 'set_brigandine_d',
     arm_c_f_chain: 'set_composite_c',
@@ -194,6 +202,8 @@ export const EXPANSION_ARMOR_ICON_FALLBACK: Record<string, string> = {
 export function resolveExpansionArmorIconSlug(armorId: string): string | null {
     const id = String(armorId || '');
     if (MAGE_ARMOR_AWAITING_SHOP_ICON.has(id)) return null;
+    const own = EXPANSION_ARMOR_ICON_SLUGS[id];
+    if (own && EXPANSION_ARMOR_OWN_ICON_READY.has(id)) return own;
     return EXPANSION_ARMOR_ICON_FALLBACK[id] ?? null;
 }
 

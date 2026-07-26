@@ -831,9 +831,9 @@ const AuthEngine = {
                         <div class="paperdoll-foot-shadow" aria-hidden="true"></div>
                         <img data-pd-layer="base" id="char-select-base-layer" class="char-layer char-base-layer" src="${blank}" alt="" hidden>
                         <img data-pd-layer="armor" id="char-select-armor-layer" class="char-layer" src="${blank}" alt="" hidden>
+                        <img data-pd-layer="weaponGlow" id="char-select-weapon-glow" class="char-layer paperdoll-weapon-glow-img" src="${blank}" alt="" hidden>
                         <img data-pd-layer="weapon" id="char-select-weapon-layer" class="char-layer" src="${blank}" alt="" hidden>
                         <img data-pd-layer="weaponGrip" id="char-select-weapon-grip-layer" class="char-layer char-weapon-grip-layer" src="${blank}" alt="" hidden>
-                        <img data-pd-layer="weaponGlow" id="char-select-weapon-glow" class="char-layer" src="${blank}" alt="" hidden>
                         <img data-pd-layer="hands" id="char-select-hands-layer" class="char-layer char-hands-layer" src="${blank}" alt="" hidden>
                     </div>
                 </div>

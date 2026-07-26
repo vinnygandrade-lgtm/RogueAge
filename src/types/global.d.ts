@@ -251,7 +251,7 @@ declare global {
     aplicarHudMissoesBadge?: () => void;
     schedulePaperdollFootShadowSyncWithRetries?: () => void;
     _pdFootShadowVisBound?: boolean;
-    renderProfileStatsPreview?: () => void;
+    renderProfileStatsPreview?: (opts?: { recalc?: boolean }) => void;
 
     // --- CDN (index.html) ---
     supabase?: { createClient: (...args: unknown[]) => SupabaseApi['client'] };

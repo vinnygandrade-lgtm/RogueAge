@@ -345,24 +345,22 @@ function refreshPublicAscensionHUD(): void {
     const title = getRenownTitle();
     const r = getRenown();
     const life = eg().lifetimeChampionKills || 0;
+    const subTxt =
+        typeof window.t === 'function'
+            ? window.t('game.endgame.hudSubtitle', { title, renown: r })
+            : title + ' · Renown ' + r;
+    const profTxt =
+        typeof window.t === 'function'
+            ? window.t('game.endgame.profileAscensionLine', {
+                  title,
+                  renown: r,
+                  lifetime: life.toLocaleString(),
+              })
+            : title + ' · ' + r + ' renown · ' + life.toLocaleString() + ' champions';
     const sub = document.getElementById('char-ascension-subtitle');
-    if (sub) {
-        sub.textContent =
-            typeof window.t === 'function'
-                ? window.t('game.endgame.hudSubtitle', { title, renown: r })
-                : title + ' · Renown ' + r;
-    }
+    if (sub && sub.textContent !== subTxt) sub.textContent = subTxt;
     const prof = document.getElementById('profile-endgame-ascension');
-    if (prof) {
-        prof.textContent =
-            typeof window.t === 'function'
-                ? window.t('game.endgame.profileAscensionLine', {
-                      title,
-                      renown: r,
-                      lifetime: life.toLocaleString(),
-                  })
-                : title + ' · ' + r + ' renown · ' + life.toLocaleString() + ' champions';
-    }
+    if (prof && prof.textContent !== profTxt) prof.textContent = profTxt;
 }
 
 function openEndgamePursuits(): void {

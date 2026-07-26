@@ -14,6 +14,7 @@ import {
   buildExpansionArmors,
   buildExpansionJewels,
   EXPANSION_ARMOR_ICON_SLUGS,
+  EXPANSION_ARMOR_OWN_ICON_READY,
   formatArmorLineLabel,
   MAGE_ARMOR_AWAITING_SHOP_ICON,
   resolveExpansionArmorIconSlug,
@@ -90,6 +91,11 @@ function catalogArmorIconPath(armorId: string): string {
     const id = String(armorId || '');
     if (MAGE_ARMOR_AWAITING_SHOP_ICON.has(id)) {
         return 'assets/itens/item_generic.png';
+    }
+    // Expansion sets with shipped art (e.g. Bronze Chain → set_bronze_chain_ng.png)
+    const ownExpansion = EXPANSION_ARMOR_ICON_SLUGS[id];
+    if (ownExpansion && EXPANSION_ARMOR_OWN_ICON_READY.has(id)) {
+        return 'assets/itens/' + ownExpansion + '.png';
     }
     const expansionSlug = resolveExpansionArmorIconSlug(id);
     if (expansionSlug) return 'assets/itens/' + expansionSlug + '.png';
