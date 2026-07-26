@@ -24,6 +24,7 @@ window.showLoadingOverlay = showLoadingOverlay;
 async function bootGame(): Promise<void> {
   await import('./data/database');
   await import('./systems/audio_prefs');
+  await import('./systems/combat_auto_prefs');
   tickBoot(12, bootMsg('loading.phaseDatabase', 'Loading game data...'));
 
   await import('./core/item_security');

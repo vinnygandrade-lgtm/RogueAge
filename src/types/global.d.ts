@@ -430,6 +430,18 @@ declare global {
       toggleMusicEnabled: () => boolean;
       toggleBattleSfxEnabled: () => boolean;
     };
+    CombatAutoPrefs?: {
+      get: () => { autoAttackOnLoad: boolean; autoShotOnLoad: boolean };
+      isAutoAttackOnLoadEnabled: () => boolean;
+      isAutoShotOnLoadEnabled: () => boolean;
+      setAutoAttackOnLoad: (enabled: boolean) => void;
+      setAutoShotOnLoad: (enabled: boolean) => void;
+      toggleAutoAttackOnLoad: () => boolean;
+      toggleAutoShotOnLoad: () => boolean;
+      applyCombatAutoPrefs: (opts?: { startAttackLoop?: boolean }) => void;
+      tryStartAutoAttackFromPrefs: () => void;
+    };
+    resumeAutoAtaqueLoop?: () => void;
     refreshGameSettingsUi?: () => void;
     abrirGameSettings?: () => void;
     abrirNavMenu?: () => void;
@@ -653,6 +665,7 @@ declare global {
   function tocarSomCritico(): void;
   function tocarSomEspada(): void;
   function unlockGameAudio(): void;
+  function resumeAutoAtaqueLoop(): void;
   function renderizarMailbox(): void;
 
   /** Legado (script tags) — espelham window.* após core_globals */

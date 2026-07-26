@@ -376,6 +376,9 @@ function spawnMonstros() {
     renderizarMonstros();
     if (typeof window.syncAllForestMobHpBars === 'function') window.syncAllForestMobHpBars();
     if (typeof window.setChatCollapsedForCombat === 'function') window.setChatCollapsedForCombat(true);
+    if (typeof window.CombatAutoPrefs?.tryStartAutoAttackFromPrefs === 'function') {
+        window.CombatAutoPrefs.tryStartAutoAttackFromPrefs();
+    }
 }
 
 function renderizarMonstros() {

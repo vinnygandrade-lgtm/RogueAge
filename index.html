@@ -428,6 +428,33 @@
                 </div>
             </section>
 
+            <section class="settings-section settings-section--combat" aria-labelledby="settings-combat-heading">
+                <h3 id="settings-combat-heading" class="settings-section__title" data-i18n="game.settings.combat.title">Combat defaults</h3>
+                <p class="settings-sound-lead" data-i18n="game.settings.combat.lead">Start with Auto-Attack and Auto-Shot already on when you enter the game.</p>
+                <div class="settings-toggle-list" role="group" aria-labelledby="settings-combat-heading">
+                    <div class="settings-toggle-row">
+                        <div class="settings-toggle-row__text">
+                            <span class="settings-toggle-row__title" data-i18n="game.settings.combat.autoAttack">Auto-Attack on login</span>
+                            <span class="settings-toggle-row__hint" data-i18n="game.settings.combat.autoAttackHint">Basic attack AUTO chip starts enabled and resumes in fights.</span>
+                        </div>
+                        <button type="button" id="settings-toggle-auto-attack" class="settings-switch" role="switch" aria-checked="false" aria-labelledby="settings-combat-aa-label">
+                            <span id="settings-combat-aa-label" class="settings-switch__track" aria-hidden="true"><span class="settings-switch__thumb"></span></span>
+                            <span class="settings-switch__state" data-i18n="game.settings.sound.off">OFF</span>
+                        </button>
+                    </div>
+                    <div class="settings-toggle-row">
+                        <div class="settings-toggle-row__text">
+                            <span class="settings-toggle-row__title" data-i18n="game.settings.combat.autoShot">Auto-Shot on login</span>
+                            <span class="settings-toggle-row__hint" data-i18n="game.settings.combat.autoShotHint">Soulshot / Spiritshot AUTO chip starts enabled.</span>
+                        </div>
+                        <button type="button" id="settings-toggle-auto-shot" class="settings-switch" role="switch" aria-checked="false" aria-labelledby="settings-combat-as-label">
+                            <span id="settings-combat-as-label" class="settings-switch__track" aria-hidden="true"><span class="settings-switch__thumb"></span></span>
+                            <span class="settings-switch__state" data-i18n="game.settings.sound.off">OFF</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
             <section id="settings-pwa-section" class="settings-section settings-section--pwa" aria-labelledby="settings-pwa-heading">
                 <h3 id="settings-pwa-heading" class="settings-section__title" data-i18n="game.settings.pwa.title">Install app</h3>
                 <p class="settings-pwa-lead" data-i18n="game.settings.pwa.lead">Open without browser tabs for more screen space on mobile.</p>

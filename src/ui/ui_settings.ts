@@ -50,7 +50,7 @@ function syncLayoutSettings(): void {
   window.LayoutMode?.syncSettingsButtons?.();
 }
 
-function paintSoundSwitch(btn: HTMLElement | null, enabled: boolean): void {
+function paintSettingsSwitch(btn: HTMLElement | null, enabled: boolean): void {
   if (!btn) return;
   btn.classList.toggle('settings-switch--on', enabled);
   btn.classList.toggle('settings-switch--off', !enabled);
@@ -73,8 +73,21 @@ function syncSoundSettings(): void {
     typeof window.AudioPrefs?.isBattleSfxEnabled === 'function'
       ? window.AudioPrefs.isBattleSfxEnabled()
       : true;
-  paintSoundSwitch(document.getElementById('settings-toggle-music'), musicOn);
-  paintSoundSwitch(document.getElementById('settings-toggle-battle'), battleOn);
+  paintSettingsSwitch(document.getElementById('settings-toggle-music'), musicOn);
+  paintSettingsSwitch(document.getElementById('settings-toggle-battle'), battleOn);
+}
+
+function syncCombatAutoSettings(): void {
+  const aa =
+    typeof window.CombatAutoPrefs?.isAutoAttackOnLoadEnabled === 'function'
+      ? window.CombatAutoPrefs.isAutoAttackOnLoadEnabled()
+      : false;
+  const as =
+    typeof window.CombatAutoPrefs?.isAutoShotOnLoadEnabled === 'function'
+      ? window.CombatAutoPrefs.isAutoShotOnLoadEnabled()
+      : false;
+  paintSettingsSwitch(document.getElementById('settings-toggle-auto-attack'), aa);
+  paintSettingsSwitch(document.getElementById('settings-toggle-auto-shot'), as);
 }
 
 function bindSoundButtons(): void {
@@ -102,10 +115,39 @@ function bindSoundButtons(): void {
   }
 }
 
-function refreshGameSettingsUi(): void {
+function bindCombatAutoButtons(): void {
+  const aaBtn = document.getElementById('settings-toggle-auto-attack');
+  const asBtn = document.getElementById('settings-toggle-auto-shot');
+  if (aaBtn && !aaBtn.dataset.bound) {
+    aaBtn.dataset.bound = '1';
+    aaBtn.addEventListener('click', () => {
+      if (typeof window.CombatAutoPrefs?.toggleAutoAttackOnLoad === 'function') {
+        window.CombatAutoPrefs.toggleAutoAttackOnLoad();
+      }
+      syncCombatAutoSettings();
+    });
+  }
+  if (asBtn && !asBtn.dataset.bound) {
+    asBtn.dataset.bound = '1';
+    asBtn.addEventListener('click', () => {
+      if (typeof window.CombatAutoPrefs?.toggleAutoShotOnLoad === 'function') {
+        window.CombatAutoPrefs.toggleAutoShotOnLoad();
+      }
+      if (typeof window.unlockGameAudio === 'function') window.unlockGameAudio();
+      syncCombatAutoSettings();
+    });
+  }
+}
+
+function refreshAllSettingsControls(): void {
   syncLangActiveState();
   syncLayoutSettings();
   syncSoundSettings();
+  syncCombatAutoSettings();
+}
+
+function refreshGameSettingsUi(): void {
+  refreshAllSettingsControls();
   if (window.PwaInstall?.refreshUi) {
     try {
       window.PwaInstall.refreshUi();
@@ -124,15 +166,15 @@ function refreshGameSettingsUi(): void {
   }
   // Keep ON/OFF labels correct after i18n refresh of data-i18n nodes.
   syncSoundSettings();
+  syncCombatAutoSettings();
 }
 
 function abrirGameSettings(): void {
   if (typeof window.abrirModal !== 'function') return;
   bindLangButtons();
   bindSoundButtons();
-  syncLangActiveState();
-  syncLayoutSettings();
-  syncSoundSettings();
+  bindCombatAutoButtons();
+  refreshAllSettingsControls();
   if (window.PwaInstall?.refreshUi) {
     try {
       window.PwaInstall.refreshUi();
@@ -149,6 +191,7 @@ function abrirGameSettings(): void {
     }
   }
   syncSoundSettings();
+  syncCombatAutoSettings();
   window.abrirModal(MODAL_ID);
   window.syncNavMenuActiveItem?.();
 }
@@ -161,9 +204,8 @@ function fecharGameSettings(): void {
 function initHudSettings(): void {
   bindLangButtons();
   bindSoundButtons();
-  syncLangActiveState();
-  syncLayoutSettings();
-  syncSoundSettings();
+  bindCombatAutoButtons();
+  refreshAllSettingsControls();
 }
 
 window.abrirGameSettings = abrirGameSettings;

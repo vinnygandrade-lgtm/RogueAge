@@ -474,6 +474,17 @@ window.atacar = function () {
   }
 };
 
+/** Start/continue the auto-attack swing loop (no log). Used by settings defaults. */
+window.resumeAutoAtaqueLoop = function () {
+  if (window.playerHP <= 0) return;
+  if (!estaEmCombateRaid() && !estaEmCombateFloresta()) return;
+  window.autoAtaqueAtivo = true;
+  if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
+  const cdLeft = getAttackCooldownRemainingMs();
+  if (cdLeft > 0) scheduleNextAutoAttackSwing(cdLeft);
+  else realizarGolpeAutoAtaque();
+};
+
 /** Small AUTO chip above Attack — toggle continuous basic attacks. */
 window.toggleAutoAtaque = function () {
   if (window.playerHP <= 0) return;
@@ -495,9 +506,7 @@ window.toggleAutoAtaque = function () {
         typeof window.t === 'function' ? window.t('game.combatMath.autoAttackOn') : '⚔️ Auto-Attack: ON'
       }</span>`,
     );
-    const cdLeft = getAttackCooldownRemainingMs();
-    if (cdLeft > 0) scheduleNextAutoAttackSwing(cdLeft);
-    else realizarGolpeAutoAtaque();
+    window.resumeAutoAtaqueLoop?.();
   } else {
     escreverLog(
       `<span style="color:#ef4444; font-weight:bold;">${

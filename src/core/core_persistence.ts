@@ -1055,6 +1055,12 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             } catch (eRet) { /* ignore */ }
         }
 
+        if (typeof window.CombatAutoPrefs?.applyCombatAutoPrefs === 'function') {
+            try {
+                window.CombatAutoPrefs.applyCombatAutoPrefs({ startAttackLoop: false });
+            } catch (eAuto) { /* ignore */ }
+        }
+
         return true;
     } catch (e) { 
         console.error("Erro ao carregar:", e); 

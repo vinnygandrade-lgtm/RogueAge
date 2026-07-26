@@ -87,6 +87,10 @@ const RaidEngine = {
         
         // Inicia Loops
         this.iniciarLoops();
+
+        if (typeof window.CombatAutoPrefs?.tryStartAutoAttackFromPrefs === 'function') {
+            window.CombatAutoPrefs.tryStartAutoAttackFromPrefs();
+        }
     },
 
     prepararArena: function() {
