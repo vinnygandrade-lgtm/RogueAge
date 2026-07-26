@@ -167,14 +167,14 @@ export const EXPANSION_ARMOR_ICON_SLUGS: Record<string, string> = Object.fromEnt
  */
 export const EXPANSION_ARMOR_OWN_ICON_READY = new Set<string>([
     'arm_ng_f_chain', // set_bronze_chain_ng.png
+    'arm_ng_m_woven', // set_spellweave_ng.png
 ]);
 
 /**
- * Mage NG–C: só 1 linha/grade reutiliza ícone legacy (resto → generic até nova arte).
- * NG Spellweave · D Knowledge (a6) · C Warden.
+ * Mage NG–C: generic shop icon until dedicated PNG ships (do not borrow legacy set icons).
+ * NG Runic Warden · D Knowledge (a6) · C Warden.
  */
 export const MAGE_ARMOR_AWAITING_SHOP_ICON = new Set([
-    'a3',
     'arm_ng_m_warden',
     'arm_d_m_woven',
     'arm_d_m_warden',
@@ -184,7 +184,6 @@ export const MAGE_ARMOR_AWAITING_SHOP_ICON = new Set([
 
 /** Temporary borrow of an existing set icon until own art is READY. */
 export const EXPANSION_ARMOR_ICON_FALLBACK: Record<string, string> = {
-    arm_ng_m_woven: 'set_devotion_ng',
     arm_d_f_chain: 'set_brigandine_d',
     arm_c_f_chain: 'set_composite_c',
     arm_c_m_warden: 'set_karmian_c',
