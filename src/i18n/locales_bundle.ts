@@ -2967,9 +2967,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     },
                     combat: {
                         title: 'Combat defaults',
-                        lead: 'Start with Auto-Attack and Auto-Shot already on when you enter the game.',
-                        autoAttack: 'Auto-Attack on login',
-                        autoAttackHint: 'Basic attack AUTO chip starts enabled and resumes in fights.',
+                        lead: 'Start with Auto-Shot already on when you enter the game.',
                         autoShot: 'Auto-Shot on login',
                         autoShotHint: 'Soulshot / Spiritshot AUTO chip starts enabled.'
                     },
@@ -6062,9 +6060,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     },
                     combat: {
                         title: 'Padrões de combate',
-                        lead: 'Começa com Auto-Ataque e Auto-Shot já ligados ao entrar no jogo.',
-                        autoAttack: 'Auto-Ataque ao entrar',
-                        autoAttackHint: 'O AUTO do ataque básico já vem ligado e retoma nas lutas.',
+                        lead: 'Começa com Auto-Shot já ligado ao entrar no jogo.',
                         autoShot: 'Auto-Shot ao entrar',
                         autoShotHint: 'O AUTO de Soulshot / Spiritshot já vem ligado.'
                     },

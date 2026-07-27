@@ -78,15 +78,10 @@ function syncSoundSettings(): void {
 }
 
 function syncCombatAutoSettings(): void {
-  const aa =
-    typeof window.CombatAutoPrefs?.isAutoAttackOnLoadEnabled === 'function'
-      ? window.CombatAutoPrefs.isAutoAttackOnLoadEnabled()
-      : false;
   const as =
     typeof window.CombatAutoPrefs?.isAutoShotOnLoadEnabled === 'function'
       ? window.CombatAutoPrefs.isAutoShotOnLoadEnabled()
       : false;
-  paintSettingsSwitch(document.getElementById('settings-toggle-auto-attack'), aa);
   paintSettingsSwitch(document.getElementById('settings-toggle-auto-shot'), as);
 }
 
@@ -116,17 +111,7 @@ function bindSoundButtons(): void {
 }
 
 function bindCombatAutoButtons(): void {
-  const aaBtn = document.getElementById('settings-toggle-auto-attack');
   const asBtn = document.getElementById('settings-toggle-auto-shot');
-  if (aaBtn && !aaBtn.dataset.bound) {
-    aaBtn.dataset.bound = '1';
-    aaBtn.addEventListener('click', () => {
-      if (typeof window.CombatAutoPrefs?.toggleAutoAttackOnLoad === 'function') {
-        window.CombatAutoPrefs.toggleAutoAttackOnLoad();
-      }
-      syncCombatAutoSettings();
-    });
-  }
   if (asBtn && !asBtn.dataset.bound) {
     asBtn.dataset.bound = '1';
     asBtn.addEventListener('click', () => {

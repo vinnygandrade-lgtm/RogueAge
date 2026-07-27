@@ -431,12 +431,9 @@ declare global {
       toggleBattleSfxEnabled: () => boolean;
     };
     CombatAutoPrefs?: {
-      get: () => { autoAttackOnLoad: boolean; autoShotOnLoad: boolean };
-      isAutoAttackOnLoadEnabled: () => boolean;
+      get: () => { autoShotOnLoad: boolean };
       isAutoShotOnLoadEnabled: () => boolean;
-      setAutoAttackOnLoad: (enabled: boolean) => void;
       setAutoShotOnLoad: (enabled: boolean) => void;
-      toggleAutoAttackOnLoad: () => boolean;
       toggleAutoShotOnLoad: () => boolean;
       applyCombatAutoPrefs: (opts?: { startAttackLoop?: boolean }) => void;
       tryStartAutoAttackFromPrefs: () => void;
