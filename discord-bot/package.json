@@ -1,0 +1,22 @@
+{
+  "name": "rogueage-discord-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Community bot for RogueAge",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "register-commands": "tsx src/register-commands.ts"
+  },
+  "dependencies": {
+    "discord.js": "^14.21.0",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

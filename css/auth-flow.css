@@ -30,6 +30,10 @@
     position: relative;
     z-index: 2;
     flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 12px;
     text-align: center;
     padding:
         calc(var(--l2-safe-top, env(safe-area-inset-top, 0px)) + 15px)
@@ -178,22 +182,113 @@
     background: #050403;
 }
 
+#screen-login .login-top-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px;
+    border-radius: 14px;
+    border: 1px solid #3d3126;
+    background: rgba(13, 10, 8, 0.88);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
 #screen-login .i18n-login-bar {
-    position: absolute;
-    top: calc(var(--l2-safe-top, env(safe-area-inset-top, 0px)) + 15px);
-    right: max(var(--l2-screen-padding-x, 14px), 16px);
+    position: static;
     display: flex;
-    gap: 10px;
+    gap: 6px;
     z-index: 10;
+    margin-left: 0;
+}
+
+#screen-login .login-top-tools__item {
+    border-radius: 10px;
+}
+
+#screen-login .login-discord-chip {
+    position: static;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    box-sizing: border-box;
+    border: 1px solid #3d3126;
+    background: #5865f2;
+    color: #c4b5a0;
+    text-decoration: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+    transition: border-color 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+#screen-login .login-discord-chip:hover {
+    border-color: #ca8a04;
+    filter: brightness(1.08);
+}
+
+#screen-login .login-discord-chip:active {
+    transform: scale(0.98);
+}
+
+#screen-login .login-discord-chip:focus-visible {
+    outline: 2px solid #ca8a04;
+    outline-offset: 2px;
+}
+
+#screen-login .login-discord-chip__icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: none;
+    background: none;
+    padding: 0;
+}
+
+#screen-login .login-discord-chip__label,
+#screen-login .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 420px) {
+    #screen-login .login-top-tools {
+        gap: 5px;
+        padding: 4px;
+        border-radius: 12px;
+    }
 }
 
 #screen-login .lang-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 0;
-    background: #0d0a08;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #14100c;
     border: 1px solid #3d3126;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+}
+
+#screen-login .lang-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 #screen-login .lang-btn:hover {

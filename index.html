@@ -1261,13 +1261,27 @@
         </div>
 
         <header class="auth-flow-header">
-            <div class="i18n-login-bar">
-                <button type="button" id="i18n-btn-en" class="lang-btn" title="English">
-                    <img src="https://flagcdn.com/w40/us.png" alt="EN">
-                </button>
-                <button type="button" id="i18n-btn-pt" class="lang-btn" title="Português">
-                    <img src="https://flagcdn.com/w40/br.png" alt="PT">
-                </button>
+            <div class="login-top-tools">
+                <a
+                    id="login-discord-link"
+                    class="login-discord-chip login-top-tools__item"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    hidden
+                    data-i18n-title="login.discordCommunity"
+                >
+                    <img class="login-discord-chip__icon" src="assets/ui/icon-discord.png" alt="" aria-hidden="true">
+                    <span class="login-discord-chip__label visually-hidden" data-i18n="login.discordShort">Discord</span>
+                </a>
+                <div class="i18n-login-bar">
+                    <button type="button" id="i18n-btn-en" class="lang-btn login-top-tools__item" title="English">
+                        <img src="https://flagcdn.com/w40/us.png" alt="EN">
+                    </button>
+                    <button type="button" id="i18n-btn-pt" class="lang-btn login-top-tools__item" title="Português">
+                        <img src="https://flagcdn.com/w40/br.png" alt="PT">
+                    </button>
+                </div>
             </div>
         </header>
 

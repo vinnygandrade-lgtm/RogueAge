@@ -47,7 +47,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 saveNewPassword: 'SAVE NEW PASSWORD',
                 langHint: 'Language',
                 toggleToPt: 'Português',
-                toggleToEn: 'English'
+                toggleToEn: 'English',
+                discordShort: 'Discord',
+                discordCommunity: 'Join our Discord community'
             },
             charSelect: {
                 header: 'SELECT CHARACTER',
@@ -3140,7 +3142,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 saveNewPassword: 'SALVAR NOVA SENHA',
                 langHint: 'Idioma',
                 toggleToPt: 'Português',
-                toggleToEn: 'English'
+                toggleToEn: 'English',
+                discordShort: 'Discord',
+                discordCommunity: 'Entrar na comunidade Discord'
             },
             charSelect: {
                 header: 'SELECIONAR PERSONAGEM',
