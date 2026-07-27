@@ -498,7 +498,7 @@
         </div>
     </div>
 
-    <div id="janela-loja" class="store-window">
+    <div id="janela-loja" class="store-window store-window--shop">
         <div class="store-header"><span id="titulo-loja-span">STORE</span></div>
         
         <div id="store-tabs">
@@ -507,12 +507,12 @@
             <button type="button" class="btn-l2" id="tab-jewel" onclick="mudarAbaLoja('jewel')">💍 JEWELS</button>
         </div>
 
-        <div class="store-body">
+        <div class="store-body store-body--shop">
             <div id="loja-itens" class="store-items-grid"></div>
             
-            <div id="loja-detalhes" class="store-info-panel">
+            <div id="loja-detalhes" class="store-info-panel shop-dock">
                 <div class="loja-section-title">Item Information</div>
-                <div id="detalhe-texto">Select an item to view stats and price.</div>
+                <div id="detalhe-texto" class="shop-dock__detail">Select an item to view stats and price.</div>
 
                 <div id="shop-checkout-summary" class="shop-checkout-summary" hidden aria-live="polite"></div>
                 
@@ -534,13 +534,13 @@
         </div>
     </div>
 
-    <div id="janela-venda" class="store-window">
+    <div id="janela-venda" class="store-window store-window--sell">
         <div class="store-header"><span>SELL ITEMS</span></div>
-        <div class="store-body">
+        <div class="store-body store-body--sell">
             <div id="venda-itens" class="store-items-grid"></div>
-            <div id="venda-detalhes" class="store-info-panel">
+            <div id="venda-detalhes" class="store-info-panel shop-dock">
                 <div class="venda-section-title">Item Information</div>
-                <div id="venda-detalhe-texto">Select an item to sell.</div>
+                <div id="venda-detalhe-texto" class="shop-dock__detail">Select an item to sell.</div>
                 <div id="venda-checkout-summary" class="shop-checkout-summary shop-checkout-summary--sell" hidden aria-live="polite"></div>
                 <div id="venda-qtd-container">
                     <span class="venda-qty-label">Select Quantity:</span>
@@ -1613,88 +1613,187 @@
         <div class="game-viewport" id="game-viewport">
         
         <div id="tela-cidade" class="screen-content">
-            <div id="praca-cidade">
-                <h4 class="town-square-title" data-i18n="game.town.squareTitle">TOWN SQUARE</h4>
+            <div id="praca-cidade" class="town-plaza">
+                <header class="town-plaza__header">
+                    <h4 class="town-square-title" data-i18n="game.town.squareTitle">TOWN SQUARE</h4>
+                    <p class="town-plaza__subtitle" data-i18n="game.town.squareHint">Talk to a merchant to buy, sell, craft, or enchant.</p>
+                </header>
                <div class="npc-grid">
-                    <div class="npc-card" onclick="abrirNpc('equipment')">
-                        <img src="assets/npcs/blacksmith.png">
-                        <div class="npc-name">Pushkin</div>
-                        <div class="npc-title" data-i18n="game.town.roleEquipment">Equipments</div>
+                    <div class="npc-card npc-card--equipment" onclick="abrirNpc('equipment')">
+                        <div class="npc-card__portrait"><img src="assets/npcs/blacksmith.png" alt=""></div>
+                        <div class="npc-card__info">
+                            <div class="npc-title" data-i18n="game.town.roleEquipment">Equipment</div>
+                            <div class="npc-name">Pushkin</div>
+                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        </div>
                     </div>
-                    <div class="npc-card" onclick="abrirNpc('grocer')">
-                        <img src="assets/npcs/grocer.png">
-                        <div class="npc-name">Saria</div>
-                        <div class="npc-title" data-i18n="game.town.roleConsumables">Consumables</div>
+                    <div class="npc-card npc-card--grocer" onclick="abrirNpc('grocer')">
+                        <div class="npc-card__portrait"><img src="assets/npcs/grocer.png" alt=""></div>
+                        <div class="npc-card__info">
+                            <div class="npc-title" data-i18n="game.town.roleConsumables">Consumables</div>
+                            <div class="npc-name">Saria</div>
+                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        </div>
                     </div>
-                    <div class="npc-card" onclick="abrirNpc('enchanter')">
-                        <img src="assets/npcs/magister.png">
-                        <div class="npc-name">Ferris</div>
-                        <div class="npc-title" data-i18n="game.town.roleEnchanter">Enchanter</div>
+                    <div class="npc-card npc-card--enchanter" onclick="abrirNpc('enchanter')">
+                        <div class="npc-card__portrait"><img src="assets/npcs/magister.png" alt=""></div>
+                        <div class="npc-card__info">
+                            <div class="npc-title" data-i18n="game.town.roleEnchanter">Enchanter</div>
+                            <div class="npc-name">Ferris</div>
+                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        </div>
                     </div>
                     <div class="npc-card npc-card--classmaster" onclick="abrirNpc('classmaster')">
-                        <img src="assets/npcs/magister.png" alt="">
-                        <div class="npc-name">Master</div>
-                        <div class="npc-title" data-i18n="game.town.roleGrandMaster">Buffs & Class</div>
+                        <div class="npc-card__portrait"><img src="assets/npcs/magister.png" alt=""></div>
+                        <div class="npc-card__info">
+                            <div class="npc-title" data-i18n="game.town.roleGrandMaster">Buffs & Class</div>
+                            <div class="npc-name">Master</div>
+                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        </div>
                     </div>
                     <div class="npc-card npc-card--craft-wide" onclick="abrirNpc('crafting')">
-                        <img src="assets/npcs/blacksmith.png" alt="">
-                        <div class="npc-name">Reorin</div>
-                        <div class="npc-title" data-i18n="game.town.roleCraft">Master Smith (Craft)</div>
+                        <div class="npc-card__portrait"><img src="assets/npcs/blacksmith.png" alt=""></div>
+                        <div class="npc-card__info">
+                            <div class="npc-title" data-i18n="game.town.roleCraft">Master Smith (Craft)</div>
+                            <div class="npc-name">Reorin</div>
+                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="menu-equipment" class="npc-menu">
-                <img src="assets/npcs/blacksmith.png" class="npc-menu-img" alt="">
+            <div id="menu-equipment" class="npc-menu npc-hub npc-hub--equipment">
+                <div class="npc-hub__hero">
+                    <img src="assets/npcs/blacksmith.png" class="npc-menu-img" alt="">
+                    <div class="npc-hub__identity">
+                        <span class="npc-hub__role" data-i18n="game.town.roleEquipment">Equipment</span>
+                        <h3 class="npc-hub__name">Pushkin</h3>
+                    </div>
+                </div>
                 <div class="npc-dialog" data-i18n="game.town.equipmentDialog">"Looking to upgrade? I carry the finest weapons, armors, and jewelry in the Rogue Realms."</div>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#1d4ed8;" onclick="mostrarGradesEquipment()" data-i18n="game.town.equipmentBuy">Buy Equipment</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#555;" onclick="abrirLojaVenda()" data-i18n="game.town.equipmentSell">Sell Items</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#444;" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                <div class="npc-hub__actions">
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--buy" onclick="mostrarGradesEquipment()">
+                        <span class="npc-action__label" data-i18n="game.town.equipmentBuy">Buy Equipment</span>
+                        <span class="npc-action__hint" data-i18n="game.town.equipmentBuyHint">Weapons, armor & jewels by grade</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--sell" onclick="abrirLojaVenda()">
+                        <span class="npc-action__label" data-i18n="game.town.equipmentSell">Sell Items</span>
+                        <span class="npc-action__hint" data-i18n="game.town.equipmentSellHint">Trade junk for Adena</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                </div>
             </div>
             
-            <div id="menu-equipment-grades" class="npc-menu">
-                <img src="assets/npcs/blacksmith.png" class="npc-menu-img" alt="">
+            <div id="menu-equipment-grades" class="npc-menu npc-hub npc-hub--grades">
+                <div class="npc-hub__hero">
+                    <img src="assets/npcs/blacksmith.png" class="npc-menu-img" alt="">
+                    <div class="npc-hub__identity">
+                        <span class="npc-hub__role" data-i18n="game.town.gradesRole">Browse by grade</span>
+                        <h3 class="npc-hub__name">Pushkin</h3>
+                    </div>
+                </div>
                 <div class="npc-dialog" data-i18n="game.town.gradesDialog">"Select the grade of the equipment you wish to browse."</div>
-                <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--ng" onclick="abrirMegaLoja('No-Grade')" data-i18n="game.town.gradeNg">No-Grade</button>
-                <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--d" onclick="abrirMegaLoja('D')" data-i18n="game.town.gradeD">D-Grade</button>
-                <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--c" onclick="abrirMegaLoja('C')" data-i18n="game.town.gradeC">C-Grade</button>
-                <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--b" onclick="abrirMegaLoja('B')" data-i18n="game.town.gradeB">B-Grade</button>
-                <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--a" onclick="abrirMegaLoja('A')" data-i18n="game.town.gradeA">A-Grade</button>
-                <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--s" onclick="abrirMegaLoja('S')" data-i18n="game.town.gradeS">S-Grade</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#444;" onclick="voltarMenuEquipment()" data-i18n="game.town.back">Back</button>
+                <div class="npc-grade-grid" role="group" aria-label="Equipment grades">
+                    <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--ng" onclick="abrirMegaLoja('No-Grade')" data-i18n="game.town.gradeNg">No-Grade</button>
+                    <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--d" onclick="abrirMegaLoja('D')" data-i18n="game.town.gradeD">D-Grade</button>
+                    <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--c" onclick="abrirMegaLoja('C')" data-i18n="game.town.gradeC">C-Grade</button>
+                    <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--b" onclick="abrirMegaLoja('B')" data-i18n="game.town.gradeB">B-Grade</button>
+                    <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--a" onclick="abrirMegaLoja('A')" data-i18n="game.town.gradeA">A-Grade</button>
+                    <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--s" onclick="abrirMegaLoja('S')" data-i18n="game.town.gradeS">S-Grade</button>
+                </div>
+                <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="voltarMenuEquipment()" data-i18n="game.town.back">Back</button>
             </div>
 
-            <div id="menu-grocer" class="npc-menu">
-                <img src="assets/npcs/grocer.png" class="npc-menu-img" alt="">
+            <div id="menu-grocer" class="npc-menu npc-hub npc-hub--grocer">
+                <div class="npc-hub__hero">
+                    <img src="assets/npcs/grocer.png" class="npc-menu-img" alt="">
+                    <div class="npc-hub__identity">
+                        <span class="npc-hub__role" data-i18n="game.town.roleConsumables">Consumables</span>
+                        <h3 class="npc-hub__name">Saria</h3>
+                    </div>
+                </div>
                 <div class="npc-dialog" data-i18n="game.town.grocerDialog">"Potions, scrolls, materials... I have everything you need to survive out there."</div>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#059669;" onclick="abrirLojaGrocer('consumables')" data-i18n="game.town.buyConsumables">Buy Consumables</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#8b5cf6;" onclick="abrirLojaGrocer('scrolls')" data-i18n="game.town.buyScrolls">Buy Scrolls</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#555;" onclick="abrirLojaVenda()" data-i18n="game.town.equipmentSell">Sell Items</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#444;" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                <div class="npc-hub__actions">
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--potion" onclick="abrirLojaGrocer('consumables')">
+                        <span class="npc-action__label" data-i18n="game.town.buyConsumables">Buy Consumables</span>
+                        <span class="npc-action__hint" data-i18n="game.town.buyConsumablesHint">Potions & supplies</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--scroll" onclick="abrirLojaGrocer('scrolls')">
+                        <span class="npc-action__label" data-i18n="game.town.buyScrolls">Buy Scrolls</span>
+                        <span class="npc-action__hint" data-i18n="game.town.buyScrollsHint">Enchant & utility scrolls</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--sell" onclick="abrirLojaVenda()">
+                        <span class="npc-action__label" data-i18n="game.town.equipmentSell">Sell Items</span>
+                        <span class="npc-action__hint" data-i18n="game.town.equipmentSellHint">Trade junk for Adena</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                </div>
             </div>
             
-            <div id="menu-enchanter" class="npc-menu">
-                <img src="assets/npcs/magister.png" class="npc-menu-img" alt="">
+            <div id="menu-enchanter" class="npc-menu npc-hub npc-hub--enchanter">
+                <div class="npc-hub__hero">
+                    <img src="assets/npcs/magister.png" class="npc-menu-img" alt="">
+                    <div class="npc-hub__identity">
+                        <span class="npc-hub__role" data-i18n="game.town.roleEnchanter">Enchanter</span>
+                        <h3 class="npc-hub__name">Ferris</h3>
+                    </div>
+                </div>
                 <div class="npc-dialog" data-i18n="game.town.enchanterDialog">"Magic is volatile. I can make your gear godly, or awaken hidden powers. Dare to try?"</div>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#8b5cf6;" onclick="abrirJanelaEnchant()" data-i18n="game.town.openEnchant">Open Enchant Menu</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#a855f7;" onclick="abrirJanelaAugment()" data-i18n="game.town.openAugment">Open Augment Menu</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#444;" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                <div class="npc-hub__actions">
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--enchant" onclick="abrirJanelaEnchant()">
+                        <span class="npc-action__label" data-i18n="game.town.openEnchant">Open Enchant Menu</span>
+                        <span class="npc-action__hint" data-i18n="game.town.openEnchantHint">Raise gear power with scrolls</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--augment" onclick="abrirJanelaAugment()">
+                        <span class="npc-action__label" data-i18n="game.town.openAugment">Open Augment Menu</span>
+                        <span class="npc-action__hint" data-i18n="game.town.openAugmentHint">Socket stones for bonuses</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                </div>
             </div>
 
-            <div id="menu-classmaster" class="npc-menu">
-                <img src="assets/npcs/magister.png" class="npc-menu-img npc-menu-img--hue" alt="">
+            <div id="menu-classmaster" class="npc-menu npc-hub npc-hub--classmaster">
+                <div class="npc-hub__hero">
+                    <img src="assets/npcs/magister.png" class="npc-menu-img npc-menu-img--hue" alt="">
+                    <div class="npc-hub__identity">
+                        <span class="npc-hub__role" data-i18n="game.town.roleGrandMaster">Buffs & Class</span>
+                        <h3 class="npc-hub__name">Master</h3>
+                    </div>
+                </div>
                 <div class="npc-dialog" data-i18n="game.town.classDialog">"The path to greatness is paved with blood and magic. Seek my blessings, or return when you are ready to ascend to a new class."</div>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#10b981; font-weight:bold;" onclick="comprarBuff('fighter')" data-i18n="game.town.buffFighter">Fighter's Buffs (30m) - 500a</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#3b82f6; font-weight:bold;" onclick="comprarBuff('mage')" data-i18n="game.town.buffMage">Mystic's Buffs (30m) - 500a</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#8b5cf6; color:#fff; font-weight:bold; margin-top: 5px;" onclick="abrirMenuClasses()" data-i18n="game.town.changeClass">Change Class</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#444; margin-top: auto;" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                <div class="npc-hub__actions">
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--buff-fighter" onclick="comprarBuff('fighter')">
+                        <span class="npc-action__label" data-i18n="game.town.buffFighter">Fighter's Buffs (30m) - 500a</span>
+                        <span class="npc-action__hint" data-i18n="game.town.buffFighterHint">Physical combat blessings</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--buff-mage" onclick="comprarBuff('mage')">
+                        <span class="npc-action__label" data-i18n="game.town.buffMage">Mystic's Buffs (30m) - 500a</span>
+                        <span class="npc-action__hint" data-i18n="game.town.buffMageHint">Magic combat blessings</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--class" onclick="abrirMenuClasses()">
+                        <span class="npc-action__label" data-i18n="game.town.changeClass">Change Class</span>
+                        <span class="npc-action__hint" data-i18n="game.town.changeClassHint">Ascend when ready</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                </div>
             </div>
 
-            <div id="menu-crafting" class="npc-menu">
-                <img src="assets/npcs/blacksmith.png" class="npc-menu-img npc-menu-img--craft" alt="">
+            <div id="menu-crafting" class="npc-menu npc-hub npc-hub--craft">
+                <div class="npc-hub__hero">
+                    <img src="assets/npcs/blacksmith.png" class="npc-menu-img npc-menu-img--craft" alt="">
+                    <div class="npc-hub__identity">
+                        <span class="npc-hub__role" data-i18n="game.town.roleCraft">Master Smith (Craft)</span>
+                        <h3 class="npc-hub__name">Reorin</h3>
+                    </div>
+                </div>
                 <div class="npc-dialog" data-i18n="game.town.craftDialog">"I can process ore and forge rare materials. What shall we craft today?"</div>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#ca8a04; font-weight: bold;" onclick="abrirJanelaCraft('mats')" data-i18n="game.town.materialProcessing">Material Processing</button>
-                <button type="button" class="btn-l2 btn-l2--npc" style="background:#444;" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                <div class="npc-hub__actions">
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--craft" onclick="abrirJanelaCraft('mats')">
+                        <span class="npc-action__label" data-i18n="game.town.materialProcessing">Material Processing</span>
+                        <span class="npc-action__hint" data-i18n="game.town.materialProcessingHint">Refine ores into craft mats</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
+                </div>
             </div>
         </div>
 

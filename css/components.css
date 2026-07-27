@@ -156,7 +156,6 @@ input:focus {
 
 /* Grelhas: enchant / loja — bolsa usa css/inventory-grid.css */
 .enchant-box .inv-slot,
-.enchant-box .store-item-slot,
 .store-items-grid .inv-slot,
 .store-items-grid .store-item-slot {
     display: block;
@@ -266,6 +265,7 @@ input:focus {
 }
 
 /* Só fora da bolsa — na grelha o hover é regra própria abaixo */
+/* Só fora da bolsa — na grelha o hover é regra própria abaixo */
 .enchant-box .inv-slot:hover .inv-img,
 .store-items-grid .inv-slot:hover .inv-img,
 .store-item-slot:hover .inv-img {
@@ -274,6 +274,14 @@ input:focus {
 
 .store-item-slot:hover img {
     transform: scale(1.15) rotate(2deg);
+}
+
+/* Enchant/Augment: ícone estável — sem scale no hover */
+.enchant-box .store-item-slot:hover img,
+.enchant-box .store-item-slot:hover .inv-img,
+.enchant-box .enchant-grid-cell > .store-item-slot:hover img,
+.enchant-box .enchant-grid-cell > .store-item-slot:hover .inv-img {
+    transform: none !important;
 }
 
 .inv-slot--grade-locked {

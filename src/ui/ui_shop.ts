@@ -92,6 +92,74 @@ function _shopGradeDetailRow(grade: unknown): string {
     return '<div class="shop-detail-grade-row">' + label + ' ' + tag + '</div>';
 }
 
+function _shopEscHtml(s: unknown): string {
+    return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function _shopStatChip(label: string, valueHtml: string, valueMod?: string): string {
+    var mod = valueMod ? ' shop-stat__v--' + valueMod : '';
+    return '<div class="shop-stat">' +
+        '<span class="shop-stat__l">' + _shopEscHtml(label) + '</span>' +
+        '<span class="shop-stat__v' + mod + '">' + valueHtml + '</span>' +
+        '</div>';
+}
+
+function _shopMetaTag(html: string, mod?: string): string {
+    var cls = 'shop-meta-tag' + (mod ? ' shop-meta-tag--' + mod : '');
+    return '<span class="' + cls + '">' + html + '</span>';
+}
+
+function _shopGradeMetaTag(grade: unknown): string {
+    var tag = (typeof window.buildGradeTagHtml === 'function')
+        ? window.buildGradeTagHtml(grade)
+        : ('<span class="l2-grade-tag">[' + _shopEscHtml(grade) + ']</span>');
+    return _shopMetaTag(tag, 'grade');
+}
+
+function _shopReqMetaTag(item: ShopCatalogItem): string {
+    if (typeof window.validarEquipPorGrade !== 'function') return '';
+    var vReq = window.validarEquipPorGrade(item);
+    var ok = !!vReq.permitido;
+    return _shopMetaTag(
+        _shopEscHtml(shopT('game.shop.labelReqLevel')) + ' ' +
+        '<b style="color:' + (ok ? '#22c55e' : '#ef4444') + '">' + _shopEscHtml(vReq.nivelMinimo) + '</b>' +
+        ' <span class="shop-meta-tag__hint">' + _shopEscHtml(shopT('game.shop.youLevelHint', { level: vReq.nivelAtual })) + '</span>',
+        ok ? 'req-ok' : 'req-bad'
+    );
+}
+
+type ShopDetailCardOpts = {
+    name: string;
+    metaHtml?: string;
+    statsHtml?: string;
+    desc?: string;
+};
+
+function _shopDetailCardHtml(opts: ShopDetailCardOpts): string {
+    var meta = opts.metaHtml
+        ? '<div class="shop-detail-card__meta">' + opts.metaHtml + '</div>'
+        : '';
+    var stats = opts.statsHtml
+        ? '<div class="shop-stat-grid">' + opts.statsHtml + '</div>'
+        : '';
+    var desc = opts.desc
+        ? '<p class="shop-detail-card__desc">' + _shopEscHtml(opts.desc) + '</p>'
+        : '';
+    return '<div class="shop-detail-card">' +
+        '<div class="shop-detail-card__name">' + _shopEscHtml(opts.name) + '</div>' +
+        meta + stats + desc +
+        '</div>';
+}
+
+function _setShopDetailHtml(html: string): void {
+    var el = document.getElementById('detalhe-texto');
+    if (el) el.innerHTML = html;
+}
+
 function _shopCurrencyKindFromItem(item: ShopCatalogItem | null | undefined): ShopCurrencyKind {
     if (item && item.moeda === 'Ancient') return 'ancient';
     return 'adena';
@@ -328,14 +396,16 @@ function selecionarConsumivel(id: string, categoria: ShopGrocerCategory, element
     let corMoeda = itemSelecionado.moeda === 'Ancient' ? '#60a5fa' : '#ffcc00';
     const unitEff = effectiveShopUnitForCatalogItem(itemSelecionado);
 
-    const detalheEl = document.getElementById('detalhe-texto');
-    if (detalheEl) {
-        detalheEl.innerHTML = `
-        <b style="color:white">${itemSelecionado.nome}</b><br><br>
-        ${itemSelecionado.desc || ''}<br>
-        ${shopT('game.shop.labelPrice')} <span style="color:${corMoeda}">${unitEff}${siglaMoeda}</span> ${shopT('game.shop.eachLabel')}
-    `;
-    }
+    _setShopDetailHtml(_shopDetailCardHtml({
+        name: String(itemSelecionado.nome || ''),
+        desc: itemSelecionado.desc ? String(itemSelecionado.desc) : undefined,
+        statsHtml: _shopStatChip(
+            shopT('game.shop.labelPrice'),
+            '<span style="color:' + corMoeda + '">' + unitEff + siglaMoeda + '</span> ' +
+            '<span class="shop-stat__hint">' + _shopEscHtml(shopT('game.shop.eachLabel')) + '</span>',
+            itemSelecionado.moeda === 'Ancient' ? 'ancient' : 'adena'
+        ),
+    }));
 
     if (qtdContainer) qtdContainer.style.display = 'flex';
     const inputQtd = document.getElementById('input-qtd-compra') as HTMLInputElement | null;
@@ -588,19 +658,8 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
 
     if (tipo === 'armor') {
         itemSelecionado = armadurasCatalog().find(i => i.id === id) || null;
-        if (!itemSelecionado) return; 
-        let infoExtra = "";
-        let pDefValor = itemSelecionado.pDef || itemSelecionado.def || 0;
-        let reqLinha = '';
-        if (typeof window.validarEquipPorGrade === 'function') {
-            let vReq = window.validarEquipPorGrade(itemSelecionado);
-            let corReq = vReq.permitido ? '#22c55e' : '#ef4444';
-            reqLinha = `<br>${shopT('game.shop.labelReqLevel')} <span style="color:${corReq}; font-weight:bold;">${vReq.nivelMinimo}</span> <span style="color:#94a3b8;">${shopT('game.shop.youLevelHint', { level: vReq.nivelAtual })}</span>`;
-        }
-        
-        // Lê linha de armadura (fighter/mage × heavy/medium/light)
-        let corTipo = '#94a3b8';
-        let tipoTxt = '';
+        if (!itemSelecionado) return;
+        const pDefValor = itemSelecionado.pDef || itemSelecionado.def || 0;
         const lineLabel = typeof itemSelecionado.armorLineLabel === 'string'
             ? itemSelecionado.armorLineLabel
             : (typeof window.formatArmorLineLabel === 'function' && itemSelecionado.armorArchetype && itemSelecionado.armorWeight
@@ -610,79 +669,86 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
                     typeof itemSelecionado.armorStyle === 'string' ? itemSelecionado.armorStyle : undefined,
                 )
                 : String(itemSelecionado.tipo || ''));
-        if (lineLabel) {
-            if (String(itemSelecionado.armorArchetype || '') === 'mage' || itemSelecionado.tipo === 'Robe' || itemSelecionado.tipo === 'Mage Light' || itemSelecionado.tipo === 'Mage Heavy') {
-                corTipo = '#3b82f6';
-            } else if (itemSelecionado.tipo === 'Light' || itemSelecionado.armorWeight === 'light') {
-                corTipo = '#10b981';
-            } else if (itemSelecionado.tipo === 'Medium' || itemSelecionado.armorWeight === 'medium') {
-                corTipo = '#f59e0b';
-            } else {
-                corTipo = '#ef4444';
-            }
-            tipoTxt = `<br>${shopT('game.shop.labelType')} <span style="color:${corTipo}; font-weight:bold;">${lineLabel}</span>`;
+        let metaHtml = _shopGradeMetaTag(itemSelecionado.grade);
+        if (lineLabel) metaHtml += _shopMetaTag(_shopEscHtml(lineLabel), 'type');
+        metaHtml += _shopReqMetaTag(itemSelecionado);
+        let statsHtml = _shopStatChip(shopT('game.shop.labelPDef'), '+' + pDefValor, 'gold');
+        if (itemSelecionado.bonusHp) statsHtml += _shopStatChip(shopT('game.shop.labelMaxHp'), '+' + itemSelecionado.bonusHp, 'hp');
+        if (itemSelecionado.bonusMp) statsHtml += _shopStatChip(shopT('game.shop.labelMaxMp'), '+' + itemSelecionado.bonusMp, 'mp');
+        if (_invNum(itemSelecionado.bonusSpd)) {
+            statsHtml += _shopStatChip(
+                shopT('game.shop.labelAtkSpeed'),
+                _shopEscHtml(shopT('game.shop.atkSpeedFast', { n: String(itemSelecionado.bonusSpd) })),
+                'spd'
+            );
         }
-        
-        // Verifica e adiciona os bônus ocultos que criamos
-        if (itemSelecionado.bonusHp) infoExtra += `<br>${shopT('game.shop.labelMaxHp')} <span style="color:#10b981">+${itemSelecionado.bonusHp}</span>`;
-        if (itemSelecionado.bonusMp) infoExtra += `<br>${shopT('game.shop.labelMaxMp')} <span style="color:#3b82f6">+${itemSelecionado.bonusMp}</span>`;
-        if (_invNum(itemSelecionado.bonusSpd)) infoExtra += `<br>${shopT('game.shop.labelAtkSpeed')} <span style="color:#fcd34d">${shopT('game.shop.atkSpeedFast', { n: String(itemSelecionado.bonusSpd) })}</span>`;
-        if (itemSelecionado.bonusCrit) infoExtra += `<br>${shopT('game.shop.labelCritRate')} <span style="color:#ef4444">+${itemSelecionado.bonusCrit}%</span>`;
-        if (itemSelecionado.bonusMDef) infoExtra += `<br>${shopT('game.shop.labelMDefBonus')} <span style="color:#a855f7">+${itemSelecionado.bonusMDef}</span>`;
-        if (itemSelecionado.desc) infoExtra += `<br><br><span style="color:#c4b5fd; font-style:italic;">"${itemSelecionado.desc}"</span>`;
-        document.getElementById('detalhe-texto').innerHTML = `<b style="color:white; font-size:1.1em;">${itemSelecionado.nome}</b><br><br>${_shopGradeDetailRow(itemSelecionado.grade)}${tipoTxt}${reqLinha}<br>${shopT('game.shop.labelPDef')} <span style="color:#fde047">+${pDefValor}</span>${infoExtra}`; 
-        btnBuy.onclick = function() { confirmarCompraArmor(); }; 
-    } 
+        if (itemSelecionado.bonusCrit) statsHtml += _shopStatChip(shopT('game.shop.labelCritRate'), '+' + itemSelecionado.bonusCrit + '%', 'crit');
+        if (itemSelecionado.bonusMDef) statsHtml += _shopStatChip(shopT('game.shop.labelMDefBonus'), '+' + itemSelecionado.bonusMDef, 'mdef');
+        _setShopDetailHtml(_shopDetailCardHtml({
+            name: String(itemSelecionado.nome || ''),
+            metaHtml,
+            statsHtml,
+            desc: itemSelecionado.desc ? String(itemSelecionado.desc) : undefined,
+        }));
+        btnBuy.onclick = function() { confirmarCompraArmor(); };
+    }
     else if (tipo === 'weapon') {
         itemSelecionado = armasCatalog().find(i => i.id === id) || null;
-        if (!itemSelecionado) return; 
-        let infoExtra = "";
-        let tipoArma = itemSelecionado.tipo ? `<br>${shopT('game.shop.labelType')} <span style="color:#f59e0b; font-weight:bold;">${itemSelecionado.tipo}</span>` : '';
+        if (!itemSelecionado) return;
+        let metaHtml = _shopGradeMetaTag(itemSelecionado.grade);
+        if (itemSelecionado.tipo) metaHtml += _shopMetaTag(_shopEscHtml(String(itemSelecionado.tipo)), 'type');
         const weaponLine = typeof itemSelecionado.weaponLineLabel === 'string' ? itemSelecionado.weaponLineLabel : '';
-        if (weaponLine) {
-            tipoArma += `<br>${shopT('game.shop.labelWeaponLine')} <span style="color:#60a5fa; font-weight:bold;">${weaponLine}</span>`;
+        if (weaponLine) metaHtml += _shopMetaTag(_shopEscHtml(weaponLine), 'line');
+        metaHtml += _shopReqMetaTag(itemSelecionado);
+        let statsHtml = _shopStatChip(shopT('game.shop.labelPAtkBase'), '+' + itemSelecionado.atk, 'patk');
+        if (itemSelecionado.matk) statsHtml += _shopStatChip(shopT('game.shop.labelMAtkBase'), '+' + itemSelecionado.matk, 'matk');
+        if (itemSelecionado.bonusHp) statsHtml += _shopStatChip(shopT('game.shop.labelMaxHp'), '+' + itemSelecionado.bonusHp, 'hp');
+        if (itemSelecionado.bonusMp) statsHtml += _shopStatChip(shopT('game.shop.labelMaxMp'), '+' + itemSelecionado.bonusMp, 'mp');
+        if (_invNum(itemSelecionado.bonusSpd)) {
+            statsHtml += _shopStatChip(
+                shopT('game.shop.labelAtkSpeed'),
+                _shopEscHtml(shopT('game.shop.atkSpeedFast', { n: String(itemSelecionado.bonusSpd) })),
+                'spd'
+            );
         }
-        let reqLinha = '';
-        if (typeof window.validarEquipPorGrade === 'function') {
-            let vReq = window.validarEquipPorGrade(itemSelecionado);
-            let corReq = vReq.permitido ? '#22c55e' : '#ef4444';
-            reqLinha = `<br>${shopT('game.shop.labelReqLevel')} <span style="color:${corReq}; font-weight:bold;">${vReq.nivelMinimo}</span> <span style="color:#94a3b8;">${shopT('game.shop.youLevelHint', { level: vReq.nivelAtual })}</span>`;
-        }
-        
-        // Adiciona o M.Atk para os magos conseguirem comprar cajados direito
-        if (itemSelecionado.matk) infoExtra += `<br>${shopT('game.shop.labelMAtkBase')} <span style="color:#3b82f6">+${itemSelecionado.matk}</span>`;
-        if (itemSelecionado.bonusHp) infoExtra += `<br>${shopT('game.shop.labelMaxHp')} <span style="color:#10b981">+${itemSelecionado.bonusHp}</span>`;
-        if (itemSelecionado.bonusMp) infoExtra += `<br>${shopT('game.shop.labelMaxMp')} <span style="color:#60a5fa">+${itemSelecionado.bonusMp}</span>`;
-        if (_invNum(itemSelecionado.bonusSpd)) infoExtra += `<br>${shopT('game.shop.labelAtkSpeed')} <span style="color:#fcd34d">${shopT('game.shop.atkSpeedFast', { n: String(itemSelecionado.bonusSpd) })}</span>`;
-        if (itemSelecionado.bonusCrit) infoExtra += `<br>${shopT('game.shop.labelCritRate')} <span style="color:#ef4444">+${itemSelecionado.bonusCrit}%</span>`;
-        if (itemSelecionado.desc) infoExtra += `<br><br><span style="color:#c4b5fd; font-style:italic;">"${itemSelecionado.desc}"</span>`;
-        const precoW = effectiveShopUnitForCatalogItem(itemSelecionado);
-        document.getElementById('detalhe-texto').innerHTML = `<b style="color:white; font-size:1.1em;">${itemSelecionado.nome}</b><br><br>${_shopGradeDetailRow(itemSelecionado.grade)}${tipoArma}${reqLinha}<br>${shopT('game.shop.labelPAtkBase')} <span style="color:#ef4444">+${itemSelecionado.atk}</span>${infoExtra}`; 
-        btnBuy.onclick = function() { confirmarCompraWeapon(); }; 
+        if (itemSelecionado.bonusCrit) statsHtml += _shopStatChip(shopT('game.shop.labelCritRate'), '+' + itemSelecionado.bonusCrit + '%', 'crit');
+        _setShopDetailHtml(_shopDetailCardHtml({
+            name: String(itemSelecionado.nome || ''),
+            metaHtml,
+            statsHtml,
+            desc: itemSelecionado.desc ? String(itemSelecionado.desc) : undefined,
+        }));
+        btnBuy.onclick = function() { confirmarCompraWeapon(); };
     }
     else if (tipo === 'jewel') {
         itemSelecionado = joiasCatalog().find(i => i.id === id) || null;
         if (!itemSelecionado) return;
-        let infoJoia = '';
-        let reqLinha = '';
-        if (typeof window.validarEquipPorGrade === 'function') {
-            let vReq = window.validarEquipPorGrade(itemSelecionado);
-            let corReq = vReq.permitido ? '#22c55e' : '#ef4444';
-            reqLinha = `<br>${shopT('game.shop.labelReqLevel')} <span style="color:${corReq}; font-weight:bold;">${vReq.nivelMinimo}</span> <span style="color:#94a3b8;">${shopT('game.shop.youLevelHint', { level: vReq.nivelAtual })}</span>`;
+        let metaHtml = _shopGradeMetaTag(itemSelecionado.grade);
+        if (itemSelecionado.tipoItem) {
+            metaHtml += _shopMetaTag(_shopEscHtml(String(itemSelecionado.tipoItem)), 'jewel');
         }
-        if (itemSelecionado.bonusHp) infoJoia += `<br>${shopT('game.shop.labelMaxHp')} <span style="color:#10b981">+${itemSelecionado.bonusHp}</span>`;
-        if (itemSelecionado.bonusMp) infoJoia += `<br>${shopT('game.shop.labelMaxMp')} <span style="color:#60a5fa">+${itemSelecionado.bonusMp}</span>`;
-        if (_invNum(itemSelecionado.bonusSpd)) infoJoia += `<br>${shopT('game.shop.labelAtkSpeed')} <span style="color:#fcd34d">${shopT('game.shop.atkSpeedFast', { n: String(itemSelecionado.bonusSpd) })}</span>`;
-        if (itemSelecionado.bonusCrit) infoJoia += `<br>${shopT('game.shop.labelCritRate')} <span style="color:#ef4444">+${itemSelecionado.bonusCrit}%</span>`;
-        if (itemSelecionado.pAtk) infoJoia += `<br>${shopT('game.shop.labelPAtk')} <span style="color:#ef4444">+${itemSelecionado.pAtk}</span>`;
-        if (itemSelecionado.mAtk) infoJoia += `<br>${shopT('game.shop.labelMAtk')} <span style="color:#3b82f6">+${itemSelecionado.mAtk}</span>`;
         const jewelSetLabel = typeof itemSelecionado.jewelSetLabel === 'string' ? itemSelecionado.jewelSetLabel : '';
-        const jewelSetRow = jewelSetLabel
-            ? `<br>${shopT('game.shop.labelJewelSet')} <span style="color:#c084fc; font-weight:bold;">${jewelSetLabel}</span>`
-            : '';
-        if (itemSelecionado.desc) infoJoia += `<br><br><span style="color:#c4b5fd; font-style:italic;">"${itemSelecionado.desc}"</span>`;
-        const precoJ = effectiveShopUnitForCatalogItem(itemSelecionado);
-        document.getElementById('detalhe-texto').innerHTML = `<b style="color:white; font-size:1.1em;">${itemSelecionado.nome}</b><br><br>${shopT('game.shop.labelType')} <span style="color:#a855f7; text-transform:capitalize;">${itemSelecionado.tipoItem}</span>${jewelSetRow}<br>${_shopGradeDetailRow(itemSelecionado.grade)}${reqLinha}<br>${shopT('game.shop.labelMDef')} <span style="color:#a855f7">+${itemSelecionado.mDef}</span>${infoJoia}`; 
+        if (jewelSetLabel) metaHtml += _shopMetaTag(_shopEscHtml(jewelSetLabel), 'set');
+        metaHtml += _shopReqMetaTag(itemSelecionado);
+        let statsHtml = _shopStatChip(shopT('game.shop.labelMDef'), '+' + itemSelecionado.mDef, 'mdef');
+        if (itemSelecionado.bonusHp) statsHtml += _shopStatChip(shopT('game.shop.labelMaxHp'), '+' + itemSelecionado.bonusHp, 'hp');
+        if (itemSelecionado.bonusMp) statsHtml += _shopStatChip(shopT('game.shop.labelMaxMp'), '+' + itemSelecionado.bonusMp, 'mp');
+        if (_invNum(itemSelecionado.bonusSpd)) {
+            statsHtml += _shopStatChip(
+                shopT('game.shop.labelAtkSpeed'),
+                _shopEscHtml(shopT('game.shop.atkSpeedFast', { n: String(itemSelecionado.bonusSpd) })),
+                'spd'
+            );
+        }
+        if (itemSelecionado.bonusCrit) statsHtml += _shopStatChip(shopT('game.shop.labelCritRate'), '+' + itemSelecionado.bonusCrit + '%', 'crit');
+        if (itemSelecionado.pAtk) statsHtml += _shopStatChip(shopT('game.shop.labelPAtk'), '+' + itemSelecionado.pAtk, 'patk');
+        if (itemSelecionado.mAtk) statsHtml += _shopStatChip(shopT('game.shop.labelMAtk'), '+' + itemSelecionado.mAtk, 'matk');
+        _setShopDetailHtml(_shopDetailCardHtml({
+            name: String(itemSelecionado.nome || ''),
+            metaHtml,
+            statsHtml,
+            desc: itemSelecionado.desc ? String(itemSelecionado.desc) : undefined,
+        }));
         btnBuy.onclick = function() { confirmarCompraJewel(); };
     }
     
@@ -801,10 +867,17 @@ function selecionarItemVenda(nome: string, elemento: HTMLElement | null): void {
     qtdVendaSelecionada = 1;
     const detalheVenda = document.getElementById('venda-detalhe-texto');
     if (detalheVenda) {
-        detalheVenda.innerHTML =
-            `<b style="color:white">${nome}</b><br><br>` +
-            `${shopT('game.shop.ownedLabel')} ${qtd}<br>` +
-            `${shopT('game.shop.sellPriceLabel')} <span style="color:#ffcc00">${precoUnitario}a</span> ${shopT('game.shop.eachLabel')}`;
+        detalheVenda.innerHTML = _shopDetailCardHtml({
+            name: String(nome || ''),
+            statsHtml:
+                _shopStatChip(shopT('game.shop.ownedLabel'), String(qtd), 'owned') +
+                _shopStatChip(
+                    shopT('game.shop.sellPriceLabel'),
+                    '<span style="color:#ffcc00">' + precoUnitario + 'a</span> ' +
+                    '<span class="shop-stat__hint">' + _shopEscHtml(shopT('game.shop.eachLabel')) + '</span>',
+                    'adena'
+                ),
+        });
     }
     const qtdCont = document.getElementById('venda-qtd-container');
     if (qtdCont) qtdCont.style.display = 'flex';

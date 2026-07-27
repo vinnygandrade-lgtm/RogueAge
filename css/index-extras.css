@@ -1686,7 +1686,7 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     background: #222;
 }
 #loja-itens {
-    min-height: 180px;
+    min-height: 0;
 }
 #loja-detalhes .loja-section-title {
     color: #ca8a04;
@@ -1698,8 +1698,339 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
     border-bottom: 1px solid #3d2b1f;
     padding-bottom: 5px;
 }
-#detalhe-texto {
-    line-height: 1.5;
+#detalhe-texto,
+.shop-dock__detail {
+    line-height: 1.45;
+}
+
+/* Compact item detail card (buy + sell) — stats always visible as chips */
+.shop-detail-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+.shop-detail-card__name {
+    color: #f5f0e6;
+    font-family: 'Cinzel', serif;
+    font-weight: 800;
+    font-size: 1.05em;
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+}
+.shop-detail-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+}
+.shop-meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(90, 70, 52, 0.65);
+    background: rgba(0, 0, 0, 0.35);
+    color: #d6cbb8;
+    font-size: 0.78em;
+    font-weight: 700;
+    line-height: 1.25;
+}
+.shop-meta-tag--type { color: #fbbf24; border-color: rgba(251, 191, 36, 0.35); }
+.shop-meta-tag--line { color: #60a5fa; border-color: rgba(96, 165, 250, 0.35); }
+.shop-meta-tag--jewel { color: #c084fc; border-color: rgba(192, 132, 252, 0.4); }
+.shop-meta-tag--set { color: #e9d5ff; border-color: rgba(192, 132, 252, 0.45); }
+.shop-meta-tag--req-ok { color: #86efac; border-color: rgba(34, 197, 94, 0.4); }
+.shop-meta-tag--req-bad { color: #fca5a5; border-color: rgba(239, 68, 68, 0.45); }
+.shop-meta-tag__hint {
+    color: #94a3b8;
+    font-weight: 600;
+}
+.shop-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+.shop-stat {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+    padding: 7px 9px;
+    border-radius: 8px;
+    border: 1px solid rgba(74, 56, 40, 0.85);
+    background: linear-gradient(180deg, rgba(28, 22, 16, 0.72), rgba(10, 8, 6, 0.88));
+}
+.shop-stat__l {
+    color: #a8a29e;
+    font-size: 0.72em;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.shop-stat__v {
+    color: #f5f0e6;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    font-size: 0.95em;
+}
+.shop-stat__hint {
+    color: #88745c;
+    font-weight: 600;
+    font-size: 0.85em;
+}
+.shop-stat__v--gold { color: #fde047; }
+.shop-stat__v--adena { color: #ffcc00; }
+.shop-stat__v--ancient { color: #60a5fa; }
+.shop-stat__v--patk { color: #f87171; }
+.shop-stat__v--matk { color: #60a5fa; }
+.shop-stat__v--mdef { color: #c084fc; }
+.shop-stat__v--hp { color: #4ade80; }
+.shop-stat__v--mp { color: #60a5fa; }
+.shop-stat__v--spd { color: #fcd34d; }
+.shop-stat__v--crit { color: #fb7185; }
+.shop-stat__v--owned { color: #e7e5e4; }
+.shop-detail-card__desc {
+    margin: 0;
+    color: #b7a996;
+    font-size: 0.82em;
+    font-style: italic;
+    line-height: 1.35;
+}
+
+/* —— Portrait / mobile shop & sell: catalog scrolls; dock stays visible —— */
+html:not([data-l2-layout="landscape"]) #janela-loja.store-window--shop,
+html:not([data-l2-layout="landscape"]) #janela-venda.store-window--sell {
+    --shop-gold: #c9a227;
+    --shop-gold-soft: rgba(201, 162, 39, 0.35);
+    --shop-panel: rgba(12, 10, 8, 0.94);
+    width: min(100%, var(--l2-modal-max-width, 420px));
+    height: min(90dvh, 740px);
+    max-height: min(90dvh, 740px);
+    flex-direction: column;
+    border-color: rgba(201, 162, 39, 0.42);
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .store-header,
+html:not([data-l2-layout="landscape"]) #janela-venda .store-header {
+    flex-shrink: 0;
+    padding: 11px 12px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .store-header span,
+html:not([data-l2-layout="landscape"]) #janela-venda .store-header span {
+    font-size: 0.95em;
+    letter-spacing: 0.12em;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #store-tabs {
+    flex-shrink: 0;
+    gap: 4px;
+    padding: 6px 8px;
+    background: rgba(0, 0, 0, 0.55);
+    border-bottom: 1px solid rgba(179, 138, 77, 0.28);
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #store-tabs .btn-l2 {
+    min-height: 40px;
+    padding: 8px 4px;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    border-radius: 8px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .store-body--shop,
+html:not([data-l2-layout="landscape"]) #janela-venda .store-body--sell {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    gap: 8px;
+    padding: 8px 10px 10px;
+    background:
+        radial-gradient(120% 55% at 50% 0%, rgba(201, 162, 39, 0.07), transparent 55%),
+        rgba(0, 0, 0, 0.22);
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #loja-itens.store-items-grid,
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-itens.store-items-grid {
+    flex: 1 1 0;
+    min-height: 0 !important;
+    max-height: none !important;
+    width: 100%;
+    align-content: start;
+    justify-items: stretch;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 7px;
+    padding: 8px;
+    border-radius: 10px;
+    border-color: rgba(74, 56, 40, 0.9);
+    background:
+        linear-gradient(180deg, rgba(28, 22, 16, 0.55), rgba(8, 6, 5, 0.72));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), inset 0 0 24px rgba(0, 0, 0, 0.45);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #loja-itens .store-item-slot,
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-itens .store-item-slot {
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #loja-itens .store-item-slot img,
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-itens .store-item-slot img {
+    width: 88%;
+    height: 88%;
+    object-fit: contain;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #loja-detalhes.shop-dock,
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-detalhes.shop-dock {
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+    padding: 9px 10px calc(9px + env(safe-area-inset-bottom, 0px));
+    border-radius: 12px;
+    border: 1px solid var(--shop-gold-soft);
+    background:
+        linear-gradient(180deg, rgba(36, 28, 18, 0.98) 0%, rgba(12, 10, 8, 0.99) 100%);
+    box-shadow:
+        0 -8px 22px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 248, 220, 0.06);
+    font-size: 0.78em;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #loja-detalhes .loja-section-title,
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-detalhes .venda-section-title {
+    display: none;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #detalhe-texto,
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-detalhe-texto {
+    flex: 0 0 auto;
+    max-height: none;
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+    color: #d6cbb8;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .shop-detail-card__name,
+html:not([data-l2-layout="landscape"]) #janela-venda .shop-detail-card__name {
+    font-size: 0.98em;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .shop-stat-grid,
+html:not([data-l2-layout="landscape"]) #janela-venda .shop-stat-grid {
+    gap: 5px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .shop-stat,
+html:not([data-l2-layout="landscape"]) #janela-venda .shop-stat {
+    padding: 6px 8px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .shop-checkout-summary,
+html:not([data-l2-layout="landscape"]) #janela-venda .shop-checkout-summary {
+    flex-shrink: 0;
+    margin: 2px 0 0;
+    padding: 7px 9px;
+    font-size: 0.86em;
+    border-radius: 8px;
+    gap: 0;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .shop-checkout-summary__title,
+html:not([data-l2-layout="landscape"]) #janela-venda .shop-checkout-summary__title {
+    display: none;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .shop-checkout-summary__row,
+html:not([data-l2-layout="landscape"]) #janela-venda .shop-checkout-summary__row {
+    padding: 1px 0;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .shop-checkout-summary__divider,
+html:not([data-l2-layout="landscape"]) #janela-venda .shop-checkout-summary__divider {
+    margin: 5px 0;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .shop-checkout-summary__hint,
+html:not([data-l2-layout="landscape"]) #janela-venda .shop-checkout-summary__hint {
+    margin-top: 5px;
+    padding: 5px 7px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #compra-qtd-container,
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-qtd-container {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 2px 0 0;
+    padding: 7px 8px;
+    gap: 5px;
+    border-radius: 8px;
+    border-style: solid;
+    border-color: rgba(90, 70, 52, 0.55);
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .loja-qty-label,
+html:not([data-l2-layout="landscape"]) #janela-venda .venda-qty-label {
+    display: none;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .loja-qty-row,
+html:not([data-l2-layout="landscape"]) #janela-venda .venda-qty-row {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .loja-qty-row .btn-l2--sq,
+html:not([data-l2-layout="landscape"]) #janela-venda .venda-qty-row .btn-l2--v-sq {
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #input-qtd-compra,
+html:not([data-l2-layout="landscape"]) #janela-venda #input-qtd-venda {
+    width: 58px;
+    height: 38px;
+    min-height: 38px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .loja-qty-row .btn-l2--max-buy,
+html:not([data-l2-layout="landscape"]) #janela-venda .venda-qty-row .btn-l2--v-max {
+    height: 38px;
+    min-height: 38px;
+}
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-detalhes hr.venda-sep {
+    display: none;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #loja-detalhes .loja-buy-actions,
+html:not([data-l2-layout="landscape"]) #janela-venda #venda-detalhes .venda-sell-actions {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 2px;
+    padding-top: 0;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja #btn-comprar-item,
+html:not([data-l2-layout="landscape"]) #janela-loja .btn-loja-back,
+html:not([data-l2-layout="landscape"]) #janela-venda #btn-vender-item,
+html:not([data-l2-layout="landscape"]) #janela-venda .btn-venda-back {
+    flex: 1 1 0;
+    width: auto;
+    min-height: 42px;
+    height: auto;
+    margin: 0;
+    font-size: 0.8em;
+    border-radius: 9px;
+}
+html:not([data-l2-layout="landscape"]) #janela-loja .btn-loja-back,
+html:not([data-l2-layout="landscape"]) #janela-venda .btn-venda-back {
+    opacity: 0.92;
 }
 /* —— NPC shop checkout / wallet summary (buy + sell) —— */
 .shop-checkout-summary {
@@ -2131,6 +2462,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-preview--aug {
 }
 html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-preview .store-item-slot,
 html:not([data-l2-layout="landscape"]) #janela-augment .enchant-preview--aug .store-item-slot {
+    position: relative;
     width: 48px;
     min-width: 48px;
     max-width: 48px;
@@ -2141,16 +2473,28 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-preview--aug .st
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    padding: 0;
+}
+html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-preview .store-item-slot::before,
+html:not([data-l2-layout="landscape"]) #janela-augment .enchant-preview--aug .store-item-slot::before {
+    content: none;
+    display: none;
 }
 html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-preview .store-item-slot img,
 html:not([data-l2-layout="landscape"]) #janela-augment .enchant-preview--aug .store-item-slot img,
 html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-preview .inv-img,
 html:not([data-l2-layout="landscape"]) #janela-augment .enchant-preview--aug .inv-img {
-    width: 90% !important;
-    height: 90% !important;
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 78% !important;
+    height: 78% !important;
+    max-width: 78% !important;
+    max-height: 78% !important;
+    object-fit: contain !important;
+    aspect-ratio: auto !important;
 }
 html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-plus,
 html:not([data-l2-layout="landscape"]) #janela-augment .aug-plus {
@@ -2220,48 +2564,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .btn-aug-cancel {
     border-radius: 9px;
     opacity: 0.92;
 }
-/* Slots compactos: ícone quase a encher o quadrado */
-html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-box .store-item-slot,
-html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .store-item-slot {
-    width: 100%;
-    min-width: 0;
-    min-height: 0;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    border-radius: 8px;
-    border-color: var(--forge-slot-edge);
-    background:
-        radial-gradient(circle at 50% 42%, rgba(55, 42, 28, 0.55) 0%, var(--forge-slot) 72%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.04),
-        inset 0 0 10px rgba(0, 0, 0, 0.55),
-        0 1px 2px rgba(0, 0, 0, 0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3px;
-    overflow: hidden;
-}
-html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-box .inv-img,
-html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .inv-img,
-html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-box .store-item-slot img,
-html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .store-item-slot img,
-html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-scroll-cell__icon {
-    width: 92% !important;
-    height: 92% !important;
-    max-width: 92% !important;
-    max-height: 92% !important;
-    object-fit: contain;
-    object-position: center;
-    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.75));
-    transform: none !important;
-}
-html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-box .store-item-slot:hover .inv-img,
-html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .store-item-slot:hover .inv-img,
-html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-box .store-item-slot:hover img,
-html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .store-item-slot:hover img {
-    transform: none !important;
-}
+/* Enchant/Augment grids — padrão bolsa: .enchant-grid-cell + slot absoluto */
 html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-empty,
 html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     grid-column: 1 / -1;
@@ -2271,17 +2574,94 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     padding: 28px 10px;
 }
 
-/* Enchant: slots, rolagem vertical tátil; sem scale na seleção */
-#janela-enchant .enchant-box .store-item-slot,
-#janela-augment .enchant-box .store-item-slot {
+#janela-enchant .enchant-box > .enchant-grid-cell,
+#janela-augment .enchant-box > .enchant-grid-cell {
+    position: relative;
+    display: block;
     width: 100%;
-    max-width: none;
+    min-width: 0;
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#janela-enchant .enchant-box > .enchant-grid-cell::before,
+#janela-augment .enchant-box > .enchant-grid-cell::before {
+    content: '';
+    display: block;
+    width: 100%;
+    padding-top: 100%;
+    pointer-events: none;
+}
+
+#janela-enchant .enchant-box .enchant-grid-cell > .store-item-slot,
+#janela-augment .enchant-box .enchant-grid-cell > .store-item-slot {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    max-width: none;
     min-width: 0;
     min-height: 0;
+    aspect-ratio: unset;
+    align-self: auto;
     box-sizing: border-box;
     border-radius: 8px;
     touch-action: manipulation;
+    overflow: hidden;
+    transform: none !important;
+    z-index: auto !important;
+}
+
+#janela-enchant .enchant-box .enchant-grid-cell > .store-item-slot::before,
+#janela-augment .enchant-box .enchant-grid-cell > .store-item-slot::before {
+    content: none !important;
+    display: none !important;
+    padding: 0 !important;
+}
+
+html:not([data-l2-layout="landscape"]) #janela-enchant .enchant-box .enchant-grid-cell > .store-item-slot,
+html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-grid-cell > .store-item-slot {
+    border-color: var(--forge-slot-edge);
+    background:
+        radial-gradient(circle at 50% 42%, rgba(55, 42, 28, 0.55) 0%, var(--forge-slot) 72%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        inset 0 0 10px rgba(0, 0, 0, 0.55),
+        0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+#janela-enchant .enchant-box .enchant-grid-cell > .store-item-slot > .inv-img,
+#janela-augment .enchant-box .enchant-grid-cell > .store-item-slot > .inv-img,
+#janela-enchant .enchant-box .enchant-grid-cell > .store-item-slot > img,
+#janela-augment .enchant-box .enchant-grid-cell > .store-item-slot > img {
+    position: absolute !important;
+    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    aspect-ratio: auto !important;
+    flex: none !important;
+    box-sizing: border-box !important;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.65));
+}
+
+.enchant-box .enchant-grid-cell > .store-item-slot:hover img,
+.enchant-box .enchant-grid-cell > .store-item-slot:hover .inv-img {
+    transform: none !important;
 }
 
 .enchant-step-hint,
@@ -2297,20 +2677,12 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
 .enchant-dock__meta {
     display: none;
 }
-#janela-enchant .enchant-box .inv-img,
-#janela-augment .enchant-box .inv-img {
-    width: 90%;
-    height: 90%;
-    max-width: none;
-    max-height: none;
-}
-#janela-enchant .enchant-box .store-item-slot:active,
-#janela-augment .enchant-box .store-item-slot:active {
-    transform: scale(0.97);
+#janela-enchant .enchant-box .enchant-grid-cell > .store-item-slot:active,
+#janela-augment .enchant-box .enchant-grid-cell > .store-item-slot:active {
     filter: brightness(1.08);
 }
-#janela-enchant .enchant-box .store-item-slot.glow-yellow,
-#janela-augment .enchant-box .store-item-slot.glow-yellow {
+#janela-enchant .enchant-box .enchant-grid-cell > .store-item-slot.glow-yellow,
+#janela-augment .enchant-box .enchant-grid-cell > .store-item-slot.glow-yellow {
     animation: none !important;
     transform: none !important;
     border-color: #e8c547 !important;
@@ -2342,20 +2714,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
 
 #janela-enchant .enchant-scroll-cell,
 #janela-augment .enchant-scroll-cell {
-    flex-direction: row;
-    padding: 3px;
-    gap: 0;
-    justify-content: center;
-    align-items: center;
-}
-#janela-enchant .enchant-scroll-cell__icon {
-    width: 92%;
-    height: 92%;
-    max-width: none;
-    max-height: none;
-    flex: none;
-    min-height: 0;
-    object-fit: contain;
+    padding: 0;
 }
 #janela-enchant .enchant-box .inv-qtd,
 #janela-augment .enchant-box .inv-qtd {
@@ -2368,13 +2727,15 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-empty {
     background: rgba(0, 0, 0, 0.78);
     border: 1px solid rgba(201, 162, 39, 0.35);
     color: #fde68a;
+    z-index: 2;
 }
 #janela-enchant .enchant-scroll-cell--blessed {
     box-shadow:
         inset 0 0 0 1px rgba(253, 224, 71, 0.4),
         inset 0 0 12px rgba(253, 224, 71, 0.08);
 }
-#janela-enchant .enchant-scroll-cell--blessed .enchant-scroll-cell__icon {
+#janela-enchant .enchant-scroll-cell--blessed > .enchant-scroll-cell__icon,
+#janela-enchant .enchant-scroll-cell--blessed > .inv-img {
     filter: drop-shadow(0 0 3px rgba(253, 224, 71, 0.35));
 }
 
@@ -9587,25 +9948,328 @@ html.l2-standalone .settings-section--pwa {
     flex-wrap: wrap;
     gap: 10px;
 }
-#praca-cidade {
+#praca-cidade,
+.town-plaza {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+}
+.town-plaza__header {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 2px 4px 4px;
+}
+.town-plaza__subtitle {
+    margin: 0;
+    color: #a8a29e;
+    font-size: 0.72rem;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
 }
 .town-square-title {
-    margin: 0 0 20px 0;
+    margin: 0 0 6px 0;
     color: #facc15;
-    font-size: 1.4em;
+    font-size: 1.25em;
     text-shadow: 2px 2px 0 #000;
     font-family: 'Cinzel', serif;
-    letter-spacing: 2px;
+    letter-spacing: 0.12em;
 }
+
+/* Town plaza vendor cards */
+#praca-cidade .npc-grid {
+    gap: 10px;
+    padding: 2px 2px 8px;
+}
+#praca-cidade .npc-card {
+    --npc-accent: #ca8a04;
+    --npc-accent-soft: rgba(202, 138, 4, 0.28);
+    padding: 12px 10px 11px;
+    border-radius: 12px;
+    border-color: rgba(74, 56, 40, 0.95);
+    background:
+        radial-gradient(120% 80% at 50% 0%, var(--npc-accent-soft), transparent 55%),
+        linear-gradient(160deg, #1e1814 0%, #0c0a08 100%);
+    min-height: 0;
+}
+#praca-cidade .npc-card--equipment { --npc-accent: #3b82f6; --npc-accent-soft: rgba(59, 130, 246, 0.22); }
+#praca-cidade .npc-card--grocer { --npc-accent: #10b981; --npc-accent-soft: rgba(16, 185, 129, 0.22); }
+#praca-cidade .npc-card--enchanter { --npc-accent: #a855f7; --npc-accent-soft: rgba(168, 85, 247, 0.24); }
+#praca-cidade .npc-card--classmaster { --npc-accent: #22c55e; --npc-accent-soft: rgba(34, 197, 94, 0.2); }
+#praca-cidade .npc-card--craft-wide { --npc-accent: #ca8a04; --npc-accent-soft: rgba(202, 138, 4, 0.28); }
+#praca-cidade .npc-card::before {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--npc-accent), transparent);
+    opacity: 0.85;
+}
+#praca-cidade .npc-card:hover,
+#praca-cidade .npc-card:focus-visible {
+    border-color: var(--npc-accent);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.7), 0 0 16px color-mix(in srgb, var(--npc-accent) 28%, transparent);
+}
+#praca-cidade .npc-card__portrait {
+    width: 68px;
+    height: 68px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--npc-accent) 45%, #3d2b1f);
+    background: rgba(0, 0, 0, 0.45);
+    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+#praca-cidade .npc-card__portrait img,
+#praca-cidade .npc-card img {
+    width: 58px;
+    height: 58px;
+    margin: 0;
+    object-fit: contain;
+}
+#praca-cidade .npc-card__info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    min-width: 0;
+}
+#praca-cidade .npc-card .npc-title {
+    order: 0;
+    color: color-mix(in srgb, var(--npc-accent) 75%, #d6cbb8);
+    font-size: 0.62em;
+    letter-spacing: 0.08em;
+}
+#praca-cidade .npc-card .npc-name {
+    order: 1;
+    margin: 0;
+    font-size: 0.98em;
+}
+#praca-cidade .npc-card__cta {
+    order: 2;
+    margin-top: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--npc-accent) 40%, transparent);
+    background: rgba(0, 0, 0, 0.35);
+    color: #e7e5e4;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.npc-card--classmaster .npc-card__portrait img,
 .npc-card--classmaster img {
     filter: hue-rotate(220deg) drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
 }
 .npc-card--craft-wide {
     grid-column: span 2;
 }
+.npc-card--craft-wide .npc-card__portrait img,
 .npc-card--craft-wide img {
     filter: hue-rotate(150deg) drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
+}
+#praca-cidade .npc-card--craft-wide {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    padding: 12px 14px;
+    text-align: left;
+}
+#praca-cidade .npc-card--craft-wide .npc-card__portrait {
+    margin: 0;
+    flex-shrink: 0;
+}
+#praca-cidade .npc-card--craft-wide .npc-card__info {
+    align-items: flex-start;
+}
+#praca-cidade .npc-card--craft-wide .npc-name,
+#praca-cidade .npc-card--craft-wide .npc-title,
+#praca-cidade .npc-card--craft-wide .npc-card__cta {
+    text-align: left;
+}
+
+/* NPC talk hubs — equipment / grocer / forge / master */
+.npc-menu.npc-hub {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    gap: 10px;
+    padding: 8px 6px 12px;
+    box-sizing: border-box;
+    background:
+        radial-gradient(120% 55% at 50% 0%, rgba(201, 162, 39, 0.08), transparent 55%),
+        rgba(0, 0, 0, 0.18);
+    border-radius: 12px;
+}
+.npc-hub__hero {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(90, 70, 52, 0.7);
+    background:
+        linear-gradient(135deg, rgba(36, 28, 18, 0.95) 0%, rgba(12, 10, 8, 0.98) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 248, 220, 0.05);
+}
+.npc-hub .npc-menu-img {
+    width: 72px;
+    height: 72px;
+    margin: 0;
+    border-radius: 10px;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+.npc-hub__identity {
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.npc-hub__role {
+    color: #ca8a04;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+.npc-hub__name {
+    margin: 0;
+    color: #f5f0e6;
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-shadow: 0 2px 4px #000;
+}
+.npc-hub .npc-dialog {
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    font-size: 0.82em;
+}
+.npc-hub__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+.npc-hub .btn-l2--npc.npc-action {
+    width: 100%;
+    min-height: 52px;
+    height: auto;
+    margin: 0;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    border-radius: 10px;
+    text-align: left;
+    line-height: 1.25;
+    box-sizing: border-box;
+}
+.npc-action__label {
+    font-weight: 800;
+    font-size: 0.92em;
+    letter-spacing: 0.03em;
+}
+.npc-action__hint {
+    font-size: 0.68em;
+    font-weight: 600;
+    opacity: 0.82;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    font-family: system-ui, sans-serif;
+}
+.npc-action--buy {
+    background: linear-gradient(180deg, #1d4ed8 0%, #1e3a8a 100%);
+    border-color: #3b82f6;
+}
+.npc-action--sell {
+    background: linear-gradient(180deg, #3f3f46 0%, #27272a 100%);
+    border-color: #71717a;
+}
+.npc-action--potion {
+    background: linear-gradient(180deg, #059669 0%, #065f46 100%);
+    border-color: #34d399;
+}
+.npc-action--scroll {
+    background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%);
+    border-color: #a78bfa;
+}
+.npc-action--enchant {
+    background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+    border-color: #c4b5fd;
+}
+.npc-action--augment {
+    background: linear-gradient(180deg, #a855f7 0%, #7e22ce 100%);
+    border-color: #e9d5ff;
+}
+.npc-action--buff-fighter {
+    background: linear-gradient(180deg, #10b981 0%, #047857 100%);
+    border-color: #6ee7b7;
+}
+.npc-action--buff-mage {
+    background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+    border-color: #93c5fd;
+}
+.npc-action--class {
+    background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+    border-color: #c4b5fd;
+}
+.npc-action--craft {
+    background: linear-gradient(180deg, #ca8a04 0%, #854d0e 100%);
+    border-color: #facc15;
+    color: #111;
+}
+.npc-action--craft .npc-action__hint {
+    color: rgba(0, 0, 0, 0.72);
+}
+.npc-action--back {
+    background: linear-gradient(180deg, #3a3a3a 0%, #222 100%);
+    border-color: #555;
+    min-height: 44px;
+    align-items: center;
+    text-align: center;
+}
+.npc-grade-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+}
+.npc-grade-grid .btn-grade-pick {
+    width: 100% !important;
+    min-height: 48px;
+    margin: 0;
+    border-radius: 10px;
+}
+.npc-hub--grades > .npc-action--back {
+    width: 100%;
+}
+#menu-equipment-grades {
+    gap: 10px;
+}
+.npc-hub--grocer { --hub-glow: rgba(16, 185, 129, 0.1); }
+.npc-hub--enchanter { --hub-glow: rgba(168, 85, 247, 0.12); }
+.npc-hub--classmaster { --hub-glow: rgba(34, 197, 94, 0.1); }
+.npc-hub--craft { --hub-glow: rgba(202, 138, 4, 0.12); }
+.npc-hub--equipment,
+.npc-hub--grades { --hub-glow: rgba(59, 130, 246, 0.1); }
+.npc-menu.npc-hub {
+    background:
+        radial-gradient(120% 55% at 50% 0%, var(--hub-glow, rgba(201, 162, 39, 0.08)), transparent 55%),
+        rgba(0, 0, 0, 0.18);
 }
 .npc-menu {
     display: none;
@@ -9614,8 +10278,11 @@ html.l2-standalone .settings-section--pwa {
     width: 100%;
     gap: 10px;
 }
-#menu-equipment-grades {
-    gap: 8px;
+#menu-classmaster .npc-menu-img--hue {
+    filter: hue-rotate(220deg);
+}
+#menu-crafting .npc-menu-img--craft {
+    filter: hue-rotate(150deg);
 }
 
 /* —— Item grade progression (loja, mercado, tooltips) —— */
@@ -9739,14 +10406,8 @@ html.l2-standalone .settings-section--pwa {
 .tp-button--b { color: var(--l2-grade-b-color); }
 .tp-button--a { color: var(--l2-grade-a-color); }
 .tp-button--s { color: var(--l2-grade-s-color); border-color: var(--l2-grade-s-border); }
-.npc-menu .btn-l2--npc {
+.npc-menu:not(.npc-hub) .btn-l2--npc {
     width: 90%;
-}
-#menu-classmaster .npc-menu-img--hue {
-    filter: hue-rotate(220deg);
-}
-#menu-crafting .npc-menu-img--craft {
-    filter: hue-rotate(150deg);
 }
 
 #tela-world.screen-content {

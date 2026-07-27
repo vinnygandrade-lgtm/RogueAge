@@ -460,11 +460,11 @@ function atualizarInterfaceEnchant(): void {
             ? `<span class="enchant-equip-badge">${(typeof window.t === 'function') ? window.t('game.enchantUi.markEquipped') : '[E]'}</span>`
             : '';
         var equipEnc = encodeURIComponent(item.idUnico);
-        htmlEquip += `<div class="store-item-slot enchant-equip-cell ${bordaAtiva}" data-enchant-equip="${equipEnc}" onclick="abrirInfoEquipEnchantFromGrid(this)">
+        htmlEquip += `<div class="enchant-grid-cell"><div class="store-item-slot enchant-equip-cell ${bordaAtiva}" data-enchant-equip="${equipEnc}" onclick="abrirInfoEquipEnchantFromGrid(this)">
             ${marcaEquipado}
             <img src="${item.base.img}" class="inv-img" alt="">
             ${item.lvl > 0 ? `<div class="inv-qtd">+${item.lvl}</div>` : ''}
-        </div>`;
+        </div></div>`;
     });
     gridEquip.innerHTML = htmlEquip.length > 0
         ? htmlEquip
@@ -483,10 +483,10 @@ function atualizarInterfaceEnchant(): void {
             var blessedCls = meta.abencoado ? 'enchant-scroll-cell--blessed' : 'enchant-scroll-cell--normal';
             var tip = nomeItem.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
             htmlScroll += `
-                <div class="store-item-slot enchant-scroll-cell ${blessedCls} ${bordaAtiva}" data-enchant-scroll="${scrollEnc}" onclick="abrirInfoScrollEnchantFromGrid(this)" title="${tip}">
+                <div class="enchant-grid-cell"><div class="store-item-slot enchant-scroll-cell ${blessedCls} ${bordaAtiva}" data-enchant-scroll="${scrollEnc}" onclick="abrirInfoScrollEnchantFromGrid(this)" title="${tip}">
                     <img src="${infoScroll.img}" class="inv-img enchant-scroll-cell__icon" alt="" loading="lazy">
                     <span class="inv-qtd">${window.inventario[nomeItem]}</span>
-                </div>`;
+                </div></div>`;
         }
     });
     gridScroll.innerHTML = temScroll
@@ -915,10 +915,10 @@ function renderizarAugmentGrids(): void {
         let blockAugment = criarBadgeAugment(isAug, window.armaEquipadaBase.base);
 
         gridEquip.innerHTML += `
-            <div class="store-item-slot" onclick="${isAug ? '' : `abrirAugmentAcao('equipped')`}">
+            <div class="enchant-grid-cell"><div class="store-item-slot" onclick="${isAug ? '' : `abrirAugmentAcao('equipped')`}">
                 <img src="${_abi.img}" class="inv-img" onerror="this.src='assets/armas/espada_inicial.png'">
                 ${badgeE} ${labelPlus} ${blockAugment}
-            </div>`;
+            </div></div>`;
     }
 
     if(typeof window.inventarioEquips !== 'undefined') {
@@ -929,10 +929,10 @@ function renderizarAugmentGrids(): void {
                 let blockAugment = criarBadgeAugment(equip.augmented, equip.base);
 
                 gridEquip.innerHTML += `
-                    <div class="store-item-slot" onclick="${equip.augmented ? '' : `abrirAugmentAcao(${index})`}">
+                    <div class="enchant-grid-cell"><div class="store-item-slot" onclick="${equip.augmented ? '' : `abrirAugmentAcao(${index})`}">
                         <img src="${equip.base.img}" class="inv-img" onerror="this.src='assets/armas/espada_inicial.png'">
                         ${labelPlus} ${blockAugment}
-                    </div>`;
+                    </div></div>`;
             }
         });
     }
@@ -944,10 +944,10 @@ function renderizarAugmentGrids(): void {
     let qtdStones = (window.inventario && window.inventario["Life Stone"]) ? window.inventario["Life Stone"] : 0;
     if (qtdStones > 0) {
          gridStone.innerHTML += `
-            <div class="store-item-slot" onclick="selecionarAugmentStone()">
+            <div class="enchant-grid-cell"><div class="store-item-slot" onclick="selecionarAugmentStone()">
                 <img src="assets/itens/life_stone.png" class="inv-img" onerror="this.src='assets/armas/espada_inicial.png'">
                 <div class="inv-qtd">${qtdStones}</div>
-            </div>`;
+            </div></div>`;
     } else {
          gridStone.innerHTML = `<span class="enchant-empty">${(typeof window.t === 'function') ? window.t('game.enchantUi.noStones') : 'No stones.'}</span>`;
     }

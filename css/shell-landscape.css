@@ -521,9 +521,8 @@ html[data-l2-layout="landscape"] #janela-augment .enchant-box {
     border-radius: 10px;
 }
 
-html[data-l2-layout="landscape"] #janela-enchant .enchant-box .store-item-slot,
-html[data-l2-layout="landscape"] #janela-augment .enchant-box .store-item-slot {
-    min-height: 88px;
+html[data-l2-layout="landscape"] #janela-enchant .enchant-box .enchant-grid-cell > .store-item-slot,
+html[data-l2-layout="landscape"] #janela-augment .enchant-box .enchant-grid-cell > .store-item-slot {
     border-radius: 10px;
 }
 
@@ -676,7 +675,9 @@ html[data-l2-layout="landscape"] #janela-loja #store-tabs .btn-l2 {
 }
 
 html[data-l2-layout="landscape"] #janela-loja .store-body,
-html[data-l2-layout="landscape"] #janela-venda .store-body {
+html[data-l2-layout="landscape"] #janela-loja .store-body--shop,
+html[data-l2-layout="landscape"] #janela-venda .store-body,
+html[data-l2-layout="landscape"] #janela-venda .store-body--sell {
     display: grid !important;
     grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.95fr);
     gap: 16px 18px;
@@ -709,7 +710,9 @@ html[data-l2-layout="landscape"] #janela-venda #venda-itens .store-item-slot {
 }
 
 html[data-l2-layout="landscape"] #janela-loja #loja-detalhes.store-info-panel,
-html[data-l2-layout="landscape"] #janela-venda #venda-detalhes.store-info-panel {
+html[data-l2-layout="landscape"] #janela-loja #loja-detalhes.shop-dock,
+html[data-l2-layout="landscape"] #janela-venda #venda-detalhes.store-info-panel,
+html[data-l2-layout="landscape"] #janela-venda #venda-detalhes.shop-dock {
     min-height: 0;
     height: 100%;
     align-self: stretch;
@@ -717,6 +720,7 @@ html[data-l2-layout="landscape"] #janela-venda #venda-detalhes.store-info-panel 
     font-size: 0.88em;
     border-radius: 10px;
     gap: 4px;
+    overflow-y: auto;
 }
 
 html[data-l2-layout="landscape"] #janela-loja #loja-detalhes .loja-section-title,
@@ -787,11 +791,6 @@ html[data-l2-layout="landscape"] #janela-loja .btn-loja-back {
         min-height: min(58vh, 460px);
     }
 
-    html[data-l2-layout="landscape"] #janela-enchant .enchant-box .store-item-slot,
-    html[data-l2-layout="landscape"] #janela-augment .enchant-box .store-item-slot {
-        min-height: 76px;
-    }
-
     html[data-l2-layout="landscape"] #janela-loja.store-window,
     html[data-l2-layout="landscape"] #janela-venda.store-window {
         width: min(900px, 94vw);
@@ -799,7 +798,9 @@ html[data-l2-layout="landscape"] #janela-loja .btn-loja-back {
     }
 
     html[data-l2-layout="landscape"] #janela-loja .store-body,
-    html[data-l2-layout="landscape"] #janela-venda .store-body {
+    html[data-l2-layout="landscape"] #janela-loja .store-body--shop,
+    html[data-l2-layout="landscape"] #janela-venda .store-body,
+    html[data-l2-layout="landscape"] #janela-venda .store-body--sell {
         grid-template-columns: minmax(0, 1.2fr) minmax(260px, 1fr);
         min-height: min(54vh, 440px);
     }
@@ -1462,18 +1463,26 @@ html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card:hover {
         0 0 20px rgba(179, 138, 77, 0.18);
 }
 
+html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card__portrait {
+    width: 104px;
+    height: 104px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card__portrait img,
 html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card img {
-    width: 96px;
-    height: 96px;
+    width: 88px;
+    height: 88px;
     object-fit: contain;
-    margin-bottom: 14px;
+    margin-bottom: 0;
     filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
 }
 
 html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card .npc-name {
     font-size: 1.02rem;
     letter-spacing: 0.07em;
-    margin-bottom: 6px;
+    margin-bottom: 2px;
 }
 
 html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card .npc-title {
@@ -1486,6 +1495,11 @@ html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card .npc-title
     color: #d6c4a8;
 }
 
+html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card__cta {
+    margin-top: 8px;
+    font-size: 0.68rem;
+}
+
 html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--classmaster {
     min-height: 156px;
 }
@@ -1495,13 +1509,11 @@ html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wid
     width: 100%;
     max-width: none;
     min-height: 156px;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
+    display: flex;
+    flex-direction: row;
     align-items: center;
-    column-gap: 22px;
-    row-gap: 6px;
-    justify-content: stretch;
+    justify-content: flex-start;
+    gap: 22px;
     padding: 18px 26px;
     text-align: left;
     background:
@@ -1509,30 +1521,31 @@ html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wid
     border-color: rgba(202, 138, 4, 0.45);
 }
 
-html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wide img {
-    width: 88px;
-    height: 88px;
-    margin-bottom: 0;
+html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wide .npc-card__portrait {
+    width: 96px;
+    height: 96px;
+    margin: 0;
     flex-shrink: 0;
-    grid-row: 1 / 3;
-    grid-column: 1;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wide img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 0;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wide .npc-card__info {
+    align-items: flex-start;
 }
 
 html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wide .npc-name {
-    grid-column: 2;
-    grid-row: 1;
     text-align: left;
-    align-self: end;
     margin-bottom: 0;
     font-size: 1.08rem;
 }
 
 html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wide .npc-title {
-    grid-column: 2;
-    grid-row: 2;
     text-align: left;
-    align-self: start;
-    margin-top: 0;
     justify-self: start;
 }
 
@@ -1579,12 +1592,12 @@ html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[st
     border-top-color: rgba(90, 70, 52, 0.28);
 }
 
-/* NPC talk menus ? readable PC dialog */
+/* NPC talk menus — hub desk (portrait + actions) */
 html[data-l2-layout="landscape"] #tela-cidade .npc-menu {
     width: 100%;
-    max-width: min(820px, 92%);
+    max-width: min(860px, 92%);
     margin-inline: auto;
-    padding: 24px 28px;
+    padding: 22px 26px;
     background:
         radial-gradient(ellipse 70% 50% at 20% 0%, rgba(115, 89, 57, 0.14) 0%, transparent 50%),
         rgba(12, 10, 8, 0.94);
@@ -1592,88 +1605,104 @@ html[data-l2-layout="landscape"] #tela-cidade .npc-menu {
     border-radius: 14px;
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
     box-sizing: border-box;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    gap: 14px 18px;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 14px;
 }
 
-html[data-l2-layout="landscape"] #tela-cidade .npc-menu-img {
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
+html[data-l2-layout="landscape"] #tela-cidade .npc-hub__hero {
+    gap: 16px;
+    padding: 14px 16px;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade .npc-menu-img,
+html[data-l2-layout="landscape"] #tela-cidade .npc-hub .npc-menu-img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
     flex-shrink: 0;
+    margin: 0;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade .npc-hub__name {
+    font-size: 1.35rem;
 }
 
 html[data-l2-layout="landscape"] #tela-cidade .npc-dialog {
-    flex: 1 1 300px;
-    max-width: 460px;
+    width: 100%;
+    max-width: none;
     text-align: left;
     margin: 0;
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     line-height: 1.5;
 }
 
-html[data-l2-layout="landscape"] #tela-cidade .npc-menu .btn-l2--npc {
-    flex: 1 1 calc(50% - 12px);
-    width: auto;
-    max-width: 320px;
-    min-width: 180px;
-    min-height: 46px;
+html[data-l2-layout="landscape"] #tela-cidade .npc-hub__actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
 }
 
-/* Equipment / grocer hub ? merchant desk */
+html[data-l2-layout="landscape"] #tela-cidade .npc-menu .btn-l2--npc,
+html[data-l2-layout="landscape"] #tela-cidade .npc-hub .btn-l2--npc.npc-action {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 56px;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade .npc-action--back {
+    grid-column: 1 / -1;
+    max-width: 280px;
+    justify-self: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Equipment / grocer hub */
 html[data-l2-layout="landscape"] #tela-cidade #menu-equipment,
 html[data-l2-layout="landscape"] #tela-cidade #menu-grocer {
-    max-width: min(880px, 92%);
-    padding: 26px 30px;
-}
-
-html[data-l2-layout="landscape"] #tela-cidade #menu-equipment .btn-l2--npc:last-child,
-html[data-l2-layout="landscape"] #tela-cidade #menu-grocer .btn-l2--npc:last-child {
-    flex: 1 1 100%;
-    max-width: 280px;
-}
-
-/* Grade picker ? portrait+dialog on top, 3?2 grade grid, back centered */
-html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades.npc-menu {
-    /* no display:!important ? JS toggles display none/flex */
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
     max-width: min(900px, 92%);
-    padding: 26px 30px;
-    gap: 12px 14px;
+    padding: 24px 28px;
+}
+
+/* Grade picker */
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades.npc-menu {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: min(920px, 92%);
+    padding: 24px 28px;
+    gap: 14px;
 }
 
 html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .npc-menu-img {
-    flex: 0 0 110px;
-    width: 110px;
-    height: 110px;
+    width: 88px;
+    height: 88px;
 }
 
 html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .npc-dialog {
-    /* Fill the rest of the first row so grade buttons wrap below */
-    flex: 1 1 calc(100% - 130px);
-    width: calc(100% - 130px);
+    width: 100%;
     max-width: none;
 }
 
-html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .btn-grade-pick {
-    flex: 1 1 calc(33.333% - 12px);
-    width: auto !important;
-    max-width: none !important;
-    min-width: 140px;
-    min-height: 50px;
+html[data-l2-layout="landscape"] #tela-cidade .npc-grade-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
 }
 
-html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .btn-l2--npc:not(.btn-grade-pick) {
-    flex: 1 1 100%;
-    max-width: 260px !important;
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .btn-grade-pick {
     width: 100% !important;
+    max-width: none !important;
     min-width: 0;
+    min-height: 52px;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .npc-action--back {
+    max-width: 260px;
+    width: 100%;
+    justify-self: center;
 }
 
 @media (min-width: 1600px) {
