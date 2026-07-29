@@ -27,7 +27,9 @@ Só **ícone de bolsa / loja / slots do perfil** — **sem** layer no paperdoll.
 
 ---
 
-## No-Grade (feito)
+## No-Grade
+
+### Medium — Wooden (feito)
 
 | ID | Ficheiro | Nome |
 |----|----------|------|
@@ -36,6 +38,26 @@ Só **ícone de bolsa / loja / slots do perfil** — **sem** layer no paperdoll.
 | `j_ng_ring` | `j_ng_ring.png` | Wooden Ring |
 
 Referência visual: madeira entalhada + cobre/bronze mate, sem brilho mágico forte.
+
+### Light — Willow (feito)
+
+| ID | Ficheiro | Nome |
+|----|----------|------|
+| `j_ng_lt_neck` | `j_ng_lt_neck.png` | Willow Light Necklace |
+| `j_ng_lt_ear` | `j_ng_lt_ear.png` | Willow Light Earring |
+| `j_ng_lt_ring` | `j_ng_lt_ring.png` | Willow Light Ring |
+
+Tom: madeira clara + vime/folha + resina âmbar; mais fino/leve que Wooden.
+
+### Heavy — Ironheart (pendente)
+
+| ID | Ficheiro | Nome |
+|----|----------|------|
+| `j_ng_hv_neck` | `j_ng_hv_neck.png` | Ironheart Heavy Necklace |
+| `j_ng_hv_ear` | `j_ng_hv_ear.png` | Ironheart Heavy Earring |
+| `j_ng_hv_ring` | `j_ng_hv_ring.png` | Ironheart Heavy Ring |
+
+Tom: ferro/bronze fosco, medalhão/argola mais densos que Wooden.
 
 ---
 

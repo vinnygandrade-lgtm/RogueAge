@@ -24,9 +24,15 @@ O `id` é o mesmo de `catalogoJoias` em `js/db_items.js` (`catalogJewelIconPath`
 
 | Joia | Ficheiro |
 |------|----------|
-| Wooden Necklace | `j_ng_neck.png` |
-| Wooden Earring | `j_ng_ear.png` |
-| Wooden Ring | `j_ng_ring.png` |
+| Wooden Necklace (Medium) | `j_ng_neck.png` |
+| Wooden Earring (Medium) | `j_ng_ear.png` |
+| Wooden Ring (Medium) | `j_ng_ring.png` |
+| Willow Light Necklace | `j_ng_lt_neck.png` |
+| Willow Light Earring | `j_ng_lt_ear.png` |
+| Willow Light Ring | `j_ng_lt_ring.png` |
+| Ironheart Heavy Necklace | `j_ng_hv_neck.png` *(pendente)* |
+| Ironheart Heavy Earring | `j_ng_hv_ear.png` *(pendente)* |
+| Ironheart Heavy Ring | `j_ng_hv_ring.png` *(pendente)* |
 
 ## D (loja)
 
