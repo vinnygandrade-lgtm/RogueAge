@@ -168,14 +168,14 @@ export const EXPANSION_ARMOR_ICON_SLUGS: Record<string, string> = Object.fromEnt
 export const EXPANSION_ARMOR_OWN_ICON_READY = new Set<string>([
     'arm_ng_f_chain', // set_bronze_chain_ng.png
     'arm_ng_m_woven', // set_spellweave_ng.png
+    'arm_ng_m_warden', // set_runic_warden_ng.png
 ]);
 
 /**
  * Mage NG–C: generic shop icon until dedicated PNG ships (do not borrow legacy set icons).
- * NG Runic Warden · D Knowledge (a6) · C Warden.
+ * D Knowledge (a6) · C Warden / Weave — NG Runic Warden already READY.
  */
 export const MAGE_ARMOR_AWAITING_SHOP_ICON = new Set([
-    'arm_ng_m_warden',
     'arm_d_m_woven',
     'arm_d_m_warden',
     'a9',
