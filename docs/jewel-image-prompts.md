@@ -49,7 +49,7 @@ Referência visual: madeira entalhada + cobre/bronze mate, sem brilho mágico fo
 
 Tom: madeira clara + vime/folha + resina âmbar; mais fino/leve que Wooden.
 
-### Heavy — Ironheart (pendente)
+### Heavy — Ironheart (feito)
 
 | ID | Ficheiro | Nome |
 |----|----------|------|
@@ -57,7 +57,7 @@ Tom: madeira clara + vime/folha + resina âmbar; mais fino/leve que Wooden.
 | `j_ng_hv_ear` | `j_ng_hv_ear.png` | Ironheart Heavy Earring |
 | `j_ng_hv_ring` | `j_ng_hv_ring.png` | Ironheart Heavy Ring |
 
-Tom: ferro/bronze fosco, medalhão/argola mais densos que Wooden.
+Tom: ferro/bronze fosco, medalhão/argola mais densos que Wooden. **NG joias completa** (Medium + Light + Heavy).
 
 ---
 

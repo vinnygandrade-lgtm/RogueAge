@@ -30,9 +30,9 @@ O `id` é o mesmo de `catalogoJoias` em `js/db_items.js` (`catalogJewelIconPath`
 | Willow Light Necklace | `j_ng_lt_neck.png` |
 | Willow Light Earring | `j_ng_lt_ear.png` |
 | Willow Light Ring | `j_ng_lt_ring.png` |
-| Ironheart Heavy Necklace | `j_ng_hv_neck.png` *(pendente)* |
-| Ironheart Heavy Earring | `j_ng_hv_ear.png` *(pendente)* |
-| Ironheart Heavy Ring | `j_ng_hv_ring.png` *(pendente)* |
+| Ironheart Heavy Necklace | `j_ng_hv_neck.png` |
+| Ironheart Heavy Earring | `j_ng_hv_ear.png` |
+| Ironheart Heavy Ring | `j_ng_hv_ring.png` |
 
 ## D (loja)
 
