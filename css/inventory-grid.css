@@ -1,3 +1,325 @@
+/* Inventory screen tabs — Bag / Hotbar */
+#tela-inventario .inv-screen-tabs {
+    display: flex;
+    flex-shrink: 0;
+    gap: 6px;
+    margin-bottom: clamp(6px, 1.2vh, 12px);
+}
+
+#tela-inventario .inv-screen-tab {
+    flex: 1 1 0;
+    min-height: 40px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--l2-border-soft, #555);
+    background: rgba(22, 18, 14, 0.92);
+    color: var(--l2-text-muted, #aaa);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+#tela-inventario .inv-screen-tab.is-active {
+    color: #fef3c7;
+    border-color: rgba(202, 138, 4, 0.65);
+    background: linear-gradient(180deg, rgba(120, 80, 20, 0.55), rgba(50, 36, 12, 0.75));
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.14);
+}
+
+#tela-inventario .inv-screen-tab:focus-visible {
+    outline: 2px solid #facc15;
+    outline-offset: 2px;
+}
+
+#tela-inventario .inv-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+}
+
+#tela-inventario .inv-panel[hidden] {
+    display: none !important;
+}
+
+#tela-inventario .inv-panel--hotbar {
+    gap: clamp(6px, 1.2vh, 12px);
+}
+
+#tela-inventario .hotbar-editor-hint {
+    flex-shrink: 0;
+    margin: 0;
+    padding: 6px 9px;
+    border-radius: 8px;
+    border: 1px solid var(--l2-border-soft, #555);
+    background: rgba(18, 14, 10, 0.85);
+    color: var(--l2-text-muted, #bbb);
+    font-size: 0.68rem;
+    line-height: 1.3;
+}
+
+#tela-inventario .hotbar-editor-hint.is-selected {
+    color: #fef3c7;
+    border-color: rgba(202, 138, 4, 0.55);
+}
+
+#tela-inventario .hotbar-editor-preview {
+    --hb-edit-slot: clamp(40px, 11.5vw, 56px);
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, var(--hb-edit-slot)));
+    grid-template-rows: repeat(2, var(--hb-edit-slot));
+    justify-content: center;
+    gap: clamp(3px, 1vw, 6px);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: clamp(4px, 1.2vw, 8px);
+    border-radius: 8px;
+    border: 1px solid var(--l2-border-soft, #555);
+    background: rgba(12, 10, 8, 0.9);
+    box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.45);
+}
+
+#tela-inventario .hotbar-editor-slot {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border-radius: 2px;
+    border: 1px solid #5a4634;
+    background:
+        linear-gradient(160deg, rgba(70, 52, 36, 0.35) 0%, transparent 42%),
+        linear-gradient(145deg, #1a1410 0%, #0a0806 100%);
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 236, 190, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#tela-inventario .hotbar-editor-slot__icon {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+#tela-inventario .hotbar-editor-slot__icon--item {
+    inset: 8%;
+    width: 84%;
+    height: 84%;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65));
+}
+
+#tela-inventario .hotbar-editor-slot__key {
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    z-index: 3;
+    font-size: 8px;
+    font-weight: 800;
+    color: #88745c;
+    pointer-events: none;
+    text-shadow: 1px 1px 0 #000;
+}
+
+#tela-inventario .hotbar-editor-slot.is-filled .hotbar-editor-slot__key {
+    color: #facc15;
+}
+
+#tela-inventario .hotbar-editor-slot__count {
+    position: absolute;
+    bottom: 1px;
+    right: 2px;
+    z-index: 3;
+    font-size: 9px;
+    font-weight: 800;
+    color: #fff;
+    pointer-events: none;
+    text-shadow: 1px 1px 1px #000;
+}
+
+#tela-inventario .hotbar-editor-slot:focus-visible {
+    outline: 2px solid #facc15;
+    outline-offset: 1px;
+}
+
+#tela-inventario .hotbar-editor-slot:active {
+    transform: scale(0.96);
+}
+
+#tela-inventario .hotbar-editor-picker-tabs {
+    display: flex;
+    flex-shrink: 0;
+    gap: 6px;
+}
+
+#tela-inventario .hotbar-editor-picker-tab {
+    flex: 1 1 0;
+    min-height: 36px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--l2-border-soft, #555);
+    background: rgba(22, 18, 14, 0.92);
+    color: var(--l2-text-muted, #aaa);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+#tela-inventario .hotbar-editor-picker-tab.is-active {
+    color: #fef3c7;
+    border-color: rgba(202, 138, 4, 0.55);
+    background: linear-gradient(180deg, rgba(100, 70, 18, 0.5), rgba(40, 30, 12, 0.7));
+}
+
+#tela-inventario .hotbar-editor-picker-tab:focus-visible {
+    outline: 2px solid #facc15;
+    outline-offset: 2px;
+}
+
+#tela-inventario #hotbar-editor-picker.hotbar-editor-picker {
+    flex: 1 1 auto;
+    min-height: 0;
+    --l2-inv-cols: 5;
+}
+
+#tela-inventario .hotbar-editor-empty {
+    grid-column: 1 / -1;
+    padding: 12px 10px;
+    text-align: center;
+    color: var(--l2-text-muted, #999);
+    font-size: 0.72rem;
+}
+
+#tela-inventario .hotbar-editor-picker-slot--selected {
+    border-color: #eab308 !important;
+    box-shadow: inset 0 0 10px rgba(250, 204, 21, 0.28), 0 0 8px rgba(234, 179, 8, 0.25);
+}
+
+/* Portrait: reclaim space between HUD / travel tabs / chat */
+html:not([data-l2-layout="landscape"]) #tela-inventario.screen-content {
+    padding: 8px 10px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .inv-screen-tabs {
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .inv-screen-tab {
+    min-height: 36px;
+    padding: 5px 8px;
+    font-size: 0.68rem;
+    border-radius: 7px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario.inv-editing-hotbar .inv-panel--hotbar {
+    gap: 5px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-hint {
+    padding: 4px 8px;
+    font-size: 0.62rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-radius: 6px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-hint.is-selected {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-preview {
+    --hb-edit-slot: clamp(34px, 9.6vw, 46px);
+    gap: 3px;
+    padding: 4px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-slot__key {
+    font-size: 7px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-slot__count {
+    font-size: 8px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-picker-tabs {
+    gap: 4px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-picker-tab {
+    min-height: 32px;
+    padding: 4px 6px;
+    font-size: 0.64rem;
+    border-radius: 7px;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-inventario #hotbar-editor-picker.hotbar-editor-picker {
+    --l2-inv-cols: 6;
+    --inv-pad: 6px;
+    --inv-gap: 3px;
+    border-radius: 6px;
+}
+
+@media (max-height: 720px) {
+    html:not([data-l2-layout="landscape"]) #tela-inventario.screen-content {
+        padding: 6px 8px;
+    }
+
+    html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-preview {
+        --hb-edit-slot: clamp(30px, 8.8vw, 40px);
+    }
+
+    html:not([data-l2-layout="landscape"]) #tela-inventario .inv-screen-tab {
+        min-height: 32px;
+    }
+
+    html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-picker-tab {
+        min-height: 30px;
+    }
+}
+
+@media (max-height: 640px) {
+    html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-hint:not(.is-selected) {
+        display: none;
+    }
+
+    html:not([data-l2-layout="landscape"]) #tela-inventario .hotbar-editor-preview {
+        --hb-edit-slot: clamp(28px, 8.2vw, 36px);
+        gap: 2px;
+        padding: 3px;
+    }
+}
+
 /* Bolsa — filtro compacto (dropdown) */
 #tela-inventario .inv-inventory-head {
     display: flex;

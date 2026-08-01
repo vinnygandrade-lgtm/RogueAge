@@ -44,7 +44,7 @@
 .inv-slot, .shortcut-slot, .hud-weapon-slot {
     background: linear-gradient(145deg, #1a1612 0%, #0d0b09 100%);
     border: 1px solid var(--l2-border-soft);
-    border-radius: 6px;
+    border-radius: 2px;
     position: relative;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: var(--l2-shadow-inset);
@@ -92,7 +92,6 @@
 /* Bolsa (.inventory-grid): layout de ícones em components.css — não duplicar aqui */
 .enchant-box .inv-slot img,
 .store-item-slot img,
-.shortcut-slot img,
 .hud-weapon-slot img {
     width: 85%;
     height: 85%;
@@ -104,9 +103,9 @@
     transition: transform 0.2s ease;
 }
 
+/* Hotbar icons: owned by hotbar.css (.shortcut-slot__icon) — do not shrink to 85% */
 .enchant-box .inv-slot:hover img,
-.store-item-slot:hover img,
-.shortcut-slot:hover img {
+.store-item-slot:hover img {
     transform: scale(1.1);
 }
 

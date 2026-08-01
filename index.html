@@ -2021,26 +2021,43 @@
         </div>
 
         <div id="tela-inventario" class="screen-content">
-            <div class="inv-inventory-head">
-                <h4 class="screen-title--inv" data-i18n="game.screens.inventory">INVENTORY</h4>
-                <div id="inventario-filtro-wrap" class="inv-filter-dropdown">
-                    <button type="button" id="btn-inventario-filtro" class="inv-filter-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="inventario-filtro-menu">
-                        <span class="inv-filter-trigger__prefix" data-i18n="game.inventoryUi.filter.button">Filter</span>
-                        <span class="inv-filter-trigger__value" id="inventario-filtro-label" data-i18n="game.inventoryUi.filter.recent">Recent</span>
-                        <span class="inv-filter-trigger__chev" aria-hidden="true">▾</span>
-                    </button>
-                    <div id="inventario-filtro-menu" class="inv-filter-menu" role="listbox" aria-label="Inventory filters" hidden>
-                        <button type="button" class="inv-filter-option inv-filter-option--active" role="option" data-inv-filter="recent" data-i18n="game.inventoryUi.filter.recent">Recent</button>
-                        <button type="button" class="inv-filter-option" role="option" data-inv-filter="all" data-i18n="game.inventoryUi.filter.all">All</button>
-                        <button type="button" class="inv-filter-option" role="option" data-inv-filter="equipment" data-i18n="game.inventoryUi.filter.equipment">Gear</button>
-                        <button type="button" class="inv-filter-option" role="option" data-inv-filter="materials" data-i18n="game.inventoryUi.filter.materials">Materials</button>
-                        <button type="button" class="inv-filter-option" role="option" data-inv-filter="consumables" data-i18n="game.inventoryUi.filter.consumables">Consumables</button>
-                        <button type="button" class="inv-filter-option" role="option" data-inv-filter="recipes" data-i18n="game.inventoryUi.filter.recipes">Recipes</button>
-                        <button type="button" class="inv-filter-option" role="option" data-inv-filter="other" data-i18n="game.inventoryUi.filter.other">Other</button>
+            <div class="inv-screen-tabs" role="tablist" aria-label="Inventory sections">
+                <button type="button" class="inv-screen-tab is-active" role="tab" id="inv-tab-bag" data-inv-tab="bag" aria-selected="true" aria-controls="inv-panel-bag" data-i18n="game.inventoryUi.tabs.bag">Bag</button>
+                <button type="button" class="inv-screen-tab" role="tab" id="inv-tab-hotbar" data-inv-tab="hotbar" aria-selected="false" aria-controls="inv-panel-hotbar" data-i18n="game.inventoryUi.tabs.hotbar">Hotbar</button>
+            </div>
+
+            <div id="inv-panel-bag" class="inv-panel inv-panel--bag" role="tabpanel" aria-labelledby="inv-tab-bag">
+                <div class="inv-inventory-head">
+                    <h4 class="screen-title--inv" data-i18n="game.screens.inventory">INVENTORY</h4>
+                    <div id="inventario-filtro-wrap" class="inv-filter-dropdown">
+                        <button type="button" id="btn-inventario-filtro" class="inv-filter-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="inventario-filtro-menu">
+                            <span class="inv-filter-trigger__prefix" data-i18n="game.inventoryUi.filter.button">Filter</span>
+                            <span class="inv-filter-trigger__value" id="inventario-filtro-label" data-i18n="game.inventoryUi.filter.recent">Recent</span>
+                            <span class="inv-filter-trigger__chev" aria-hidden="true">▾</span>
+                        </button>
+                        <div id="inventario-filtro-menu" class="inv-filter-menu" role="listbox" aria-label="Inventory filters" hidden>
+                            <button type="button" class="inv-filter-option inv-filter-option--active" role="option" data-inv-filter="recent" data-i18n="game.inventoryUi.filter.recent">Recent</button>
+                            <button type="button" class="inv-filter-option" role="option" data-inv-filter="all" data-i18n="game.inventoryUi.filter.all">All</button>
+                            <button type="button" class="inv-filter-option" role="option" data-inv-filter="equipment" data-i18n="game.inventoryUi.filter.equipment">Gear</button>
+                            <button type="button" class="inv-filter-option" role="option" data-inv-filter="materials" data-i18n="game.inventoryUi.filter.materials">Materials</button>
+                            <button type="button" class="inv-filter-option" role="option" data-inv-filter="consumables" data-i18n="game.inventoryUi.filter.consumables">Consumables</button>
+                            <button type="button" class="inv-filter-option" role="option" data-inv-filter="recipes" data-i18n="game.inventoryUi.filter.recipes">Recipes</button>
+                            <button type="button" class="inv-filter-option" role="option" data-inv-filter="other" data-i18n="game.inventoryUi.filter.other">Other</button>
+                        </div>
                     </div>
                 </div>
+                <div id="grid-inventario" class="inventory-grid"></div>
             </div>
-            <div id="grid-inventario" class="inventory-grid"></div>
+
+            <div id="inv-panel-hotbar" class="inv-panel inv-panel--hotbar" role="tabpanel" aria-labelledby="inv-tab-hotbar" hidden>
+                <p class="hotbar-editor-hint" data-i18n="game.hotbarEditor.hint">Tap a skill or item, then tap a slot to assign. Tap a filled slot to clear.</p>
+                <div id="hotbar-editor-preview" class="hotbar-editor-preview" aria-label="Hotbar slots"></div>
+                <div class="hotbar-editor-picker-tabs" role="tablist">
+                    <button type="button" class="hotbar-editor-picker-tab is-active" data-hb-picker="skills" data-i18n="game.hotbarEditor.skills">Skills</button>
+                    <button type="button" class="hotbar-editor-picker-tab" data-hb-picker="items" data-i18n="game.hotbarEditor.items">Items</button>
+                </div>
+                <div id="hotbar-editor-picker" class="hotbar-editor-picker inventory-grid" aria-live="polite"></div>
+            </div>
         </div>
 
         <div id="tela-social" class="screen-content">

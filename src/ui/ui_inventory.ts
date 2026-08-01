@@ -756,13 +756,17 @@ function abrirAcaoInventario(index: number, slotPerfilPref?: string): void {
     btnAtalho.onclick = function() {
         window.fecharJanelaAcao();
         window.abrirSeletorAtalhoGlobal(itemBase.nome || '', (slotIdx: number) => {
-            window.barraAtalhos[slotIdx] = itemBase.nome || '';
+            if (typeof window.assignHotbarSlot === 'function') {
+                window.assignHotbarSlot(slotIdx, itemBase.nome || null);
+            } else {
+                window.barraAtalhos[slotIdx] = itemBase.nome || '';
+                if (typeof window.renderizarBarraAtalhos === 'function') window.renderizarBarraAtalhos();
+                if (typeof window.salvarJogo === 'function') window.salvarJogo();
+            }
             const logLine = (typeof window.t === 'function')
                 ? window.t('game.smartbar.itemPinnedToSlot', { item: itemBase.nome, slot: slotIdx + 1 })
                 : (`${itemBase.nome} pinned to slot ${slotIdx + 1}!`);
             window.escreverLog(`<span style="color:#10b981;">${logLine}</span>`);
-            window.renderizarBarraAtalhos();
-            if (typeof window.salvarJogo === 'function') window.salvarJogo();
         });
     };
     const btnParent = document.getElementById('btn-acao-item')?.parentElement;
@@ -856,13 +860,17 @@ function abrirAcaoPerfil(tipo: string): void {
     btnAtalho.onclick = function() {
         window.fecharJanelaAcao();
         window.abrirSeletorAtalhoGlobal(itemBase.nome || '', (slotIdx: number) => {
-            window.barraAtalhos[slotIdx] = itemBase.nome || '';
+            if (typeof window.assignHotbarSlot === 'function') {
+                window.assignHotbarSlot(slotIdx, itemBase.nome || null);
+            } else {
+                window.barraAtalhos[slotIdx] = itemBase.nome || '';
+                if (typeof window.renderizarBarraAtalhos === 'function') window.renderizarBarraAtalhos();
+                if (typeof window.salvarJogo === 'function') window.salvarJogo();
+            }
             const logLine = (typeof window.t === 'function')
                 ? window.t('game.smartbar.itemPinnedToSlot', { item: itemBase.nome, slot: slotIdx + 1 })
                 : (`${itemBase.nome} pinned to slot ${slotIdx + 1}!`);
             window.escreverLog(`<span style="color:#10b981;">${logLine}</span>`);
-            window.renderizarBarraAtalhos();
-            if (typeof window.salvarJogo === 'function') window.salvarJogo();
         });
     };
     const btnParent2 = document.getElementById('btn-acao-item')?.parentElement;

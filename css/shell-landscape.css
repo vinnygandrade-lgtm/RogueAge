@@ -1229,16 +1229,20 @@ html[data-l2-layout="landscape"] #barra-de-atalhos-dinamica.action-bar {
     display: grid !important;
     grid-template-columns: repeat(12, 52px) !important;
     grid-template-rows: 52px !important;
-    gap: 5px !important;
+    gap: 6px !important;
     width: auto !important;
     max-width: none !important;
     margin: 0 auto !important;
-    padding: 6px 8px !important;
+    padding: 8px 12px !important;
     justify-content: center;
-    border-radius: 8px !important;
-    border: 1px solid rgba(90, 70, 52, 0.55) !important;
-    background: linear-gradient(180deg, #1a1612 0%, #100d0a 100%) !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+    border-radius: 2px !important;
+    border: 1px solid rgba(115, 89, 57, 0.65) !important;
+    background:
+        linear-gradient(180deg, rgba(202, 138, 4, 0.07) 0%, transparent 40%),
+        linear-gradient(180deg, #1c1612 0%, #100d0a 100%) !important;
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(253, 230, 138, 0.08) !important;
 }
 
 html[data-l2-layout="landscape"] #hotbar-home-anchor .shortcut-slot {
@@ -1247,6 +1251,7 @@ html[data-l2-layout="landscape"] #hotbar-home-anchor .shortcut-slot {
     max-height: 52px !important;
     min-height: 52px !important;
     aspect-ratio: 1 / 1 !important;
+    border-radius: 2px !important;
 }
 
 html[data-l2-layout="landscape"] #raid-atalhos-hook #barra-de-atalhos-dinamica,
@@ -4088,6 +4093,29 @@ html[data-l2-layout="landscape"] #tela-inventario .inv-inventory-head {
 
 html[data-l2-layout="landscape"] #tela-inventario .inv-filter-trigger {
     max-width: 220px;
+}
+
+html[data-l2-layout="landscape"] #tela-inventario .inv-screen-tabs {
+    max-width: 640px;
+    margin-inline: auto;
+    width: 100%;
+}
+
+html[data-l2-layout="landscape"] #tela-inventario .inv-panel--hotbar {
+    max-width: 640px;
+    margin-inline: auto;
+    width: 100%;
+}
+
+html[data-l2-layout="landscape"] #tela-inventario .hotbar-editor-preview {
+    --hb-edit-slot: 52px;
+    max-width: 420px;
+    margin-inline: auto;
+}
+
+html[data-l2-layout="landscape"] #tela-inventario #hotbar-editor-picker.hotbar-editor-picker {
+    --l2-inv-cols: 8;
+    max-width: 640px;
 }
 
 /* market selector grid width is set under MARKETPLACE modals above */

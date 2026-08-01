@@ -274,6 +274,13 @@ declare global {
     fecharHarmonyInfo: () => void;
     renderHarmonyInfoModal?: () => void;
     kickHotbarCdLoop?: () => void;
+    assignHotbarSlot?: (index: number, key: string | null) => boolean;
+    clearHotbarSlot?: (index: number) => boolean;
+    resolveHotbarEntryIconSrc?: (nomeSlot: string | null | undefined) => string;
+    obterImgItemDinamico?: (nome: string | null | undefined) => string;
+    renderHotbarEditor?: () => void;
+    setInventoryTab?: (tab: 'bag' | 'hotbar') => void;
+    onOpenInventoryScreen?: () => void;
     ensureSkillCastWatch?: () => void;
     isCreationRaceUnlocked?: (race: string) => boolean;
     isCreationGenderUnlocked?: (race: string, gender: string) => boolean;
@@ -468,6 +475,7 @@ declare global {
     dismissNavCoachToast?: () => void;
     toggleChatCollapse?: () => void;
     setChatCollapsedForCombat?: (inCombat: boolean) => void;
+    setChatCollapsedForInventory?: (inInventory: boolean) => void;
     refreshLogCollapsedPreview?: () => void;
     abrirJanelaCorreio?: () => void;
     abrirMissoesDiarias?: () => void;
@@ -848,6 +856,11 @@ declare global {
   ): void;
   function abrirPreviewPremioRecompensa(catalogKey: string, previewQty?: number): void;
   function abrirSeletorAtalhoGlobal(nomeItem: string, callback: (index: number) => void): void;
+  function assignHotbarSlot(index: number, key: string | null): boolean;
+  function clearHotbarSlot(index: number): boolean;
+  function renderHotbarEditor(): void;
+  function setInventoryTab(tab: 'bag' | 'hotbar'): void;
+  function onOpenInventoryScreen(): void;
   function fecharSeletorGlobal(): void;
   function fecharGameSettings(): void;
   function fecharSeletorGlobal(): void;

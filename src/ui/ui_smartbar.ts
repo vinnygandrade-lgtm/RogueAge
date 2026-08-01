@@ -50,6 +50,52 @@ function hotbarLabel(slotKey: string): string {
   return typeof window.hotbarDisplayName === 'function' ? window.hotbarDisplayName(slotKey) : slotKey;
 }
 
+/** Pull `src` from catalog icon HTML (`<img src="…">`); null if emoji/legacy markup. */
+function skillCatalogIconSrc(skill: SkillCatalogEntry | undefined): string | null {
+  const html = String(skill?.icone || '');
+  const m = html.match(/src\s*=\s*["']([^"']+)["']/i);
+  return m && m[1] ? m[1] : null;
+}
+
+function shortcutSkillIconHtml(_nomeSlot: string, skill: SkillCatalogEntry): string {
+  const src = skillCatalogIconSrc(skill);
+  if (src) {
+    const safe = src.replace(/"/g, '&quot;');
+    return `<img class="shortcut-slot__icon" src="${safe}" alt="" draggable="false">`;
+  }
+  // Emoji / non-image fallback — still centered in the rounded slot
+  return `<span class="shortcut-slot__glyph">${skill.icone || '•'}</span>`;
+}
+
+function shortcutAttackIconSrc(): string {
+  // Human Fighter series is the current Attack art; mage set TBD.
+  return 'assets/skills/hf_attack.png';
+}
+
+/** Persist hotbar slot + refresh combat bar. `key` null clears. */
+function assignHotbarSlot(index: number, key: string | null): boolean {
+  if (index < 0 || index >= L2MINI_HOTBAR_SLOT_COUNT) return false;
+  const next = key && String(key).trim() ? String(key).trim() : null;
+  window.barraAtalhos[index] = next;
+  renderizarBarraAtalhos();
+  if (typeof window.salvarJogo === 'function') window.salvarJogo();
+  if (typeof window.renderHotbarEditor === 'function') window.renderHotbarEditor();
+  return true;
+}
+
+function clearHotbarSlot(index: number): boolean {
+  return assignHotbarSlot(index, null);
+}
+
+function resolveHotbarEntryIconSrc(nomeSlot: string | null | undefined): string {
+  if (!nomeSlot) return '';
+  if (nomeSlot === 'Attack') return shortcutAttackIconSrc();
+  const skill = window.bancoDeSkills?.[nomeSlot];
+  const fromSkill = skillCatalogIconSrc(skill);
+  if (fromSkill) return fromSkill;
+  return obterImgItemDinamico(nomeSlot);
+}
+
 function resolveSmartbarItemDesc(nome: string, itemData: CatalogRow | undefined): string {
   if (typeof window.consumableDescText === 'function') {
     const fromConsumable = window.consumableDescText(nome);
@@ -180,12 +226,10 @@ function abrirAcaoItemGeral(
     btnAcao.onclick = function () {
       window.fecharJanelaAcao?.();
       window.abrirSeletorAtalhoGlobal(nome, (index: number) => {
-        window.barraAtalhos[index] = nome;
+        assignHotbarSlot(index, nome);
         if (typeof window.escreverLog === 'function') {
           window.escreverLog(`<span style="color:#10b981;">${smartbarT('game.smartbar.itemPinnedToSlot', { item: hotbarLabel(nome), slot: String(index + 1) })}</span>`);
         }
-        renderizarBarraAtalhos();
-        if (typeof window.salvarJogo === 'function') window.salvarJogo();
       });
     };
   }
@@ -451,15 +495,12 @@ function renderizarBarraAtalhos(): void {
           }
           if (auraAtiva) classExtra = 'auto-attack-active';
 
-          const isMage = typeof window.isClasseMagica === 'function'
-            ? window.isClasseMagica(window.charClass)
-            : false;
-          const imgAtaque = isMage ? 'assets/skills/ataque_mago.png' : 'assets/skills/ataque_guerreiro.png';
+          const imgAtaque = shortcutAttackIconSrc();
 
           conteudo = `
                         <div class="cd-overlay" data-cd="Attack" style="height: ${pct}%;"></div>
                         ${htmlTimer}
-                        <img src="${imgAtaque}" style="width:92%; height:92%; object-fit:contain; filter: drop-shadow(0 0 2px #000); z-index: 1;">
+                        <img class="shortcut-slot__icon" src="${imgAtaque}" alt="" draggable="false">
                         <span class="shortcut-key" style="${secondRow ? 'color: #facc15;' : ''}">${keyLabel}</span>
                     `;
         } else {
@@ -470,7 +511,7 @@ function renderizarBarraAtalhos(): void {
                         ${castRailInside}
                         <div class="cd-overlay" data-cd="${nomeSlot}" style="height: ${pct}%;"></div>
                         ${htmlTimer}
-                        <span style="font-size:1.75em; filter: drop-shadow(0 0 3px #000); z-index: 1;">${skill.icone || ''}</span>
+                        ${shortcutSkillIconHtml(nomeSlot, skill)}
                         <span class="shortcut-key" style="${secondRow ? 'color: #facc15;' : ''}">${keyLabel}</span>
                     `;
             styleExtra = `border-color: ${skill.cor || '#888'}88; box-shadow: inset 0 0 8px ${skill.cor || '#888'}20;`;
@@ -488,7 +529,7 @@ function renderizarBarraAtalhos(): void {
             conteudo = `
                         <div class="cd-overlay" data-cd="${nomeSlot}" style="height: ${pct}%;"></div>
                         ${htmlTimer}
-                        <img src="${imgItem}" style="width:88%; height:88%; object-fit:contain; filter: drop-shadow(0 0 2px #000); z-index: 1;">
+                        <img class="shortcut-slot__icon shortcut-slot__icon--item" src="${imgItem}" alt="" draggable="false">
                         <span class="shortcut-count">${qtd}</span>
                         <span class="shortcut-key" style="${secondRow ? 'color: #facc15;' : ''}">${keyLabel}</span>
                     `;
@@ -601,15 +642,14 @@ function ativarAtalhoSlot(index: number): void {
   if (index < 0 || index >= L2MINI_HOTBAR_SLOT_COUNT) return;
 
   if (modoAtalhoItem) {
-    window.barraAtalhos[index] = modoAtalhoItem;
+    const pinned = modoAtalhoItem;
     modoAtalhoItem = null;
     const barra = document.getElementById('barra-de-atalhos-dinamica');
     if (barra) barra.classList.remove('glow-yellow');
+    assignHotbarSlot(index, pinned);
     if (typeof window.escreverLog === 'function') {
       window.escreverLog(`<span style="color:#10b981;">${smartbarT('game.smartbar.pinnedToSlot', { slot: String(index + 1) })}</span>`);
     }
-    renderizarBarraAtalhos();
-    if (typeof window.salvarJogo === 'function') window.salvarJogo();
     return;
   }
 
@@ -712,9 +752,7 @@ function iniciarToqueAtalho(index: number): void {
       if (typeof window.escreverLog === 'function') {
         window.escreverLog(`<span style="color:#ef4444;">${smartbarT('game.smartbar.removedFromSlot', { item: hotbarLabel(slotItem), slot: String(index + 1) })}</span>`);
       }
-      window.barraAtalhos[index] = null;
-      renderizarBarraAtalhos();
-      if (typeof window.salvarJogo === 'function') window.salvarJogo();
+      clearHotbarSlot(index);
     }
   }, LONG_PRESS_MS);
 }
@@ -907,5 +945,9 @@ window.iniciarToqueAtalho = iniciarToqueAtalho;
 window.soltarToqueAtalho = soltarToqueAtalho;
 window.cancelarToqueAtalho = cancelarToqueAtalho;
 window.abrirAcaoItemGeral = abrirAcaoItemGeral;
+window.assignHotbarSlot = assignHotbarSlot;
+window.clearHotbarSlot = clearHotbarSlot;
+window.resolveHotbarEntryIconSrc = resolveHotbarEntryIconSrc;
+window.obterImgItemDinamico = obterImgItemDinamico;
 
 export {};

@@ -243,6 +243,8 @@ function flushPendingChatScroll(panel: HTMLElement | null | undefined): void {
 
 /** Estado do chat antes do auto-collapse de combate (não persiste em localStorage). */
 let chatCollapsedBeforeCombat: boolean | null = null;
+/** Portrait inventory: reclaim chat height while Bag/Hotbar is open. */
+let chatCollapsedBeforeInventory: boolean | null = null;
 
 function stripLogHtml(html: string): string {
     const tmp = document.createElement('div');
@@ -406,12 +408,39 @@ function setChatCollapsedForCombat(inCombat: boolean): void {
     }
 }
 
+/**
+ * Collapse chat while Inventory is open (portrait only) so Bag/Hotbar fit.
+ * Skips when combat already owns collapse state; restores previous height on leave.
+ */
+function setChatCollapsedForInventory(inInventory: boolean): void {
+    const cont = document.querySelector('.log-container');
+    if (!cont) return;
+
+    const isLandscape = document.documentElement.getAttribute('data-l2-layout') === 'landscape';
+    if (inInventory) {
+        if (isLandscape || chatCollapsedBeforeCombat !== null) return;
+        if (chatCollapsedBeforeInventory !== null) return;
+        chatCollapsedBeforeInventory = cont.classList.contains('log-container--collapsed');
+        if (!chatCollapsedBeforeInventory) aplicarChatCollapse(true);
+        return;
+    }
+
+    if (chatCollapsedBeforeInventory === null) return;
+    const restoreCollapsed = chatCollapsedBeforeInventory;
+    chatCollapsedBeforeInventory = null;
+    // Combat owns collapse UI — don't fight it; just drop the inventory bookmark.
+    if (chatCollapsedBeforeCombat !== null) return;
+    aplicarChatCollapse(restoreCollapsed);
+}
+
 function toggleChatCollapse(): void {
     const cont = document.querySelector('.log-container');
     const collapsed = !(cont && cont.classList.contains('log-container--collapsed'));
     aplicarChatCollapse(collapsed);
     if (chatCollapsedBeforeCombat !== null) {
         chatCollapsedBeforeCombat = collapsed;
+    } else if (chatCollapsedBeforeInventory !== null) {
+        chatCollapsedBeforeInventory = collapsed;
     } else {
         try {
             localStorage.setItem(CHAT_COLLAPSED_KEY, collapsed ? '1' : '0');
@@ -1190,6 +1219,7 @@ function refreshChatPanelsI18n(): void {
 window.switchLogTab = switchLogTab;
 window.toggleChatCollapse = toggleChatCollapse;
 window.setChatCollapsedForCombat = setChatCollapsedForCombat;
+window.setChatCollapsedForInventory = setChatCollapsedForInventory;
 window.refreshLogCollapsedPreview = refreshLogCollapsedPreview;
 window.scrollChatPanelToBottom = scrollChatPanelToBottom;
 window.abrirPerfilChat = abrirPerfilChat;

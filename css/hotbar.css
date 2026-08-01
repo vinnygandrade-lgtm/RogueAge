@@ -19,17 +19,21 @@
     display: none;
     grid-template-columns: repeat(6, 1fr) !important;
     grid-template-rows: repeat(2, 1fr) !important;
-    gap: 6px !important;
+    gap: 7px !important;
     /* Extra top padding so AUTO chip + cast rail above slots are not clipped */
-    padding: 22px 6px calc(8px + var(--l2-safe-bottom, 0px)) !important;
+    padding: 22px 8px calc(10px + var(--l2-safe-bottom, 0px)) !important;
     overflow: visible !important;
-    background: linear-gradient(180deg, #181411 0%, #100d0a 100%) !important;
-    border-top: 2px solid var(--l2-border-strong, #5a4634) !important;
-    border-bottom: 1px solid var(--l2-border-soft, #2a241e) !important;
+    background:
+        linear-gradient(180deg, rgba(202, 138, 4, 0.06) 0%, transparent 28%),
+        linear-gradient(180deg, #1c1612 0%, #120e0b 55%, #0c0907 100%) !important;
+    border-top: 1px solid rgba(115, 89, 57, 0.75) !important;
+    border-bottom: 1px solid rgba(26, 20, 14, 0.95) !important;
     border-left: none !important;
     border-right: none !important;
     border-radius: 0 !important;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4) !important;
+    box-shadow:
+        0 -6px 18px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(253, 230, 138, 0.08) !important;
     width: 100% !important;
     max-width: none !important;
     margin: 0 !important;
@@ -50,7 +54,7 @@
 
 #raid-atalhos-hook #barra-de-atalhos-dinamica {
     margin-bottom: 6px !important;
-    border-radius: 6px !important;
+    border-radius: 2px !important;
     border: 1px solid #5a4634 !important;
     box-shadow:
         0 0 16px rgba(0, 0, 0, 0.75),
@@ -59,7 +63,7 @@
 
 #olympiad-atalhos-hook #barra-de-atalhos-dinamica {
     margin-bottom: 10px !important;
-    border-radius: 6px !important;
+    border-radius: 2px !important;
     border: 1px solid #4a3623 !important;
     box-shadow:
         0 0 20px rgba(0, 0, 0, 0.8),
@@ -83,11 +87,11 @@
 /* Cast rail on top edge of skill icon — drains (scaleX) until empty, then launches */
 .shortcut-cast-rail {
     position: absolute !important;
-    top: 2px !important;
-    left: 3px !important;
-    right: 3px !important;
+    top: 3px !important;
+    left: 5px !important;
+    right: 5px !important;
     height: 5px !important;
-    border-radius: 2px !important;
+    border-radius: 1px !important;
     background: rgba(0, 0, 0, 0.55) !important;
     border: 1px solid rgba(185, 28, 28, 0.35) !important;
     overflow: hidden !important;
@@ -126,7 +130,7 @@
     padding: 0 5px !important;
     margin: 0 !important;
     border: 1px solid #5a4634 !important;
-    border-radius: 3px !important;
+    border-radius: 1px !important;
     background: linear-gradient(180deg, #2a2218 0%, #1a1410 100%) !important;
     color: #a89878 !important;
     font-size: 8px !important;
@@ -167,21 +171,78 @@
     width: 100% !important;
     aspect-ratio: 1 / 1 !important;
     min-height: 44px !important;
-    background: linear-gradient(135deg, #1a1410 0%, #0a0806 100%) !important;
-    border: 1px solid #3d2b1f !important;
-    border-radius: 5px !important;
+    background:
+        linear-gradient(160deg, rgba(70, 52, 36, 0.35) 0%, transparent 42%),
+        linear-gradient(145deg, #1a1410 0%, #0a0806 100%) !important;
+    /* Classic L2-style square tiles (keep sharp corners) */
+    border: 1px solid #5a4634 !important;
+    border-radius: 2px !important;
     position: relative !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
     overflow: hidden !important;
-    transition: background 0.1s ease, transform 0.1s ease !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 236, 190, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+        0 2px 5px rgba(0, 0, 0, 0.4) !important;
+    transition: background 0.1s ease, transform 0.1s ease, border-color 0.12s ease, box-shadow 0.12s ease !important;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .shortcut-slot:active {
-    transform: scale(0.95) !important;
+    transform: scale(0.96) !important;
     background: #241710 !important;
+}
+
+/* Skill / item art fills the rounded frame (no 35px leftover) */
+.shortcut-slot__icon {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    border-radius: inherit !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    filter: none !important;
+}
+
+/* Consumables / shots: slightly inset so the art breathes inside the bevel */
+.shortcut-slot__icon--item {
+    inset: 6% !important;
+    width: 88% !important;
+    height: 88% !important;
+    object-fit: contain !important;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65)) !important;
+}
+
+.shortcut-slot__glyph {
+    position: absolute !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    font-size: clamp(1.25rem, 5.5vw, 1.75rem) !important;
+    line-height: 1 !important;
+    filter: drop-shadow(0 0 3px #000) !important;
+}
+
+.shortcut-slot__glyph img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    border-radius: inherit !important;
 }
 
 .shortcut-slot.auto-attack-active {
@@ -238,20 +299,33 @@
     position: absolute !important;
     top: 2px !important;
     left: 3px !important;
+    min-width: 0 !important;
+    padding: 0 2px !important;
+    border-radius: 0 !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    border: none !important;
     font-size: 9px !important;
-    color: #88745c !important;
-    font-weight: bold !important;
+    color: #c4b49a !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
     z-index: 6 !important;
     pointer-events: none !important;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.9) !important;
 }
 
 .shortcut-count {
     position: absolute !important;
     bottom: 2px !important;
     right: 3px !important;
+    min-width: 0 !important;
+    padding: 0 2px !important;
+    border-radius: 0 !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    border: none !important;
     font-size: 10px !important;
     color: #fff !important;
-    text-shadow: 1px 1px 1px #000 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 1px #000 !important;
     z-index: 6 !important;
     pointer-events: none !important;
 }

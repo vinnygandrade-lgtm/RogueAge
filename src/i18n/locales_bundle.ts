@@ -61,6 +61,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-01',
                         items: [
+                            'Inventory Hotbar tab: edit your 12 shortcuts by tap — pick a skill or item, then tap a slot. Bag pin still works; combat bar stays in the field.',
+                            'Mobile inventory fit: chat collapses while you manage the bag so Hotbar editing has room.',
                             'Human Fighter skills: Warlord kit complete (Whirlwind, Thunder Storm, Howl, Earthquake) plus Knight Colossal Smash, Battle Roar, Iron Skin, and Paladin Holy Strike.',
                             'Patch notes on login — dated updates so you can see the realm staying active.'
                         ]
@@ -1769,6 +1771,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         generic: 'A utility item.'
                     }
                 },
+                hotbarEditor: {
+                    hint: 'Tap a skill or item, then tap a slot to assign. Tap a filled slot to clear.',
+                    selectedHint: 'Selected: {name} — tap a slot to assign.',
+                    skills: 'Skills',
+                    items: 'Items',
+                    clearConfirm: 'Clear shortcut for {name}?',
+                    emptySkills: 'No skills available yet.',
+                    emptyItems: 'No usable items in your bag.',
+                    previewAria: 'Hotbar slots'
+                },
                 enchantUi: {
                     windowTitle: 'ENCHANT GEAR',
                     columnGear: 'EQUIPMENT',
@@ -1836,6 +1848,10 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     augmentResultTitle: '✦ AUGMENT LVL {level} ✦'
                 },
                 inventoryUi: {
+                    tabs: {
+                        bag: 'Bag',
+                        hotbar: 'Hotbar'
+                    },
                     reqTitle: 'Equipment requirement',
                     gradeLabel: 'Grade:',
                     requiredLevel: 'Required level:',
@@ -3199,6 +3215,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-01',
                         items: [
+                            'Aba Atalhos na bolsa: edita os 12 slots por toque — escolhe skill ou item e toca no slot. O pin rápido da bolsa continua; a barra de combate fica na caça.',
+                            'Bolsa no mobile: o chat recolhe enquanto geres o inventário para o editor de atalhos ter espaço.',
                             'Skills Human Fighter: kit Warlord completo (Whirlwind, Thunder Storm, Howl, Earthquake) mais Knight Colossal Smash, Battle Roar, Iron Skin e Paladin Holy Strike.',
                             'Notas de atualização no login — com datas, para mostrar que o reino segue ativo.'
                         ]
@@ -4907,6 +4925,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         generic: 'Item utilitário.'
                     }
                 },
+                hotbarEditor: {
+                    hint: 'Toque numa skill ou item e depois num slot para atribuir. Toque num slot preenchido para limpar.',
+                    selectedHint: 'Selecionado: {name} — toque num slot para atribuir.',
+                    skills: 'Skills',
+                    items: 'Itens',
+                    clearConfirm: 'Limpar atalho de {name}?',
+                    emptySkills: 'Nenhuma skill disponível ainda.',
+                    emptyItems: 'Nenhum item usável na bolsa.',
+                    previewAria: 'Slots da barra de atalhos'
+                },
                 enchantUi: {
                     windowTitle: 'ENCANTAR EQUIPAMENTO',
                     columnGear: 'EQUIPAMENTO',
@@ -4974,6 +5002,10 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     augmentResultTitle: '✦ AUGMENT NV. {level} ✦'
                 },
                 inventoryUi: {
+                    tabs: {
+                        bag: 'Bolsa',
+                        hotbar: 'Atalhos'
+                    },
                     reqTitle: 'Requisito de equipamento',
                     gradeLabel: 'Grade:',
                     requiredLevel: 'Nível necessário:',

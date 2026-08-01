@@ -892,7 +892,8 @@ function executarTrocaSubScreen(lugar) {
     // Controle de Visibilidade da Barra de Atalhos Global
     const barraGlobal = document.getElementById('barra-de-atalhos-dinamica');
     if (barraGlobal) {
-        const telasComAtalho = ['floresta', 'inventario', 'clanwar', 'raid-arena', 'olympiad-arena'];
+        // Inventory uses the Hotbar editor tab — keep the live combat bar off this screen.
+        const telasComAtalho = ['floresta', 'clanwar', 'raid-arena', 'olympiad-arena'];
         if (telasComAtalho.includes(lugar)) {
             if (lugar === 'olympiad-arena') {
                 barraGlobal.style.setProperty('display', 'none', 'important');
@@ -948,9 +949,14 @@ function executarTrocaSubScreen(lugar) {
         if(typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos(); 
     }
     
-    if (lugar === 'inventario') { 
-        if(typeof renderizarInventario === 'function') renderizarInventario(); 
-        if(typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos(); 
+    if (lugar === 'inventario') {
+        if (typeof window.setChatCollapsedForInventory === 'function') {
+            window.setChatCollapsedForInventory(true);
+        }
+        if (typeof window.onOpenInventoryScreen === 'function') window.onOpenInventoryScreen();
+        else if (typeof renderizarInventario === 'function') renderizarInventario();
+    } else if (typeof window.setChatCollapsedForInventory === 'function') {
+        window.setChatCollapsedForInventory(false);
     }
 
     if (lugar === 'perfil') {
