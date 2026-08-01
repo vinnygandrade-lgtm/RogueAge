@@ -61,15 +61,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-01',
                         items: [
-                            'Patch notes on login — see what shipped, with dates, before you enter.',
-                            'Human Fighter skill icons — Attack, Power Strike, and the Warrior / Gladiator path.'
+                            'Human Fighter skills: Warlord kit complete (Whirlwind, Thunder Storm, Howl, Earthquake) plus Knight Colossal Smash, Battle Roar, Iron Skin, and Paladin Holy Strike.',
+                            'Patch notes on login — dated updates so you can see the realm staying active.'
                         ]
                     },
                     {
                         date: '2026-07-31',
                         items: [
                             'No-Grade jewelry complete: Wooden, Willow Light, and Ironheart Heavy.',
-                            'More Human Fighter skill art for the early Warrior kit.'
+                            'Human Fighter skill icons for the Warrior / Gladiator path.'
                         ]
                     },
                     {
@@ -3199,15 +3199,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-01',
                         items: [
-                            'Notas de atualização no login — veja o que chegou, com datas, antes de entrar.',
-                            'Ícones de skills do Human Fighter — Attack, Power Strike e a linha Warrior / Gladiator.'
+                            'Skills Human Fighter: kit Warlord completo (Whirlwind, Thunder Storm, Howl, Earthquake) mais Knight Colossal Smash, Battle Roar, Iron Skin e Paladin Holy Strike.',
+                            'Notas de atualização no login — com datas, para mostrar que o reino segue ativo.'
                         ]
                     },
                     {
                         date: '2026-07-31',
                         items: [
                             'Joias No-Grade completas: Wooden, Willow Light e Ironheart Heavy.',
-                            'Mais arte de skills do Human Fighter no kit inicial de Warrior.'
+                            'Ícones de skills do Human Fighter na linha Warrior / Gladiator.'
                         ]
                     },
                     {
