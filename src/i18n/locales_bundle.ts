@@ -51,6 +51,36 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 discordShort: 'Discord',
                 discordCommunity: 'Join our Discord community'
             },
+            patchNotes: {
+                eyebrow: 'Realm Dispatch',
+                title: "What's New",
+                versionLabel: 'Update {version} · {date}',
+                continue: 'Continue to Login',
+                reopen: "What's New",
+                entries: [
+                    {
+                        date: '2026-08-01',
+                        items: [
+                            'Patch notes on login — see what shipped, with dates, before you enter.',
+                            'Human Fighter skill icons — Attack, Power Strike, and the Warrior / Gladiator path.'
+                        ]
+                    },
+                    {
+                        date: '2026-07-31',
+                        items: [
+                            'No-Grade jewelry complete: Wooden, Willow Light, and Ironheart Heavy.',
+                            'More Human Fighter skill art for the early Warrior kit.'
+                        ]
+                    },
+                    {
+                        date: '2026-07-29',
+                        items: [
+                            'Runic Warden No-Grade armor art and shop icon.',
+                            'Mobile shop and town vendor hubs polished for clearer browsing.'
+                        ]
+                    }
+                ]
+            },
             charSelect: {
                 header: 'SELECT CHARACTER',
                 subtitle: 'Your champion awaits',
@@ -3158,6 +3188,36 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 toggleToEn: 'English',
                 discordShort: 'Discord',
                 discordCommunity: 'Entrar na comunidade Discord'
+            },
+            patchNotes: {
+                eyebrow: 'Despacho do Reino',
+                title: 'Novidades',
+                versionLabel: 'Atualização {version} · {date}',
+                continue: 'Continuar para o Login',
+                reopen: 'Novidades',
+                entries: [
+                    {
+                        date: '2026-08-01',
+                        items: [
+                            'Notas de atualização no login — veja o que chegou, com datas, antes de entrar.',
+                            'Ícones de skills do Human Fighter — Attack, Power Strike e a linha Warrior / Gladiator.'
+                        ]
+                    },
+                    {
+                        date: '2026-07-31',
+                        items: [
+                            'Joias No-Grade completas: Wooden, Willow Light e Ironheart Heavy.',
+                            'Mais arte de skills do Human Fighter no kit inicial de Warrior.'
+                        ]
+                    },
+                    {
+                        date: '2026-07-29',
+                        items: [
+                            'Arte e ícone de loja da armadura Runic Warden (No-Grade).',
+                            'Lojas e hubs de NPCs na cidade polidos para navegação mais clara no mobile.'
+                        ]
+                    }
+                ]
             },
             charSelect: {
                 header: 'SELECIONAR PERSONAGEM',

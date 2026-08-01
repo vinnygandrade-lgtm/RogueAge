@@ -866,6 +866,42 @@ html[data-l2-layout="landscape"] #screen-login .login-box {
         inset 0 0 40px rgba(0, 0, 0, 0.55) !important;
 }
 
+/* Patch notes — wider card on PC, still centered over login */
+html[data-l2-layout="landscape"] #screen-login .patch-notes-overlay {
+    padding: 40px clamp(28px, 4vw, 64px);
+    background:
+        radial-gradient(ellipse 70% 50% at 50% 35%, rgba(202, 138, 4, 0.1) 0%, transparent 55%),
+        rgba(3, 2, 2, 0.72);
+}
+
+html[data-l2-layout="landscape"] #screen-login .patch-notes-card {
+    width: min(100%, 520px);
+    max-height: min(72vh, 620px);
+    padding: 28px 28px 22px;
+}
+
+html[data-l2-layout="landscape"] #screen-login .patch-notes-title {
+    font-size: 1.55rem;
+}
+
+html[data-l2-layout="landscape"] #screen-login .patch-notes-list {
+    gap: 18px;
+}
+
+html[data-l2-layout="landscape"] #screen-login .patch-notes-entry__date {
+    font-size: 0.78rem;
+}
+
+html[data-l2-layout="landscape"] #screen-login .patch-notes-list__item {
+    font-size: 0.9rem;
+    padding: 12px 14px 12px 30px;
+}
+
+html[data-l2-layout="landscape"] #screen-login .patch-notes-reopen {
+    min-height: 40px;
+    font-size: 0.72rem;
+}
+
 html[data-l2-layout="landscape"] #screen-criacao .auth-flow-main {
     max-width: 640px;
     margin: 0 auto;

@@ -57,6 +57,7 @@ async function bootGame(): Promise<void> {
   tickBoot(58, bootMsg('loading.phaseI18n', 'Loading languages...'));
 
   await import('./ui/ui_community_link');
+  await import('./ui/ui_patch_notes');
 
   await import('./core/equip_harmony');
   await import('./core/core_stats');
@@ -134,6 +135,9 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_daily_boss');
 
   finishBootLoading();
+  if (typeof window.PatchNotes?.tryShowAfterBoot === 'function') {
+    window.PatchNotes.tryShowAfterBoot();
+  }
 }
 
 bootGame().catch((err) => {

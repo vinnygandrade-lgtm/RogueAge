@@ -217,6 +217,12 @@ declare global {
     ItemSecurity: ItemSecurityApi;
     EconomyBalance: EconomyBalanceApi;
     AuthEngine: AuthEngineApi;
+    PatchNotes?: {
+      id: string;
+      show: () => void;
+      tryShowAfterBoot: () => void;
+      dismiss: () => void;
+    };
     SupabaseAPI: SupabaseApi;
     SUPABASE_CONFIG: SupabaseConfig;
     I18n: I18nApi;

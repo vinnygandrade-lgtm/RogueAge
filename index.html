@@ -1432,8 +1432,21 @@
         </main>
 
         <footer class="auth-flow-footer">
+            <button type="button" id="patch-notes-reopen" class="patch-notes-reopen" data-i18n="patchNotes.reopen">What's New</button>
             <div class="meta-ver-line" data-i18n="meta.verLine">VER: 1.5.0 STABLE - MULTIPLAYER READY</div>
         </footer>
+
+        <!-- Patch notes (once per version; reopen via footer) -->
+        <div id="patch-notes-overlay" class="patch-notes-overlay" hidden aria-hidden="true">
+            <div class="patch-notes-card" role="dialog" aria-modal="true" aria-labelledby="patch-notes-title">
+                <div class="patch-notes-card__shine" aria-hidden="true"></div>
+                <p class="patch-notes-eyebrow" data-i18n="patchNotes.eyebrow">Realm Dispatch</p>
+                <h2 id="patch-notes-title" class="patch-notes-title" data-i18n="patchNotes.title">What's New</h2>
+                <p id="patch-notes-version" class="patch-notes-version"></p>
+                <div id="patch-notes-list" class="patch-notes-list"></div>
+                <button type="button" id="patch-notes-continue" class="auth-flow-btn-primary patch-notes-continue" data-i18n="patchNotes.continue">Continue to Login</button>
+            </div>
+        </div>
     </div>
 
     <!-- TELA: SELEÇÃO DE PERSONAGEM -->
