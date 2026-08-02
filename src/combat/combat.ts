@@ -472,11 +472,17 @@ function iniciarAtaqueMonstro() {
         }
 
         let anyAlive = false;
+        const threatSuspendedUntil = Number((window as Window & { _forestMobAttackSuspendedUntil?: number })._forestMobAttackSuspendedUntil) || 0;
+        const threatSuspended = threatSuspendedUntil > Date.now();
+
         for (let i = 0; i < mobs.length; i++) {
             const mob = mobs[i] as ForestMob;
             if (!mob || mob.__forestDeathProcessing) continue;
             if (Math.floor(Number(mob.hp)) <= 0) continue;
             anyAlive = true;
+
+            // Fake Death / Stealth / Silence — freeze mob swing progress (keep pet alive).
+            if (threatSuspended) continue;
 
             let velocidadeMonstro = mob.atkSpd;
             if (mob.debuffs && mob.debuffs.preso) velocidadeMonstro *= 1.5;
@@ -523,6 +529,7 @@ function pararAtaqueMonstro() {
     if (loopAtaqueMonstro) { clearInterval(loopAtaqueMonstro); loopAtaqueMonstro = null; }
     if (timeoutCacada) { clearTimeout(timeoutCacada); timeoutCacada = null; }
     if (window.motorPet) { clearInterval(window.motorPet); window.motorPet = null; }
+    (window as Window & { _forestMobAttackSuspendedUntil?: number })._forestMobAttackSuspendedUntil = 0;
     clearForestPlayerThreats();
 }
 

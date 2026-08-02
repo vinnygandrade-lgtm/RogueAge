@@ -24,7 +24,7 @@ interface ForestMob {
   mDef?: number;
   pDef?: number;
   isChampion?: boolean;
-  debuffs?: { defMult?: number };
+  debuffs?: { defMult?: number; atkMult?: number; preso?: boolean; spoil?: boolean; [key: string]: unknown };
   __forestDeathProcessing?: boolean;
 }
 
@@ -124,7 +124,12 @@ window.handleForestPlayerDefeat = handleForestPlayerDefeat;
 function executarDanoDeUmMonstro(mob: ForestMob) {
   try {
     const isMagico = mobAttacksMagically(mob);
-    const mobPower = mobPrimaryAtk(mob);
+    let mobPower = mobPrimaryAtk(mob);
+    // Howl / Freezing Strike / etc. — reduce outgoing mob damage while active.
+    const atkMultRaw = Number(mob.debuffs?.atkMult);
+    if (Number.isFinite(atkMultRaw) && atkMultRaw > 0 && atkMultRaw < 1) {
+      mobPower = Math.max(1, Math.floor(mobPower * atkMultRaw));
+    }
     const danoBaseMonstro = Math.floor(Math.random() * (mobPower * 0.2)) + (mobPower * 0.9);
     const defesaSegura = window.calcularDefesaDoPlayer(isMagico);
 

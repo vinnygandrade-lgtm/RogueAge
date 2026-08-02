@@ -13,6 +13,7 @@ export interface SkillCombatBuffEntry {
   pAtkMult: number;
   mAtkMult: number;
   pDefMult: number;
+  mDefMult: number;
   /** Multiplier on atkSpeed ms (< 1 = faster). */
   atkSpeedMult: number;
   /** Additive Casting Speed % (shortens skill castMs). */
@@ -68,6 +69,7 @@ export function setSkillCombatBuff(
     pAtkMult?: number;
     mAtkMult?: number;
     pDefMult?: number;
+    mDefMult?: number;
     atkSpeedMult?: number;
     castSpeedBonus?: number;
     durationMs?: number;
@@ -86,6 +88,7 @@ export function setSkillCombatBuff(
     pAtkMult: opts.pAtkMult != null && opts.pAtkMult > 0 ? opts.pAtkMult : 1,
     mAtkMult: opts.mAtkMult != null && opts.mAtkMult > 0 ? opts.mAtkMult : 1,
     pDefMult: opts.pDefMult != null && opts.pDefMult > 0 ? opts.pDefMult : 1,
+    mDefMult: opts.mDefMult != null && opts.mDefMult > 0 ? opts.mDefMult : 1,
     atkSpeedMult: opts.atkSpeedMult != null && opts.atkSpeedMult > 0 ? opts.atkSpeedMult : 1,
     castSpeedBonus:
       Number.isFinite(castBonusRaw) && castBonusRaw > 0 ? Math.floor(castBonusRaw) : 0,
@@ -111,6 +114,7 @@ export function applySkillCombatBuffsToPlayerStats(): void {
   let pAtkM = 1;
   let mAtkM = 1;
   let pDefM = 1;
+  let mDefM = 1;
   let spdM = 1;
   let castSpdBonus = 0;
 
@@ -120,6 +124,7 @@ export function applySkillCombatBuffsToPlayerStats(): void {
     pAtkM *= entry.pAtkMult;
     mAtkM *= entry.mAtkMult;
     pDefM *= entry.pDefMult;
+    mDefM *= entry.mDefMult || 1;
     spdM *= entry.atkSpeedMult;
     castSpdBonus += entry.castSpeedBonus || 0;
   });
@@ -127,6 +132,7 @@ export function applySkillCombatBuffsToPlayerStats(): void {
   if (pAtkM !== 1) window.playerStats.pAtk = Math.floor(window.playerStats.pAtk * pAtkM);
   if (mAtkM !== 1) window.playerStats.mAtk = Math.floor(window.playerStats.mAtk * mAtkM);
   if (pDefM !== 1) window.playerStats.pDef = Math.floor(window.playerStats.pDef * pDefM);
+  if (mDefM !== 1) window.playerStats.mDef = Math.floor(window.playerStats.mDef * mDefM);
   if (spdM !== 1) {
     window.playerStats.atkSpeed = Math.floor(window.playerStats.atkSpeed * spdM);
     if (window.playerStats.atkSpeed < 250) window.playerStats.atkSpeed = 250;

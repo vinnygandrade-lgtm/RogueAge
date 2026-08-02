@@ -48,12 +48,69 @@ function resolveSkillCooldownMs(baseMs: number): number {
     return base;
 }
 
+function isSelfOnlyForestSkillTipo(tipo: string | undefined): boolean {
+    return tipo === 'cura' || tipo === 'cura_mp'
+        || tipo === 'buff_spd' || tipo === 'buff_def' || tipo === 'buff_atk'
+        || tipo === 'utilidade' || tipo === 'pet';
+}
+
+function suspendForestMobAttacks(durationMs: number): void {
+    const until = Date.now() + Math.max(0, Math.floor(durationMs) || 0);
+    (window as Window & { _forestMobAttackSuspendedUntil?: number })._forestMobAttackSuspendedUntil = until;
+    // Ensure the mob attack loop is running so progress resumes after suspend ends.
+    if (typeof window.iniciarAtaqueMonstro === 'function'
+        && Array.isArray(window.monstrosAtivos)
+        && window.monstrosAtivos.length > 0) {
+        window.iniciarAtaqueMonstro();
+    }
+    setTimeout(() => {
+        const flag = (window as Window & { _forestMobAttackSuspendedUntil?: number })._forestMobAttackSuspendedUntil || 0;
+        if (flag > 0 && flag <= Date.now()) {
+            (window as Window & { _forestMobAttackSuspendedUntil?: number })._forestMobAttackSuspendedUntil = 0;
+        }
+        if (Array.isArray(window.monstrosAtivos) && window.monstrosAtivos.length > 0) {
+            const telaFloresta = document.getElementById('tela-floresta');
+            if (telaFloresta && telaFloresta.style.display === 'flex') {
+                writeSkillLog('effectEndedMonstersAttack', undefined, 'color:#ef4444;');
+            }
+        }
+    }, Math.max(0, Math.floor(durationMs) || 0));
+}
+
+/** Clear timed combat debuffs without wiping Spoil (death loot marker). */
+function clearTimedMobDebuffs(mob: ForestMob): void {
+    if (!mob || !mob.debuffs) return;
+    const spoil = !!mob.debuffs.spoil;
+    mob.debuffs = spoil ? { spoil: true } : {};
+}
+
+function aplicarHowlAoE(atkMult: number, skill: SkillDef, nomeSkill: string): void {
+    const mobs = window.monstrosAtivos;
+    if (!Array.isArray(mobs) || mobs.length === 0) return;
+    for (let i = 0; i < mobs.length; i++) {
+        const m = mobs[i] as ForestMob;
+        if (!m || Math.floor(Number(m.hp)) <= 0) continue;
+        if (!m.debuffs) m.debuffs = {};
+        m.debuffs.atkMult = atkMult;
+        atualizarIconesDebuffMonstro(i, nomeSkill, 15000, skill.icone);
+        setTimeout(() => {
+            if (!window.monstrosAtivos?.includes(m) || !m.debuffs) return;
+            delete m.debuffs.atkMult;
+            // Keep spoil / other live DoTs; only drop howl portion via delete above.
+            if (!m.debuffs.spoil && !m.debuffs.envenenado && !m.debuffs.sangrando && !m.debuffs.stun && !m.debuffs.preso && m.debuffs.defMult == null) {
+                // leave empty object harmless
+            }
+        }, 15000);
+    }
+    writeSkillLog('enemyAttackWeakenedAoE', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
+}
+
 function usarSkill(nomeSkill: string) {
-    if (window.playerHP <= 0) return; 
-    if (typeof window.monstrosAtivos === 'undefined' || window.monstrosAtivos.length === 0) return;
+    if (window.playerHP <= 0) return;
 
     if (nomeSkill === 'Attack') {
         // Swing lock lives in cooldownsAtivos['Attack'] (atkSpeed). Do not bypass via spam clicks.
+        if (typeof window.monstrosAtivos === 'undefined' || window.monstrosAtivos.length === 0) return;
         window.atacar?.();
         return;
     }
@@ -65,6 +122,10 @@ function usarSkill(nomeSkill: string) {
 
     const skill = getBancoDeSkills()?.[nomeSkill];
     if (!skill || (window.cooldownsAtivos[nomeSkill] > Date.now())) return;
+
+    const hasMobs = Array.isArray(window.monstrosAtivos) && window.monstrosAtivos.length > 0;
+    if (!hasMobs && !isSelfOnlyForestSkillTipo(skill.tipo)) return;
+
     // Block skills that are only visible as locked spellbook previews.
     if (typeof window.obterSkillsAprendidas === 'function') {
         const learned = window.obterSkillsAprendidas();
@@ -103,10 +164,14 @@ function usarSkill(nomeSkill: string) {
 /** Resolves skill payload after the cast bar completes. */
 function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
     let tIdx = typeof window.getForestTargetMobIndex === 'function' ? window.getForestTargetMobIndex() : 0;
-    const needsTarget = skill.tipo !== 'cura' && skill.tipo !== 'cura_mp'
+    const isSweeper = nomeSkill === 'Sweeper';
+    const needsTarget = isSweeper || (skill.tipo !== 'cura' && skill.tipo !== 'cura_mp'
         && skill.tipo !== 'buff_spd' && skill.tipo !== 'buff_def' && skill.tipo !== 'buff_atk'
-        && skill.tipo !== 'utilidade' && skill.tipo !== 'pet';
-    if (needsTarget && (tIdx < 0 || !window.monstrosAtivos?.length)) return;
+        && skill.tipo !== 'utilidade' && skill.tipo !== 'pet');
+    if (needsTarget && (tIdx < 0 || !window.monstrosAtivos?.length)) {
+        if (isSweeper) writeSkillLog('sweeperNothing', undefined, 'color:#eab308;');
+        return;
+    }
     if (tIdx < 0) tIdx = 0;
     let monstro = (window.monstrosAtivos && window.monstrosAtivos[tIdx]
         ? window.monstrosAtivos[tIdx]
@@ -225,10 +290,12 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
 
         case "buff_spd": {
             writeSkillLog('buffSpeedActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
-            atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
+            const spdBuffMs = nomeSkill === 'Dash' ? 20000 : 30000;
+            atualizarIconesBuffPlayer(nomeSkill, spdBuffMs, skill.icone);
             const poderSpd = Math.max(0.01, Number(skill.poder) || 1);
             // Concentration → Casting Speed % only (not Attack atkSpeed).
             // Agility / Chant of Fury → both cast + attack speed (flavor text).
+            // Dash → Attack Speed only (forest pacing — user-facing "burst swings").
             const castOnly = nomeSkill === 'Concentration';
             const dualCast =
                 nomeSkill === 'Agility' || nomeSkill === 'Chant of Fury';
@@ -242,26 +309,46 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
                 skillName: nomeSkill,
                 atkSpeedMult,
                 castSpeedBonus,
+                durationMs: spdBuffMs,
             });
             if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
             window.atualizar();
             break;
         }
 
-        case "utilidade": 
-            writeSkillLog('utilityActivated', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
-            atualizarIconesBuffPlayer(nomeSkill, 20000, skill.icone);
-            pararAtaqueMonstro(); 
-            setTimeout(() => { 
-                if (window.monstrosAtivos.length > 0) {
-                    const telaFloresta = document.getElementById('tela-floresta');
-                    if (telaFloresta && telaFloresta.style.display === 'flex') {
-                        window.iniciarAtaqueMonstro?.();
-                        writeSkillLog('effectEndedMonstersAttack', undefined, 'color:#ef4444;');
-                    }
+        case "utilidade": {
+            // Sweeper: harvest Spoiled target — do NOT pause combat / kill pet.
+            if (nomeSkill === 'Sweeper') {
+                if (!monstro || !monstro.debuffs?.spoil) {
+                    writeSkillLog('sweeperNothing', undefined, 'color:#eab308;');
+                    break;
                 }
-            }, 20000);
+                const lvl = Math.max(1, Math.floor(Number(monstro.lvl || monstro.nivel) || 1));
+                const bonusAdena = Math.max(25, Math.floor(lvl * 8 + (Number(window.nivel) || 1) * 2));
+                window.adenas = (Number(window.adenas) || 0) + bonusAdena;
+                const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore'];
+                const mat = mats[Math.floor(Math.random() * mats.length)];
+                const qtd = 1 + (Math.random() < 0.35 ? 1 : 0);
+                if (window.InventoryManager && typeof window.InventoryManager.adicionarStack === 'function') {
+                    window.InventoryManager.adicionarStack(mat, qtd);
+                } else if (window.inventario) {
+                    window.inventario[mat] = (Number(window.inventario[mat]) || 0) + qtd;
+                }
+                // Consume spoil mark so death does not double-dip the same harvest (fairness).
+                delete monstro.debuffs.spoil;
+                writeSkillLog('sweeperLoot', { adena: bonusAdena, item: mat, qty: qtd }, 'color:#eab308; font-weight:bold;');
+                if (typeof window.salvarJogo === 'function') window.salvarJogo();
+                window.atualizar?.();
+                break;
+            }
+
+            writeSkillLog('utilityActivated', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
+            const utilMs = (nomeSkill === 'Fake Death' || nomeSkill === 'Stealth') ? 15000 : 20000;
+            atualizarIconesBuffPlayer(nomeSkill, utilMs, skill.icone);
+            // Suspend mob swings only — keep pet / attack loop alive.
+            suspendForestMobAttacks(utilMs);
             break;
+        }
             
         case "pet":
             if (window.motorPet) clearInterval(window.motorPet);
@@ -307,35 +394,70 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
             if (nomeSkill === "Spoil Festival") { monstro.debuffs.defMult = 0.85; writeSkillLog('defenseFell', undefined, `color:${skill.cor};`); }
             break;
 
-       case "debuff":
+       case "debuff": {
+            // Howl = nearby monsters (all active forest mobs).
+            if (nomeSkill === 'Howl') {
+                writeSkillLog('monsterCursed', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
+                aplicarHowlAoE(0.7, skill, nomeSkill);
+                break;
+            }
             if (!monstro) return;
-            if (!monstro.debuffs) monstro.debuffs = {}; writeSkillLog('monsterCursed', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
-            if (["Hex", "Curse Weakness", "Curse Gloom", "Surrender To Fire", "Poison Arrow", "Poison Dance", "Surrender To Water", "Crippling Blow"].includes(nomeSkill)) { monstro.debuffs.defMult = 0.7; writeSkillLog('defenseShattered', undefined, `color:${skill.cor}; font-weight:bold;`); }
-            if (["Howl", "Freezing Strike", "Sand Bomb", "Wind Shackle"].includes(nomeSkill)) { monstro.debuffs.atkMult = 0.7; writeSkillLog('enemySlowed', undefined, `color:${skill.cor}; font-weight:bold;`); }
-            if (["Hamstring", "Dryad Root", "Arrest", "Stun Shot"].includes(nomeSkill)) { monstro.debuffs.preso = true; writeSkillLog('monsterPinned', undefined, `color:${skill.cor}; font-weight:bold;`); }
+            if (!monstro.debuffs) monstro.debuffs = {};
+            writeSkillLog('monsterCursed', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
+            if (["Hex", "Curse Weakness", "Curse Gloom", "Surrender To Fire", "Poison Arrow", "Poison Dance", "Surrender To Water", "Crippling Blow"].includes(nomeSkill)) {
+                monstro.debuffs.defMult = 0.7;
+                writeSkillLog('defenseShattered', undefined, `color:${skill.cor}; font-weight:bold;`);
+            }
+            if (["Freezing Strike", "Sand Bomb", "Wind Shackle"].includes(nomeSkill)) {
+                monstro.debuffs.atkMult = 0.7;
+                writeSkillLog('enemySlowed', undefined, `color:${skill.cor}; font-weight:bold;`);
+            }
+            if (["Hamstring", "Dryad Root", "Arrest", "Stun Shot"].includes(nomeSkill)) {
+                monstro.debuffs.preso = true;
+                writeSkillLog('monsterPinned', undefined, `color:${skill.cor}; font-weight:bold;`);
+            }
             if ((nomeSkill === "Poison Arrow" || nomeSkill === "Poison Dance") && !monstro.debuffs.envenenado) {
-                monstro.debuffs.envenenado = true; writeSkillLog('poisonStarted', undefined, 'color:#10b981; font-weight:bold;');
+                monstro.debuffs.envenenado = true;
+                writeSkillLog('poisonStarted', undefined, 'color:#10b981; font-weight:bold;');
                 let ticksVeneno = 0;
                 let venenoTimer = setInterval(() => {
                     let indexMonstro = window.monstrosAtivos.indexOf(monstro);
-                    if (indexMonstro === -1 || ticksVeneno >= 5) { clearInterval(venenoTimer); if (monstro.debuffs) monstro.debuffs.envenenado = false; return; }
+                    if (indexMonstro === -1 || ticksVeneno >= 5) {
+                        clearInterval(venenoTimer);
+                        if (monstro.debuffs) monstro.debuffs.envenenado = false;
+                        return;
+                    }
                     let danoVeneno = Math.max(5, Math.floor((isMagico ? window.playerStats.mAtk : window.playerStats.pAtk) * 0.10));
                     writeSkillLog('poisonTick', { damage: danoVeneno }, 'color:#10b981;');
-                    window.aplicarDanoNoMonstro?.(indexMonstro, danoVeneno); ticksVeneno++;
-                }, 3000); 
+                    window.aplicarDanoNoMonstro?.(indexMonstro, danoVeneno);
+                    ticksVeneno++;
+                }, 3000);
             }
             if (nomeSkill === "Entangle") {
-                if (!monstro.debuffs) monstro.debuffs = {}; monstro.debuffs.defMult = 0.8;
-                let velOriginal = monstro.atkSpd; monstro.atkSpd *= 1.5;
+                monstro.debuffs.defMult = 0.8;
+                let velOriginal = monstro.atkSpd;
+                monstro.atkSpd = (Number(monstro.atkSpd) || 1000) * 1.5;
                 writeSkillLog('entangled', undefined, `color:${skill.cor}; font-weight:bold;`);
                 { let _ix = window.monstrosAtivos.indexOf(monstro); if (_ix >= 0) atualizarIconesDebuffMonstro(_ix, "Entangle", 15000, "🌱"); }
-                setTimeout(() => { if (window.monstrosAtivos.includes(monstro)) { monstro.debuffs.defMult = 1.0; if (monstro.atkSpd > velOriginal) monstro.atkSpd = velOriginal; writeSkillLog('vinesSnapped', undefined, 'color:#aaa;'); } }, 15000);
+                setTimeout(() => {
+                    if (window.monstrosAtivos.includes(monstro) && monstro.debuffs) {
+                        monstro.debuffs.defMult = 1.0;
+                        if (velOriginal && Number(monstro.atkSpd) > Number(velOriginal)) monstro.atkSpd = velOriginal;
+                        writeSkillLog('vinesSnapped', undefined, 'color:#aaa;');
+                    }
+                }, 15000);
             }
             { let _ix = window.monstrosAtivos.indexOf(monstro); if (_ix >= 0) atualizarIconesDebuffMonstro(_ix, nomeSkill, 15000, skill.icone); }
-            setTimeout(() => { if (window.monstrosAtivos.includes(monstro)) { monstro.debuffs = {}; writeSkillLog('curseFaded', undefined, 'color:#aaa;'); } }, 15000);
+            setTimeout(() => {
+                if (window.monstrosAtivos.includes(monstro)) {
+                    clearTimedMobDebuffs(monstro);
+                    writeSkillLog('curseFaded', undefined, 'color:#aaa;');
+                }
+            }, 15000);
             break;
+        }
             
-        case "buff_def":
+        case "buff_def": {
             writeSkillLog('buffActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
             if (nomeSkill === "Ultimate Evasion") {
@@ -345,13 +467,18 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
                     if (window.motorBuffsEspeciais) window.motorBuffsEspeciais.esquiva = 0;
                 }, 30000);
             }
+            const poderDef = Math.max(0.01, Number(skill.poder) || 1);
+            const ironWill = nomeSkill === 'Iron Will';
+            const chantFire = nomeSkill === "Chant of Fire";
             setSkillCombatBuff('def', {
                 skillName: nomeSkill,
-                pDefMult: Math.max(0.01, Number(skill.poder) || 1),
+                pDefMult: ironWill ? 1 : poderDef,
+                mDefMult: ironWill || chantFire ? poderDef : 1,
             });
             if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
             window.atualizar();
             break;
+        }
 
         case "buff_atk": {
             let poderFinal = skill.poder;
