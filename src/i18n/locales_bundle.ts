@@ -61,6 +61,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-02',
                         items: [
+                            'Human Rogue / Archer icons: Mortal Strike through Lethal Blow, plus Hawkeye Double Shot, Stun Shot, Snipe, Rapid Shot, and Death Shot.',
                             'Human Knight path icons: Drain Health, Summon Panther, Iron Will, Hamstring, Touch of Death, Shield Stun, Holy Blessing, Majesty, and Phoenix Strike.',
                             'Spellbook redesigned: tap a skill to open a full card with large art, a clear “what it does” effect, and simple MP / cooldown / cast costs.',
                             'Portrait-friendly flow — the list steps aside for the skill card, with Back to list; no more cramped bottom panel.',
@@ -3228,6 +3229,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-02',
                         items: [
+                            'Ícones Human Rogue / Archer: de Mortal Strike a Lethal Blow, mais Hawkeye Double Shot, Stun Shot, Snipe, Rapid Shot e Death Shot.',
                             'Ícones da linha Human Knight: Drain Health, Summon Panther, Iron Will, Hamstring, Touch of Death, Shield Stun, Holy Blessing, Majesty e Phoenix Strike.',
                             'Grimório redesenhado: toca numa skill para abrir a ficha completa com arte grande, o efeito em “O que faz” e custos claros de MP / recarga / cast.',
                             'Fluxo pensado para o telemóvel — a lista sai de cena pela ficha, com Voltar à lista; sem painel espremido em baixo.',
