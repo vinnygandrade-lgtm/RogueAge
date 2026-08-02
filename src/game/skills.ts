@@ -329,6 +329,9 @@ const bancoDeSkills: Record<string, SkillCatalogEntry> = Object.assign(
     "Stun Shot": { tipo: "ataque", mp: 45, poder: 3.5, cd: 12000, desc: "Heavy damage and disorients the enemy.", cor: "#facc15", icone: '<img src="assets/skills/hf_stun_shot.png" alt="" style="width:35px;height:35px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 3px #000);">' },
     "Shield Stun": { tipo: "ataque", mp: 25, poder: 1.8, cd: 12000, desc: "Brutal shield bash.", cor: "#cbd5e1", icone: '<img src="assets/skills/hf_shield_stun.png" alt="" style="width:35px;height:35px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 3px #000);">' },
     "Touch of Death": { tipo: "ataque_ultimate", mp: 150, poder: 8.0, cd: 120000, castMs: 2500, desc: "Supreme strike of darkness.", cor: "#7f1d1d", icone: '<img src="assets/skills/hf_touch_of_death.png" alt="" style="width:35px;height:35px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 3px #000);">' },
+    "War Cry": { tipo: "buff_atk", mp: 25, poder: 1.2, cd: 45000, desc: "Increases Attack by 20%.", cor: "#ea580c", icone: '<img src="assets/skills/hf_war_cry.png" alt="" style="width:35px;height:35px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 3px #000);">' },
+    "Whirlwind": { tipo: "ataque_area", mp: 45, poder: 1.6, cd: 7000, castMs: 1400, desc: "Spin your weapon, hitting ALL monsters.", cor: "#fb923c", icone: '<img src="assets/skills/hf_whirlwind.png" alt="" style="width:35px;height:35px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 3px #000);">' },
+    "Earthquake": { tipo: "ataque_area", mp: 130, poder: 5.0, cd: 120000, desc: "Wrecks every monster in the area.", cor: "#78350f", icone: '<img src="assets/skills/hf_earthquake.png" alt="" style="width:35px;height:35px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 3px #000);">' },
   }
 );
 // ÁRVORE DE APRENDIZADO
