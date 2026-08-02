@@ -59,6 +59,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-02',
+                        items: [
+                            'Spellbook redesigned: tap a skill to open a full card with large art, a clear “what it does” effect, and simple MP / cooldown / cast costs.',
+                            'Portrait-friendly flow — the list steps aside for the skill card, with Back to list; no more cramped bottom panel.',
+                            'Basic Attack icon in the Spellbook now matches the combat bar art.'
+                        ]
+                    },
+                    {
                         date: '2026-08-01',
                         items: [
                             'Inventory Hotbar tab: edit your 12 shortcuts by tap — pick a skill or item, then tap a slot. Bag pin still works; combat bar stays in the field.',
@@ -1016,9 +1024,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 spellbook: {
                     title: 'SPELLBOOK',
-                    subtitle: 'Ready skills, upcoming unlocks on your path, and a preview of the next specialization choices.',
+                    subtitle: 'Tap a skill to open its card — art, effect, and costs. Only unlocked skills can go on your action bar.',
                     empty: 'No skills in your path yet. Level up and advance your class to unlock spells.',
-                    hintSelect: 'Select a skill in the list to see full statistics and assign it.',
+                    hintSelect: 'Select a skill to inspect its effect and assign it to your bar.',
+                    backToList: 'Back to list',
+                    effectLabel: 'What it does',
                     profileBtn: 'SPELLBOOK (SKILLS)',
                     newBadge: 'NEW',
                     notifProfileAria: '{count} new skills — open Profile',
@@ -1038,9 +1048,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     typeLabel: 'Category',
                     powerFmt: '{n}× base',
                     powerNA: '—',
+                    effectDmgMult: '{n}× damage',
+                    effectBuffPct: '+{n}% boost',
                     effectPctHp: 'Restores ~{n}% max HP',
                     effectPctMp: 'Restores ~{n}% max MP',
-                    learnLevel: 'Learned from class progression (available from level {lvl})',
+                    learnLevel: 'Available from level {lvl}',
                     unlockAtLevel: 'Lv {lvl}',
                     lockedDetail: 'Locked — unlocks at level {lvl}',
                     fromClass: '{name}',
@@ -3213,6 +3225,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: 'Novidades',
                 entries: [
                     {
+                        date: '2026-08-02',
+                        items: [
+                            'Grimório redesenhado: toca numa skill para abrir a ficha completa com arte grande, o efeito em “O que faz” e custos claros de MP / recarga / cast.',
+                            'Fluxo pensado para o telemóvel — a lista sai de cena pela ficha, com Voltar à lista; sem painel espremido em baixo.',
+                            'Ícone do Ataque Básico no Grimório agora bate com a arte da barra de combate.'
+                        ]
+                    },
+                    {
                         date: '2026-08-01',
                         items: [
                             'Aba Atalhos na bolsa: edita os 12 slots por toque — escolhe skill ou item e toca no slot. O pin rápido da bolsa continua; a barra de combate fica na caça.',
@@ -4170,9 +4190,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 spellbook: {
                     title: 'GRIMÓRIO',
-                    subtitle: 'Skills prontas, próximas do seu caminho e prévia das especializações seguintes.',
+                    subtitle: 'Toque numa skill para abrir a ficha — arte, efeito e custos. Só as liberadas entram na barra.',
                     empty: 'Nenhuma skill no seu caminho ainda. Suba de nível e evolua a classe para desbloquear magias.',
-                    hintSelect: 'Selecione uma skill na lista para ver todos os valores e poder equipá-la.',
+                    hintSelect: 'Selecione uma skill para ver o efeito e colocá-la na barra.',
+                    backToList: 'Voltar à lista',
+                    effectLabel: 'O que faz',
                     profileBtn: 'GRIMÓRIO (SKILLS)',
                     newBadge: 'NOVA',
                     notifProfileAria: '{count} skills novas — abra Perfil',
@@ -4186,15 +4208,17 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     cdShort: 'Recarga',
                     seconds: 's',
                     mpLabel: 'Custo de MP',
-                    cdLabel: 'Tempo de recarga',
+                    cdLabel: 'Recarga',
                     castLabel: 'Cast',
                     powerLabel: 'Poder / multiplicador',
                     typeLabel: 'Categoria',
                     powerFmt: '{n}× base',
                     powerNA: '—',
+                    effectDmgMult: '{n}× dano',
+                    effectBuffPct: '+{n}% bônus',
                     effectPctHp: 'Restaura ~{n}% do HP máx.',
                     effectPctMp: 'Restaura ~{n}% do MP máx.',
-                    learnLevel: 'Desbloqueio no progresso da classe (nível {lvl}+)',
+                    learnLevel: 'Disponível a partir do nível {lvl}',
                     unlockAtLevel: 'Nv {lvl}',
                     lockedDetail: 'Bloqueada — libera no nível {lvl}',
                     fromClass: '{name}',

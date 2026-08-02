@@ -606,15 +606,29 @@ window.spellbookFormatPowerCell = function (skill: SkillCatalogEntry | null | un
     if (!skill) return typeof window.t === 'function' ? window.t('game.spellbook.powerNA') : '—';
     const tipo = skill.tipo || '';
     const tn = typeof window.t === 'function' ? window.t : (k: string) => k;
-    if (tipo === 'debuff' || tipo === 'utilidade' || tipo === 'pet') return tn('game.spellbook.powerNA');
+    if (tipo === 'debuff' || tipo === 'utilidade' || tipo === 'pet' || tipo === 'basico') {
+        return '';
+    }
     const p = skill.poder;
-    if (tipo === 'basico') return tn('game.spellbook.powerNA');
-    if (p === undefined || p === null) return tn('game.spellbook.powerNA');
+    if (p === undefined || p === null) return '';
     if (tipo === 'cura' || tipo === 'recuperacao') {
         return p <= 1.5 ? tn('game.spellbook.effectPctHp', { n: Math.round(p * 100) }) : String(p);
     }
     if (tipo === 'cura_mp') {
         return p <= 1.5 ? tn('game.spellbook.effectPctMp', { n: Math.round(p * 100) }) : String(p);
+    }
+    if (tipo === 'buff_atk' || tipo === 'buff_def' || tipo === 'buff_spd') {
+        const pct = Math.round((Number(p) - 1) * 100);
+        if (pct > 0) return tn('game.spellbook.effectBuffPct', { n: pct });
+        return tn('game.spellbook.powerFmt', { n: p });
+    }
+    if (
+        tipo === 'ataque'
+        || tipo === 'ataque_area'
+        || tipo === 'ataque_ultimate'
+        || tipo === 'ataque_cura'
+    ) {
+        return tn('game.spellbook.effectDmgMult', { n: p });
     }
     return tn('game.spellbook.powerFmt', { n: p });
 };
@@ -624,15 +638,61 @@ window.spellbookIconInnerHtml = function (iconeHtml: string | undefined, px?: nu
     if (!iconeHtml) return '<span>?</span>';
     const h = String(iconeHtml);
     if (h.indexOf('<img') !== -1) {
-        let out = h.replace(/width:\s*[\d.]+px/gi, 'width:' + px + 'px').replace(/height:\s*[\d.]+px/gi, 'height:' + px + 'px');
+        // Large / list icons: fill the frame (CSS object-fit). Tiny hotbar-era 35px styles are stripped.
+        if (px >= 48) {
+            const fitStyle = 'width:100%;height:100%;object-fit:contain;pointer-events:none;';
+            let out = h
+                .replace(/style="[^"]*"/i, 'style="' + fitStyle + '"')
+                .replace(/\sstyle='[^']*'/i, ' style="' + fitStyle + '"');
+            if (out === h) {
+                out = h.replace(/<img/i, '<img style="' + fitStyle + '"');
+            }
+            return out;
+        }
+        let out = h
+            .replace(/width:\s*[\d.]+px/gi, 'width:' + px + 'px')
+            .replace(/height:\s*[\d.]+px/gi, 'height:' + px + 'px');
         if (out === h && h.indexOf('35px') !== -1) out = h.replace(/35px/g, px + 'px');
         return out;
+    }
+    // Emoji / glyph fallback — scale with requested size
+    if (h.indexOf('<span') !== -1 && px >= 48) {
+        const fs = Math.max(22, Math.round(px * 0.55));
+        return h.replace(/font-size:\s*[\d.]+px/gi, 'font-size:' + fs + 'px');
     }
     return h;
 };
 
 // FUNÇÕES DE GERENCIAMENTO
 let skillSelecionadaSpellbook: LearnedSkillMeta | null = null;
+
+function isSpellbookLandscapeLayout(): boolean {
+    return document.documentElement.getAttribute('data-l2-layout') === 'landscape';
+}
+
+function setSpellbookViewMode(mode: 'list' | 'detail'): void {
+    const win = document.getElementById('janela-spellbook');
+    if (!win) return;
+    win.classList.toggle('spellbook-window--detail', mode === 'detail');
+}
+
+window.voltarListaSpellbook = function (): void {
+    skillSelecionadaSpellbook = null;
+    setSpellbookViewMode('list');
+    const detailEl = document.getElementById('spellbook-detail');
+    const hintEl = document.getElementById('spellbook-select-hint');
+    const btnAssign = document.getElementById('btn-spellbook-assign');
+    if (detailEl) {
+        detailEl.classList.remove('spellbook-detail--visible', 'spellbook-detail--locked');
+    }
+    if (btnAssign) btnAssign.classList.remove('spellbook-assign--visible');
+    if (hintEl && isSpellbookLandscapeLayout()) {
+        hintEl.style.display = '';
+    }
+    document.querySelectorAll('.spellbook-row--selected').forEach((r) => {
+        r.classList.remove('spellbook-row--selected');
+    });
+};
 
 function getDirectChildClasses(parentClass: string): string[] {
     const parentLin = linhagemClasses[parentClass] || [parentClass];
@@ -839,7 +899,11 @@ function createSpellbookRow(
     const iconWrap = document.createElement('div');
     iconWrap.className = 'spellbook-row__icon';
     iconWrap.style.borderColor = skill.cor || '#7a664f';
-    iconWrap.innerHTML = window.spellbookIconInnerHtml(skill.icone, 38);
+    if (skill.cor) {
+        iconWrap.style.boxShadow =
+            'inset 0 0 10px rgba(0,0,0,0.5), 0 0 10px ' + skill.cor + '33';
+    }
+    iconWrap.innerHTML = window.spellbookIconInnerHtml(skill.icone, 56);
 
     const body = document.createElement('div');
     body.className = 'spellbook-row__body';
@@ -855,9 +919,9 @@ function createSpellbookRow(
     const cdSec = ((skill.cd != null ? skill.cd : 0) / 1000);
     const learnLvl = skill._learnLvl != null ? skill._learnLvl : 1;
     let metaHtml =
+        `<span class="spellbook-row__tag spellbook-row__tag--type">${window.spellbookTipoLabel(skill.tipo)}</span>` +
         `<span class="spellbook-row__tag spellbook-row__tag--mp">${mpSh} ${mp}</span>` +
-        `<span class="spellbook-row__tag spellbook-row__tag--cd">${cdSh} ${cdSec}${secLab}</span>` +
-        `<span class="spellbook-row__tag spellbook-row__tag--type">${window.spellbookTipoLabel(skill.tipo)}</span>`;
+        `<span class="spellbook-row__tag spellbook-row__tag--cd">${cdSh} ${cdSec}${secLab}</span>`;
     if (locked) {
         metaHtml += `<span class="spellbook-row__tag spellbook-row__tag--lock">${tn('game.spellbook.unlockAtLevel', { lvl: learnLvl })}</span>`;
         if (!opts.hideClassTag && skill._classNode) {
@@ -879,6 +943,12 @@ function createSpellbookRow(
     row.appendChild(iconWrap);
     row.appendChild(body);
 
+    const chev = document.createElement('span');
+    chev.className = 'spellbook-row__chev';
+    chev.setAttribute('aria-hidden', 'true');
+    chev.textContent = '›';
+    row.appendChild(chev);
+
     if (isNew) {
         const newBadge = document.createElement('span');
         newBadge.className = 'spellbook-row__new';
@@ -897,6 +967,7 @@ window.abrirSpellbook = function() {
     const btnAssign = document.getElementById('btn-spellbook-assign');
     if (!listEl || !hintEl || !detailEl || !btnAssign) return;
     skillSelecionadaSpellbook = null;
+    setSpellbookViewMode('list');
     listEl.innerHTML = '';
 
     try {
@@ -917,7 +988,8 @@ window.abrirSpellbook = function() {
         btnAssign.classList.remove('spellbook-assign--visible');
         listEl.innerHTML = `<div class="spellbook-empty">${tn('game.spellbook.empty')}</div>`;
     } else {
-        hintEl.style.display = 'block';
+        // Landscape shows empty-state hint beside the list; portrait uses drill-down.
+        hintEl.style.display = isSpellbookLandscapeLayout() ? '' : 'none';
         detailEl.classList.remove('spellbook-detail--visible');
         btnAssign.classList.remove('spellbook-assign--visible');
 
@@ -967,14 +1039,20 @@ window.abrirSpellbook = function() {
             listEl.appendChild(wrap);
         });
 
-        document.getElementById('spellbook-detail-name')!.textContent = '';
-        document.getElementById('spellbook-detail-desc')!.textContent = '';
-        document.getElementById('spellbook-detail-learn')!.textContent = '';
-        document.getElementById('spellbook-stat-mp')!.textContent = '—';
-        document.getElementById('spellbook-stat-cd')!.textContent = '—';
-        document.getElementById('spellbook-stat-power')!.textContent = '—';
-        document.getElementById('spellbook-stat-type')!.textContent = '—';
-        document.getElementById('spellbook-detail-icon')!.innerHTML = '';
+        const clearText = (id: string) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = '';
+        };
+        clearText('spellbook-detail-name');
+        clearText('spellbook-detail-desc');
+        clearText('spellbook-detail-learn');
+        clearText('spellbook-detail-power');
+        clearText('spellbook-detail-type-badge');
+        clearText('spellbook-stat-mp');
+        clearText('spellbook-stat-cd');
+        clearText('spellbook-stat-cast');
+        const iconHost = document.getElementById('spellbook-detail-icon');
+        if (iconHost) iconHost.innerHTML = '';
     }
 
     abrirModal('janela-spellbook', 1500);
@@ -988,8 +1066,24 @@ window.abrirSpellbook = function() {
     } catch { /* noop */ }
 };
 
-window.fecharSpellbook = function() {
+/**
+ * Close the Spellbook. On mobile, backdrop / system back first returns from the
+ * detail pane to the list (`forceClose` skips that and dismisses immediately —
+ * used by the CLOSE footer button).
+ */
+window.fecharSpellbook = function (forceClose?: boolean) {
+    const win = document.getElementById('janela-spellbook');
+    if (
+        !forceClose
+        && win
+        && win.classList.contains('spellbook-window--detail')
+        && !isSpellbookLandscapeLayout()
+    ) {
+        window.voltarListaSpellbook();
+        return;
+    }
     skillSelecionadaSpellbook = null;
+    setSpellbookViewMode('list');
     fecharModal('janela-spellbook');
 };
 
@@ -1016,13 +1110,31 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
 
     document.querySelectorAll('.spellbook-row').forEach(r => {
         const row = r as HTMLElement;
-        row.classList.toggle('spellbook-row--selected', row.dataset.skillName === nomeSkill);
+        const selected = row.dataset.skillName === nomeSkill;
+        row.classList.toggle('spellbook-row--selected', selected);
+        if (selected) {
+            row.classList.remove('spellbook-row--new');
+            const badge = row.querySelector('.spellbook-row__new');
+            if (badge) badge.setAttribute('hidden', '');
+        }
     });
 
-    document.getElementById('spellbook-select-hint')!.style.display = 'none';
+    const hintEl = document.getElementById('spellbook-select-hint');
+    if (hintEl) hintEl.style.display = 'none';
     const detailEl = document.getElementById('spellbook-detail')!;
     detailEl.classList.add('spellbook-detail--visible');
     detailEl.classList.toggle('spellbook-detail--locked', locked);
+    setSpellbookViewMode('detail');
+
+    const accent = raw.cor || '#eab308';
+    detailEl.style.setProperty('--spell-accent', accent);
+    const heroFrame = detailEl.querySelector('.spellbook-hero__frame') as HTMLElement | null;
+    if (heroFrame) {
+        heroFrame.style.boxShadow =
+            '0 0 0 1px rgba(0,0,0,0.55), 0 10px 28px rgba(0,0,0,0.55), 0 0 40px ' + accent + '55';
+        heroFrame.style.background =
+            'linear-gradient(145deg, ' + accent + '99 0%, rgba(122,102,79,0.35) 45%, rgba(60,50,40,0.85) 100%)';
+    }
 
     const learnP = document.getElementById('spellbook-detail-learn')!;
     const tn = typeof window.t === 'function' ? window.t : (k: string) => k;
@@ -1043,33 +1155,47 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
         learnP.style.display = 'none';
     }
 
+    const typeBadge = document.getElementById('spellbook-detail-type-badge');
+    if (typeBadge) {
+        typeBadge.textContent = window.spellbookTipoLabel(raw.tipo);
+        typeBadge.setAttribute('data-tipo', String(raw.tipo || 'basico'));
+    }
+
     const iconHost = document.getElementById('spellbook-detail-icon')!;
-    iconHost.style.borderColor = raw.cor || '#eab308';
-    iconHost.innerHTML = window.spellbookIconInnerHtml(raw.icone, 42);
+    iconHost.innerHTML = window.spellbookIconInnerHtml(raw.icone, 128);
 
     const title = document.getElementById('spellbook-detail-name')!;
     title.textContent = spellbookSkillName(nomeSkill);
     title.style.color = locked ? '' : (raw.cor || '');
 
-    document.getElementById('spellbook-stat-mp')!.textContent = String(raw.mp != null ? raw.mp : 0);
+    const setStat = (id: string, value: string) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
+
+    setStat('spellbook-stat-mp', String(raw.mp != null ? raw.mp : 0));
     const cdMs = raw.cd != null ? raw.cd : 0;
     const secLbl = tn('game.spellbook.seconds');
-    document.getElementById('spellbook-stat-cd')!.textContent = cdMs === 0 ? '—' : ((cdMs / 1000) + secLbl);
-    const castEl = document.getElementById('spellbook-stat-cast');
-    if (castEl) {
-        const baseCast =
-            typeof window.getSkillBaseCastMs === 'function'
-                ? window.getSkillBaseCastMs(raw)
-                : (typeof raw.castMs === 'number' ? raw.castMs : 0);
-        castEl.textContent =
-            !baseCast || nomeSkill === 'Attack'
-                ? '—'
-                : ((baseCast / 1000).toFixed(1) + secLbl);
-    }
-    document.getElementById('spellbook-stat-power')!.textContent = window.spellbookFormatPowerCell(raw);
-    document.getElementById('spellbook-stat-type')!.textContent = window.spellbookTipoLabel(raw.tipo);
+    setStat('spellbook-stat-cd', cdMs === 0 ? '—' : ((cdMs / 1000) + secLbl));
+    const baseCast =
+        typeof window.getSkillBaseCastMs === 'function'
+            ? window.getSkillBaseCastMs(raw)
+            : (typeof raw.castMs === 'number' ? raw.castMs : 0);
+    setStat(
+        'spellbook-stat-cast',
+        !baseCast || nomeSkill === 'Attack'
+            ? '—'
+            : ((baseCast / 1000).toFixed(1) + secLbl),
+    );
 
-    document.getElementById('spellbook-detail-desc')!.textContent = spellbookSkillDesc(nomeSkill, raw.desc ? String(raw.desc) : '');
+    const powerText = window.spellbookFormatPowerCell(raw) || '';
+    setStat('spellbook-detail-power', powerText);
+    setStat('spellbook-stat-power', powerText);
+    setStat('spellbook-stat-type', window.spellbookTipoLabel(raw.tipo));
+    setStat(
+        'spellbook-detail-desc',
+        spellbookSkillDesc(nomeSkill, raw.desc ? String(raw.desc) : ''),
+    );
 
     const btnAssign = document.getElementById('btn-spellbook-assign')!;
     if (locked) {
@@ -1079,7 +1205,10 @@ window.selecionarSkillSpellbook = function(nomeSkill: string) {
     }
 
     try {
-        detailEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        detailEl.scrollTop = 0;
+        if (isSpellbookLandscapeLayout()) {
+            detailEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
     } catch { /* noop */ }
 };
 

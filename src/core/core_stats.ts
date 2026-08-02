@@ -58,9 +58,11 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let base = (window.statusIniciais && window.statusIniciais[race]) || (window.statusIniciais && window.statusIniciais["Human"]) || { hpFighter: 100, mpFighter: 40, hpMage: 80, mpMage: 80, danoFighter: 10, danoMage: 6, atkSpeedFighter: 3800, atkSpeedMage: 5000, critico: 5 };
     let isMage = typeof window.isClasseMagica === 'function' ? window.isClasseMagica(cl) : false;
 
+    // Keep Attack icon in sync with the hotbar art (legacy ataque_*.png removed).
     if (typeof window.bancoDeSkills !== 'undefined' && window.bancoDeSkills['Attack']) {
-        let imgAtaque = isMage ? "assets/skills/ataque_mago.png" : "assets/skills/ataque_guerreiro.png";
-        window.bancoDeSkills['Attack'].icone = `<img src="${imgAtaque}" style="width: 35px; height: 35px; object-fit: contain; filter: drop-shadow(0 0 3px #000); vertical-align: middle; pointer-events: none;">`;
+        const imgAtaque = 'assets/skills/hf_attack.png';
+        window.bancoDeSkills['Attack'].icone =
+            `<img src="${imgAtaque}" alt="" style="width:35px;height:35px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 3px #000);">`;
     }
 
     let mod = (typeof window.classModifiers !== 'undefined' && window.classModifiers[cl]) ? window.classModifiers[cl] : { hp: 1.0, mp: 1.0, atk: 1.0, def: 1.0, spd: 1.0, crit: 0 };

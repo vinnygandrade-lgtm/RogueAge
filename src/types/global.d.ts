@@ -297,6 +297,8 @@ declare global {
     mudarTela: (id: string) => void;
     irPara: (lugar: string) => void;
     abrirSpellbook?: () => void;
+    voltarListaSpellbook?: () => void;
+    fecharSpellbook?: (forceClose?: boolean) => void;
     spellbookTipoLabel?: (tipo: string) => string;
     spellbookFormatPowerCell?: (skill: Record<string, unknown> | null | undefined) => string;
     spellbookIconInnerHtml?: (iconeHtml: string, px?: number) => string;
@@ -823,7 +825,8 @@ declare global {
   function confirmarTrocaClasse(novaClasse: string): void;
   function executarTrocaClasse(novaClasse: string): void;
   function fecharJanelaBloqueioGrade(): void;
-  function fecharSpellbook(): void;
+  function fecharSpellbook(forceClose?: boolean): void;
+  function voltarListaSpellbook(): void;
   function fecharMissoesDiarias(): void;
   function fecharJanelaDailyBoss(): void;
   function abrirJanelaDailyBoss(): void;

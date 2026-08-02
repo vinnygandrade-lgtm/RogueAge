@@ -995,47 +995,58 @@
     <div id="janela-spellbook" class="store-window spellbook-window">
         <div class="store-header"><span class="spellbook-header-title" data-i18n="game.spellbook.title">SPELLBOOK</span></div>
         <div class="store-body spellbook-store-body">
-            <p class="spellbook-sub" data-i18n="game.spellbook.subtitle">Learned skills and upcoming unlocks. Tap a skill for details — only unlocked skills can go on your action bar.</p>
-            <div class="spellbook-body">
-                <div id="spellbook-list" class="spellbook-list" role="listbox" aria-label="Skills"></div>
-                <p id="spellbook-select-hint" class="spellbook-detail__hint" data-i18n="game.spellbook.hintSelect">Select a skill above to inspect it and assign to a shortcut.</p>
+            <div class="spellbook-body" id="spellbook-body">
+                <div class="spellbook-pane spellbook-pane--list" id="spellbook-pane-list">
+                    <p class="spellbook-sub" data-i18n="game.spellbook.subtitle">Ready skills, upcoming unlocks, and specialization previews. Tap a skill to inspect it.</p>
+                    <div id="spellbook-list" class="spellbook-list" role="listbox" aria-label="Skills"></div>
+                </div>
+                <p id="spellbook-select-hint" class="spellbook-detail__hint" data-i18n="game.spellbook.hintSelect">Select a skill in the list to see its effect and assign it to your bar.</p>
                 <div id="spellbook-detail" class="spellbook-detail" aria-live="polite">
-                    <div class="spellbook-detail__head">
-                        <div id="spellbook-detail-icon" class="spellbook-detail__icon"></div>
-                        <div class="spellbook-detail__titles">
+                    <button type="button" id="btn-spellbook-back" class="spellbook-back" onclick="voltarListaSpellbook()">
+                        <span class="spellbook-back__chev" aria-hidden="true">‹</span>
+                        <span data-i18n="game.spellbook.backToList">Back to list</span>
+                    </button>
+                    <div class="spellbook-hero">
+                        <div class="spellbook-hero__frame">
+                            <div id="spellbook-detail-icon" class="spellbook-hero__art"></div>
+                        </div>
+                        <div class="spellbook-hero__titles">
+                            <span id="spellbook-detail-type-badge" class="spellbook-type-badge"></span>
                             <h3 id="spellbook-detail-name" class="spellbook-detail__name"></h3>
                             <p id="spellbook-detail-learn" class="spellbook-detail__learn"></p>
                         </div>
                     </div>
-                    <div class="spellbook-detail__stats">
-                        <div class="spellbook-stat">
+                    <div class="spellbook-effect">
+                        <div class="spellbook-effect__head">
+                            <span class="spellbook-effect__label" data-i18n="game.spellbook.effectLabel">What it does</span>
+                            <span id="spellbook-detail-power" class="spellbook-effect__power"></span>
+                        </div>
+                        <p id="spellbook-detail-desc" class="spellbook-effect__text"></p>
+                    </div>
+                    <div class="spellbook-detail__stats" aria-label="Skill costs">
+                        <div class="spellbook-stat spellbook-stat--mp">
                             <span class="spellbook-stat__label" data-i18n="game.spellbook.mpLabel">MP cost</span>
                             <span id="spellbook-stat-mp" class="spellbook-stat__value">—</span>
                         </div>
-                        <div class="spellbook-stat">
+                        <div class="spellbook-stat spellbook-stat--cd">
                             <span class="spellbook-stat__label" data-i18n="game.spellbook.cdLabel">Cooldown</span>
                             <span id="spellbook-stat-cd" class="spellbook-stat__value">—</span>
                         </div>
-                        <div class="spellbook-stat">
+                        <div class="spellbook-stat spellbook-stat--cast">
                             <span class="spellbook-stat__label" data-i18n="game.spellbook.castLabel">Cast</span>
                             <span id="spellbook-stat-cast" class="spellbook-stat__value">—</span>
                         </div>
-                        <div class="spellbook-stat">
-                            <span class="spellbook-stat__label" data-i18n="game.spellbook.powerLabel">Power</span>
-                            <span id="spellbook-stat-power" class="spellbook-stat__value">—</span>
-                        </div>
-                        <div class="spellbook-stat">
-                            <span class="spellbook-stat__label" data-i18n="game.spellbook.typeLabel">Category</span>
-                            <span id="spellbook-stat-type" class="spellbook-stat__value">—</span>
-                        </div>
                     </div>
-                    <p id="spellbook-detail-fulltype" class="spellbook-detail__fulltype"></p>
-                    <p id="spellbook-detail-desc" class="spellbook-detail__desc"></p>
-                    <button type="button" id="btn-spellbook-assign" class="btn-l2" data-i18n="game.spellbook.assignBar" onclick="mostrarSeletorSlot()">ASSIGN TO SHORTCUT BAR</button>
+                    <p id="spellbook-detail-fulltype" class="spellbook-detail__fulltype" hidden></p>
+                    <span id="spellbook-stat-power" hidden aria-hidden="true"></span>
+                    <span id="spellbook-stat-type" hidden aria-hidden="true"></span>
+                    <div class="spellbook-detail__actions">
+                        <button type="button" id="btn-spellbook-assign" class="btn-l2" data-i18n="game.spellbook.assignBar" onclick="mostrarSeletorSlot()">ASSIGN TO SHORTCUT BAR</button>
+                    </div>
                 </div>
             </div>
         </div>
-        <button type="button" class="btn-l2 spellbook-footer-close" data-i18n="game.spellbook.close" onclick="fecharSpellbook()">CLOSE</button>
+        <button type="button" class="btn-l2 spellbook-footer-close" data-i18n="game.spellbook.close" onclick="fecharSpellbook(true)">CLOSE</button>
     </div>
 
     <div id="janela-daily-boss" class="store-window">
