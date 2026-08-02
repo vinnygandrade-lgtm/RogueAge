@@ -61,6 +61,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-02',
                         items: [
+                            'Human Knight path icons: Drain Health, Summon Panther, Iron Will, Hamstring, Touch of Death, Shield Stun, Holy Blessing, Majesty, and Phoenix Strike.',
                             'Spellbook redesigned: tap a skill to open a full card with large art, a clear “what it does” effect, and simple MP / cooldown / cast costs.',
                             'Portrait-friendly flow — the list steps aside for the skill card, with Back to list; no more cramped bottom panel.',
                             'Basic Attack icon in the Spellbook now matches the combat bar art.'
@@ -3227,6 +3228,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-02',
                         items: [
+                            'Ícones da linha Human Knight: Drain Health, Summon Panther, Iron Will, Hamstring, Touch of Death, Shield Stun, Holy Blessing, Majesty e Phoenix Strike.',
                             'Grimório redesenhado: toca numa skill para abrir a ficha completa com arte grande, o efeito em “O que faz” e custos claros de MP / recarga / cast.',
                             'Fluxo pensado para o telemóvel — a lista sai de cena pela ficha, com Voltar à lista; sem painel espremido em baixo.',
                             'Ícone do Ataque Básico no Grimório agora bate com a arte da barra de combate.'
