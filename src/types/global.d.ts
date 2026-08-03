@@ -95,6 +95,10 @@ declare global {
     formatMobCardName?: (mob: { idImg?: string; nome?: string; isChampion?: boolean }) => string;
     itemDropDisplayName?: (itemKey: string) => string;
     consumableDisplayName?: (itemKey: string) => string;
+    resolveActiveShotKey?: (isMage: boolean, weaponGrade?: unknown) => string;
+    weaponGradeToShotBand?: (grade: unknown) => 'NG' | 'D' | 'C' | 'B' | 'A' | 'S';
+    shotIconPathForKey?: (nome: string | null | undefined) => string;
+    isShotConsumableName?: (nome: string | null | undefined) => boolean;
     consumableDescText?: (itemKey: string) => string;
     dailyBossRegionDisplay?: (bossId: string | undefined, fallback?: string) => string;
     hotbarDisplayName?: (slotKey: string) => string;

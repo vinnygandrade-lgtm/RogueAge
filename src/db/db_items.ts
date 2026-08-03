@@ -350,11 +350,22 @@ const catalogoArmas: ItemCatalogBase[] = [
 const precosVenda: Record<string, number> = { "Animal Skin": 13, "Animal Bone": 18, "Coal": 24, "Charcoal": 30, "Iron Ore": 38 };
 
 // --- CONSUMÍVEIS E SCROLLS ---
+// Shot unit prices (Adena): NG 6 → D 20 → C 60 → B 180 → A 500 → S 1500 (SS = BSS).
 const catalogoConsumiveis: ShopCatalogItem[] = [
-    { id: 'pot_hp', nome: 'HP Potion', preco: 58, img: 'assets/npcs/grocer.png', desc: 'Instantly restores 50 HP.' },
-    { id: 'pot_mp', nome: 'Mana Potion', preco: 58, img: 'assets/npcs/grocer.png', desc: 'Instantly restores 40 MP.' },
-    { id: 'shot_ng', nome: 'Soulshot (NG)', preco: 6, img: 'assets/npcs/grocer.png', desc: 'Auto-use: +20% damage on hit. [Fighters]' },
-    { id: 'bshot_ng', nome: 'B. Spiritshot (NG)', preco: 6, img: 'assets/npcs/grocer.png', desc: 'Auto-use: +20% damage on hit. [Mages]' }
+    { id: 'pot_hp', nome: 'HP Potion', preco: 58, img: 'assets/itens/pot_hp.png', desc: 'Instantly restores 50 HP.' },
+    { id: 'pot_mp', nome: 'Mana Potion', preco: 58, img: 'assets/itens/pot_mp.png', desc: 'Instantly restores 40 MP.' },
+    { id: 'shot_ng', nome: 'Soulshot (NG)', grade: 'No-Grade', preco: 6, img: 'assets/itens/soulshot_ng.png', desc: 'Auto-use: +20% damage on hit. Matches No-Grade weapons. [Fighters]' },
+    { id: 'shot_d', nome: 'Soulshot (D)', grade: 'D', preco: 20, img: 'assets/itens/soulshot_d.png', desc: 'Auto-use: +20% damage on hit. Matches D-grade weapons. [Fighters]' },
+    { id: 'shot_c', nome: 'Soulshot (C)', grade: 'C', preco: 60, img: 'assets/itens/soulshot_c.png', desc: 'Auto-use: +20% damage on hit. Matches C-grade weapons. [Fighters]' },
+    { id: 'shot_b', nome: 'Soulshot (B)', grade: 'B', preco: 180, img: 'assets/itens/soulshot_b.png', desc: 'Auto-use: +20% damage on hit. Matches B-grade weapons. [Fighters]' },
+    { id: 'shot_a', nome: 'Soulshot (A)', grade: 'A', preco: 500, img: 'assets/itens/soulshot_a.png', desc: 'Auto-use: +20% damage on hit. Matches A-grade weapons. [Fighters]' },
+    { id: 'shot_s', nome: 'Soulshot (S)', grade: 'S', preco: 1500, img: 'assets/itens/soulshot_s.png', desc: 'Auto-use: +20% damage on hit. Matches S-grade weapons. [Fighters]' },
+    { id: 'bshot_ng', nome: 'B. Spiritshot (NG)', grade: 'No-Grade', preco: 6, img: 'assets/itens/spiritshot_ng.png', desc: 'Auto-use: +20% damage on hit. Matches No-Grade weapons. [Mages]' },
+    { id: 'bshot_d', nome: 'B. Spiritshot (D)', grade: 'D', preco: 20, img: 'assets/itens/spiritshot_d.png', desc: 'Auto-use: +20% damage on hit. Matches D-grade weapons. [Mages]' },
+    { id: 'bshot_c', nome: 'B. Spiritshot (C)', grade: 'C', preco: 60, img: 'assets/itens/spiritshot_c.png', desc: 'Auto-use: +20% damage on hit. Matches C-grade weapons. [Mages]' },
+    { id: 'bshot_b', nome: 'B. Spiritshot (B)', grade: 'B', preco: 180, img: 'assets/itens/spiritshot_b.png', desc: 'Auto-use: +20% damage on hit. Matches B-grade weapons. [Mages]' },
+    { id: 'bshot_a', nome: 'B. Spiritshot (A)', grade: 'A', preco: 500, img: 'assets/itens/spiritshot_a.png', desc: 'Auto-use: +20% damage on hit. Matches A-grade weapons. [Mages]' },
+    { id: 'bshot_s', nome: 'B. Spiritshot (S)', grade: 'S', preco: 1500, img: 'assets/itens/spiritshot_s.png', desc: 'Auto-use: +20% damage on hit. Matches S-grade weapons. [Mages]' },
 ];
 
 const catalogoScrolls: EnchantScrollCatalogEntry[] = [

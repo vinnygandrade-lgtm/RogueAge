@@ -7,6 +7,7 @@ import { petDisplayName, writeSkillLog } from './combat_i18n';
 import { mobDefenseAgainstPlayer } from './mob_combat_stats';
 import { resolveSkillCastMs } from './skill_cast';
 import { setSkillCombatBuff } from './skill_combat_buffs';
+import { resolveActiveShotKey } from './shot_ammo';
 import type { SkillCatalogEntry } from '../types/game';
 
 interface ForestMob {
@@ -197,7 +198,10 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
                 const el = document.getElementById('tela-olympiad-arena');
                 return el && el.style.display === 'flex';
             })();
-            let shot = isMagico ? 'B. Spiritshot (NG)' : 'Soulshot (NG)';
+            const shot =
+                typeof window.resolveActiveShotKey === 'function'
+                    ? window.resolveActiveShotKey(!!isMagico)
+                    : resolveActiveShotKey(!!isMagico);
             if (typeof window.autoShotAtivo !== 'undefined' && window.autoShotAtivo && !naOlympiadSkill) {
                 if (window.inventario[shot] && window.inventario[shot] > 0) {
                     window.inventario[shot]--;

@@ -21,7 +21,17 @@ const ITEM_DROP_KEYS: Record<string, string> = {
 
 const CONSUMABLE_KEYS: Record<string, string> = {
   'Soulshot (NG)': 'game.items.consumables.soulshotNg',
+  'Soulshot (D)': 'game.items.consumables.soulshotD',
+  'Soulshot (C)': 'game.items.consumables.soulshotC',
+  'Soulshot (B)': 'game.items.consumables.soulshotB',
+  'Soulshot (A)': 'game.items.consumables.soulshotA',
+  'Soulshot (S)': 'game.items.consumables.soulshotS',
   'B. Spiritshot (NG)': 'game.items.consumables.blessedSpiritshotNg',
+  'B. Spiritshot (D)': 'game.items.consumables.blessedSpiritshotD',
+  'B. Spiritshot (C)': 'game.items.consumables.blessedSpiritshotC',
+  'B. Spiritshot (B)': 'game.items.consumables.blessedSpiritshotB',
+  'B. Spiritshot (A)': 'game.items.consumables.blessedSpiritshotA',
+  'B. Spiritshot (S)': 'game.items.consumables.blessedSpiritshotS',
   'HP Potion': 'game.items.consumables.hpPotion',
   'Mana Potion': 'game.items.consumables.manaPotion',
   'MP Potion': 'game.items.consumables.manaPotion',
@@ -32,7 +42,17 @@ const CONSUMABLE_DESC_KEYS: Record<string, string> = {
   'Mana Potion': 'game.smartbar.itemDesc.manaPotion',
   'MP Potion': 'game.smartbar.itemDesc.manaPotion',
   'Soulshot (NG)': 'game.smartbar.itemDesc.soulshot',
+  'Soulshot (D)': 'game.smartbar.itemDesc.soulshot',
+  'Soulshot (C)': 'game.smartbar.itemDesc.soulshot',
+  'Soulshot (B)': 'game.smartbar.itemDesc.soulshot',
+  'Soulshot (A)': 'game.smartbar.itemDesc.soulshot',
+  'Soulshot (S)': 'game.smartbar.itemDesc.soulshot',
   'B. Spiritshot (NG)': 'game.smartbar.itemDesc.spiritshot',
+  'B. Spiritshot (D)': 'game.smartbar.itemDesc.spiritshot',
+  'B. Spiritshot (C)': 'game.smartbar.itemDesc.spiritshot',
+  'B. Spiritshot (B)': 'game.smartbar.itemDesc.spiritshot',
+  'B. Spiritshot (A)': 'game.smartbar.itemDesc.spiritshot',
+  'B. Spiritshot (S)': 'game.smartbar.itemDesc.spiritshot',
 };
 
 const BOSS_I18N_IDS: Record<string, string> = {

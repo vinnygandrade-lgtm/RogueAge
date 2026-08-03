@@ -1612,7 +1612,17 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     },
                     consumables: {
                         soulshotNg: 'Soulshot (NG)',
+                        soulshotD: 'Soulshot (D)',
+                        soulshotC: 'Soulshot (C)',
+                        soulshotB: 'Soulshot (B)',
+                        soulshotA: 'Soulshot (A)',
+                        soulshotS: 'Soulshot (S)',
                         blessedSpiritshotNg: 'Blessed Spiritshot (NG)',
+                        blessedSpiritshotD: 'Blessed Spiritshot (D)',
+                        blessedSpiritshotC: 'Blessed Spiritshot (C)',
+                        blessedSpiritshotB: 'Blessed Spiritshot (B)',
+                        blessedSpiritshotA: 'Blessed Spiritshot (A)',
+                        blessedSpiritshotS: 'Blessed Spiritshot (S)',
                         hpPotion: 'HP Potion',
                         manaPotion: 'Mana Potion'
                     }
@@ -1780,8 +1790,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     itemDesc: {
                         hpPotion: 'Magic potion. Use to restore HP in combat.',
                         manaPotion: 'Magic potion. Use to restore MP in combat.',
-                        soulshot: 'Auto-use: greatly increases physical damage.',
-                        spiritshot: 'Auto-use: greatly increases magic damage.',
+                        soulshot: 'Auto-use: +20% physical damage. Must match your weapon grade.',
+                        spiritshot: 'Auto-use: +20% magic damage. Must match your weapon grade.',
                         recipe: 'Ancient instructions used to forge powerful gear.',
                         ancientCoin: 'Coin from a forgotten empire. Priceless.',
                         adena: 'Common coin of Aden. Used everywhere for trade.',
@@ -4783,7 +4793,17 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     },
                     consumables: {
                         soulshotNg: 'Soulshot (NG)',
+                        soulshotD: 'Soulshot (D)',
+                        soulshotC: 'Soulshot (C)',
+                        soulshotB: 'Soulshot (B)',
+                        soulshotA: 'Soulshot (A)',
+                        soulshotS: 'Soulshot (S)',
                         blessedSpiritshotNg: 'Blessed Spiritshot (NG)',
+                        blessedSpiritshotD: 'Blessed Spiritshot (D)',
+                        blessedSpiritshotC: 'Blessed Spiritshot (C)',
+                        blessedSpiritshotB: 'Blessed Spiritshot (B)',
+                        blessedSpiritshotA: 'Blessed Spiritshot (A)',
+                        blessedSpiritshotS: 'Blessed Spiritshot (S)',
                         hpPotion: 'Poção de HP',
                         manaPotion: 'Poção de MP'
                     }
@@ -4951,8 +4971,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     itemDesc: {
                         hpPotion: 'Poção mágica. Use para recuperar HP em combate.',
                         manaPotion: 'Poção mágica. Use para recuperar MP em combate.',
-                        soulshot: 'Uso automático: aumenta muito o dano físico.',
-                        spiritshot: 'Uso automático: aumenta muito o dano mágico.',
+                        soulshot: 'Uso automático: +20% de dano físico. Precisa combinar com a grade da arma.',
+                        spiritshot: 'Uso automático: +20% de dano mágico. Precisa combinar com a grade da arma.',
                         recipe: 'Instruções antigas para forjar equipamento poderoso.',
                         ancientCoin: 'Moeda de um império esquecido. Inestimável.',
                         adena: 'Moeda comum de Aden. Usada em todo comércio.',

@@ -86,6 +86,7 @@ async function bootGame(): Promise<void> {
   tickBoot(78, bootMsg('loading.phaseOnline', 'Loading online services...'));
 
   await import('./combat/combat_i18n');
+  await import('./combat/shot_ammo');
   await import('./core/core');
   await import('./systems/raid_engine');
   await import('./combat/combat_feedback');

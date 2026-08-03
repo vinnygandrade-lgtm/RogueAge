@@ -176,11 +176,18 @@ function abrirAcaoItemGeral(
 
   let imgItem = 'assets/npcs/grocer.png';
   if (itemData?.img) imgItem = itemData.img;
+  else if (nome === 'HP Potion') imgItem = 'assets/itens/pot_hp.png';
+  else if (nome === 'Mana Potion' || nome === 'MP Potion') imgItem = 'assets/itens/pot_mp.png';
   else if (nome.includes('Potion')) imgItem = 'assets/itens/pot_hp.png';
   else if (nome.includes('Recipe')) imgItem = 'assets/itens/recipe_s.png';
   else if (nome.includes('Ancient Coin')) imgItem = 'assets/itens/ancient_coin.png';
   else if (nome === 'Adena') imgItem = 'assets/itens/adena_coin.png';
-  else if (nome.includes('Soulshot') || nome.includes('Spiritshot')) imgItem = 'assets/itens/shot_ng.png';
+  else if (nome.includes('Soulshot') || nome.includes('Spiritshot')) {
+    imgItem =
+      typeof window.shotIconPathForKey === 'function'
+        ? window.shotIconPathForKey(nome)
+        : 'assets/itens/soulshot_ng.png';
+  }
 
   const displayName = hotbarLabel(nome);
   const textoDesc = resolveSmartbarItemDesc(nome, itemData);
@@ -305,10 +312,15 @@ function obterImgItemDinamico(nome: string | null | undefined): string {
   const itemEncontrado = findCatalogRow(nome);
   if (itemEncontrado?.img) return itemEncontrado.img;
 
+  if (nome === 'HP Potion') return 'assets/itens/pot_hp.png';
+  if (nome === 'Mana Potion' || nome === 'MP Potion') return 'assets/itens/pot_mp.png';
   if (nome.includes('Potion')) return 'assets/itens/pot_hp.png';
   if (nome.includes('Recipe')) return 'assets/itens/recipe_s.png';
-  if (nome.includes('Soulshot')) return 'assets/itens/shot_ng.png';
-  if (nome.includes('Spiritshot')) return 'assets/itens/shot_ng.png';
+  if (nome.includes('Soulshot') || nome.includes('Spiritshot')) {
+    return typeof window.shotIconPathForKey === 'function'
+      ? window.shotIconPathForKey(nome)
+      : 'assets/itens/soulshot_ng.png';
+  }
   if (nome.includes('Ancient Coin')) return 'assets/itens/ancient_coin.png';
   if (nome === 'Adena') return 'assets/itens/adena_coin.png';
 
@@ -517,12 +529,24 @@ function renderizarBarraAtalhos(): void {
             styleExtra = `border-color: ${skill.cor || '#888'}88; box-shadow: inset 0 0 8px ${skill.cor || '#888'}20;`;
           } else {
             let qtd = 0;
-            if (nomeSlot === 'MP Potion' && window.inventario['Mana Potion']) qtd = window.inventario['Mana Potion'];
-            else if (nomeSlot === 'Mana Potion' && window.inventario['MP Potion']) qtd = window.inventario['MP Potion'];
-            else qtd = window.inventario[nomeSlot] || 0;
+            let imgKey = nomeSlot;
+            const isShotSlotRow =
+              nomeSlot.includes('Soulshot') || nomeSlot.includes('Spiritshot');
+            if (isShotSlotRow && typeof window.resolveActiveShotKey === 'function') {
+              const isMage =
+                typeof window.isClasseMagica === 'function' && window.isClasseMagica(window.charClass);
+              imgKey = window.resolveActiveShotKey(!!isMage);
+              qtd = window.inventario[imgKey] || 0;
+            } else if (nomeSlot === 'MP Potion' && window.inventario['Mana Potion']) {
+              qtd = window.inventario['Mana Potion'];
+            } else if (nomeSlot === 'Mana Potion' && window.inventario['MP Potion']) {
+              qtd = window.inventario['MP Potion'];
+            } else {
+              qtd = window.inventario[nomeSlot] || 0;
+            }
 
-            const imgItem = obterImgItemDinamico(nomeSlot);
-            if (window.autoShotAtivo && (nomeSlot.includes('Soulshot') || nomeSlot.includes('Spiritshot'))) {
+            const imgItem = obterImgItemDinamico(imgKey);
+            if (window.autoShotAtivo && isShotSlotRow) {
               classExtra = 'auto-shot-active';
             }
 

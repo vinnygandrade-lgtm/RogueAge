@@ -777,7 +777,9 @@ function _marketResolveStackItemImg(nome: string): string {
     const dadosItem = _marketCatalogFindByName(nome);
     if (dadosItem?.img) imgSrc = dadosItem.img;
     else {
-        if (nome.indexOf('Potion') !== -1) imgSrc = 'assets/itens/pot_hp.png';
+        if (nome === 'HP Potion') imgSrc = 'assets/itens/pot_hp.png';
+        else if (nome === 'Mana Potion' || nome === 'MP Potion') imgSrc = 'assets/itens/pot_mp.png';
+        else if (nome.indexOf('Potion') !== -1) imgSrc = 'assets/itens/pot_hp.png';
         else if (nome.indexOf('Recipe') !== -1) imgSrc = 'assets/itens/recipe_s.png';
         else if (nome.indexOf('Ancient') !== -1) imgSrc = 'assets/itens/ancient_coin.png';
         else if (nome === kMoedaAd) imgSrc = 'assets/itens/adena_coin.png';

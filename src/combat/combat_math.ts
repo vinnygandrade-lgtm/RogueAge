@@ -7,6 +7,7 @@ import { consumableDisplayName } from './combat_i18n';
 import { severityFromDamageRatio, triggerCombatImpact } from './combat_feedback';
 import { mobAttacksMagically, mobDefenseAgainstPlayer, mobPrimaryAtk } from './mob_combat_stats';
 import { onMobThreatHitPlayer } from './mob_threat';
+import { resolveActiveShotKey } from './shot_ammo';
 
 interface ForestMob {
   idUnico?: string;
@@ -405,7 +406,10 @@ function tentarGolpeAtaqueBasico(): boolean {
     foiCritico = true;
   }
   danoFinal = Math.max(1, Math.floor(danoFinal));
-  const shotKey = isMage ? 'B. Spiritshot (NG)' : 'Soulshot (NG)';
+  const shotKey =
+    typeof window.resolveActiveShotKey === 'function'
+      ? window.resolveActiveShotKey(isMage)
+      : resolveActiveShotKey(isMage);
   const shotLabel = consumableDisplayName(shotKey);
 
   const olyEl = document.getElementById('tela-olympiad-arena');
