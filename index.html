@@ -48,20 +48,11 @@
     <!-- Landscape PC: DEVE ficar por último para vencer auth-flow / screens -->
     <link rel="stylesheet" href="css/shell-landscape.css">
     <script>
-      /* Early layout hint — before modules boot (PC CSS needs data-l2-layout=landscape) */
+      /* Early layout hint — portrait-only product focus (PC landscape frozen). */
       (function () {
         try {
-          var pref = localStorage.getItem('l2mini_layout') || 'auto';
-          var w = window.innerWidth || 0;
-          var h = Math.max(window.innerHeight || 1, 1);
-          var fine = window.matchMedia && window.matchMedia('(pointer: fine)').matches
-            && !(window.matchMedia('(pointer: coarse)').matches);
-          var land = window.matchMedia && window.matchMedia('(orientation: landscape)').matches;
-          var wide = w >= 900 && (fine || land || w / h >= 1.2);
-          var mode = pref === 'landscape' || pref === 'portrait'
-            ? pref
-            : (wide ? 'landscape' : 'portrait');
-          document.documentElement.setAttribute('data-l2-layout', mode);
+          document.documentElement.setAttribute('data-l2-layout', 'portrait');
+          try { localStorage.setItem('l2mini_layout', 'portrait'); } catch (e2) { /* ignore */ }
         } catch (e) { /* ignore */ }
       })();
     </script>
@@ -392,11 +383,9 @@
                 </div>
                 <div class="settings-block">
                     <h4 class="settings-block__label" id="settings-layout-heading" data-i18n="game.settings.layout.title">Layout</h4>
-                    <p class="settings-layout-lead" data-i18n="game.settings.layout.lead">Auto follows your screen size. Mobile keeps the tall phone layout; PC uses a wide view.</p>
-                    <div class="settings-layout-row" role="group" aria-labelledby="settings-layout-heading">
-                        <button type="button" class="settings-layout-btn" data-layout-pref="auto" data-i18n="game.settings.layout.auto">Auto</button>
-                        <button type="button" class="settings-layout-btn" data-layout-pref="portrait" data-i18n="game.settings.layout.mobile">Mobile</button>
-                        <button type="button" class="settings-layout-btn" data-layout-pref="landscape" data-i18n="game.settings.layout.pc">PC</button>
+                    <p class="settings-layout-lead" data-i18n="game.settings.layout.lead">RogueAge uses the tall mobile layout only for now — optimized for vertical play.</p>
+                    <div class="settings-layout-row" role="group" aria-labelledby="settings-layout-heading" hidden>
+                        <button type="button" class="settings-layout-btn settings-layout-btn--active" data-layout-pref="portrait" data-i18n="game.settings.layout.mobile">Mobile</button>
                     </div>
                 </div>
             </section>
@@ -929,12 +918,17 @@
         </div>
     </div>
 
-    <div id="janela-classes" class="store-window">
-        <div class="store-header"><span>CLASS TRANSFER</span></div>
+    <div id="janela-classes" class="store-window store-window--class-path">
+        <div class="store-header store-header--classes">
+            <span data-i18n="game.classes.title">CLASS TRANSFER</span>
+            <button type="button" class="class-path-header-x" onclick="fecharMenuClasses()" data-i18n-title="game.classes.closeBtn" title="CLOSE" aria-label="CLOSE">×</button>
+        </div>
         <div class="store-body store-body--classes">
-            <div id="classes-aviso"></div>
-            <div id="classes-opcoes-container"></div>
-            <button type="button" class="btn-l2 btn-classes-close" onclick="fecharMenuClasses()">CLOSE</button>
+            <div id="classes-aviso" class="classes-aviso"></div>
+            <div id="classes-opcoes-container" class="classes-opcoes"></div>
+        </div>
+        <div class="store-footer store-footer--classes">
+            <button type="button" class="btn-l2 btn-classes-close" data-i18n="game.classes.closeBtn" onclick="fecharMenuClasses()">CLOSE</button>
         </div>
     </div>
 
@@ -1534,18 +1528,16 @@
     <!-- TELA: JOGO (CONTEÚDO PRINCIPAL) -->
     <div id="screen-game" class="screen">
 
-        <div id="hud-top-bar">
-            <!-- Main Row: Avatar, Name, Bars, Currencies -->
+        <div id="hud-top-bar" class="hud-top-bar--slim">
+            <!-- Slim status: avatar + name/coins + thin vitals + XP -->
             <div class="hud-main-row">
-                <!-- Avatar & Level -->
-                <div class="hud-avatar-container" onclick="irPara('perfil')">
+                <div class="hud-avatar-container" onclick="irPara('perfil')" title="Profile">
                     <div class="hud-avatar-circle">
                         <img id="hud-avatar-img" src="assets/chars/base_fighter.png" alt="Avatar">
                     </div>
-                    <div class="hud-level-badge">LVL <span id="meu-lvl">1</span></div>
+                    <div class="hud-level-badge"><span id="meu-lvl">1</span></div>
                 </div>
 
-                <!-- Player Info & Stats -->
                 <div class="hud-player-info">
                     <div class="hud-name-row">
                         <span id="char-display-name-top" class="hud-char-name">Character Name</span>
@@ -1562,17 +1554,14 @@
                     </div>
 
                     <div class="hud-stat-bars-container">
-                        <!-- CP Bar -->
                         <div class="hud-bar-wrapper cp">
                             <div id="player-cp-fill" class="hud-bar-fill cp hud-bar-fill--full"></div>
                             <div class="hud-bar-text" id="player-cp-text">60/60</div>
                         </div>
-                        <!-- HP Bar -->
                         <div class="hud-bar-wrapper hp">
                             <div id="player-hp-fill" class="hud-bar-fill hp hud-bar-fill--full"></div>
                             <div class="hud-bar-text" id="player-hp-text">100/100</div>
                         </div>
-                        <!-- MP Bar -->
                         <div class="hud-bar-wrapper mp">
                             <div id="player-mp-fill" class="hud-bar-fill mp hud-bar-fill--full"></div>
                             <div class="hud-bar-text" id="player-mp-text">50/50</div>
@@ -1581,7 +1570,6 @@
                 </div>
             </div>
 
-            <!-- Actions Row: realm status + EXP -->
             <div class="hud-actions-row">
                 <div class="hud-actions-left">
                     <div id="multiplayer-status" class="hud-mp-status" role="status" aria-live="polite">

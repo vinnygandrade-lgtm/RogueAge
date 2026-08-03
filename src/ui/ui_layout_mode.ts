@@ -1,6 +1,8 @@
 /**
- * UI layout mode — portrait (mobile) vs landscape (PC).
- * Preference: auto | portrait | landscape → effective data-l2-layout on <html>.
+ * UI layout mode — portrait (mobile vertical) is the product default.
+ * Landscape / PC wide layout is frozen: always resolve to portrait so the
+ * tall phone shell stays authoritative. shell-landscape.css is kept in the
+ * repo but not activated until a future PC redesign.
  */
 
 import { registerGlobal } from '../runtime/register-global';
@@ -10,24 +12,26 @@ export type UiLayoutEffective = 'portrait' | 'landscape';
 
 const STORAGE_KEY = 'l2mini_layout';
 const ATTR = 'data-l2-layout';
-const WIDE_MIN_PX = 900;
-const WIDE_RATIO = 1.2;
 
-let preference: UiLayoutPreference = 'auto';
+/** Product decision: invest in vertical mobile only for now. */
+const FORCE_PORTRAIT = true;
+
+let preference: UiLayoutPreference = 'portrait';
 let effective: UiLayoutEffective = 'portrait';
 let resizeTimer: ReturnType<typeof setTimeout> | null = null;
 let listening = false;
 
 function normalizePreference(raw: unknown): UiLayoutPreference {
   if (raw === 'portrait' || raw === 'landscape' || raw === 'auto') return raw;
-  return 'auto';
+  return 'portrait';
 }
 
 function readDevicePreference(): UiLayoutPreference {
+  if (FORCE_PORTRAIT) return 'portrait';
   try {
     return normalizePreference(localStorage.getItem(STORAGE_KEY));
   } catch {
-    return 'auto';
+    return 'portrait';
   }
 }
 
@@ -40,25 +44,12 @@ function writeDevicePreference(mode: UiLayoutPreference): void {
 }
 
 function detectAutoLayout(): UiLayoutEffective {
-  const w = window.innerWidth || document.documentElement.clientWidth || 0;
-  const h = window.innerHeight || document.documentElement.clientHeight || 1;
-  const ratio = w / Math.max(h, 1);
-  const landscapeOrientation =
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(orientation: landscape)').matches;
-  // Desktop mouse/trackpad: wide window → PC layout (don't require orientation)
-  const desktopPointer =
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(pointer: fine)').matches &&
-    !window.matchMedia('(pointer: coarse)').matches;
-  if (w >= WIDE_MIN_PX && (desktopPointer || landscapeOrientation || ratio >= WIDE_RATIO)) {
-    return 'landscape';
-  }
   return 'portrait';
 }
 
-function resolveEffective(pref: UiLayoutPreference): UiLayoutEffective {
-  if (pref === 'portrait' || pref === 'landscape') return pref;
+function resolveEffective(_pref: UiLayoutPreference): UiLayoutEffective {
+  if (FORCE_PORTRAIT) return 'portrait';
+  if (_pref === 'portrait' || _pref === 'landscape') return _pref;
   return detectAutoLayout();
 }
 
@@ -104,7 +95,7 @@ function ensureListeners(): void {
 }
 
 function getPreference(): UiLayoutPreference {
-  return preference;
+  return FORCE_PORTRAIT ? 'portrait' : preference;
 }
 
 function getEffective(): UiLayoutEffective {
@@ -112,6 +103,13 @@ function getEffective(): UiLayoutEffective {
 }
 
 function setPreference(mode: unknown, opts?: { persistSave?: boolean }): UiLayoutPreference {
+  if (FORCE_PORTRAIT) {
+    preference = 'portrait';
+    writeDevicePreference('portrait');
+    refresh();
+    syncSettingsButtons();
+    return preference;
+  }
   preference = normalizePreference(mode);
   writeDevicePreference(preference);
   refresh();
@@ -127,6 +125,13 @@ function setPreference(mode: unknown, opts?: { persistSave?: boolean }): UiLayou
 }
 
 function applyFromSave(mode: unknown): void {
+  if (FORCE_PORTRAIT) {
+    preference = 'portrait';
+    writeDevicePreference('portrait');
+    refresh();
+    syncSettingsButtons();
+    return;
+  }
   if (mode == null || mode === '') return;
   preference = normalizePreference(mode);
   writeDevicePreference(preference);
@@ -139,8 +144,12 @@ function syncSettingsButtons(): void {
   if (!root) return;
   root.querySelectorAll<HTMLElement>('[data-layout-pref]').forEach((btn) => {
     const pref = btn.getAttribute('data-layout-pref');
-    btn.classList.toggle('settings-layout-btn--active', pref === preference);
+    btn.classList.toggle('settings-layout-btn--active', pref === getPreference());
   });
+  const row = root.querySelector('.settings-layout-row') as HTMLElement | null;
+  if (row && FORCE_PORTRAIT) {
+    row.hidden = true;
+  }
 }
 
 function bindSettingsButtons(): void {
@@ -157,6 +166,9 @@ function bindSettingsButtons(): void {
 
 function init(): void {
   preference = readDevicePreference();
+  if (FORCE_PORTRAIT) {
+    writeDevicePreference('portrait');
+  }
   ensureListeners();
   refresh();
   bindSettingsButtons();
@@ -165,6 +177,7 @@ function init(): void {
 
 const LayoutMode = {
   STORAGE_KEY,
+  FORCE_PORTRAIT,
   getPreference,
   getEffective,
   setPreference,

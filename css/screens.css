@@ -223,31 +223,31 @@
 
 #hud-top-bar {
     background: linear-gradient(180deg, rgba(18, 15, 12, 0.98) 0%, rgba(10, 8, 6, 0.95) 100%);
-    padding: 10px 14px;
-    border-bottom: 2px solid var(--l2-border-strong);
+    padding: 6px 10px 5px;
+    border-bottom: 1px solid var(--l2-border-strong);
     width: 100%;
     box-sizing: border-box;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.8);
+    box-shadow: 0 2px 14px rgba(0,0,0,0.65);
     position: relative;
     z-index: 110;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 4px;
 }
 
 .hud-main-row {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 8px;
     width: 100%;
 }
 
-/* Avatar Circle - More Premium */
+/* Avatar — compact for vertical mobile shell */
 .hud-avatar-container {
     position: relative;
-    width: 58px;
-    height: 58px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
     cursor: pointer;
     transition: transform 0.2s ease;
@@ -261,10 +261,10 @@
     width: 100%;
     height: 100%;
     background: radial-gradient(circle, #3d342b 0%, #0d0b09 100%);
-    border: 2px solid var(--l2-accent-gold);
+    border: 1.5px solid var(--l2-accent-gold);
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: 0 0 20px rgba(0,0,0,0.9), inset 0 0 15px rgba(0,0,0,0.7), 0 0 10px rgba(179, 138, 77, 0.3);
+    box-shadow: 0 0 10px rgba(0,0,0,0.85), inset 0 0 10px rgba(0,0,0,0.7), 0 0 6px rgba(179, 138, 77, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -276,26 +276,29 @@
     height: 150%;
     object-fit: contain;
     transform: translateY(15%);
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.9));
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9));
 }
 
 .hud-level-badge {
     position: absolute;
-    bottom: -4px;
+    bottom: -3px;
     left: 50%;
     transform: translateX(-50%);
     background: linear-gradient(180deg, #facc15 0%, #a16207 100%);
     color: #000;
     font-family: 'Cinzel', serif;
     font-weight: 900;
-    font-size: 11px;
-    padding: 1px 8px;
-    border-radius: 4px;
+    font-size: 9px;
+    min-width: 18px;
+    padding: 0 5px;
+    border-radius: 3px;
     border: 1px solid #fef08a;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.6);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.55);
     z-index: 5;
     text-shadow: none;
     white-space: nowrap;
+    line-height: 1.25;
+    text-align: center;
 }
 
 /* Info & Bars */
@@ -303,7 +306,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 3px;
     min-width: 0;
 }
 
@@ -312,31 +315,35 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
+    gap: 6px;
+    min-height: 0;
 }
 
 .hud-char-name {
     font-family: 'Cinzel', serif;
-    font-size: 1.05em;
+    font-size: 0.82em;
     font-weight: 900;
     color: var(--l2-text-primary);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
+    min-width: 0;
 }
 
 .hud-currency-row {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .hud-currency-item {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 0.85em;
+    gap: 3px;
+    font-size: 0.72em;
     font-weight: 900;
     font-family: 'Cinzel', serif;
 }
@@ -347,24 +354,24 @@
 .hud-stat-bars-container {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     width: 100%;
 }
 
 .hud-bar-wrapper {
     position: relative;
     width: 100%;
-    height: 14px;
+    height: 8px;
     background: #080706;
     border: 1px solid rgba(255,255,255,0.05);
     border-radius: 2px;
     overflow: hidden;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.9);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.9);
 }
 
-.hud-bar-wrapper.hp { height: 18px; border-color: #5a1a1a; box-shadow: 0 0 10px rgba(179, 58, 58, 0.1); }
-.hud-bar-wrapper.mp { height: 12px; border-color: #1a2a5a; }
-.hud-bar-wrapper.cp { height: 12px; border-color: #5a4a1a; }
+.hud-bar-wrapper.hp { height: 10px; border-color: #5a1a1a; box-shadow: 0 0 6px rgba(179, 58, 58, 0.12); }
+.hud-bar-wrapper.mp { height: 8px; border-color: #1a2a5a; }
+.hud-bar-wrapper.cp { height: 6px; border-color: #5a4a1a; }
 
 .hud-bar-fill {
     height: 100%;
@@ -392,30 +399,31 @@
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 900;
-    text-shadow: 0 1px 3px #000;
+    text-shadow: 0 1px 2px #000;
     pointer-events: none;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.4px;
     z-index: 2;
 }
 
-.hp .hud-bar-text { font-size: 10px; }
+.hp .hud-bar-text { font-size: 8px; }
+.cp .hud-bar-text { font-size: 7px; }
 
-/* HUD Actions (realm chip, settings, EXP, mail) */
+/* HUD Actions (realm chip + EXP) — slim strip */
 .hud-actions-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 6px;
     width: 100%;
-    padding-top: 6px;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 3px;
+    border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .hud-actions-left {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
 }
 
@@ -423,18 +431,18 @@
 .hud-mp-status {
     display: flex;
     align-items: center;
-    gap: 6px;
-    max-width: 118px;
+    gap: 5px;
+    max-width: 96px;
     min-width: 0;
-    padding: 4px 9px;
+    padding: 2px 7px;
     border-radius: 999px;
     background: rgba(15, 23, 42, 0.75);
     border: 1px solid rgba(71, 85, 105, 0.45);
-    font-size: 0.52rem;
+    font-size: 0.48rem;
     font-weight: 800;
     color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     line-height: 1.15;
 }
 
@@ -583,19 +591,19 @@ button.hud-mail-btn {
     position: relative;
     flex: 0 1 auto;
     min-width: 72px;
-    height: 14px;
+    height: 10px;
     background: #0f172a;
-    margin: 0 6px;
-    border-radius: 4px;
+    margin: 0 4px;
+    border-radius: 3px;
     overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.85);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.85);
     border: 1px solid rgba(148, 163, 184, 0.22);
 }
 
 .hud-exp-container--grow {
     flex: 1 1 auto;
     min-width: 48px;
-    margin: 0 4px;
+    margin: 0;
 }
 
 .hud-exp-fill {
@@ -614,7 +622,7 @@ button.hud-mail-btn {
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
     letter-spacing: 0.02em;
     color: #f0fdf4;

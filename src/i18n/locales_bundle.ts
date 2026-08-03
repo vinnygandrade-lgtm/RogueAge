@@ -59,6 +59,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-03',
+                        items: [
+                            'Class Transfer at the Grand Master rebuilt for real decisions: each path shows a portrait, role tag, stat comparison vs your current class, skill icons, and the future evolution tree.',
+                            'Clearer mobile layout — sticky Close / header × stay visible while you scroll the class cards.',
+                            'Portrait HUD tightened for phone play; wide landscape/PC layout is paused while we focus on the vertical shell.'
+                        ]
+                    },
+                    {
                         date: '2026-08-02',
                         items: [
                             'Human Rogue / Archer icons: Mortal Strike through Lethal Blow, plus Hawkeye Double Shot, Stun Shot, Snipe, Rapid Shot, and Death Shot.',
@@ -2937,10 +2945,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     roleClanHall: 'Clan hall'
                 },
                 classes: {
+                    title: 'CLASS TRANSFER',
+                    closeBtn: 'CLOSE',
+                    decisionTip: 'Compare roles, stats, skills, and the path ahead — this choice is permanent.',
                     maxChroniclePower: 'Your class has already reached the maximum power available in this chronicle!',
                     available: 'Available!',
                     requiresLevel: 'Requires Level {level}',
-                    changeBtn: 'CHANGE',
+                    changeBtn: 'CHOOSE THIS PATH',
                     returnGrandMasterLevel: 'Return to the Grand Master when you reach <b style="color:#ef4444;">Level {level}</b>.',
                     confirmTitle: 'CONFIRM CLASS',
                     confirmIntro: 'You are about to walk the path of the',
@@ -2949,7 +2960,28 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     successTitle: 'CLASS TRANSFER SUCCESS',
                     successCongrats: 'Congratulations!',
                     successBody: 'You advanced to {className}. Your base stats were boosted and your combat potential rose sharply!',
-                    logAscension: '🌟 ASCENSION! You are now a {className}!'
+                    logAscension: '🌟 ASCENSION! You are now a {className}!',
+                    statsCompare: 'Class multipliers (new vs current)',
+                    statsHint: 'Bold = new class. Struck = your current class.',
+                    unlockSkills: 'Skills on this path',
+                    noNewSkillsListed: 'No dedicated skill list for this node yet — check the Spellbook after advancing.',
+                    pathAhead: 'Path ahead',
+                    pathEnd: 'This is a final-tier class in this chronicle.',
+                    role: {
+                        tank: 'Tank',
+                        dps: 'DPS',
+                        mage: 'Mage',
+                        support: 'Support',
+                        hybrid: 'Hybrid'
+                    },
+                    stat: {
+                        hp: 'HP',
+                        mp: 'MP',
+                        atk: 'ATK',
+                        def: 'DEF',
+                        spd: 'Speed',
+                        crit: 'Crit'
+                    }
                 },
                 gmPanel: {
                     title: 'ADMIN DASHBOARD (GM)',
@@ -3038,7 +3070,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     closeBtn: 'CLOSE',
                     layout: {
                         title: 'Layout',
-                        lead: 'Auto follows your screen size. Mobile keeps the tall phone layout; PC uses a wide view.',
+                        lead: 'RogueAge uses the tall mobile layout only for now — optimized for vertical play.',
                         auto: 'Auto',
                         mobile: 'Mobile',
                         pc: 'PC'
@@ -3239,6 +3271,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-03',
+                        items: [
+                            'Transferência de Classe no Grand Master redesenhada para decidir de verdade: cada caminho mostra retrato, papel (Tank/DPS/Mago…), comparação de status com a tua classe atual, ícones de skills e a árvore de evoluções futuras.',
+                            'Layout mobile mais claro — Fechar fixo no rodapé e × no header ficam sempre à vista enquanto scrolls os cards.',
+                            'HUD em modo retrato mais compacto para telemóvel; o layout largo landscape/PC fica em pausa enquanto focamos na shell vertical.'
+                        ]
+                    },
                     {
                         date: '2026-08-02',
                         items: [
@@ -6118,10 +6158,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     roleClanHall: 'Salão do clã'
                 },
                 classes: {
+                    title: 'TRANSFERÊNCIA DE CLASSE',
+                    closeBtn: 'FECHAR',
+                    decisionTip: 'Compare papéis, status, skills e o caminho à frente — esta escolha é permanente.',
                     maxChroniclePower: 'Sua classe já alcançou o máximo de poder disponível nesta crônica!',
                     available: 'Disponível!',
                     requiresLevel: 'Exige nível {level}',
-                    changeBtn: 'MUDAR',
+                    changeBtn: 'ESCOLHER ESTE CAMINHO',
                     returnGrandMasterLevel: 'Volte ao Grand Master ao alcançar o <b style="color:#ef4444;">nível {level}</b>.',
                     confirmTitle: 'CONFIRMAR CLASSE',
                     confirmIntro: 'Você está prestes a trilhar o caminho do',
@@ -6130,7 +6173,28 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     successTitle: 'TRANSFERÊNCIA DE CLASSE CONCLUÍDA',
                     successCongrats: 'Parabéns!',
                     successBody: 'Você avançou para {className}. Seus status base foram ampliados e seu potencial de combate subiu muito!',
-                    logAscension: '🌟 ASCENSÃO! Você agora é {className}!'
+                    logAscension: '🌟 ASCENSÃO! Você agora é {className}!',
+                    statsCompare: 'Multiplicadores da classe (nova vs atual)',
+                    statsHint: 'Negrito = classe nova. Risado = sua classe atual.',
+                    unlockSkills: 'Skills deste caminho',
+                    noNewSkillsListed: 'Ainda sem lista dedicada neste nó — confira o Spellbook após avançar.',
+                    pathAhead: 'Caminho à frente',
+                    pathEnd: 'Esta é uma classe de nível final nesta crônica.',
+                    role: {
+                        tank: 'Tank',
+                        dps: 'DPS',
+                        mage: 'Mago',
+                        support: 'Suporte',
+                        hybrid: 'Híbrido'
+                    },
+                    stat: {
+                        hp: 'HP',
+                        mp: 'MP',
+                        atk: 'ATK',
+                        def: 'DEF',
+                        spd: 'Veloc.',
+                        crit: 'Crit'
+                    }
                 },
                 gmPanel: {
                     title: 'PAINEL ADMIN (GM)',
@@ -6219,7 +6283,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     closeBtn: 'FECHAR',
                     layout: {
                         title: 'Layout',
-                        lead: 'Automático segue o tamanho do ecrã. Celular mantém o layout vertical; PC usa a vista larga.',
+                        lead: 'O RogueAge usa só o layout vertical de celular por agora — otimizado para jogar em pé.',
                         auto: 'Auto',
                         mobile: 'Celular',
                         pc: 'PC'

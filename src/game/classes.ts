@@ -2,7 +2,8 @@
  * Sistema de classes e evolução
  * Migrado: js/classes.js
  */
-import { classEvolutionDisplayDesc, classEvolutionDisplayName } from '../i18n/polish12_display';
+import { classEvolutionDisplayName } from '../i18n/polish12_display';
+import { renderClassTransferOptions } from '../ui/ui_class_transfer';
 
 // ==========================================
 // hp/mp/atk/def/crit: multiplicadores de piscina de stats (ver core_stats.js).
@@ -352,11 +353,6 @@ function abrirMenuClasses() {
     container.innerHTML = '';
 
     let tFn = (typeof window.t === 'function') ? window.t : null;
-    let labelChange = tFn ? tFn('game.classes.changeBtn') : 'CHANGE';
-    let labelAvailable = tFn ? tFn('game.classes.available') : 'Available!';
-    let htmlRequires = function (lvl) { return tFn ? tFn('game.classes.requiresLevel', { level: lvl }) : ('Requires Level ' + lvl); };
-
-
 
     // === LÓGICA DE BUSCA DA CLASSE ===
     let chaveEvolucao = charClass;
@@ -371,33 +367,22 @@ function abrirMenuClasses() {
         aviso.innerHTML = tFn ? tFn('game.classes.maxChroniclePower') : 'Your class has already reached the maximum power available in this chronicle!';
         aviso.style.color = "#10b981"; 
         aviso.style.display = "block";
+        container.innerHTML = '';
         abrirModal('janela-classes', 1500);
         return;
     }
 
-    // FILTRO: O que o jogador pode pegar e o que está bloqueado
     let precisaUpar = false;
     let temOpcaoDisponivel = false;
-    
-    opcoes.forEach(opcao => {
-        let podeTransferir = nivel >= opcao.reqLvl;
-        if (!podeTransferir) precisaUpar = true;
+    opcoes.forEach((opcao) => {
+        const pode = nivel >= opcao.reqLvl;
+        if (!pode) precisaUpar = true;
         else temOpcaoDisponivel = true;
-        
-        let btnDisabled = podeTransferir ? '' : 'disabled style="filter: grayscale(100%); opacity: 0.6;"';
-        let txtStatus = podeTransferir ? `<span style="color:#10b981; font-weight:bold;">${labelAvailable}</span>` : `<span style="color:#ef4444; font-weight:bold;">${htmlRequires(opcao.reqLvl)}</span>`;
-        
-        // Só renderiza se ele já tiver nível pra ver, OU se for a próxima da linha dele
-        container.innerHTML += `
-            <div style="background: #111; border: 1px solid ${opcao.cor}; padding: 10px; border-radius: 5px; margin-bottom: 10px; text-align: left;">
-                <h4 style="margin: 0 0 5px 0; color: ${opcao.cor}; text-shadow: 1px 1px 0 #000;">${classEvolutionDisplayName(opcao.nome)}</h4>
-                <p style="margin: 0 0 10px 0; font-size: 11px; color: #ccc;">${classEvolutionDisplayDesc(opcao.nome, opcao.desc)}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    ${txtStatus}
-                   <button class="btn-l2" style="width: auto; padding: 5px 15px; background: ${opcao.cor}; color: #000; font-weight: bold; margin: 0;" ${btnDisabled} onclick="confirmarTrocaClasse('${opcao.nome.replace(/'/g, "\\'")}')">${labelChange}</button>
-                </div>
-            </div>
-        `;
+    });
+
+    renderClassTransferOptions(container, opcoes, {
+        currentClass: String(charClass || 'Fighter'),
+        playerLevel: Number(nivel) || 1,
     });
     
     if (precisaUpar && !temOpcaoDisponivel) { 
@@ -407,8 +392,11 @@ function abrirMenuClasses() {
             : (`Return to the Grand Master when you reach <b style="color:#ef4444;">Level ${proximoLvl}</b>.`);
         aviso.style.color = "#ccc"; 
         aviso.style.display = "block"; 
-    } else { 
-        aviso.style.display = "none"; 
+    } else {
+        const tip = tFn ? tFn('game.classes.decisionTip') : 'Compare roles, stats, skills, and the path ahead — this choice is permanent.';
+        aviso.innerHTML = tip;
+        aviso.style.color = "#94a3b8";
+        aviso.style.display = "block";
     }
     
     abrirModal('janela-classes', 1500);
@@ -429,10 +417,11 @@ function confirmarTrocaClasse(novaClasse) {
     document.getElementById('acao-titulo')!.innerHTML = `<span style="color:#ef4444; text-shadow: 1px 1px 0 #000;">${ctitle}</span>`;
     (document.getElementById('acao-img') as HTMLImageElement).src = 'assets/npcs/magister.png';
     
+    const displayName = classEvolutionDisplayName(novaClasse);
     let intro = tFn ? tFn('game.classes.confirmIntro') : 'You are about to walk the path of the';
     let warn = tFn ? tFn('game.classes.confirmWarning') : 'Warning: This choice is permanent and cannot be undone!';
     document.getElementById('acao-desc').innerHTML = `
-        ${intro} <b style="color:#fde047; font-size:1.2em;">${novaClasse}</b>.<br><br>
+        ${intro} <b style="color:#fde047; font-size:1.2em;">${displayName}</b>.<br><br>
         <span style="color:#ef4444; font-weight:bold;">${warn}</span>
     `;
     
@@ -449,8 +438,9 @@ function executarTrocaClasse(novaClasse) {
     let tFn = (typeof window.t === 'function') ? window.t : null;
 
     charClass = novaClasse;
-    tocarSom('lvlup'); 
-    let ascMsg = tFn ? tFn('game.classes.logAscension', { className: novaClasse }) : (`🌟 ASCENSION! You are now a ${novaClasse}!`);
+    tocarSom('lvlup');
+    const displayName = classEvolutionDisplayName(novaClasse);
+    let ascMsg = tFn ? tFn('game.classes.logAscension', { className: displayName }) : (`🌟 ASCENSION! You are now a ${displayName}!`);
     escreverLog(`<span style="color:#fde047; font-size:1.2em; font-weight:bold; text-shadow: 1px 1px 0 #000;">${ascMsg}</span>`);
     
     window.calcularStatusGlobais(); // Recalcula os status com a nova classe!
@@ -462,8 +452,8 @@ function executarTrocaClasse(novaClasse) {
     document.getElementById('acao-titulo').innerHTML = `<span style="color:#10b981; text-shadow: 1px 1px 0 #000;">${stitle}</span>`;
     let congrats = tFn ? tFn('game.classes.successCongrats') : 'Congratulations!';
     let bodyRaw = tFn
-        ? tFn('game.classes.successBody', { className: `<b style="color:#fde047">${novaClasse}</b>` })
-        : (`You advanced to <b style="color:#fde047">${novaClasse}</b>. Your base stats were boosted and your combat potential rose sharply!`);
+        ? tFn('game.classes.successBody', { className: `<b style="color:#fde047">${displayName}</b>` })
+        : (`You advanced to <b style="color:#fde047">${displayName}</b>. Your base stats were boosted and your combat potential rose sharply!`);
     document.getElementById('acao-desc').innerHTML = `<b style="color:white; font-size: 1.2em;">${congrats}</b><br><br><span style="color:#ccc;">${bodyRaw}</span>`;
     
     let btnAcao = document.getElementById('btn-acao-item');
