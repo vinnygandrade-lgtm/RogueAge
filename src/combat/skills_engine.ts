@@ -305,7 +305,7 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
                 nomeSkill === 'Agility' || nomeSkill === 'Chant of Fury';
             const castSpeedBonus =
                 castOnly || dualCast
-                    ? Math.min(40, Math.max(0, Math.round((poderSpd - 1) * 100)))
+                    ? Math.min(55, Math.max(0, Math.round((poderSpd - 1) * 100)))
                     : 0;
             const atkSpeedMult =
                 castOnly ? 1 : 1 / poderSpd;
@@ -465,8 +465,9 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
             writeSkillLog('buffActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
             if (nomeSkill === "Ultimate Evasion") {
+                // Additive dodge buff on top of class/gear dodgeRate (hard-capped in combat).
                 if (!window.motorBuffsEspeciais) window.motorBuffsEspeciais = { critMult: 1, esquiva: 0 };
-                window.motorBuffsEspeciais.esquiva = 40;
+                window.motorBuffsEspeciais.esquiva = 20;
                 setTimeout(() => {
                     if (window.motorBuffsEspeciais) window.motorBuffsEspeciais.esquiva = 0;
                 }, 30000);

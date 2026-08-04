@@ -8,8 +8,8 @@ import type { SkillCatalogEntry } from '../types/game';
 /** Floor so cast never becomes machine-gun instant. */
 export const MIN_CAST_MS = 375;
 
-/** Cap on cast-time reduction from castSpeed (%). */
-export const MAX_CAST_SPEED_PCT = 40;
+/** Absolute hard ceiling for cast-time reduction % (soft curve asymptote). */
+export const MAX_CAST_SPEED_PCT = 55;
 
 /** Fallback when tipo is unknown (legacy fixed GCD feel). */
 export const DEFAULT_CAST_MS = 1500;
@@ -50,10 +50,13 @@ export function getSkillBaseCastMs(
   return DEFAULT_CAST_MS;
 }
 
-/** Current player castSpeed % (0–MAX), from playerStats after calc. */
+/** Current player castSpeed % (already soft-capped in core_stats). */
 export function getPlayerCastSpeedPct(): number {
   const raw = Number(window.playerStats?.castSpeed);
   if (!Number.isFinite(raw) || raw <= 0) return 0;
+  if (typeof window.applyCastSpeedCap === 'function') {
+    return window.applyCastSpeedCap(raw);
+  }
   return Math.min(MAX_CAST_SPEED_PCT, Math.max(0, Math.floor(raw)));
 }
 
@@ -69,10 +72,14 @@ export function resolveSkillCastMs(
   const castBase = getSkillBaseCastMs(skill);
   if (castBase <= 0) return 0;
 
-  const pct =
+  const pctRaw =
     castSpeedPct != null && Number.isFinite(castSpeedPct)
-      ? Math.min(MAX_CAST_SPEED_PCT, Math.max(0, Number(castSpeedPct)))
+      ? Math.max(0, Number(castSpeedPct))
       : getPlayerCastSpeedPct();
+  const pct =
+    typeof window.applyCastSpeedCap === 'function'
+      ? window.applyCastSpeedCap(pctRaw)
+      : Math.min(MAX_CAST_SPEED_PCT, Math.floor(pctRaw));
 
   const reduced = Math.floor(castBase * (1 - pct / 100));
   return Math.max(MIN_CAST_MS, Math.min(castBase, reduced));

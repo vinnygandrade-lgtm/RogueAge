@@ -2330,8 +2330,10 @@ export class ExpeditionEngine {
             mDef: Math.floor(base.mDef * m.mDef),
             critRate: typeof win.applyCritRateCap === 'function'
                 ? win.applyCritRateCap(Math.floor(base.critRate * m.crit))
-                : Math.min(70, Math.floor(base.critRate * m.crit)),
-            atkSpeed: Math.max(250, Math.floor(base.atkSpeed * m.atkSpeed)),
+                : Math.min(90, Math.floor(base.critRate * m.crit)),
+            atkSpeed: typeof win.applyAtkSpeedFloor === 'function'
+                ? win.applyAtkSpeedFloor(Math.floor(base.atkSpeed * m.atkSpeed))
+                : Math.max(160, Math.floor(base.atkSpeed * m.atkSpeed)),
             maxHp: Math.floor(base.maxHp * m.maxHp),
             maxMp: Math.floor(base.maxMp * m.maxMp),
             castSpeed: Math.min(

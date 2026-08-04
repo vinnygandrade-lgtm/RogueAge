@@ -758,6 +758,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     labelMaxMp: 'Max MP:',
                     labelAtkSpeed: 'Atk. Speed:',
                     labelCritRate: 'Crit Rate:',
+                    labelEvasion: 'Evasion:',
+                    labelCastSpeed: 'Casting Speed:',
                     labelMDefBonus: 'M. Def Bonus:',
                     atkSpeedFast: 'Fast +{n}',
                     labelPAtk: 'P. Atk:',
@@ -1637,7 +1639,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 combatMath: {
                     playerDefeated: '💀 YOU were defeated! Returning...',
-                    dodgePerfect: '💨 You dodged the attack perfectly!',
+                    dodgeFloat: 'EVASION',
+                    dodgePerfect: '💨 You evaded the attack perfectly!',
                     autoAttackOn: '⚔️ Auto-Attack: ON',
                     autoAttackOff: '🛑 Auto-Attack: OFF',
                     shotsDepleted: '{item} depleted!',
@@ -1943,6 +1946,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         maxMp: 'Max MP',
                         atkSpeed: 'Atk. Speed',
                         critRate: 'Crit Rate',
+                        dodgeRate: 'Evasion',
+                        castSpeed: 'Casting Speed',
+                        jewelSet: 'Set',
                         extraMDef: 'Extra M. Def',
                         ownerRg: 'Owner {owner} · ID {uid}',
                         quantity: 'Owned: {n}',
@@ -1976,6 +1982,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             pDef: 'P.Def',
                             mDef: 'M.Def',
                             crit: 'Crit',
+                            dodge: 'Evasion',
                             atkSpd: 'Attack interval',
                             castSpd: 'Casting Speed'
                         }
@@ -2099,16 +2106,28 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         lblCritWeapon: '· weapon',
                         lblCritJewels: '· jewelry',
                         lblCritTitle: '· equipped title',
-                        lblCritCapApplied: 'Added bonuses reached {raw}% — global crit cap {cap}% applies in combat (same as the total above).',
+                        lblCritCapApplied: 'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
+                        lblCritSoftHint: 'Full Crit value up to {soft}%. Past that, gains soften toward {hard}% — gear and buffs still help.',
+                        lblDodgeTotal: 'Evasion chance',
+                        lblDodgeClass: '· class',
+                        lblDodgeLevel: '· levels',
+                        lblDodgeArmor: '· Light armor',
+                        lblDodgeJewels: '· Precision jewels',
+                        lblDodgeCapApplied: 'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
+                        lblDodgeHint: 'Full Evasion value up to {soft}%. Past that, gains soften toward {hard}% — Light armor, Precision jewels, and Ultimate Evasion still help.',
                         lblAtkSpdShown: 'Time between attacks (lower hits faster)',
                         lblSpdTitle: '· equipped title (faster)',
-                        lblAtkFloor: 'Attack cadence cannot go below 0.25s on the portrait.',
+                        lblAtkFloor: 'Investment {rawMs}ms → effective {effectiveMs}ms (full speed down to {softMs}ms, then soft gains toward {hardMs}ms).',
+                        lblAtkSoftHint: 'Attack interval is fully rewarded down to {softMs}ms. Faster than that softens toward {hardMs}ms — gear and speed buffs still help.',
                         lblCastSpdShown: 'Casting Speed (shortens skill cast time)',
                         lblCastSpdArmor: '· robe / armor',
                         lblCastSpdWeapon: '· staff / weapon',
+                        lblCastSpdJewels: '· Arcane jewels',
                         lblCastSpdTitle: '· equipped title',
                         lblCastSpdHarmony: '· Harmony',
                         lblCastSpdBuffs: '· skill buffs',
+                        lblCastCapApplied: 'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
+                        lblCastSoftHint: 'Full Casting Speed value up to {soft}%. Past that, gains soften toward {hard}% — Robe, staff, Arcane jewels, and Concentration still help.',
                         pillFighterBuffLine: 'Grand Master fighter blessing active — melee-focused bonuses.',
                         pillMageBuffLine: 'Grand Master mystic blessing active — stronger spells and tougher against magic.',
                         hudTrustLine: 'The totals at the top are the same ones the game uses in combat.',
@@ -2145,7 +2164,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         abbr_bonusHp: '+HP',
                         abbr_bonusMp: '+MP',
                         abbr_bonusCrit: '+Crit%',
-                        abbr_bonusSpd: '-Delay ms'
+                        abbr_bonusSpd: '-Delay ms',
+                        abbr_bonusCastSpeed: '+Cast%',
+                        abbr_bonusDodge: '+Eva%'
                     }
                 },
                 olympiadUi: {
@@ -2980,7 +3001,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         atk: 'ATK',
                         def: 'DEF',
                         spd: 'Speed',
-                        crit: 'Crit'
+                        crit: 'Crit',
+                        dodge: 'Evasion'
                     }
                 },
                 gmPanel: {
@@ -3971,6 +3993,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     labelMaxMp: 'MP máx.:',
                     labelAtkSpeed: 'Vel. atk.:',
                     labelCritRate: 'Crítico:',
+                    labelEvasion: 'Evasion:',
+                    labelCastSpeed: 'Vel. de Conjuração:',
                     labelMDefBonus: 'Bônus def. M.:',
                     atkSpeedFast: 'Rápido +{n}',
                     labelPAtk: 'Atk. F.:',
@@ -4850,7 +4874,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 },
                 combatMath: {
                     playerDefeated: '💀 Você foi derrotado! Voltando...',
-                    dodgePerfect: '💨 Você esquivou o ataque perfeitamente!',
+                    dodgeFloat: 'EVASION',
+                    dodgePerfect: '💨 Você evadiu o ataque perfeitamente!',
                     autoAttackOn: '⚔️ Auto-ataque: LIGADO',
                     autoAttackOff: '🛑 Auto-ataque: DESLIGADO',
                     shotsDepleted: '{item} acabaram!',
@@ -5156,6 +5181,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         maxMp: 'MP máx.',
                         atkSpeed: 'Vel. de ataque',
                         critRate: 'Taxa crítica',
+                        dodgeRate: 'Evasion',
+                        castSpeed: 'Vel. de Conjuração',
+                        jewelSet: 'Conjunto',
                         extraMDef: 'M. Def extra',
                         ownerRg: 'Dono {owner} · ID {uid}',
                         quantity: 'Possui: {n}',
@@ -5189,6 +5217,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             pDef: 'P.Def',
                             mDef: 'M.Def',
                             crit: 'Crít.',
+                            dodge: 'Evasion',
                             atkSpd: 'Intervalo de ataque',
                             castSpd: 'Vel. de conjuração'
                         }
@@ -5312,16 +5341,28 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         lblCritWeapon: '· arma',
                         lblCritJewels: '· joias',
                         lblCritTitle: '· título equipado',
-                        lblCritCapApplied: 'A soma chegou a {raw}% — o teto global de crítico é {cap}% no combate (igual ao total acima).',
+                        lblCritCapApplied: 'Investimento {raw}% → efetivo {effective}% (valor cheio até {soft}%, depois sobe suave até o máx. {hard}%). O esforço ainda conta.',
+                        lblCritSoftHint: 'Crítico vale 100% até {soft}%. Depois os ganhos amolecem até {hard}% — gear e buffs ainda ajudam.',
+                        lblDodgeTotal: 'Chance de Evasion',
+                        lblDodgeClass: '· classe',
+                        lblDodgeLevel: '· níveis',
+                        lblDodgeArmor: '· armadura Light',
+                        lblDodgeJewels: '· joias Precision',
+                        lblDodgeCapApplied: 'Investimento {raw}% → efetivo {effective}% (valor cheio até {soft}%, depois sobe suave até o máx. {hard}%). O esforço ainda conta.',
+                        lblDodgeHint: 'Evasion vale 100% até {soft}%. Depois os ganhos amolecem até {hard}% — armadura Light, joias Precision e Ultimate Evasion ainda ajudam.',
                         lblAtkSpdShown: 'Intervalo entre ataques (menor = mais rápido)',
                         lblSpdTitle: '· título equipado (mais rápido)',
-                        lblAtkFloor: 'A cadência de ataque não fica abaixo de 0,25 s no retrato.',
+                        lblAtkFloor: 'Investimento {rawMs}ms → efetivo {effectiveMs}ms (velocidade cheia até {softMs}ms, depois sobe suave até {hardMs}ms).',
+                        lblAtkSoftHint: 'O intervalo de ataque vale 100% até {softMs}ms. Mais rápido que isso amolece até {hardMs}ms — gear e buffs de velocidade ainda ajudam.',
                         lblCastSpdShown: 'Velocidade de Conjuração (encurta o cast das skills)',
                         lblCastSpdArmor: '· robe / armadura',
                         lblCastSpdWeapon: '· cajado / arma',
+                        lblCastSpdJewels: '· joias Arcane',
                         lblCastSpdTitle: '· título equipado',
                         lblCastSpdHarmony: '· Harmonia',
                         lblCastSpdBuffs: '· buffs de skill',
+                        lblCastCapApplied: 'Investimento {raw}% → efetivo {effective}% (valor cheio até {soft}%, depois sobe suave até o máx. {hard}%). O esforço ainda conta.',
+                        lblCastSoftHint: 'Vel. de Conjuração vale 100% até {soft}%. Depois os ganhos amolecem até {hard}% — Robe, cajado, joias Arcane e Concentration ainda ajudam.',
                         pillFighterBuffLine: 'Bênção do Grande Mestre (guerreiro) ativa — foco em combate corpo a corpo.',
                         pillMageBuffLine: 'Bênção do Grande Mestre (místico) ativa — magias mais fortes e resistência mágica.',
                         hudTrustLine: 'Os totais no topo são os mesmos usados pelo combate.',
@@ -5358,7 +5399,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         abbr_bonusHp: '+HP',
                         abbr_bonusMp: '+MP',
                         abbr_bonusCrit: '+Crít%',
-                        abbr_bonusSpd: '-Delay ms'
+                        abbr_bonusSpd: '-Delay ms',
+                        abbr_bonusCastSpeed: '+Cast%',
+                        abbr_bonusDodge: '+Eva%'
                     }
                 },
                 olympiadUi: {
@@ -6193,7 +6236,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         atk: 'ATK',
                         def: 'DEF',
                         spd: 'Veloc.',
-                        crit: 'Crit'
+                        crit: 'Crit',
+                        dodge: 'Evasion'
                     }
                 },
                 gmPanel: {

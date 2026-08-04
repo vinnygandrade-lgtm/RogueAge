@@ -595,6 +595,8 @@ function formatarTooltipEquipamento(
         const bonusMDef = Math.floor(baseMDef * 0.10 * lvlEncante);
         const totalMDef = baseMDef + bonusMDef;
         html += `<div class="item-sheet__total item-sheet__total--mdef"><span>${_escSheet(_sheetT('mDefTotal'))}</span><b>${totalMDef}</b></div>`;
+        const setLabel = typeof base.jewelSetLabel === 'string' ? base.jewelSetLabel : '';
+        if (setLabel) chipsCore += addChip(_sheetT('jewelSet'), _escSheet(setLabel), '#fbbf24');
         if (baseMDef > 0) chipsCore += addChip(_sheetT('baseMDef'), baseMDef, '#c4b5a0');
         if (lvlEncante > 0) chipsCore += addChip(_sheetT('enchantBonus', { n: lvlEncante }), '+' + bonusMDef, '#93c5fd');
     }
@@ -607,6 +609,8 @@ function formatarTooltipEquipamento(
         { k: 'bonusMp', lblKey: 'maxMp', cor: '#60a5fa', pfx: '+' },
         { k: 'bonusSpd', lblKey: 'atkSpeed', cor: '#fcd34d', pfx: '+' },
         { k: 'bonusCrit', lblKey: 'critRate', cor: '#f87171', pfx: '+', sfx: '%' },
+        { k: 'bonusDodge', lblKey: 'dodgeRate', cor: '#6ee7b7', pfx: '+', sfx: '%' },
+        { k: 'bonusCastSpeed', lblKey: 'castSpeed', cor: '#a78bfa', pfx: '+', sfx: '%' },
         { k: 'bonusMDef', lblKey: 'extraMDef', cor: '#c084fc', pfx: '+' }
     ];
 
@@ -1076,6 +1080,7 @@ window.buildCombatStatsHeroBlockHtml = function (placement) {
         { sub: 'pDef', val: String(ps.pDef), mod: 'combat-stats-hero__cell--pdef' },
         { sub: 'mDef', val: String(ps.mDef), mod: 'combat-stats-hero__cell--mdef' },
         { sub: 'crit', val: (typeof ps.critRate !== 'undefined' ? ps.critRate : 0) + '%', mod: 'combat-stats-hero__cell--crit' },
+        { sub: 'dodge', val: (typeof ps.dodgeRate !== 'undefined' ? ps.dodgeRate : 0) + '%', mod: 'combat-stats-hero__cell--dodge' },
         { sub: 'atkSpd', val: atkSec.toFixed(2) + 's', mod: 'combat-stats-hero__cell--spd' },
         {
             sub: 'castSpd',
@@ -1113,7 +1118,7 @@ window.renderProfileStatsPreview = function (opts) {
     if (!ps) return;
     var statsSig = [
         ps.maxHp, ps.maxMp, ps.maxCp, ps.pAtk, ps.mAtk, ps.pDef, ps.mDef,
-        ps.critRate, ps.atkSpeed, ps.castSpeed,
+        ps.critRate, ps.dodgeRate, ps.atkSpeed, ps.castSpeed,
         tFn ? (window.I18n && window.I18n.getLocale ? window.I18n.getLocale() : '') : ''
     ].join('|');
     if (host.dataset.l2StatsSig === statsSig) return;
@@ -1407,19 +1412,82 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.critParts.weapon) otherParts.push(rowKey('lblCritWeapon', '  · weapon', '+' + String(b.critParts.weapon)));
     if (b.critParts.jewels) otherParts.push(rowKey('lblCritJewels', '  · jewelry', '+' + String(b.critParts.jewels)));
     if (b.critParts.title) otherParts.push(rowKey('lblCritTitle', '  · equipped title', '+' + String(b.critParts.title)));
-    if (typeof b.critParts.rawBeforeCap === 'number' && typeof b.critParts.cap === 'number' && b.critParts.rawBeforeCap > b.critRate) {
+    if (typeof b.critParts.rawBeforeCap === 'number' && b.critParts.rawBeforeCap > b.critRate) {
         otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
             'lblCritCapApplied',
-            'Added bonuses reached {raw}% — global crit cap {cap}% applies in combat (same as the total above).',
-            { raw: String(b.critParts.rawBeforeCap), cap: String(b.critParts.cap) }
+            'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
+            {
+                raw: String(b.critParts.rawBeforeCap),
+                effective: String(b.critRate),
+                soft: String(typeof b.critParts.softCap === 'number' ? b.critParts.softCap : 55),
+                hard: String(typeof b.critParts.cap === 'number' ? b.critParts.cap : 90),
+            }
+        )) + '</div>');
+    } else {
+        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+            'lblCritSoftHint',
+            'Full Crit value up to {soft}%. Past that, gains soften toward {hard}% — gear and buffs still help.',
+            {
+                soft: String(typeof b.critParts.softCap === 'number' ? b.critParts.softCap : 55),
+                hard: String(typeof b.critParts.cap === 'number' ? b.critParts.cap : 90),
+            }
+        )) + '</div>');
+    }
+    var dodgeTotal = typeof b.dodgeRate === 'number' ? b.dodgeRate : 0;
+    var dp = b.dodgeParts || {};
+    otherParts.push(rowFb(L('lblDodgeTotal', 'Evasion chance'), dodgeTotal + '%'));
+    if (dp.modClass) otherParts.push(rowKey('lblDodgeClass', '  · class', '+' + String(dp.modClass) + '%'));
+    if (dp.fromLevel) otherParts.push(rowKey('lblDodgeLevel', '  · levels', '+' + String(dp.fromLevel) + '%'));
+    if (dp.armor) otherParts.push(rowKey('lblDodgeArmor', '  · Light armor', '+' + String(dp.armor) + '%'));
+    if (dp.jewels) otherParts.push(rowKey('lblDodgeJewels', '  · Precision jewels', '+' + String(dp.jewels) + '%'));
+    if (typeof dp.rawBeforeCap === 'number' && dp.rawBeforeCap > dodgeTotal) {
+        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+            'lblDodgeCapApplied',
+            'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
+            {
+                raw: String(dp.rawBeforeCap),
+                effective: String(dodgeTotal),
+                soft: String(typeof dp.softCap === 'number' ? dp.softCap : 30),
+                hard: String(typeof dp.cap === 'number' ? dp.cap : 55),
+            }
+        )) + '</div>');
+    } else {
+        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+            'lblDodgeHint',
+            'Full Evasion value up to {soft}%. Past that, gains soften toward {hard}% — Light armor, Precision jewels, and Ultimate Evasion still help.',
+            {
+                soft: String(typeof dp.softCap === 'number' ? dp.softCap : 30),
+                hard: String(typeof dp.cap === 'number' ? dp.cap : 55),
+            }
         )) + '</div>');
     }
     if (b.atkSpeed.reduceTitleMs) {
         otherParts.push(rowKey('lblSpdTitle', '  · equipped title (faster)', '−' + String(b.atkSpeed.reduceTitleMs) + ' ms'));
     }
     otherParts.push(rowFb(L('lblAtkSpdShown', 'Time between hits (lower = faster)'), (b.atkSpeed.totalMs / 1000).toFixed(2) + 's'));
-    if (b.atkSpeed.floored250) {
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L('lblAtkFloor', 'Floored at 250ms minimum delay')) + '</div>');
+    if (b.atkSpeed.softFloored || b.atkSpeed.floored250) {
+        var rawMs = typeof b.atkSpeed.computedMsBeforeFloor === 'number'
+            ? Math.floor(b.atkSpeed.computedMsBeforeFloor)
+            : b.atkSpeed.totalMs;
+        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+            'lblAtkFloor',
+            'Investment {rawMs}ms → effective {effectiveMs}ms (full speed down to {softMs}ms, then soft gains toward {hardMs}ms).',
+            {
+                rawMs: String(rawMs),
+                effectiveMs: String(b.atkSpeed.totalMs),
+                softMs: String(typeof b.atkSpeed.softMinMs === 'number' ? b.atkSpeed.softMinMs : 280),
+                hardMs: String(typeof b.atkSpeed.hardMinMs === 'number' ? b.atkSpeed.hardMinMs : 160),
+            }
+        )) + '</div>');
+    } else {
+        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+            'lblAtkSoftHint',
+            'Attack interval is fully rewarded down to {softMs}ms. Faster than that softens toward {hardMs}ms — gear and speed buffs still help.',
+            {
+                softMs: String(typeof b.atkSpeed.softMinMs === 'number' ? b.atkSpeed.softMinMs : 280),
+                hardMs: String(typeof b.atkSpeed.hardMinMs === 'number' ? b.atkSpeed.hardMinMs : 160),
+            }
+        )) + '</div>');
     }
     var castPct = (b.castSpeed && typeof b.castSpeed.totalPct === 'number') ? b.castSpeed.totalPct : 0;
     otherParts.push(rowFb(L('lblCastSpdShown', 'Casting Speed (shortens skill cast time)'), '+' + String(castPct) + '%'));
@@ -1429,6 +1497,9 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.castSpeed && b.castSpeed.fromWeapon) {
         otherParts.push(rowKey('lblCastSpdWeapon', '  · staff / weapon', '+' + String(b.castSpeed.fromWeapon) + '%'));
     }
+    if (b.castSpeed && b.castSpeed.fromJewels) {
+        otherParts.push(rowKey('lblCastSpdJewels', '  · Arcane jewels', '+' + String(b.castSpeed.fromJewels) + '%'));
+    }
     if (b.castSpeed && b.castSpeed.fromTitle) {
         otherParts.push(rowKey('lblCastSpdTitle', '  · equipped title', '+' + String(b.castSpeed.fromTitle) + '%'));
     }
@@ -1437,6 +1508,32 @@ window.renderPainelStatsDetalhado = function (): void {
     }
     if (b.castSpeed && b.castSpeed.fromBuffs) {
         otherParts.push(rowKey('lblCastSpdBuffs', '  · skill buffs', '+' + String(b.castSpeed.fromBuffs) + '%'));
+    }
+    if (
+        b.castSpeed
+        && typeof b.castSpeed.rawBeforeCap === 'number'
+        && typeof b.castSpeed.gearSoftPct === 'number'
+        && b.castSpeed.rawBeforeCap > b.castSpeed.gearSoftPct
+    ) {
+        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+            'lblCastCapApplied',
+            'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
+            {
+                raw: String(b.castSpeed.rawBeforeCap),
+                effective: String(b.castSpeed.gearSoftPct),
+                soft: String(typeof b.castSpeed.softCap === 'number' ? b.castSpeed.softCap : 35),
+                hard: String(typeof b.castSpeed.hardCap === 'number' ? b.castSpeed.hardCap : 55),
+            }
+        )) + '</div>');
+    } else {
+        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+            'lblCastSoftHint',
+            'Full Casting Speed value up to {soft}%. Past that, gains soften toward {hard}% — Robe, staff, Arcane jewels, and Concentration still help.',
+            {
+                soft: String(b.castSpeed && typeof b.castSpeed.softCap === 'number' ? b.castSpeed.softCap : 35),
+                hard: String(b.castSpeed && typeof b.castSpeed.hardCap === 'number' ? b.castSpeed.hardCap : 55),
+            }
+        )) + '</div>');
     }
     if (Array.isArray(b.joiasPorStat) && b.joiasPorStat.length > 0) {
         otherParts.push('<div class="status-detail__h-sm">' + L('secJewelry', 'Each jewelry piece') + '</div>');

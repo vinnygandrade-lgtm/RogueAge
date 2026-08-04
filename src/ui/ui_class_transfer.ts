@@ -11,6 +11,7 @@ type ClassMod = {
   def?: number;
   spd?: number;
   crit?: number;
+  dodge?: number;
 };
 
 type ClassOption = {
@@ -40,7 +41,7 @@ function esc(s: unknown): string {
 
 function getMod(className: string): ClassMod {
   const table = (window.classModifiers || {}) as Record<string, ClassMod>;
-  return table[className] || { hp: 1, mp: 1, atk: 1, def: 1, spd: 1, crit: 0 };
+  return table[className] || { hp: 1, mp: 1, atk: 1, def: 1, spd: 1, crit: 0, dodge: 1 };
 }
 
 function fmtMult(v: number | undefined): string {
@@ -203,6 +204,13 @@ function statsCompareHtml(currentClass: string, targetClass: string): string {
       cur: fmtCrit(cur.crit),
       next: fmtCrit(nxt.crit),
       trend: deltaClass(Number(cur.crit) || 0, Number(nxt.crit) || 0),
+    },
+    {
+      key: 'dodge',
+      label: t('game.classes.stat.dodge'),
+      cur: fmtCrit(cur.dodge),
+      next: fmtCrit(nxt.dodge),
+      trend: deltaClass(Number(cur.dodge) || 0, Number(nxt.dodge) || 0),
     },
   ];
 

@@ -1585,8 +1585,16 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 .combat-stats-hero__cell--crit .combat-stats-hero__val {
     color: #f472b6;
 }
+.combat-stats-hero__cell--dodge .combat-stats-hero__val {
+    color: #6ee7b7;
+}
 .combat-stats-hero__cell--spd .combat-stats-hero__val {
     color: #94a3b8;
+}
+.damage-number.dodge-float {
+    color: #6ee7b7 !important;
+    font-size: 1.05em;
+    letter-spacing: 0.06em;
 }
 .combat-stats-hero__cell--cast .combat-stats-hero__val {
     color: #a78bfa;

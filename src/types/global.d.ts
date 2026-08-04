@@ -189,7 +189,18 @@ declare global {
     L2MINI_BARE_HAND_WEAPON_ATK: number;
     L2MINI_ITEM_ICON_PX: number;
     L2MINI_TRAINING_SWORD_ATK: number;
+    L2MINI_CRIT_SOFT_CAP: number;
     L2MINI_CRIT_RATE_CAP: number;
+    L2MINI_CRIT_SOFT_SCALE: number;
+    L2MINI_CAST_SOFT_CAP: number;
+    L2MINI_CAST_RATE_CAP: number;
+    L2MINI_CAST_SOFT_SCALE: number;
+    applyCastSpeedCap: (value: number) => number;
+    L2MINI_ATK_SPEED_SOFT_MS: number;
+    L2MINI_ATK_SPEED_HARD_MS: number;
+    L2MINI_ATK_SPEED_SOFT_SCALE: number;
+    applyAtkSpeedFloor: (valueMs: number) => number;
+    _l2CastSpeedRawGear?: number;
     L2MINI_ZONAL_MOB_TUNING: Record<string, ZonalMobTuneEntry>;
     L2MINI_STARTER_WEAPON_IDS: { fighter: string; mage: string };
     TRAVAS_GRADE_NIVEL: Record<GradeEquipKey, number>;
@@ -198,7 +209,20 @@ declare global {
     playerClanId?: number | string | null;
     clans?: Array<{ id: number | string; membros?: string[]; lider?: string; level?: number; [key: string]: unknown }>;
     statusIniciais?: Record<string, import('./game').RaceInitialStats>;
-    classModifiers?: Record<string, { hp: number; mp: number; atk: number; def: number; spd: number; crit: number }>;
+    classModifiers?: Record<string, { hp: number; mp: number; atk: number; def: number; spd: number; crit: number; dodge?: number }>;
+    L2MINI_DODGE_SOFT_CAP: number;
+    L2MINI_DODGE_RATE_CAP: number;
+    L2MINI_DODGE_SOFT_SCALE: number;
+    L2MINI_DODGE_PER_LEVEL: number;
+    applyDodgeRateCap: (value: number) => number;
+    getPlayerDodgeChanceVsMob?: (
+      mob?: { lvl?: number; nivel?: number } | null,
+      ataqueMagicoDoMonstro?: boolean,
+    ) => number;
+    tryPlayerDodgeIncoming?: (
+      mob?: { lvl?: number; nivel?: number } | null,
+      ataqueMagicoDoMonstro?: boolean,
+    ) => boolean;
     classEvolutions?: Record<string, Array<{ nome: string; reqLvl: number; desc: string; cor: string }>>;
     bancoDeSkills?: Record<string, import('./game').SkillCatalogEntry>;
     arvoreDeSkills?: Record<string, import('./game').SkillTreeEntry[]>;

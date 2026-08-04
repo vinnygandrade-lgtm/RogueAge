@@ -109,32 +109,32 @@ if (typeof window !== 'undefined') {
 const catalogoArmadurasBase: ItemCatalogBase[] = [
     // NO-GRADE
     { id: 'a1', nome: 'Wooden Set', grade: 'No-Grade', pDef: 30, bonusHp: 50, tipo: 'Heavy', preco: 800, img: catalogArmorIconPath('a1'), desc: 'Simple reinforced wood armor. A first bulwark against chaos.' },
-    { id: 'a2', nome: 'Leather Set', grade: 'No-Grade', pDef: 22, bonusSpd: 10, bonusCrit: 1, tipo: 'Light', preco: 800, img: catalogArmorIconPath('a2'), desc: 'Light leather for nimble adventurers. Ideal for quick hunts.' },
+    { id: 'a2', nome: 'Leather Set', grade: 'No-Grade', pDef: 22, bonusSpd: 10, bonusCrit: 1, bonusDodge: 2, tipo: 'Light', preco: 800, img: catalogArmorIconPath('a2'), desc: 'Light leather for nimble adventurers. Ideal for quick hunts.' },
     { id: 'a3', nome: 'Devotion Vestments', grade: 'No-Grade', pDef: 15, bonusMp: 50, bonusMDef: 10, bonusCastSpeed: 3, tipo: 'Robe', preco: 800, img: catalogArmorIconPath('a3'), desc: 'Novice mage vestments (medium weave). Boosts basic arcane focus and casting speed.' },
 
     // D-GRADE
     { id: 'a4', nome: 'Brigandine Set', grade: 'D', pDef: 80, bonusHp: 150, tipo: 'Heavy', preco: 25000, img: catalogArmorIconPath('a4'), desc: 'Sturdy frontier plates. Built to endure brutal charges.' },
-    { id: 'a5', nome: 'Manticore Set', grade: 'D', pDef: 60, bonusSpd: 20, bonusCrit: 2, tipo: 'Light', preco: 25000, img: catalogArmorIconPath('a5'), desc: 'Treated Manticore leather. Mobility and precision in combat.' },
+    { id: 'a5', nome: 'Manticore Set', grade: 'D', pDef: 60, bonusSpd: 20, bonusCrit: 2, bonusDodge: 3, tipo: 'Light', preco: 25000, img: catalogArmorIconPath('a5'), desc: 'Treated Manticore leather. Mobility and precision in combat.' },
     { id: 'a6', nome: 'Knowledge Vestments', grade: 'D', pDef: 40, bonusMp: 150, bonusMDef: 25, bonusCastSpeed: 5, tipo: 'Robe', preco: 25000, img: catalogArmorIconPath('a6'), desc: 'Scholar vestments (medium weave). Great for mages on the rise. Improves casting speed.' },
 
     // C-GRADE
     { id: 'a7', nome: 'Composite Set', grade: 'C', pDef: 150, bonusHp: 300, tipo: 'Heavy', preco: 120000, img: catalogArmorIconPath('a7'), desc: 'Campaign armor for veterans. Solid endurance in long fights.' },
-    { id: 'a8', nome: 'Plated Leather', grade: 'C', pDef: 110, bonusSpd: 35, bonusCrit: 4, tipo: 'Light', preco: 120000, img: catalogArmorIconPath('a8'), desc: 'Plated leather for duelists. Fast strikes with calculated risk.' },
+    { id: 'a8', nome: 'Plated Leather', grade: 'C', pDef: 110, bonusSpd: 35, bonusCrit: 4, bonusDodge: 5, tipo: 'Light', preco: 120000, img: catalogArmorIconPath('a8'), desc: 'Plated leather for duelists. Fast strikes with calculated risk.' },
     { id: 'a9', nome: 'Karmian Vestments', grade: 'C', pDef: 75, bonusMp: 300, bonusMDef: 45, bonusCastSpeed: 7, tipo: 'Robe', preco: 120000, img: catalogArmorIconPath('a9'), desc: 'Field mage vestments (medium weave). Efficient MP channeling, defense, and casting speed.' },
 
     // B-GRADE
     { id: 'a10', nome: 'Doom Plate', grade: 'B', pDef: 240, bonusHp: 500, tipo: 'Heavy', preco: 450000, img: catalogArmorIconPath('a10'), desc: 'Elite dark steel. A bastion for heavy raids.' },
-    { id: 'a11', nome: 'Doom Leather', grade: 'B', pDef: 180, bonusSpd: 50, bonusCrit: 6, tipo: 'Light', preco: 450000, img: catalogArmorIconPath('a11'), desc: 'Elite hunter gear. Tempo and lethality above the norm.' },
+    { id: 'a11', nome: 'Doom Leather', grade: 'B', pDef: 180, bonusSpd: 50, bonusCrit: 6, bonusDodge: 7, tipo: 'Light', preco: 450000, img: catalogArmorIconPath('a11'), desc: 'Elite hunter gear. Tempo and lethality above the norm.' },
     { id: 'a12', nome: 'Avadon Vestments', grade: 'B', pDef: 125, bonusMp: 500, bonusMDef: 70, bonusCastSpeed: 9, tipo: 'Robe', preco: 450000, img: catalogArmorIconPath('a12'), desc: 'Ritual vestments (medium weave). Refined M. Def. and faster casting for long duels.' },
 
     // A-GRADE
     { id: 'a13', nome: 'Dark Crystal', grade: 'A', pDef: 350, bonusHp: 800, tipo: 'Heavy', preco: 1500000, img: catalogArmorIconPath('a13'), desc: 'Tempered black crystals. Frontline defense at its finest.' },
-    { id: 'a14', nome: 'Majestic Leather', grade: 'A', pDef: 260, bonusSpd: 75, bonusCrit: 8, tipo: 'Light', preco: 1500000, img: catalogArmorIconPath('a14'), desc: 'Majestic elite set. Top-tier speed and precision.' },
+    { id: 'a14', nome: 'Majestic Leather', grade: 'A', pDef: 260, bonusSpd: 75, bonusCrit: 8, bonusDodge: 9, tipo: 'Light', preco: 1500000, img: catalogArmorIconPath('a14'), desc: 'Majestic elite set. Top-tier speed and precision.' },
     { id: 'a15', nome: 'Tallum Vestments', grade: 'A', pDef: 180, bonusMp: 800, bonusMDef: 110, bonusCastSpeed: 12, tipo: 'Robe', preco: 1500000, img: catalogArmorIconPath('a15'), desc: 'War arcanist vestments (medium weave). Magical mastery and swift casting for large-scale war.' },
 
     // S-GRADE
     { id: 'a16', nome: 'Imperial Crusader', grade: 'S', pDef: 500, bonusHp: 1500, tipo: 'Heavy', preco: 5000000, img: catalogArmorIconPath('a16'), desc: 'Legendary imperial breastplate. Brutal resilience for S-Grade champions.' },
-    { id: 'a17', nome: 'Draconic Leather', grade: 'S', pDef: 380, bonusSpd: 100, bonusCrit: 12, tipo: 'Light', preco: 5000000, img: catalogArmorIconPath('a17'), desc: 'Rare draconic leather. Assassin mobility with high crit damage.' },
+    { id: 'a17', nome: 'Draconic Leather', grade: 'S', pDef: 380, bonusSpd: 100, bonusCrit: 12, bonusDodge: 12, tipo: 'Light', preco: 5000000, img: catalogArmorIconPath('a17'), desc: 'Rare draconic leather. Assassin mobility with high crit damage.' },
     { id: 'a18', nome: 'Major Arcana Vestments', grade: 'S', pDef: 260, bonusMp: 1500, bonusMDef: 180, bonusCastSpeed: 15, tipo: 'Robe', preco: 5000000, img: catalogArmorIconPath('a18'), desc: 'Supreme mage vestments (medium weave). Peak MP, magic defense, and casting speed for endgame.' },
      
     // --- ELITE S-GRADE (CRAFT EXCLUSIVO - SET VESPER) ---
@@ -146,8 +146,8 @@ const catalogoArmadurasBase: ItemCatalogBase[] = [
     },
     { 
         id: 'arm_s_vesper_light', nome: 'Vesper Noble Light', grade: 'S', tipo: 'Light', 
-        pDef: 480, bonusSpd: 150, bonusCrit: 10, pAtk: 100, bonusHp: 1000, preco: 0, moeda: 'Adena',
-        desc: '[Elite Craft] Ancient dragon leather. Extreme mobility (+150 Spd), strong crit (+10%), and P. Atk (+100).', 
+        pDef: 480, bonusSpd: 150, bonusCrit: 10, bonusDodge: 14, pAtk: 100, bonusHp: 1000, preco: 0, moeda: 'Adena',
+        desc: '[Elite Craft] Ancient dragon leather. Extreme mobility (+150 Spd), strong crit (+10%), evasion (+14%), and P. Atk (+100).', 
         img: catalogArmorIconPath('arm_s_vesper_light') 
     },
     { 
@@ -173,46 +173,46 @@ if (typeof window !== 'undefined') {
 }
 
 const catalogoJoiasBase: ItemCatalogBase[] = [
+    // --- ARCANE line (medium / robe path): MP, M.Atk, Casting Speed — IDs stable ---
     // --- NO-GRADE ---
-    { id: 'j_ng_neck', nome: 'Wooden Necklace', tipoItem: 'neck', grade: 'No-Grade', preco: 300, mDef: 12, bonusHp: 15, bonusMp: 10, desc: 'Rustic jewelry. Grants a small vitality boost.', img: catalogJewelIconPath('j_ng_neck') },
-    { id: 'j_ng_ear', nome: 'Wooden Earring', tipoItem: 'ear', grade: 'No-Grade', preco: 200, mDef: 9, bonusHp: 10, bonusMp: 5, desc: 'Simple earrings. Slightly improves resistance.', img: catalogJewelIconPath('j_ng_ear') },
-    { id: 'j_ng_ring', nome: 'Wooden Ring', tipoItem: 'ring', grade: 'No-Grade', preco: 150, mDef: 6, bonusHp: 5, bonusMp: 5, desc: 'Carved wooden ring.', img: catalogJewelIconPath('j_ng_ring') },
-    
-    // --- D-GRADE ---
-    { id: 'j_d_neck', nome: 'Elven Necklace', tipoItem: 'neck', grade: 'D', preco: 2000, mDef: 28, bonusHp: 40, bonusMp: 25, bonusCrit: 1, desc: 'Elf-crafted. Grants +1% Critical Rate.', img: catalogJewelIconPath('j_d_neck') },
-    { id: 'j_d_ear', nome: 'Elven Earring', tipoItem: 'ear', grade: 'D', preco: 1500, mDef: 21, bonusHp: 25, bonusMp: 15, desc: 'Elven earrings that sharpen focus.', img: catalogJewelIconPath('j_d_ear') },
-    { id: 'j_d_ring', nome: 'Elven Ring', tipoItem: 'ring', grade: 'D', preco: 1000, mDef: 14, bonusHp: 15, bonusMp: 10, bonusCrit: 1, desc: 'Polished ring. +1% Critical Rate.', img: catalogJewelIconPath('j_d_ring') },
-    
-    // --- C-GRADE ---
-    { id: 'j_c_neck', nome: 'Aquastone Necklace', tipoItem: 'neck', grade: 'C', preco: 6000, mDef: 50, bonusHp: 90, bonusMp: 50, bonusCrit: 2, bonusSpd: 5, desc: 'Aquatic magic stone. Starts lowering attack/cast delay.', img: catalogJewelIconPath('j_c_neck') },
-    { id: 'j_c_ear', nome: 'Aquastone Earring', tipoItem: 'ear', grade: 'C', preco: 4500, mDef: 37, bonusHp: 60, bonusMp: 38, bonusSpd: 3, desc: 'Aquastone earrings.', img: catalogJewelIconPath('j_c_ear') },
-    { id: 'j_c_ring', nome: 'Aquastone Ring', tipoItem: 'ring', grade: 'C', preco: 3000, mDef: 25, bonusHp: 30, bonusMp: 20, bonusCrit: 2, desc: 'Magic-infused ring. +2% Critical Rate.', img: catalogJewelIconPath('j_c_ring') },
-    
-    // --- B-GRADE ---
-    { id: 'j_b_neck', nome: 'Black Ore Necklace', tipoItem: 'neck', grade: 'B', preco: 18000, mDef: 70, bonusHp: 150, bonusMp: 90, bonusCrit: 3, bonusSpd: 10, pAtk: 15, mAtk: 15, desc: 'Black-ore jewelry. Direct attack power bonus.', img: catalogJewelIconPath('j_b_neck') },
-    { id: 'j_b_ear', nome: 'Black Ore Earring', tipoItem: 'ear', grade: 'B', preco: 13500, mDef: 52, bonusHp: 100, bonusMp: 60, bonusSpd: 5, pAtk: 10, mAtk: 10, desc: 'Black-ore earrings. +10 P. Atk and M. Atk.', img: catalogJewelIconPath('j_b_ear') },
-    { id: 'j_b_ring', nome: 'Black Ore Ring', tipoItem: 'ring', grade: 'B', preco: 9000, mDef: 35, bonusHp: 60, bonusMp: 40, bonusCrit: 3, pAtk: 5, mAtk: 5, desc: 'Greatly improves critical hit chance.', img: catalogJewelIconPath('j_b_ring') },
-    
-    // --- A-GRADE ---
-    { id: 'j_a_neck', nome: 'Majestic Necklace', tipoItem: 'neck', grade: 'A', preco: 60000, mDef: 100, bonusHp: 250, bonusMp: 150, bonusCrit: 4, bonusSpd: 20, pAtk: 35, mAtk: 35, desc: 'Majestic jewelry. Formidable speed and damage bonuses.', img: catalogJewelIconPath('j_a_neck') },
-    { id: 'j_a_ear', nome: 'Majestic Earring', tipoItem: 'ear', grade: 'A', preco: 45000, mDef: 75, bonusHp: 180, bonusMp: 115, bonusSpd: 10, pAtk: 25, mAtk: 25, desc: 'Speeds up body and mind.', img: catalogJewelIconPath('j_a_ear') },
-    { id: 'j_a_ring', nome: 'Majestic Ring', tipoItem: 'ring', grade: 'A', preco: 30000, mDef: 50, bonusHp: 100, bonusMp: 60, bonusCrit: 4, pAtk: 15, mAtk: 15, desc: 'Solid gold band. +4% Critical Rate.', img: catalogJewelIconPath('j_a_ring') },
-    
-    // --- S-GRADE ---
-    { id: 'j_s_neck', nome: 'Tateossian Necklace', tipoItem: 'neck', grade: 'S', preco: 250000, mDef: 140, bonusHp: 400, bonusMp: 250, bonusCrit: 5, bonusSpd: 30, pAtk: 70, mAtk: 70, desc: 'Jewelry of the lords. Drastically raises offensive and defensive stats.', img: catalogJewelIconPath('j_s_neck') },
-    { id: 'j_s_ear', nome: 'Tateossian Earring', tipoItem: 'ear', grade: 'S', preco: 180000, mDef: 105, bonusHp: 280, bonusMp: 205, bonusSpd: 15, pAtk: 50, mAtk: 50, desc: 'Tateossian earrings. Absolute vitality and strength.', img: catalogJewelIconPath('j_s_ear') },
-    { id: 'j_s_ring', nome: 'Tateossian Ring', tipoItem: 'ring', grade: 'S', preco: 125000, mDef: 70, bonusHp: 150, bonusMp: 100, bonusCrit: 5, pAtk: 35, mAtk: 35, desc: 'Tateossian ring. Pushes Critical Rate to the limit.', img: catalogJewelIconPath('j_s_ring') },
-    
-    // --- ELITE S-GRADE (CRAFT EXCLUSIVO - SET VESPER) ---
-    { id: 'j_vesper_neck', nome: 'Vesper Necklace', tipoItem: 'neck', grade: 'S', preco: 0, mDef: 165, bonusHp: 650, bonusMp: 400, bonusCrit: 7, bonusSpd: 45, pAtk: 120, mAtk: 120, desc: 'Forged by legends. The apex of mortal gear.', img: catalogJewelIconPath('j_vesper_neck') },
-    { id: 'j_vesper_ear', nome: 'Vesper Earring', tipoItem: 'ear', grade: 'S', preco: 0, mDef: 125, bonusHp: 450, bonusMp: 280, bonusSpd: 25, pAtk: 85, mAtk: 85, desc: 'Vesper earrings. Amplifies your class’s base power.', img: catalogJewelIconPath('j_vesper_ear') },
-    { id: 'j_vesper_ring', nome: 'Vesper Ring', tipoItem: 'ring', grade: 'S', preco: 0, mDef: 85, bonusHp: 250, bonusMp: 150, bonusCrit: 7, pAtk: 60, mAtk: 60, desc: 'Vesper ring. Unmatched precision and brutality.', img: catalogJewelIconPath('j_vesper_ring') },
+    { id: 'j_ng_neck', nome: 'Wooden Necklace', tipoItem: 'neck', grade: 'No-Grade', preco: 300, mDef: 12, bonusHp: 8, bonusMp: 22, bonusCastSpeed: 1, desc: 'Arcane beginner necklace. Favors MP and casting focus.', img: catalogJewelIconPath('j_ng_neck') },
+    { id: 'j_ng_ear', nome: 'Wooden Earring', tipoItem: 'ear', grade: 'No-Grade', preco: 200, mDef: 9, bonusHp: 5, bonusMp: 14, desc: 'Simple earrings that steady mana flow.', img: catalogJewelIconPath('j_ng_ear') },
+    { id: 'j_ng_ring', nome: 'Wooden Ring', tipoItem: 'ring', grade: 'No-Grade', preco: 150, mDef: 6, bonusMp: 12, mAtk: 2, desc: 'Carved ring for novice spellcasters.', img: catalogJewelIconPath('j_ng_ring') },
 
-    // --- EPIC JEWELS (ULTRA ELITE - DROP DE BOSS) ---
-    { id: 'j_epic_valakas', nome: 'Necklace of Valakas', tipoItem: 'neck', grade: 'S', preco: 0, mDef: 200, bonusHp: 1000, bonusMp: 500, bonusCrit: 8, bonusSpd: 30, pAtk: 300, mAtk: 300, desc: 'Blazing necklace of the Fire Dragon. Peak physical and magic power.', img: catalogJewelIconPath('j_epic_valakas') },
-    { id: 'j_epic_antharas', nome: 'Earring of Antharas', tipoItem: 'ear', grade: 'S', preco: 0, mDef: 150, bonusHp: 800, bonusMp: 300, bonusCrit: 5, pAtk: 150, mAtk: 150, desc: 'Blessed by the Earth Dragon. Colossal vitality.', img: catalogJewelIconPath('j_epic_antharas') },
-    { id: 'j_epic_baium', nome: 'Ring of Baium', tipoItem: 'ring', grade: 'S', preco: 0, mDef: 100, bonusSpd: 60, bonusCrit: 12, pAtk: 200, mAtk: 200, desc: 'Emperor’s ring. Shatters bodily limits, greatly lowering delay.', img: catalogJewelIconPath('j_epic_baium') }
-    
+    // --- D-GRADE ---
+    { id: 'j_d_neck', nome: 'Elven Necklace', tipoItem: 'neck', grade: 'D', preco: 2000, mDef: 28, bonusHp: 20, bonusMp: 55, bonusCastSpeed: 2, mAtk: 8, desc: 'Elf-crafted Arcane necklace. MP, M.Atk, and casting speed.', img: catalogJewelIconPath('j_d_neck') },
+    { id: 'j_d_ear', nome: 'Elven Earring', tipoItem: 'ear', grade: 'D', preco: 1500, mDef: 21, bonusMp: 40, bonusCastSpeed: 1, mAtk: 5, desc: 'Elven earrings that sharpen spell focus.', img: catalogJewelIconPath('j_d_ear') },
+    { id: 'j_d_ring', nome: 'Elven Ring', tipoItem: 'ring', grade: 'D', preco: 1000, mDef: 14, bonusMp: 30, mAtk: 6, desc: 'Polished Arcane ring. Raises M.Atk and mana.', img: catalogJewelIconPath('j_d_ring') },
+
+    // --- C-GRADE ---
+    { id: 'j_c_neck', nome: 'Aquastone Necklace', tipoItem: 'neck', grade: 'C', preco: 6000, mDef: 50, bonusHp: 40, bonusMp: 110, bonusCastSpeed: 3, mAtk: 18, desc: 'Aquatic Arcane stone. Strong MP and casting tempo.', img: catalogJewelIconPath('j_c_neck') },
+    { id: 'j_c_ear', nome: 'Aquastone Earring', tipoItem: 'ear', grade: 'C', preco: 4500, mDef: 37, bonusMp: 75, bonusCastSpeed: 2, mAtk: 12, desc: 'Aquastone earrings for channeling spells faster.', img: catalogJewelIconPath('j_c_ear') },
+    { id: 'j_c_ring', nome: 'Aquastone Ring', tipoItem: 'ring', grade: 'C', preco: 3000, mDef: 25, bonusMp: 55, mAtk: 14, bonusCastSpeed: 1, desc: 'Magic-infused Arcane ring.', img: catalogJewelIconPath('j_c_ring') },
+
+    // --- B-GRADE ---
+    { id: 'j_b_neck', nome: 'Black Ore Necklace', tipoItem: 'neck', grade: 'B', preco: 18000, mDef: 70, bonusHp: 60, bonusMp: 180, bonusCastSpeed: 4, mAtk: 35, desc: 'Black-ore Arcane necklace. Magical power and cast speed.', img: catalogJewelIconPath('j_b_neck') },
+    { id: 'j_b_ear', nome: 'Black Ore Earring', tipoItem: 'ear', grade: 'B', preco: 13500, mDef: 52, bonusMp: 120, bonusCastSpeed: 3, mAtk: 22, desc: 'Black-ore earrings. M.Atk and casting focus.', img: catalogJewelIconPath('j_b_ear') },
+    { id: 'j_b_ring', nome: 'Black Ore Ring', tipoItem: 'ring', grade: 'B', preco: 9000, mDef: 35, bonusMp: 90, mAtk: 26, bonusCastSpeed: 2, desc: 'Arcane ring that deepens spell damage.', img: catalogJewelIconPath('j_b_ring') },
+
+    // --- A-GRADE ---
+    { id: 'j_a_neck', nome: 'Majestic Necklace', tipoItem: 'neck', grade: 'A', preco: 60000, mDef: 100, bonusHp: 90, bonusMp: 280, bonusCastSpeed: 6, mAtk: 55, desc: 'Majestic Arcane necklace. Formidable MP, M.Atk, and cast speed.', img: catalogJewelIconPath('j_a_neck') },
+    { id: 'j_a_ear', nome: 'Majestic Earring', tipoItem: 'ear', grade: 'A', preco: 45000, mDef: 75, bonusMp: 200, bonusCastSpeed: 4, mAtk: 40, desc: 'Speeds the mind — Arcane cast tempo and M.Atk.', img: catalogJewelIconPath('j_a_ear') },
+    { id: 'j_a_ring', nome: 'Majestic Ring', tipoItem: 'ring', grade: 'A', preco: 30000, mDef: 50, bonusMp: 140, mAtk: 45, bonusCastSpeed: 3, desc: 'Solid Arcane band for battle mages.', img: catalogJewelIconPath('j_a_ring') },
+
+    // --- S-GRADE ---
+    { id: 'j_s_neck', nome: 'Tateossian Necklace', tipoItem: 'neck', grade: 'S', preco: 250000, mDef: 140, bonusHp: 120, bonusMp: 420, bonusCastSpeed: 8, mAtk: 90, desc: 'Lordly Arcane necklace. Peak MP, M.Atk, and casting speed.', img: catalogJewelIconPath('j_s_neck') },
+    { id: 'j_s_ear', nome: 'Tateossian Earring', tipoItem: 'ear', grade: 'S', preco: 180000, mDef: 105, bonusMp: 300, bonusCastSpeed: 5, mAtk: 65, desc: 'Tateossian Arcane earrings.', img: catalogJewelIconPath('j_s_ear') },
+    { id: 'j_s_ring', nome: 'Tateossian Ring', tipoItem: 'ring', grade: 'S', preco: 125000, mDef: 70, bonusMp: 220, mAtk: 70, bonusCastSpeed: 4, desc: 'Tateossian Arcane ring for endgame casters.', img: catalogJewelIconPath('j_s_ring') },
+
+    // --- ELITE S-GRADE (CRAFT) — hybrid apex, slight Arcane lean on cast/MP ---
+    { id: 'j_vesper_neck', nome: 'Vesper Necklace', tipoItem: 'neck', grade: 'S', preco: 0, mDef: 165, bonusHp: 400, bonusMp: 550, bonusCastSpeed: 7, bonusCrit: 3, bonusSpd: 20, pAtk: 80, mAtk: 140, desc: 'Forged by legends. Apex hybrid with strong Arcane casting power.', img: catalogJewelIconPath('j_vesper_neck') },
+    { id: 'j_vesper_ear', nome: 'Vesper Earring', tipoItem: 'ear', grade: 'S', preco: 0, mDef: 125, bonusHp: 280, bonusMp: 360, bonusCastSpeed: 5, bonusSpd: 12, pAtk: 55, mAtk: 95, desc: 'Vesper earrings. Amplifies class power with Arcane tempo.', img: catalogJewelIconPath('j_vesper_ear') },
+    { id: 'j_vesper_ring', nome: 'Vesper Ring', tipoItem: 'ring', grade: 'S', preco: 0, mDef: 85, bonusHp: 180, bonusMp: 240, bonusCastSpeed: 4, bonusCrit: 3, pAtk: 40, mAtk: 80, desc: 'Vesper ring. Hybrid apex for any path.', img: catalogJewelIconPath('j_vesper_ring') },
+
+    // --- EPIC (boss) — clear role bias ---
+    { id: 'j_epic_valakas', nome: 'Necklace of Valakas', tipoItem: 'neck', grade: 'S', preco: 0, mDef: 200, bonusHp: 600, bonusMp: 700, bonusCastSpeed: 6, bonusCrit: 4, pAtk: 220, mAtk: 320, desc: 'Fire Dragon necklace. Peak hybrid offense with Arcane weight.', img: catalogJewelIconPath('j_epic_valakas') },
+    { id: 'j_epic_antharas', nome: 'Earring of Antharas', tipoItem: 'ear', grade: 'S', preco: 0, mDef: 180, bonusHp: 1100, bonusMp: 200, pAtk: 180, mAtk: 80, desc: 'Earth Dragon earring. Colossal Vitality and resilience.', img: catalogJewelIconPath('j_epic_antharas') },
+    { id: 'j_epic_baium', nome: 'Ring of Baium', tipoItem: 'ring', grade: 'S', preco: 0, mDef: 100, bonusSpd: 70, bonusCrit: 14, bonusDodge: 4, pAtk: 220, mAtk: 100, desc: 'Emperor’s Precision ring. Extreme crit, speed, and a touch of Evasion.', img: catalogJewelIconPath('j_epic_baium') },
 ];
 
 const catalogoJoias: ItemCatalogBase[] = [

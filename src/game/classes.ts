@@ -147,6 +147,45 @@ const classModifiers = {
     "Maestro": { hp: 2.1, mp: 1.4, atk: 2.0, def: 1.8, spd: 1.0, crit: 8 },
 };
 
+/** Class factory Dodge % (before level / Light armor). Light & dagger paths lead; tanks near 0. */
+const CLASS_DODGE_BASE: Record<string, number> = {
+    Fighter: 3, Mage: 1, Dark_Fighter: 5, Dark_Mage: 2,
+    Warrior: 2, 'Human Knight': 0, Rogue: 8, 'Human Wizard': 2, Cleric: 2,
+    Gladiator: 3, Warlord: 1, Paladin: 0, 'Dark Avenger': 0,
+    'Treasure Hunter': 12, Hawkeye: 10,
+    Necromancer: 3, Sorcerer: 2, Bishop: 2, Prophet: 2,
+    Duelist: 4, Dreadnought: 1, 'Phoenix Knight': 0, 'Hell Knight': 0,
+    Adventurer: 16, Sagittarius: 12,
+    Soultaker: 3, Archmage: 2, Warlock: 2, 'Arcane Lord': 2, Cardinal: 2, Hierophant: 2,
+    Assassin: 10, 'Abyss Walker': 14, 'Ghost Hunter': 18,
+    'Dark Wizard': 2, Spellhowler: 3, 'Storm Screamer': 3,
+    'Palus Ranger': 10, 'Phantom Ranger': 12, 'Ghost Sentinel': 14,
+    'Palus Knight': 4, Bladedancer: 8, 'Spectral Dancer': 10,
+    'Shillien Knight': 2, 'Shillien Templar': 2,
+    'Phantom Summoner': 2, 'Spectral Master': 2,
+    'Shillien Oracle': 2, 'Shillien Elder': 2, 'Shillien Saint': 2,
+    'Elven Knight': 3, 'Elven Scout': 10, 'Elven Wizard': 2, 'Elven Oracle': 2,
+    'Temple Knight': 2, "Eva's Templar": 2,
+    Swordsinger: 5, 'Sword Muse': 6,
+    'Plains Walker': 12, 'Wind Rider': 16,
+    'Silver Ranger': 12, 'Moonlight Sentinel': 14,
+    Spellsinger: 3, 'Mystic Muse': 3,
+    'Elemental Summoner': 2, 'Elemental Master': 2,
+    'Elven Elder': 2, "Eva's Saint": 2,
+    Orc_Fighter: 1, Orc_Mage: 1,
+    'Orc Raider': 1, Monk: 6, 'Orc Shaman': 1,
+    Destroyer: 1, Tyrant: 8, Overlord: 1, Warcryer: 1,
+    Titan: 0, 'Grand Khavatari': 10, Dominator: 1, Doomcryer: 1,
+    'Dwarven Fighter': 1,
+    Scavenger: 4, 'Bounty Hunter': 5, 'Fortune Seeker': 6,
+    Artisan: 1, Warsmith: 1, Maestro: 1,
+};
+
+for (const className of Object.keys(classModifiers)) {
+    const row = classModifiers[className] as { dodge?: number };
+    row.dodge = CLASS_DODGE_BASE[className] ?? 1;
+}
+
 // Árvore de Evolução e Requisitos (Com trava de Raça para Nível 1)
 const classEvolutions = {
     // === Nível 1 -> 20 (Filtro por Raça) ===

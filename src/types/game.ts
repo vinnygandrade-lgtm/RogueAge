@@ -176,6 +176,8 @@ export interface PlayerStats {
   pDef: number;
   mDef: number;
   critRate: number;
+  /** Chance % to fully avoid an incoming forest hit (capped). */
+  dodgeRate: number;
   atkSpeed: number;
   castSpeed: number;
   runSpeed: number;
@@ -197,6 +199,16 @@ export interface PlayerStatBreakdown {
   cpMult: number;
   cpTotal: number;
   critRate: number;
+  dodgeRate?: number;
+  dodgeParts?: StatBreakdownSection & {
+    modClass?: number;
+    fromLevel?: number;
+    armor?: number;
+    rawBeforeCap?: number;
+    softCap?: number;
+    cap?: number;
+    perLevel?: number;
+  };
   classMod: StatBreakdownSection & { atk: number; def: number };
   buffs: StatBreakdownSection & {
     fighter: boolean;
@@ -300,8 +312,21 @@ export interface PlayerStatBreakdown {
     afterClassBuffClanCastle?: number;
     title?: number;
   };
-  critParts: StatBreakdownSection & { rawBeforeCap?: number; cap?: number; title?: number };
-  atkSpeed: StatBreakdownSection & { totalMs: number; floored250?: boolean; reduceTitleMs?: number };
+  critParts: StatBreakdownSection & {
+    rawBeforeCap?: number;
+    softCap?: number;
+    cap?: number;
+    title?: number;
+  };
+  atkSpeed: StatBreakdownSection & {
+    totalMs: number;
+    floored250?: boolean;
+    softFloored?: boolean;
+    softMinMs?: number;
+    hardMinMs?: number;
+    computedMsBeforeFloor?: number;
+    reduceTitleMs?: number;
+  };
   /** Casting Speed: % reduction on skill cast time (capped). */
   castSpeed: StatBreakdownSection & {
     totalPct: number;

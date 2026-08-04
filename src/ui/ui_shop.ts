@@ -683,6 +683,12 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
             );
         }
         if (itemSelecionado.bonusCrit) statsHtml += _shopStatChip(shopT('game.shop.labelCritRate'), '+' + itemSelecionado.bonusCrit + '%', 'crit');
+        if (_invNum(itemSelecionado.bonusDodge)) {
+            statsHtml += _shopStatChip(shopT('game.shop.labelEvasion'), '+' + itemSelecionado.bonusDodge + '%', 'dodge');
+        }
+        if (_invNum(itemSelecionado.bonusCastSpeed)) {
+            statsHtml += _shopStatChip(shopT('game.shop.labelCastSpeed'), '+' + itemSelecionado.bonusCastSpeed + '%', 'cast');
+        }
         if (itemSelecionado.bonusMDef) statsHtml += _shopStatChip(shopT('game.shop.labelMDefBonus'), '+' + itemSelecionado.bonusMDef, 'mdef');
         _setShopDetailHtml(_shopDetailCardHtml({
             name: String(itemSelecionado.nome || ''),
@@ -712,6 +718,9 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
             );
         }
         if (itemSelecionado.bonusCrit) statsHtml += _shopStatChip(shopT('game.shop.labelCritRate'), '+' + itemSelecionado.bonusCrit + '%', 'crit');
+        if (_invNum(itemSelecionado.bonusCastSpeed)) {
+            statsHtml += _shopStatChip(shopT('game.shop.labelCastSpeed'), '+' + itemSelecionado.bonusCastSpeed + '%', 'cast');
+        }
         _setShopDetailHtml(_shopDetailCardHtml({
             name: String(itemSelecionado.nome || ''),
             metaHtml,
@@ -741,6 +750,12 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
             );
         }
         if (itemSelecionado.bonusCrit) statsHtml += _shopStatChip(shopT('game.shop.labelCritRate'), '+' + itemSelecionado.bonusCrit + '%', 'crit');
+        if (_invNum(itemSelecionado.bonusDodge)) {
+            statsHtml += _shopStatChip(shopT('game.shop.labelEvasion'), '+' + itemSelecionado.bonusDodge + '%', 'dodge');
+        }
+        if (_invNum(itemSelecionado.bonusCastSpeed)) {
+            statsHtml += _shopStatChip(shopT('game.shop.labelCastSpeed'), '+' + itemSelecionado.bonusCastSpeed + '%', 'cast');
+        }
         if (itemSelecionado.pAtk) statsHtml += _shopStatChip(shopT('game.shop.labelPAtk'), '+' + itemSelecionado.pAtk, 'patk');
         if (itemSelecionado.mAtk) statsHtml += _shopStatChip(shopT('game.shop.labelMAtk'), '+' + itemSelecionado.mAtk, 'matk');
         _setShopDetailHtml(_shopDetailCardHtml({

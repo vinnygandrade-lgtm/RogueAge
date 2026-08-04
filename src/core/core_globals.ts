@@ -106,6 +106,7 @@ window.playerStats = {
   pDef: 10,
   mDef: 10,
   critRate: 5,
+  dodgeRate: 3,
   atkSpeed: 3800,
   /** Casting Speed: % reduction on skill cast time (0–40). */
   castSpeed: 0,
@@ -125,16 +126,117 @@ window.L2MINI_STAT_PER_LEVEL = {
 window.L2MINI_BARE_HAND_WEAPON_ATK = 5;
 window.L2MINI_ITEM_ICON_PX = 256;
 window.L2MINI_TRAINING_SWORD_ATK = window.L2MINI_BARE_HAND_WEAPON_ATK;
-window.L2MINI_CRIT_RATE_CAP = 70;
+/**
+ * Soft/hard curves — full value until SOFT, then diminishing gains toward HARD.
+ * Same philosophy for Crit, Evasion, and Attack Speed (ms floor).
+ */
+/** Crit %: full until soft, asymptote toward hard. */
+window.L2MINI_CRIT_SOFT_CAP = 55;
+window.L2MINI_CRIT_RATE_CAP = 90;
+window.L2MINI_CRIT_SOFT_SCALE = 30;
+
+/** Evasion % */
+window.L2MINI_DODGE_SOFT_CAP = 30;
+window.L2MINI_DODGE_RATE_CAP = 55;
+window.L2MINI_DODGE_SOFT_SCALE = 28;
+window.L2MINI_DODGE_PER_LEVEL = 0.12;
+
+/**
+ * Attack interval (ms) — LOWER is faster.
+ * Full speed gains while interval >= SOFT_MS; below that, soft approach toward HARD_MS.
+ * Replaces the old hard floor of 250ms so gear/buffs past that still matter.
+ */
+window.L2MINI_ATK_SPEED_SOFT_MS = 280;
+window.L2MINI_ATK_SPEED_HARD_MS = 160;
+window.L2MINI_ATK_SPEED_SOFT_SCALE = 110;
+
+/** Casting Speed % — full until soft, asymptote toward hard (replaces hard wall at 40). */
+window.L2MINI_CAST_SOFT_CAP = 35;
+window.L2MINI_CAST_RATE_CAP = 55;
+window.L2MINI_CAST_SOFT_SCALE = 28;
+
+function applySoftPercentCap(
+  value: number,
+  soft: number,
+  hard: number,
+  scale: number,
+): number {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  if (n <= soft) return Math.floor(n);
+  const over = n - soft;
+  const gained = (hard - soft) * (1 - Math.exp(-over / Math.max(1, scale)));
+  return Math.max(0, Math.min(hard, Math.floor(soft + gained)));
+}
 
 window.applyCritRateCap = function applyCritRateCap(value: number): number {
-  const cap =
-    typeof window.L2MINI_CRIT_RATE_CAP === 'number' && window.L2MINI_CRIT_RATE_CAP >= 0
+  const soft =
+    typeof window.L2MINI_CRIT_SOFT_CAP === 'number' && window.L2MINI_CRIT_SOFT_CAP >= 0
+      ? window.L2MINI_CRIT_SOFT_CAP
+      : 55;
+  const hard =
+    typeof window.L2MINI_CRIT_RATE_CAP === 'number' && window.L2MINI_CRIT_RATE_CAP >= soft
       ? window.L2MINI_CRIT_RATE_CAP
-      : 70;
-  const n = Number(value);
-  if (!Number.isFinite(n)) return 0;
-  return Math.max(0, Math.min(Math.floor(n), cap));
+      : 90;
+  const scale =
+    typeof window.L2MINI_CRIT_SOFT_SCALE === 'number' && window.L2MINI_CRIT_SOFT_SCALE > 0
+      ? window.L2MINI_CRIT_SOFT_SCALE
+      : 30;
+  return applySoftPercentCap(value, soft, hard, scale);
+};
+
+window.applyDodgeRateCap = function applyDodgeRateCap(value: number): number {
+  const soft =
+    typeof window.L2MINI_DODGE_SOFT_CAP === 'number' && window.L2MINI_DODGE_SOFT_CAP >= 0
+      ? window.L2MINI_DODGE_SOFT_CAP
+      : 30;
+  const hard =
+    typeof window.L2MINI_DODGE_RATE_CAP === 'number' && window.L2MINI_DODGE_RATE_CAP >= soft
+      ? window.L2MINI_DODGE_RATE_CAP
+      : 55;
+  const scale =
+    typeof window.L2MINI_DODGE_SOFT_SCALE === 'number' && window.L2MINI_DODGE_SOFT_SCALE > 0
+      ? window.L2MINI_DODGE_SOFT_SCALE
+      : 28;
+  return applySoftPercentCap(value, soft, hard, scale);
+};
+
+/** Soft-floor for attack interval ms (lower = faster). */
+window.applyAtkSpeedFloor = function applyAtkSpeedFloor(valueMs: number): number {
+  const soft =
+    typeof window.L2MINI_ATK_SPEED_SOFT_MS === 'number' && window.L2MINI_ATK_SPEED_SOFT_MS > 0
+      ? window.L2MINI_ATK_SPEED_SOFT_MS
+      : 280;
+  const hard =
+    typeof window.L2MINI_ATK_SPEED_HARD_MS === 'number' && window.L2MINI_ATK_SPEED_HARD_MS > 0
+      ? Math.min(window.L2MINI_ATK_SPEED_HARD_MS, soft)
+      : 160;
+  const scale =
+    typeof window.L2MINI_ATK_SPEED_SOFT_SCALE === 'number' && window.L2MINI_ATK_SPEED_SOFT_SCALE > 0
+      ? window.L2MINI_ATK_SPEED_SOFT_SCALE
+      : 110;
+  const n = Number(valueMs);
+  if (!Number.isFinite(n)) return soft;
+  if (n >= soft) return Math.floor(n);
+  const over = soft - n;
+  const gained = (soft - hard) * (1 - Math.exp(-over / scale));
+  return Math.max(hard, Math.floor(soft - gained));
+};
+
+window.applyCastSpeedCap = function applyCastSpeedCap(value: number): number {
+  const soft =
+    typeof window.L2MINI_CAST_SOFT_CAP === 'number' && window.L2MINI_CAST_SOFT_CAP >= 0
+      ? window.L2MINI_CAST_SOFT_CAP
+      : 35;
+  const hard =
+    typeof window.L2MINI_CAST_RATE_CAP === 'number' && window.L2MINI_CAST_RATE_CAP >= soft
+      ? window.L2MINI_CAST_RATE_CAP
+      : 55;
+  const scale =
+    typeof window.L2MINI_CAST_SOFT_SCALE === 'number' && window.L2MINI_CAST_SOFT_SCALE > 0
+      ? window.L2MINI_CAST_SOFT_SCALE
+      : 28;
+  return applySoftPercentCap(value, soft, hard, scale);
 };
 
 window.L2MINI_ZONAL_MOB_TUNING = {

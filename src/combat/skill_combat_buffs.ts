@@ -134,16 +134,24 @@ export function applySkillCombatBuffsToPlayerStats(): void {
   if (pDefM !== 1) window.playerStats.pDef = Math.floor(window.playerStats.pDef * pDefM);
   if (mDefM !== 1) window.playerStats.mDef = Math.floor(window.playerStats.mDef * mDefM);
   if (spdM !== 1) {
-    window.playerStats.atkSpeed = Math.floor(window.playerStats.atkSpeed * spdM);
-    if (window.playerStats.atkSpeed < 250) window.playerStats.atkSpeed = 250;
+    const nextMs = Math.floor(window.playerStats.atkSpeed * spdM);
+    window.playerStats.atkSpeed = (typeof window.applyAtkSpeedFloor === 'function')
+      ? window.applyAtkSpeedFloor(nextMs)
+      : Math.max(160, nextMs);
   }
 
-  // Additive on top of gear/title castSpeed already set in calcularStatusGlobais.
-  const baseCast = Math.max(0, Math.floor(Number(window.playerStats.castSpeed) || 0));
-  window.playerStats.castSpeed = Math.min(
-    MAX_CAST_SPEED_PCT,
-    Math.max(0, baseCast + Math.floor(castSpdBonus)),
-  );
+  // Soft-cap once on (gear raw + buff), matching Crit / Evasion investment curves.
+  if (castSpdBonus > 0) {
+    const win = window as Window & { _l2CastSpeedRawGear?: number };
+    const gearRaw =
+      typeof win._l2CastSpeedRawGear === 'number'
+        ? Math.max(0, Math.floor(win._l2CastSpeedRawGear))
+        : Math.max(0, Math.floor(Number(window.playerStats.castSpeed) || 0));
+    const castRaw = Math.max(0, gearRaw + Math.floor(castSpdBonus));
+    window.playerStats.castSpeed = (typeof window.applyCastSpeedCap === 'function')
+      ? window.applyCastSpeedCap(castRaw)
+      : Math.min(MAX_CAST_SPEED_PCT, castRaw);
+  }
 }
 
 export function getActiveSkillCombatBuffSnapshot(): Record<SkillCombatBuffKind, SkillCombatBuffEntry | null> {

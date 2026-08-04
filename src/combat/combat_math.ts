@@ -77,19 +77,58 @@ window.getForestTargetMobIndex = function () {
   return -1;
 };
 
-window.calcularDefesaDoPlayer = function (ataqueMagicoDoMonstro: boolean) {
-  const buffs = motorBuffs();
-  const defesaUsada = ataqueMagicoDoMonstro ? window.playerStats.mDef : window.playerStats.pDef;
-  if (buffs.esquiva > 0 && Math.random() * 100 < buffs.esquiva) {
-    escreverLog(
-      `<span style="color:#34d399; font-weight:bold;">${
-        typeof window.t === 'function'
-          ? window.t('game.combatMath.dodgePerfect')
-          : '💨 You dodged the attack perfectly!'
-      }</span>`,
-    );
-    return 999999;
+/** Effective dodge chance % vs an incoming forest hit (class+gear+buff − mob accuracy). */
+window.getPlayerDodgeChanceVsMob = function (
+  mob?: { lvl?: number; nivel?: number } | null,
+  ataqueMagicoDoMonstro = false,
+): number {
+  const base = Number(window.playerStats?.dodgeRate) || 0;
+  const buff = Number(motorBuffs().esquiva) || 0;
+  let raw = base + buff;
+  if (mob) {
+    const mobLvl = Number(mob.lvl ?? mob.nivel) || 1;
+    const plLvl = Number(window.nivel) || 1;
+    if (mobLvl > plLvl) {
+      raw -= (mobLvl - plLvl) * 0.4;
+    }
   }
+  if (ataqueMagicoDoMonstro) {
+    raw *= 0.85;
+  }
+  return typeof window.applyDodgeRateCap === 'function'
+    ? window.applyDodgeRateCap(raw)
+    : Math.max(0, Math.min(55, Math.floor(raw)));
+};
+
+window.tryPlayerDodgeIncoming = function (
+  mob?: { lvl?: number; nivel?: number } | null,
+  ataqueMagicoDoMonstro = false,
+): boolean {
+  const chance = window.getPlayerDodgeChanceVsMob(mob, ataqueMagicoDoMonstro);
+  if (chance <= 0) return false;
+  return Math.random() * 100 < chance;
+};
+
+function mostrarEsquivaVisualPlayer(): void {
+  const cena = document.getElementById('tela-floresta');
+  if (!cena) return;
+  const el = document.createElement('div');
+  el.className = 'damage-number rival dodge-float';
+  el.innerText =
+    typeof window.t === 'function' ? window.t('game.combatMath.dodgeFloat') : 'EVASION';
+  const offset = Math.random() * 40 - 20;
+  el.style.left = `calc(50% + ${offset}px)`;
+  el.style.top = '52%';
+  el.style.position = 'fixed';
+  el.style.color = '#6ee7b7';
+  el.style.fontWeight = '900';
+  el.style.textShadow = '0 0 8px rgba(16,185,129,0.55), 1px 1px 0 #000';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+window.calcularDefesaDoPlayer = function (ataqueMagicoDoMonstro: boolean) {
+  const defesaUsada = ataqueMagicoDoMonstro ? window.playerStats.mDef : window.playerStats.pDef;
   return defesaUsada > 0 ? defesaUsada : 1;
 };
 
@@ -125,6 +164,18 @@ window.handleForestPlayerDefeat = handleForestPlayerDefeat;
 function executarDanoDeUmMonstro(mob: ForestMob) {
   try {
     const isMagico = mobAttacksMagically(mob);
+    if (window.tryPlayerDodgeIncoming(mob, isMagico)) {
+      escreverLog(
+        `<span style="color:#34d399; font-weight:bold;">${
+          typeof window.t === 'function'
+            ? window.t('game.combatMath.dodgePerfect')
+            : '💨 You evaded the attack perfectly!'
+        }</span>`,
+      );
+      mostrarEsquivaVisualPlayer();
+      if (window.playerHP > 0) atualizar();
+      return;
+    }
     let mobPower = mobPrimaryAtk(mob);
     // Howl / Freezing Strike / etc. — reduce outgoing mob damage while active.
     const atkMultRaw = Number(mob.debuffs?.atkMult);
@@ -134,7 +185,7 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
     const danoBaseMonstro = Math.floor(Math.random() * (mobPower * 0.2)) + (mobPower * 0.9);
     const defesaSegura = window.calcularDefesaDoPlayer(isMagico);
 
-    if (defesaSegura !== 999999) {
+    {
       let danoRecebido = Math.floor((danoBaseMonstro * 1100) / (350 + defesaSegura));
       const expeditionActive = !!(window.ExpeditionEngine?.state?.active);
       const danoMinPct = expeditionActive ? 0.05 : 0.03;

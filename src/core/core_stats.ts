@@ -65,7 +65,9 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             `<img src="${imgAtaque}" alt="" style="width:35px;height:35px;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 3px #000);">`;
     }
 
-    let mod = (typeof window.classModifiers !== 'undefined' && window.classModifiers[cl]) ? window.classModifiers[cl] : { hp: 1.0, mp: 1.0, atk: 1.0, def: 1.0, spd: 1.0, crit: 0 };
+    let mod = (typeof window.classModifiers !== 'undefined' && window.classModifiers[cl])
+        ? window.classModifiers[cl]
+        : { hp: 1.0, mp: 1.0, atk: 1.0, def: 1.0, spd: 1.0, crit: 0, dodge: 1 };
     let buffFighterLigado = (Date.now() < (window.tempoFimBuffGuerreiro || 0));
     let buffMageLigado = (Date.now() < (window.tempoFimBuffMistico || 0));
 
@@ -108,6 +110,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let armaduraBonusMp = Math.floor(getStat(armor, 'bonusMp') * multEnchant);
     let armaduraBonusSpd = Math.floor(getStat(armor, 'bonusSpd') * multEnchant);
     let armaduraBonusCrit = Math.floor(getStat(armor, 'bonusCrit') * multEnchant);
+    let armaduraBonusDodge = Math.floor(getStat(armor, 'bonusDodge') * multEnchant);
     let armaduraBonusMDef = Math.floor(getStat(armor, 'bonusMDef') * multEnchant);
     let armaduraFlatMDef = Math.floor(getStat(armor, 'mDef') * multEnchant);
     
@@ -144,6 +147,8 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let joiasBonusMp = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusMp') * (1 + (getJewelEnchant(j) * 0.10))), 0));
     let joiasBonusCrit = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusCrit') * (1 + (getJewelEnchant(j) * 0.10))), 0));
     let joiasBonusSpd = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusSpd') * (1 + (getJewelEnchant(j) * 0.10))), 0));
+    let joiasBonusCast = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusCastSpeed') * (1 + (getJewelEnchant(j) * 0.10))), 0));
+    let joiasBonusDodge = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusDodge') * (1 + (getJewelEnchant(j) * 0.10))), 0));
     let joiasPAtk = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'pAtk') * (1 + (getJewelEnchant(j) * 0.10))), 0));
     let joiasMAtk = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'mAtk') * (1 + (getJewelEnchant(j) * 0.10))), 0));
 
@@ -171,6 +176,8 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         pushIf('bonusMp', 'bonusMp', mk('bonusMp'));
         pushIf('bonusCrit', 'bonusCrit', mk('bonusCrit'));
         pushIf('bonusSpd', 'bonusSpd', mk('bonusSpd'));
+        pushIf('bonusCastSpeed', 'bonusCastSpeed', mk('bonusCastSpeed'));
+        pushIf('bonusDodge', 'bonusDodge', mk('bonusDodge'));
     });
 
     let clanBonusPAtk = 1.0; let clanBonusPDef = 1.0; let clanBonusMAtk = 1.0; let clanBonusHp = 1.0;
@@ -264,7 +271,18 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     );
     window.playerStats.critRate = (typeof window.applyCritRateCap === 'function')
         ? window.applyCritRateCap(critRawBeforeCap)
-        : Math.min(Math.max(0, critRawBeforeCap), 70);
+        : Math.min(Math.max(0, critRawBeforeCap), 90);
+
+    const dodgePerLvl =
+        typeof window.L2MINI_DODGE_PER_LEVEL === 'number' && window.L2MINI_DODGE_PER_LEVEL >= 0
+            ? window.L2MINI_DODGE_PER_LEVEL
+            : 0.12;
+    const classDodge = Math.max(0, Number((mod as { dodge?: number }).dodge) || 0);
+    const dodgeFromLevel = Math.floor((safeNivel - 1) * dodgePerLvl);
+    const dodgeRawBeforeCap = Math.floor(classDodge + dodgeFromLevel + armaduraBonusDodge + joiasBonusDodge);
+    window.playerStats.dodgeRate = (typeof window.applyDodgeRateCap === 'function')
+        ? window.applyDodgeRateCap(dodgeRawBeforeCap)
+        : Math.min(Math.max(0, dodgeRawBeforeCap), 55);
     
     let spdBase = isMage ? base.atkSpeedMage : base.atkSpeedFighter;
     let spdTotal = (spdBase - ((safeNivel - 1) * atkSpdMsMenosPorNivel)) * mod.spd;
@@ -273,9 +291,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     spdTotal -= bonusAugSpd; spdTotal -= armaduraBonusSpd; spdTotal -= armaBonusSpd; spdTotal -= joiasBonusSpd;
     if (titleBonus.atkSpeedMs > 0) spdTotal -= titleBonus.atkSpeedMs;
 
-    window.playerStats.atkSpeed = Math.floor(spdTotal * 1.0);
-    const atkSpdFlooredBelowMin = window.playerStats.atkSpeed < 250;
-    if (atkSpdFlooredBelowMin) { window.playerStats.atkSpeed = 250; }
+    let atkSpeedRawMs = Math.floor(spdTotal * 1.0);
 
     // Casting Speed % — gear + title first; skill buffs (Concentration) add on top.
     const gradeCastTable: Record<string, number> = {
@@ -300,8 +316,10 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
       castFromWeapon += Math.min(3, Math.floor(lvlWpn / 8));
     }
     const castFromTitle = Math.max(0, Math.floor(titleBonus.castSpeedPct || 0));
-    const castBeforeBuffs = Math.min(40, castFromArmor + castFromWeapon + castFromTitle);
-    window.playerStats.castSpeed = castBeforeBuffs;
+    let castSpeedRawPct = Math.max(
+        0,
+        castFromArmor + castFromWeapon + castFromTitle + joiasBonusCast,
+    );
 
     // Equip Harmony: +N% to combat stats where N = min enchant of a complete set (7 slots).
     const harmony = resolveEquipHarmony();
@@ -316,16 +334,31 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         window.playerStats.mAtk = Math.floor(window.playerStats.mAtk * hm);
         window.playerStats.pDef = Math.floor(window.playerStats.pDef * hm);
         window.playerStats.mDef = Math.floor(window.playerStats.mDef * hm);
-        const critAfterH = Math.floor(window.playerStats.critRate * hm);
+        // Re-apply soft curves on raw investment (class+gear), not on already-softened totals.
+        const critAfterH = Math.floor(critRawBeforeCap * hm);
         window.playerStats.critRate = (typeof window.applyCritRateCap === 'function')
             ? window.applyCritRateCap(critAfterH)
-            : Math.min(Math.max(0, critAfterH), 70);
-        window.playerStats.atkSpeed = Math.max(
-            250,
-            Math.floor(window.playerStats.atkSpeed * (1 - harmony.pct / 100)),
-        );
-        window.playerStats.castSpeed = Math.min(40, window.playerStats.castSpeed + harmony.pct);
+            : Math.min(Math.max(0, critAfterH), 90);
+        const dodgeAfterH = Math.floor(dodgeRawBeforeCap * hm);
+        window.playerStats.dodgeRate = (typeof window.applyDodgeRateCap === 'function')
+            ? window.applyDodgeRateCap(dodgeAfterH)
+            : Math.min(Math.max(0, dodgeAfterH), 55);
+        atkSpeedRawMs = Math.floor(atkSpeedRawMs * (1 - harmony.pct / 100));
+        castSpeedRawPct += harmony.pct;
     }
+
+    // Keep raw gear+harmony investment so skill buffs soft-cap once on (raw + buff), not double-soft.
+    (window as Window & { _l2CastSpeedRawGear?: number })._l2CastSpeedRawGear = castSpeedRawPct;
+    const castBeforeBuffs = (typeof window.applyCastSpeedCap === 'function')
+        ? window.applyCastSpeedCap(castSpeedRawPct)
+        : Math.min(55, castSpeedRawPct);
+    window.playerStats.castSpeed = castBeforeBuffs;
+
+    window.playerStats.atkSpeed = (typeof window.applyAtkSpeedFloor === 'function')
+        ? window.applyAtkSpeedFloor(atkSpeedRawMs)
+        : Math.max(160, Math.floor(atkSpeedRawMs));
+    const atkSpdSoftApplied = atkSpeedRawMs < window.playerStats.atkSpeed
+        || atkSpeedRawMs !== window.playerStats.atkSpeed;
 
         if (
         typeof window.ExpeditionEngine !== 'undefined'
@@ -357,7 +390,15 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         armorEnchant: lvlArm,
         weaponEnchant: lvlWpn,
         perLevel: { hpPerLvl, mpPerLvl, pAtkPerLvl, mAtkPerLvl, pDefPerLvl, mDefPerLvl, atkSpdMsMenosPorNivel },
-        classMod: { atk: mod.atk, def: mod.def, hp: mod.hp, mp: mod.mp, spd: mod.spd, crit: mod.crit },
+        classMod: {
+            atk: mod.atk,
+            def: mod.def,
+            hp: mod.hp,
+            mp: mod.mp,
+            spd: mod.spd,
+            crit: mod.crit,
+            dodge: classDodge,
+        },
         buffs: {
             fighter: buffFighterLigado,
             mage: buffMageLigado,
@@ -476,8 +517,24 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             weapon: armaBonusCrit,
             jewels: joiasBonusCrit,
             title: titleBonus.critRate,
-            rawBeforeCap: critRawBeforeCap,
-            cap: (typeof window.L2MINI_CRIT_RATE_CAP === 'number' ? window.L2MINI_CRIT_RATE_CAP : 70),
+            rawBeforeCap: harmonyAppliedPct > 0
+                ? Math.floor(critRawBeforeCap * (1 + harmonyAppliedPct / 100))
+                : critRawBeforeCap,
+            softCap: (typeof window.L2MINI_CRIT_SOFT_CAP === 'number' ? window.L2MINI_CRIT_SOFT_CAP : 55),
+            cap: (typeof window.L2MINI_CRIT_RATE_CAP === 'number' ? window.L2MINI_CRIT_RATE_CAP : 90),
+        },
+        dodgeRate: window.playerStats.dodgeRate,
+        dodgeParts: {
+            modClass: classDodge,
+            fromLevel: dodgeFromLevel,
+            armor: armaduraBonusDodge,
+            jewels: joiasBonusDodge,
+            rawBeforeCap: harmonyAppliedPct > 0
+                ? Math.floor(dodgeRawBeforeCap * (1 + harmonyAppliedPct / 100))
+                : dodgeRawBeforeCap,
+            softCap: (typeof window.L2MINI_DODGE_SOFT_CAP === 'number' ? window.L2MINI_DODGE_SOFT_CAP : 30),
+            cap: (typeof window.L2MINI_DODGE_RATE_CAP === 'number' ? window.L2MINI_DODGE_RATE_CAP : 55),
+            perLevel: dodgePerLvl,
         },
         atkSpeed: {
             baseRaceMs: spdBase - ((safeNivel - 1) * atkSpdMsMenosPorNivel),
@@ -489,21 +546,29 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             reduceWeaponMs: armaBonusSpd,
             reduceJewelsMs: joiasBonusSpd,
             reduceTitleMs: titleBonus.atkSpeedMs,
-            computedMsBeforeFloor: spdTotal,
-            floored250: atkSpdFlooredBelowMin,
+            computedMsBeforeFloor: atkSpeedRawMs,
+            softMinMs: (typeof window.L2MINI_ATK_SPEED_SOFT_MS === 'number' ? window.L2MINI_ATK_SPEED_SOFT_MS : 280),
+            hardMinMs: (typeof window.L2MINI_ATK_SPEED_HARD_MS === 'number' ? window.L2MINI_ATK_SPEED_HARD_MS : 160),
+            floored250: atkSpdSoftApplied,
+            softFloored: atkSpdSoftApplied,
             totalMs: window.playerStats.atkSpeed
         },
         castSpeed: {
             fromArmor: castFromArmor,
             fromWeapon: castFromWeapon,
             fromTitle: castFromTitle,
+            fromJewels: joiasBonusCast,
             fromHarmony: harmonyAppliedPct,
+            rawBeforeCap: castSpeedRawPct,
+            gearSoftPct: castBeforeBuffs,
+            softCap: (typeof window.L2MINI_CAST_SOFT_CAP === 'number' ? window.L2MINI_CAST_SOFT_CAP : 35),
+            hardCap: (typeof window.L2MINI_CAST_RATE_CAP === 'number' ? window.L2MINI_CAST_RATE_CAP : 55),
             fromBuffs: Math.max(
                 0,
-                (window.playerStats.castSpeed || 0) - castBeforeBuffs - harmonyAppliedPct,
+                (window.playerStats.castSpeed || 0) - castBeforeBuffs,
             ),
             totalPct: window.playerStats.castSpeed || 0,
-            capped: (window.playerStats.castSpeed || 0) >= 40,
+            capped: castBeforeBuffs < castSpeedRawPct,
         },
         harmony: {
             complete: harmony.complete,
@@ -641,6 +706,7 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
             pDef: window.playerStats.pDef,
             mDef: window.playerStats.mDef,
             critRate: window.playerStats.critRate,
+            dodgeRate: window.playerStats.dodgeRate,
             atkSpeed: window.playerStats.atkSpeed,
             castSpeed: window.playerStats.castSpeed
         };
