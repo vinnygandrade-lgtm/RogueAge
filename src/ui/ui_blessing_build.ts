@@ -1,11 +1,16 @@
 /**
  * Grand Master Blessing Build UI — pick 3 blessings, apply for 2h.
+ * Icons: assets/blessings/<id>.png (glyph fallback until art lands).
  */
 
 import {
-  BLESSING_CATALOG,
+  BLESSING_GROUP_ORDER,
   BLESSING_SLOT_COUNT,
+  blessingsByGroup,
   composeBlessingEffects,
+  getBlessingDef,
+  getBlessingIconSrc,
+  type BlessingGroup,
   type BlessingId,
 } from '../game/blessing_catalog';
 
@@ -55,23 +60,50 @@ function formatPrice(n: number): string {
   }
 }
 
-function effectPreviewLine(ids: BlessingId[]): string {
-  if (ids.length === 0) return t('game.blessingBuild.previewEmpty');
-  const fx = composeBlessingEffects(ids);
-  const parts: string[] = [];
-  if (fx.pAtkMult !== 1) parts.push(t('game.blessingBuild.preview.pAtk', { n: Math.round((fx.pAtkMult - 1) * 100) }));
-  if (fx.mAtkMult !== 1) parts.push(t('game.blessingBuild.preview.mAtk', { n: Math.round((fx.mAtkMult - 1) * 100) }));
-  if (fx.pDefMult !== 1) parts.push(t('game.blessingBuild.preview.pDef', { n: Math.round((fx.pDefMult - 1) * 100) }));
-  if (fx.mDefMult !== 1) parts.push(t('game.blessingBuild.preview.mDef', { n: Math.round((fx.mDefMult - 1) * 100) }));
-  if (fx.maxHpMult !== 1) parts.push(t('game.blessingBuild.preview.hp', { n: Math.round((fx.maxHpMult - 1) * 100) }));
-  if (fx.maxMpMult !== 1) parts.push(t('game.blessingBuild.preview.mp', { n: Math.round((fx.maxMpMult - 1) * 100) }));
-  if (fx.critAdd) parts.push(t('game.blessingBuild.preview.crit', { n: fx.critAdd }));
-  if (fx.castAdd) parts.push(t('game.blessingBuild.preview.cast', { n: fx.castAdd }));
-  if (fx.dodgeAdd) parts.push(t('game.blessingBuild.preview.eva', { n: fx.dodgeAdd }));
-  if (fx.atkSpeedMult !== 1) {
-    parts.push(t('game.blessingBuild.preview.atkSpd', { n: Math.round((1 - fx.atkSpeedMult) * 100) }));
+/** Framed icon: PNG on top when ready; glyph underneath as strategic placeholder. */
+function blessIconHtml(
+  id: string,
+  glyph: string,
+  color: string,
+  sizeClass = '',
+): string {
+  const src = getBlessingIconSrc(id);
+  return (
+    `<span class="bless-icon ${sizeClass}" style="--bless:${esc(color)}" data-bless-icon="${esc(id)}">` +
+    `<span class="bless-icon__fallback" aria-hidden="true">${esc(glyph)}</span>` +
+    `<img class="bless-icon__img" src="${esc(src)}" alt="" draggable="false" ` +
+    `onload="this.classList.add('is-ready')" ` +
+    `onerror="this.remove()">` +
+    `</span>`
+  );
+}
+
+function previewChipsHtml(ids: BlessingId[]): string {
+  if (ids.length === 0) {
+    return `<span class="bless-chip bless-chip--muted">${esc(t('game.blessingBuild.previewEmpty'))}</span>`;
   }
-  return parts.join(' · ') || t('game.blessingBuild.previewEmpty');
+  const fx = composeBlessingEffects(ids);
+  const chips: string[] = [];
+  const push = (key: string, n: number) => {
+    chips.push(
+      `<span class="bless-chip">${esc(t('game.blessingBuild.preview.' + key, { n }))}</span>`,
+    );
+  };
+  if (fx.pAtkMult !== 1) push('pAtk', Math.round((fx.pAtkMult - 1) * 100));
+  if (fx.mAtkMult !== 1) push('mAtk', Math.round((fx.mAtkMult - 1) * 100));
+  if (fx.pDefMult !== 1) push('pDef', Math.round((fx.pDefMult - 1) * 100));
+  if (fx.mDefMult !== 1) push('mDef', Math.round((fx.mDefMult - 1) * 100));
+  if (fx.maxHpMult !== 1) push('hp', Math.round((fx.maxHpMult - 1) * 100));
+  if (fx.maxMpMult !== 1) push('mp', Math.round((fx.maxMpMult - 1) * 100));
+  if (fx.critAdd) push('crit', fx.critAdd);
+  if (fx.castAdd) push('cast', fx.castAdd);
+  if (fx.dodgeAdd) push('eva', fx.dodgeAdd);
+  if (fx.atkSpeedMult !== 1) push('atkSpd', Math.round((1 - fx.atkSpeedMult) * 100));
+  return chips.join('') || `<span class="bless-chip bless-chip--muted">${esc(t('game.blessingBuild.previewEmpty'))}</span>`;
+}
+
+function groupTitle(group: BlessingGroup): string {
+  return t('game.blessingBuild.groups.' + group);
 }
 
 function renderBlessingBuildModal(): void {
@@ -80,6 +112,7 @@ function renderBlessingBuildModal(): void {
 
   const price = buildPrice();
   const selected = draftIds();
+  const filled = selected.length;
   const active = window.BlessingEngine?.getActiveBlessingBuild?.() || null;
   const activeLine = active
     ? t('game.blessingBuild.activeHint', {
@@ -94,55 +127,113 @@ function renderBlessingBuildModal(): void {
       if (!id) {
         return (
           `<button type="button" class="bless-slot bless-slot--empty" data-slot="${idx}" aria-label="${esc(t('game.blessingBuild.emptySlot'))}">` +
-          `<span class="bless-slot__num">${idx + 1}</span>` +
+          `<span class="bless-slot__frame">` +
+          `<span class="bless-slot__plus" aria-hidden="true">+</span>` +
+          `</span>` +
+          `<span class="bless-slot__meta">` +
+          `<span class="bless-slot__num">${t('game.blessingBuild.slotLabel', { n: idx + 1 })}</span>` +
           `<span class="bless-slot__hint">${esc(t('game.blessingBuild.tapToFill'))}</span>` +
+          `</span>` +
           `</button>`
         );
       }
-      const def = BLESSING_CATALOG.find((b) => b.id === id);
+      const def = getBlessingDef(id);
+      const color = def?.color || '#fbbf24';
+      const glyph = def?.glyph || '?';
       return (
-        `<button type="button" class="bless-slot bless-slot--filled" data-slot="${idx}" style="--bless:${esc(def?.color || '#fbbf24')}" aria-label="${esc(t('game.blessingBuild.removeSlot'))}">` +
-        `<span class="bless-slot__glyph">${esc(def?.glyph || '?')}</span>` +
+        `<button type="button" class="bless-slot bless-slot--filled" data-slot="${idx}" style="--bless:${esc(color)}" aria-label="${esc(t('game.blessingBuild.removeSlot'))}">` +
+        `<span class="bless-slot__frame">${blessIconHtml(id, glyph, color, 'bless-icon--slot')}</span>` +
+        `<span class="bless-slot__meta">` +
         `<span class="bless-slot__name">${esc(t('game.blessingBuild.catalog.' + id + '.name'))}</span>` +
+        `<span class="bless-slot__hint">${esc(t('game.blessingBuild.tapToRemove'))}</span>` +
+        `</span>` +
         `<span class="bless-slot__x" aria-hidden="true">×</span>` +
         `</button>`
       );
     })
     .join('');
 
-  const gridHtml = BLESSING_CATALOG.map((b) => {
-    const picked = draftSlots.includes(b.id);
-    const full = selected.length >= BLESSING_SLOT_COUNT && !picked;
-    const cls =
-      'bless-card' +
-      (picked ? ' is-picked' : '') +
-      (full ? ' is-disabled' : '');
+  const groupsHtml = BLESSING_GROUP_ORDER.map((group) => {
+    const list = blessingsByGroup(group);
+    const cards = list
+      .map((b) => {
+        const picked = draftSlots.includes(b.id);
+        const full = filled >= BLESSING_SLOT_COUNT && !picked;
+        const cls =
+          'bless-card' +
+          (picked ? ' is-picked' : '') +
+          (full ? ' is-disabled' : '');
+        const pickIdx = draftSlots.indexOf(b.id);
+        const badge =
+          pickIdx >= 0
+            ? `<span class="bless-card__badge">${pickIdx + 1}</span>`
+            : '';
+        return (
+          `<button type="button" class="${cls}" data-bless-id="${esc(b.id)}" style="--bless:${esc(b.color)}" ${full ? 'disabled' : ''}>` +
+          badge +
+          `<span class="bless-card__icon">${blessIconHtml(b.id, b.glyph, b.color, 'bless-icon--card')}</span>` +
+          `<span class="bless-card__text">` +
+          `<span class="bless-card__name">${esc(t(b.nameKey))}</span>` +
+          `<span class="bless-card__desc">${esc(t(b.descKey))}</span>` +
+          `</span>` +
+          `</button>`
+        );
+      })
+      .join('');
     return (
-      `<button type="button" class="${cls}" data-bless-id="${esc(b.id)}" style="--bless:${esc(b.color)}" ${full ? 'disabled' : ''}>` +
-      `<span class="bless-card__glyph">${esc(b.glyph)}</span>` +
-      `<span class="bless-card__name">${esc(t(b.nameKey))}</span>` +
-      `<span class="bless-card__desc">${esc(t(b.descKey))}</span>` +
-      `</button>`
+      `<section class="bless-group" data-group="${esc(group)}">` +
+      `<h4 class="bless-group__title">${esc(groupTitle(group))}</h4>` +
+      `<div class="bless-group__grid">${cards}</div>` +
+      `</section>`
     );
   }).join('');
 
-  const canApply = selected.length === BLESSING_SLOT_COUNT && !applyBusy;
+  const canApply = filled === BLESSING_SLOT_COUNT && !applyBusy;
   const priceOk = (Number(window.adenas) || 0) >= price;
+  const progressCls =
+    filled === 0 ? 'is-empty' : filled < BLESSING_SLOT_COUNT ? 'is-partial' : 'is-ready';
 
   root.innerHTML =
     `<div class="bless-build">` +
-    `<p class="bless-build__lead">${esc(t('game.blessingBuild.lead'))}</p>` +
+    `<div class="bless-build__tray">` +
+    `<div class="bless-build__tray-head">` +
+    `<div class="bless-build__tray-titles">` +
+    `<span class="bless-build__step">${esc(t('game.blessingBuild.stepBuild'))}</span>` +
+    `<span class="bless-build__progress ${progressCls}">${esc(
+      t('game.blessingBuild.progress', { n: filled, max: BLESSING_SLOT_COUNT }),
+    )}</span>` +
+    `</div>` +
+    `<p class="bless-build__lead">${esc(t('game.blessingBuild.leadShort'))}</p>` +
+    `</div>` +
     (activeLine ? `<div class="bless-build__active">${esc(activeLine)}</div>` : '') +
     `<div class="bless-build__slots" id="blessing-build-slots">${slotsHtml}</div>` +
-    `<div class="bless-build__preview" id="blessing-build-preview">${esc(effectPreviewLine(selected))}</div>` +
-    `<div class="bless-build__grid" id="blessing-build-grid">${gridHtml}</div>` +
-    `<div class="bless-build__price ${priceOk ? '' : 'is-short'}">${esc(t('game.blessingBuild.priceLine', { price: formatPrice(price) }))}</div>` +
+    `<div class="bless-build__preview" id="blessing-build-preview">` +
+    `<span class="bless-build__preview-label">${esc(t('game.blessingBuild.previewLabel'))}</span>` +
+    `<div class="bless-build__chips">${previewChipsHtml(selected)}</div>` +
+    `</div>` +
+    `</div>` +
+    `<div class="bless-build__pick">` +
+    `<span class="bless-build__step">${esc(t('game.blessingBuild.stepPick'))}</span>` +
+    groupsHtml +
+    `</div>` +
+    `<div class="bless-build__price ${priceOk ? '' : 'is-short'}">` +
+    `<span class="bless-build__adena-ico" aria-hidden="true">ⓐ</span>` +
+    `${esc(t('game.blessingBuild.priceLine', { price: formatPrice(price) }))}` +
+    `</div>` +
     `</div>`;
 
   const applyBtn = document.getElementById('blessing-build-apply') as HTMLButtonElement | null;
   if (applyBtn) {
     applyBtn.disabled = !canApply;
-    applyBtn.textContent = t('game.blessingBuild.applyBtn', { price: formatPrice(price) });
+    if (canApply) {
+      applyBtn.textContent = t('game.blessingBuild.applyBtn', { price: formatPrice(price) });
+    } else if (filled < BLESSING_SLOT_COUNT) {
+      applyBtn.textContent = t('game.blessingBuild.applyNeedMore', {
+        n: BLESSING_SLOT_COUNT - filled,
+      });
+    } else {
+      applyBtn.textContent = t('game.blessingBuild.applyBtn', { price: formatPrice(price) });
+    }
   }
 
   root.querySelectorAll('[data-bless-id]').forEach((el) => {

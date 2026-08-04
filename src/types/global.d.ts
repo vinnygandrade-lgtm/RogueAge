@@ -211,7 +211,15 @@ declare global {
     BLESSING_CATALOG?: unknown[];
     BLESSING_SLOT_COUNT?: number;
     BLESSING_DURATION_MS?: number;
-    getBlessingDef?: (id: string) => { id: string; color: string; glyph: string; nameKey?: string } | null;
+    BLESSING_ICON_DIR?: string;
+    getBlessingDef?: (id: string) => {
+      id: string;
+      color: string;
+      glyph: string;
+      group?: string;
+      nameKey?: string;
+    } | null;
+    getBlessingIconSrc?: (id: string) => string;
     composeBlessingEffects?: (ids: string[]) => unknown;
     abrirBlessingBuild?: () => void;
     fecharBlessingBuild?: () => void;

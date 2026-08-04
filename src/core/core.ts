@@ -356,9 +356,19 @@ setInterval(() => {
         const chips = (active.ids || [])
             .map((id) => {
                 const def = typeof window.getBlessingDef === 'function' ? window.getBlessingDef(id) : null;
-                const color = def?.color || '#fbbf24';
-                const glyph = def?.glyph || '?';
-                return `<span class="hud-bless-chip" style="color:${color};border-color:${color}" title="${id}">${glyph}</span>`;
+                const color = (def && def.color) || '#fbbf24';
+                const glyph = (def && def.glyph) || '?';
+                const src =
+                    typeof window.getBlessingIconSrc === 'function'
+                        ? window.getBlessingIconSrc(id)
+                        : `assets/blessings/${id}.png`;
+                return (
+                    `<span class="bless-icon bless-icon--hud" style="--bless:${color}" title="${id}">` +
+                    `<span class="bless-icon__fallback" aria-hidden="true">${glyph}</span>` +
+                    `<img class="bless-icon__img" src="${src}" alt="" draggable="false" ` +
+                    `onload="this.classList.add('is-ready')" onerror="this.remove()">` +
+                    `</span>`
+                );
             })
             .join('');
         const label =

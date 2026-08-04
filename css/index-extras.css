@@ -14144,8 +14144,13 @@ small.mob-hunt-hp-text {
     display: none;
     flex-direction: column;
     max-width: min(var(--l2-modal-max-width, 420px), 96vw);
-    max-height: min(88vh, 720px);
+    max-height: min(90vh, 760px);
     width: 100%;
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.55),
+        0 18px 40px rgba(0, 0, 0, 0.55),
+        0 0 48px rgba(180, 83, 9, 0.12);
 }
 #janela-blessing-build .store-header--blessing-build {
     flex-shrink: 0;
@@ -14153,56 +14158,147 @@ small.mob-hunt-hp-text {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+    background:
+        linear-gradient(180deg, rgba(120, 53, 15, 0.35) 0%, rgba(15, 17, 24, 0.95) 100%);
+    border-bottom: 1px solid rgba(251, 191, 36, 0.22);
 }
 #janela-blessing-build .store-body--blessing-build {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 12px 12px 8px;
+    padding: 0;
+    background:
+        radial-gradient(120% 60% at 50% 0%, rgba(180, 83, 9, 0.08), transparent 55%),
+        #0a0c12;
 }
 #janela-blessing-build .store-footer--blessing-build {
     flex-shrink: 0;
     display: flex;
     gap: 8px;
-    padding: 10px 12px 14px;
+    padding: 10px 12px calc(14px + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    background: linear-gradient(180deg, rgba(12, 14, 20, 0.95), #0a0c12);
+    background: linear-gradient(180deg, rgba(12, 14, 20, 0.98), #07090e);
 }
 #janela-blessing-build .btn-blessing-close,
 #janela-blessing-build .btn-blessing-apply {
     flex: 1;
-    min-height: 44px;
+    min-height: 46px;
 }
 #janela-blessing-build .btn-blessing-close {
     background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
     border-color: #64748b;
 }
 #janela-blessing-build .btn-blessing-apply {
-    background: linear-gradient(180deg, #b45309 0%, #78350f 100%);
+    background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
     border-color: #fbbf24;
     color: #fffbeb;
     font-weight: 800;
+    letter-spacing: 0.02em;
 }
 #janela-blessing-build .btn-blessing-apply:disabled {
-    opacity: 0.45;
-    filter: grayscale(0.3);
+    opacity: 0.5;
+    filter: grayscale(0.25);
 }
+
+/* Icon frame — PNG overlays glyph when assets/blessings/<id>.png exists */
+.bless-icon {
+    --bless: #fbbf24;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--bless) 55%, #3f2a14);
+    background:
+        linear-gradient(145deg, color-mix(in srgb, var(--bless) 22%, #1a120c) 0%, #0c0a08 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 0 1px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.bless-icon--slot { width: 52px; height: 52px; border-radius: 12px; }
+.bless-icon--card { width: 44px; height: 44px; }
+.bless-icon--hud { width: 22px; height: 22px; border-radius: 5px; }
+.bless-icon__fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    line-height: 1;
+    color: color-mix(in srgb, var(--bless) 90%, #fff);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+    z-index: 0;
+}
+.bless-icon--hud .bless-icon__fallback { font-size: 0.72rem; }
+.bless-icon__img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+.bless-icon__img.is-ready { opacity: 1; }
+
+.bless-build {
+    padding: 0 0 8px;
+}
+.bless-build__tray {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 12px 12px 10px;
+    background:
+        linear-gradient(180deg, rgba(10, 12, 18, 0.98) 70%, rgba(10, 12, 18, 0.88) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(6px);
+}
+.bless-build__tray-head { margin-bottom: 8px; }
+.bless-build__tray-titles {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.bless-build__step {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fbbf24;
+}
+.bless-build__progress {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #94a3b8;
+}
+.bless-build__progress.is-partial { color: #fcd34d; }
+.bless-build__progress.is-ready { color: #4ade80; }
 .bless-build__lead {
-    margin: 0 0 10px;
-    font-size: 0.84rem;
-    line-height: 1.4;
-    color: var(--l2-text-secondary, #cbd5e1);
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--l2-text-secondary, #94a3b8);
 }
 .bless-build__active {
-    margin: 0 0 10px;
-    padding: 8px 10px;
+    margin: 0 0 8px;
+    padding: 7px 10px;
     border-radius: 10px;
     border: 1px solid rgba(251, 191, 36, 0.35);
-    background: rgba(120, 53, 15, 0.35);
+    background: rgba(120, 53, 15, 0.32);
     color: #fde68a;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     line-height: 1.35;
 }
 .bless-build__slots {
@@ -14212,114 +14308,234 @@ small.mob-hunt-hp-text {
     margin-bottom: 10px;
 }
 .bless-slot {
-    min-height: 72px;
-    border-radius: 12px;
-    border: 1px dashed rgba(148, 163, 184, 0.45);
-    background: rgba(15, 23, 42, 0.75);
+    position: relative;
+    min-height: 108px;
+    border-radius: 14px;
+    border: 1px dashed rgba(148, 163, 184, 0.4);
+    background: rgba(15, 23, 42, 0.72);
     color: #e2e8f0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
-    padding: 8px 6px;
+    gap: 6px;
+    padding: 10px 6px 8px;
     cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+}
+.bless-slot:active { transform: scale(0.98); }
+.bless-slot--empty:hover {
+    border-color: rgba(251, 191, 36, 0.45);
+    background: rgba(30, 41, 59, 0.55);
 }
 .bless-slot--filled {
     border-style: solid;
-    border-color: color-mix(in srgb, var(--bless, #fbbf24) 70%, #334155);
+    border-color: color-mix(in srgb, var(--bless, #fbbf24) 72%, #334155);
     background:
-        radial-gradient(80% 100% at 50% 0%, color-mix(in srgb, var(--bless, #fbbf24) 28%, transparent), transparent 70%),
-        rgba(15, 23, 42, 0.92);
-    position: relative;
+        radial-gradient(90% 80% at 50% 0%, color-mix(in srgb, var(--bless, #fbbf24) 30%, transparent), transparent 70%),
+        rgba(12, 16, 26, 0.95);
+}
+.bless-slot__frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bless-slot__plus {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    border: 1px dashed rgba(148, 163, 184, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: #64748b;
+    background: rgba(2, 6, 23, 0.45);
+}
+.bless-slot__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    min-width: 0;
+    width: 100%;
 }
 .bless-slot__num {
-    font-size: 1.1rem;
-    font-weight: 900;
+    font-size: 0.72rem;
+    font-weight: 800;
     color: #94a3b8;
 }
 .bless-slot__hint {
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     color: #64748b;
-}
-.bless-slot__glyph {
-    font-size: 1.15rem;
-    line-height: 1;
+    text-align: center;
 }
 .bless-slot__name {
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: 800;
     text-align: center;
     color: #f8fafc;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 2px;
 }
 .bless-slot__x {
     position: absolute;
     top: 4px;
     right: 6px;
-    font-size: 0.9rem;
-    color: #94a3b8;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    line-height: 1;
+    color: #cbd5e1;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(148, 163, 184, 0.35);
 }
 .bless-build__preview {
-    margin: 0 0 12px;
     padding: 8px 10px;
-    border-radius: 10px;
-    background: rgba(30, 41, 59, 0.65);
-    border: 1px solid rgba(100, 116, 139, 0.35);
-    font-size: 0.76rem;
-    line-height: 1.35;
-    color: #e2e8f0;
-    min-height: 2.4em;
+    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.55);
+    border: 1px solid rgba(100, 116, 139, 0.3);
 }
-.bless-build__grid {
+.bless-build__preview-label {
+    display: block;
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 6px;
+}
+.bless-build__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.bless-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+.bless-chip--muted {
+    font-weight: 500;
+    color: #94a3b8;
+    border-style: dashed;
+}
+
+.bless-build__pick {
+    padding: 12px 12px 4px;
+}
+.bless-build__pick > .bless-build__step {
+    margin-bottom: 10px;
+}
+.bless-group {
+    margin-bottom: 14px;
+}
+.bless-group__title {
+    margin: 0 0 7px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #cbd5e1;
+}
+.bless-group__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
 }
 .bless-card {
+    position: relative;
     text-align: left;
-    border-radius: 12px;
-    border: 1px solid rgba(71, 85, 105, 0.7);
-    background: linear-gradient(165deg, #151b28 0%, #0c1018 100%);
-    padding: 10px 10px 9px;
+    border-radius: 14px;
+    border: 1px solid rgba(71, 85, 105, 0.75);
+    background: linear-gradient(165deg, #161c2a 0%, #0b0f18 100%);
+    padding: 10px;
     color: #e2e8f0;
     cursor: pointer;
-    min-height: 88px;
+    min-height: 72px;
     display: flex;
-    flex-direction: column;
-    gap: 3px;
-    transition: border-color 0.15s ease, transform 0.12s ease;
+    flex-direction: row;
+    align-items: center;
+    gap: 9px;
+    transition: border-color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
 }
 .bless-card:active { transform: scale(0.98); }
 .bless-card.is-picked {
-    border-color: color-mix(in srgb, var(--bless, #fbbf24) 80%, #fff);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bless, #fbbf24) 40%, transparent);
+    border-color: color-mix(in srgb, var(--bless, #fbbf24) 85%, #fff);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--bless, #fbbf24) 35%, transparent),
+        0 0 16px color-mix(in srgb, var(--bless, #fbbf24) 18%, transparent);
 }
 .bless-card.is-disabled {
-    opacity: 0.4;
+    opacity: 0.38;
     cursor: not-allowed;
 }
-.bless-card__glyph {
-    font-size: 1.05rem;
-    color: var(--bless, #fbbf24);
+.bless-card__badge {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--bless, #fbbf24);
+    color: #111;
+    font-size: 0.68rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bless-card__icon { flex-shrink: 0; }
+.bless-card__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding-right: 14px;
 }
 .bless-card__name {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 800;
     color: #f8fafc;
+    line-height: 1.2;
 }
 .bless-card__desc {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     line-height: 1.3;
     color: #94a3b8;
 }
+
 .bless-build__price {
-    margin-top: 12px;
+    margin: 4px 12px 10px;
     text-align: center;
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.86rem;
+    font-weight: 800;
     color: #fcd34d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 .bless-build__price.is-short { color: #f87171; }
+.bless-build__adena-ico {
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
 .npc-action--blessing-build .npc-action__price {
     display: block;
     margin-top: 2px;
@@ -14337,9 +14553,10 @@ small.mob-hunt-hp-text {
     color: #fbbf24;
 }
 .hud-bless-chip {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
+    /* legacy class kept; HUD now uses .bless-icon--hud */
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
     border: 1px solid currentColor;
     background: #111;
     display: inline-flex;
@@ -14347,4 +14564,10 @@ small.mob-hunt-hp-text {
     justify-content: center;
     font-size: 11px;
     line-height: 1;
+    overflow: hidden;
+}
+.hud-bless-chip img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }

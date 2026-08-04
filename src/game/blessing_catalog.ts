@@ -1,10 +1,13 @@
 /**
  * Grand Master Blessing Build — modular long buffs (choose 3).
  * Names/ids are RogueAge-original; values tuned so 3 ≈ former Fighter/Mage packs.
+ *
+ * Icons: drop 256×256 PNG at assets/blessings/<id>.png — see assets/blessings/README.md.
  */
 
 export const BLESSING_SLOT_COUNT = 3;
 export const BLESSING_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours
+export const BLESSING_ICON_DIR = 'assets/blessings';
 
 export type BlessingId =
   | 'might'
@@ -17,6 +20,9 @@ export type BlessingId =
   | 'guidance'
   | 'vitality'
   | 'clarity';
+
+/** UI grouping for a clearer pick list. */
+export type BlessingGroup = 'offense' | 'defense' | 'tempo' | 'sustain';
 
 export interface BlessingEffects {
   pAtkMult?: number;
@@ -37,20 +43,29 @@ export interface BlessingEffects {
 
 export interface BlessingDef {
   id: BlessingId;
+  group: BlessingGroup;
   /** i18n: game.blessingBuild.catalog.<id>.name */
   nameKey: string;
   /** i18n: game.blessingBuild.catalog.<id>.desc */
   descKey: string;
   color: string;
-  /** Short glyph for HUD / chips (no IP-heavy art required). */
+  /** Glyph fallback until assets/blessings/<id>.png exists. */
   glyph: string;
   effects: BlessingEffects;
 }
+
+export const BLESSING_GROUP_ORDER: BlessingGroup[] = [
+  'offense',
+  'defense',
+  'tempo',
+  'sustain',
+];
 
 /** Tunable in one place. */
 export const BLESSING_CATALOG: BlessingDef[] = [
   {
     id: 'might',
+    group: 'offense',
     nameKey: 'game.blessingBuild.catalog.might.name',
     descKey: 'game.blessingBuild.catalog.might.desc',
     color: '#f87171',
@@ -59,6 +74,7 @@ export const BLESSING_CATALOG: BlessingDef[] = [
   },
   {
     id: 'empower',
+    group: 'offense',
     nameKey: 'game.blessingBuild.catalog.empower.name',
     descKey: 'game.blessingBuild.catalog.empower.desc',
     color: '#60a5fa',
@@ -66,7 +82,17 @@ export const BLESSING_CATALOG: BlessingDef[] = [
     effects: { mAtkMult: 1.15 },
   },
   {
+    id: 'focus',
+    group: 'offense',
+    nameKey: 'game.blessingBuild.catalog.focus.name',
+    descKey: 'game.blessingBuild.catalog.focus.desc',
+    color: '#fb7185',
+    glyph: '◎',
+    effects: { critAdd: 6 },
+  },
+  {
     id: 'shield',
+    group: 'defense',
     nameKey: 'game.blessingBuild.catalog.shield.name',
     descKey: 'game.blessingBuild.catalog.shield.desc',
     color: '#fbbf24',
@@ -75,6 +101,7 @@ export const BLESSING_CATALOG: BlessingDef[] = [
   },
   {
     id: 'magic_barrier',
+    group: 'defense',
     nameKey: 'game.blessingBuild.catalog.magic_barrier.name',
     descKey: 'game.blessingBuild.catalog.magic_barrier.desc',
     color: '#c084fc',
@@ -82,15 +109,17 @@ export const BLESSING_CATALOG: BlessingDef[] = [
     effects: { mDefMult: 1.12 },
   },
   {
-    id: 'focus',
-    nameKey: 'game.blessingBuild.catalog.focus.name',
-    descKey: 'game.blessingBuild.catalog.focus.desc',
-    color: '#fb7185',
-    glyph: '◎',
-    effects: { critAdd: 6 },
+    id: 'guidance',
+    group: 'defense',
+    nameKey: 'game.blessingBuild.catalog.guidance.name',
+    descKey: 'game.blessingBuild.catalog.guidance.desc',
+    color: '#6ee7b7',
+    glyph: '↻',
+    effects: { dodgeAdd: 4 },
   },
   {
     id: 'haste',
+    group: 'tempo',
     nameKey: 'game.blessingBuild.catalog.haste.name',
     descKey: 'game.blessingBuild.catalog.haste.desc',
     color: '#34d399',
@@ -99,22 +128,16 @@ export const BLESSING_CATALOG: BlessingDef[] = [
   },
   {
     id: 'acumen',
+    group: 'tempo',
     nameKey: 'game.blessingBuild.catalog.acumen.name',
     descKey: 'game.blessingBuild.catalog.acumen.desc',
     color: '#a78bfa',
-    glyph: '✧',
+    glyph: '☿',
     effects: { castAdd: 8 },
   },
   {
-    id: 'guidance',
-    nameKey: 'game.blessingBuild.catalog.guidance.name',
-    descKey: 'game.blessingBuild.catalog.guidance.desc',
-    color: '#6ee7b7',
-    glyph: '↻',
-    effects: { dodgeAdd: 4 },
-  },
-  {
     id: 'vitality',
+    group: 'sustain',
     nameKey: 'game.blessingBuild.catalog.vitality.name',
     descKey: 'game.blessingBuild.catalog.vitality.desc',
     color: '#4ade80',
@@ -123,10 +146,11 @@ export const BLESSING_CATALOG: BlessingDef[] = [
   },
   {
     id: 'clarity',
+    group: 'sustain',
     nameKey: 'game.blessingBuild.catalog.clarity.name',
     descKey: 'game.blessingBuild.catalog.clarity.desc',
     color: '#38bdf8',
-    glyph: '◇',
+    glyph: '◆',
     effects: { maxMpMult: 1.12 },
   },
 ];
@@ -141,6 +165,15 @@ export function getBlessingDef(id: string): BlessingDef | null {
 
 export function isBlessingId(id: unknown): id is BlessingId {
   return typeof id === 'string' && !!BY_ID[id];
+}
+
+/** Canonical art path — drop PNG here when ready (256×256). */
+export function getBlessingIconSrc(id: string): string {
+  return `${BLESSING_ICON_DIR}/${id}.png`;
+}
+
+export function blessingsByGroup(group: BlessingGroup): BlessingDef[] {
+  return BLESSING_CATALOG.filter((b) => b.group === group);
 }
 
 export interface ComposedBlessingEffects {
@@ -196,7 +229,9 @@ export function composeBlessingEffects(ids: string[]): ComposedBlessingEffects {
 window.BLESSING_CATALOG = BLESSING_CATALOG;
 window.BLESSING_SLOT_COUNT = BLESSING_SLOT_COUNT;
 window.BLESSING_DURATION_MS = BLESSING_DURATION_MS;
+window.BLESSING_ICON_DIR = BLESSING_ICON_DIR;
 window.getBlessingDef = getBlessingDef;
+window.getBlessingIconSrc = getBlessingIconSrc;
 window.composeBlessingEffects = composeBlessingEffects;
 
 export {};
