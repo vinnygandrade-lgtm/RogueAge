@@ -465,7 +465,7 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
             writeSkillLog('buffActive', { skill: nomeSkill }, `color:${skill.cor}; font-weight:bold;`);
             atualizarIconesBuffPlayer(nomeSkill, 30000, skill.icone);
             if (nomeSkill === "Ultimate Evasion") {
-                // Additive dodge buff on top of class/gear dodgeRate (hard-capped in combat).
+                // +20% Evasion investment — soft-capped once with gear raw in combat_math.
                 if (!window.motorBuffsEspeciais) window.motorBuffsEspeciais = { critMult: 1, esquiva: 0 };
                 window.motorBuffsEspeciais.esquiva = 20;
                 setTimeout(() => {

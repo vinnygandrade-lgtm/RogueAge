@@ -82,9 +82,14 @@ window.getPlayerDodgeChanceVsMob = function (
   mob?: { lvl?: number; nivel?: number } | null,
   ataqueMagicoDoMonstro = false,
 ): number {
-  const base = Number(window.playerStats?.dodgeRate) || 0;
+  // Soft-cap once on (gear raw + Ultimate Evasion), never on an already-softened portrait total.
+  const win = window as Window & { _l2DodgeRawGear?: number };
+  const gearRaw =
+    typeof win._l2DodgeRawGear === 'number'
+      ? Math.max(0, Math.floor(win._l2DodgeRawGear))
+      : Math.max(0, Math.floor(Number(window.playerStats?.dodgeRate) || 0));
   const buff = Number(motorBuffs().esquiva) || 0;
-  let raw = base + buff;
+  let raw = gearRaw + buff;
   if (mob) {
     const mobLvl = Number(mob.lvl ?? mob.nivel) || 1;
     const plLvl = Number(window.nivel) || 1;
@@ -95,6 +100,7 @@ window.getPlayerDodgeChanceVsMob = function (
   if (ataqueMagicoDoMonstro) {
     raw *= 0.85;
   }
+  raw = Math.max(0, raw);
   return typeof window.applyDodgeRateCap === 'function'
     ? window.applyDodgeRateCap(raw)
     : Math.max(0, Math.min(55, Math.floor(raw)));

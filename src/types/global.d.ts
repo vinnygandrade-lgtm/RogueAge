@@ -201,6 +201,7 @@ declare global {
     L2MINI_ATK_SPEED_SOFT_SCALE: number;
     applyAtkSpeedFloor: (valueMs: number) => number;
     _l2CastSpeedRawGear?: number;
+    _l2DodgeRawGear?: number;
     L2MINI_ZONAL_MOB_TUNING: Record<string, ZonalMobTuneEntry>;
     L2MINI_STARTER_WEAPON_IDS: { fighter: string; mage: string };
     TRAVAS_GRADE_NIVEL: Record<GradeEquipKey, number>;

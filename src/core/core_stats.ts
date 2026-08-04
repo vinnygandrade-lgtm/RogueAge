@@ -279,10 +279,10 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             : 0.12;
     const classDodge = Math.max(0, Number((mod as { dodge?: number }).dodge) || 0);
     const dodgeFromLevel = Math.floor((safeNivel - 1) * dodgePerLvl);
-    const dodgeRawBeforeCap = Math.floor(classDodge + dodgeFromLevel + armaduraBonusDodge + joiasBonusDodge);
+    let dodgeInvestmentRaw = Math.floor(classDodge + dodgeFromLevel + armaduraBonusDodge + joiasBonusDodge);
     window.playerStats.dodgeRate = (typeof window.applyDodgeRateCap === 'function')
-        ? window.applyDodgeRateCap(dodgeRawBeforeCap)
-        : Math.min(Math.max(0, dodgeRawBeforeCap), 55);
+        ? window.applyDodgeRateCap(dodgeInvestmentRaw)
+        : Math.min(Math.max(0, dodgeInvestmentRaw), 55);
     
     let spdBase = isMage ? base.atkSpeedMage : base.atkSpeedFighter;
     let spdTotal = (spdBase - ((safeNivel - 1) * atkSpdMsMenosPorNivel)) * mod.spd;
@@ -339,15 +339,16 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         window.playerStats.critRate = (typeof window.applyCritRateCap === 'function')
             ? window.applyCritRateCap(critAfterH)
             : Math.min(Math.max(0, critAfterH), 90);
-        const dodgeAfterH = Math.floor(dodgeRawBeforeCap * hm);
+        dodgeInvestmentRaw = Math.floor(dodgeInvestmentRaw * hm);
         window.playerStats.dodgeRate = (typeof window.applyDodgeRateCap === 'function')
-            ? window.applyDodgeRateCap(dodgeAfterH)
-            : Math.min(Math.max(0, dodgeAfterH), 55);
+            ? window.applyDodgeRateCap(dodgeInvestmentRaw)
+            : Math.min(Math.max(0, dodgeInvestmentRaw), 55);
         atkSpeedRawMs = Math.floor(atkSpeedRawMs * (1 - harmony.pct / 100));
         castSpeedRawPct += harmony.pct;
     }
 
-    // Keep raw gear+harmony investment so skill buffs soft-cap once on (raw + buff), not double-soft.
+    // Raw gear+harmony investment — combat buffs (Ultimate Evasion / Concentration) soft-cap once on raw+buff.
+    (window as Window & { _l2DodgeRawGear?: number })._l2DodgeRawGear = dodgeInvestmentRaw;
     (window as Window & { _l2CastSpeedRawGear?: number })._l2CastSpeedRawGear = castSpeedRawPct;
     const castBeforeBuffs = (typeof window.applyCastSpeedCap === 'function')
         ? window.applyCastSpeedCap(castSpeedRawPct)
@@ -529,9 +530,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             fromLevel: dodgeFromLevel,
             armor: armaduraBonusDodge,
             jewels: joiasBonusDodge,
-            rawBeforeCap: harmonyAppliedPct > 0
-                ? Math.floor(dodgeRawBeforeCap * (1 + harmonyAppliedPct / 100))
-                : dodgeRawBeforeCap,
+            rawBeforeCap: dodgeInvestmentRaw,
             softCap: (typeof window.L2MINI_DODGE_SOFT_CAP === 'number' ? window.L2MINI_DODGE_SOFT_CAP : 30),
             cap: (typeof window.L2MINI_DODGE_RATE_CAP === 'number' ? window.L2MINI_DODGE_RATE_CAP : 55),
             perLevel: dodgePerLvl,

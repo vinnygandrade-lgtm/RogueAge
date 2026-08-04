@@ -59,6 +59,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-04',
+                        items: [
+                            'Evasion is live: class base, light level scaling, Light armor, and Precision jewels — with a soft cap (full value to 30%, then soft gains toward ~55%).',
+                            'Crit, Attack Speed, and Casting Speed use the same soft-cap idea so stacking still matters past the soft line.',
+                            'Jewelry has three clear roles: Vitality (HP / M.Def / P.Atk), Precision (Crit / Atk Spd / Evasion), and Arcane (MP / M.Atk / Casting Speed).',
+                            'Ultimate Evasion adds +20% Evasion investment and soft-caps once with your gear — it no longer wastes power on a double soft curve.'
+                        ]
+                    },
+                    {
                         date: '2026-08-03',
                         items: [
                             'Class Transfer at the Grand Master rebuilt for real decisions: each path shows a portrait, role tag, stat comparison vs your current class, skill icons, and the future evolution tree.',
@@ -3293,6 +3302,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-04',
+                        items: [
+                            'Evasion no jogo: base da classe, escala leve por nível, armadura Light e joias Precision — com soft-cap (valor cheio até 30%, depois sobe suave até ~55%).',
+                            'Crítico, Vel. de Ataque e Vel. de Conjuração usam a mesma ideia de soft-cap, para empilhar continuar a valer depois da linha suave.',
+                            'Joias com três papéis claros: Vitality (HP / M.Def / P.Atk), Precision (Crít / Vel. Atk / Evasion) e Arcane (MP / M.Atk / Vel. de Conjuração).',
+                            'Ultimate Evasion dá +20% de investimento em Evasion e soft-capa uma vez com o teu gear — já não desperdiça poder numa curva suave a dobrar.'
+                        ]
+                    },
                     {
                         date: '2026-08-03',
                         items: [
