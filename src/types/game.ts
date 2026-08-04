@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 19 as const;
+export const L2MINI_SAVE_VERSION = 20 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -213,6 +213,15 @@ export interface PlayerStatBreakdown {
   buffs: StatBreakdownSection & {
     fighter: boolean;
     mage: boolean;
+    /** Comma-separated blessing ids (index signature cannot hold arrays). */
+    blessingIdsCsv?: string;
+    blessingActive?: boolean;
+    critAdd?: number;
+    castAdd?: number;
+    dodgeAdd?: number;
+    atkSpeedMult?: number;
+    maxHpMult?: number;
+    maxMpMult?: number;
     pAtkMult: number;
     pDefMult: number;
     mAtkMult: number;
@@ -915,6 +924,8 @@ export interface CharacterSave {
   barraAtalhos: HotbarSlot[];
   tempoFimBuffGuerreiro?: number;
   tempoFimBuffMistico?: number;
+  /** Grand Master Blessing Build — up to 3 blessing ids + shared expiry (epoch ms). */
+  blessingBuild?: { ids: string[]; endsAt: number } | null;
   olympiadPoints?: number;
   olympiadWins?: number;
   olympiadLosses?: number;
@@ -1011,6 +1022,7 @@ export interface EconomyBalanceApi {
   noviceIncomingDamageMult: (level: number, zoneId?: string | null, isChampion?: boolean) => number;
   resolveNoviceMobTune: (baseTune: ZonalMobTuneEntry, level: number, zoneId?: string | null) => ZonalMobTuneEntry;
   grandMasterBuffPrice: (level: number) => number;
+  grandMasterBlessingBuildPrice: (level: number) => number;
   MINT_ANCIENT_ADENA_COST: number;
   MINT_ANCIENT_SUCCESS_PCT: number;
   allowAncientCoinWorldDrops: boolean;

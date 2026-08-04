@@ -480,6 +480,20 @@
         </div>
     </div>
 
+    <div id="janela-blessing-build" class="store-window store-window--blessing-build" style="display: none;">
+        <div class="store-header store-header--blessing-build">
+            <span data-i18n="game.blessingBuild.title">BLESSING BUILD</span>
+            <button type="button" class="fechar-store" onclick="fecharBlessingBuild()" aria-label="Close">&times;</button>
+        </div>
+        <div class="store-body store-body--blessing-build">
+            <div id="blessing-build-root" class="bless-build-root" role="document"></div>
+        </div>
+        <div class="store-footer store-footer--blessing-build">
+            <button type="button" class="btn-l2 btn-blessing-close" data-i18n="game.blessingBuild.closeBtn" onclick="fecharBlessingBuild()">CLOSE</button>
+            <button type="button" class="btn-l2 btn-blessing-apply" id="blessing-build-apply" onclick="confirmarBlessingBuild()">APPLY</button>
+        </div>
+    </div>
+
     <div id="janela-oly-preview" class="store-window store-window--oly-preview" style="display: none;">
         <div class="store-header"><span data-i18n="olympiad.previewTitle">VERSUS PREVIEW</span></div>
         <div class="store-body store-body--oly-preview">
@@ -1774,13 +1788,10 @@
                 </div>
                 <div class="npc-dialog" data-i18n="game.town.classDialog">"The path to greatness is paved with blood and magic. Seek my blessings, or return when you are ready to ascend to a new class."</div>
                 <div class="npc-hub__actions">
-                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--buff-fighter" onclick="comprarBuff('fighter')">
-                        <span class="npc-action__label" data-i18n="game.town.buffFighter">Fighter's Buffs (30m) - 500a</span>
-                        <span class="npc-action__hint" data-i18n="game.town.buffFighterHint">Physical combat blessings</span>
-                    </button>
-                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--buff-mage" onclick="comprarBuff('mage')">
-                        <span class="npc-action__label" data-i18n="game.town.buffMage">Mystic's Buffs (30m) - 500a</span>
-                        <span class="npc-action__hint" data-i18n="game.town.buffMageHint">Magic combat blessings</span>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--blessing-build" onclick="abrirBlessingBuild()">
+                        <span class="npc-action__label" data-i18n="game.town.blessingBuild">Blessing Build (2h)</span>
+                        <span class="npc-action__hint" id="blessing-build-cta-hint" data-i18n="game.town.blessingBuildHint">Choose 3 blessings</span>
+                        <span class="npc-action__price" id="blessing-build-cta-price"></span>
                     </button>
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--class" onclick="abrirMenuClasses()">
                         <span class="npc-action__label" data-i18n="game.town.changeClass">Change Class</span>

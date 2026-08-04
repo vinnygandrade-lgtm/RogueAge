@@ -157,6 +157,14 @@ function grandMasterBuffPrice(level: number): number {
   return Math.min(8500, base + extra);
 }
 
+/** Blessing Build (3 slots, 2h) — slightly above the old single pack. */
+function grandMasterBlessingBuildPrice(level: number): number {
+  const lv = clampLevel(level);
+  const base = 750;
+  const extra = Math.floor((lv - 1) * 18);
+  return Math.min(11000, base + extra);
+}
+
 const MINT_ANCIENT_ADENA_COST = 5_000_000;
 const MINT_ANCIENT_SUCCESS_PCT = 10;
 const allowAncientCoinWorldDrops: boolean = false;
@@ -177,6 +185,7 @@ window.EconomyBalance = {
   noviceIncomingDamageMult,
   resolveNoviceMobTune,
   grandMasterBuffPrice,
+  grandMasterBlessingBuildPrice,
   MINT_ANCIENT_ADENA_COST,
   MINT_ANCIENT_SUCCESS_PCT,
   allowAncientCoinWorldDrops,

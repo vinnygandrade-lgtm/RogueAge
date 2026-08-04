@@ -60,6 +60,8 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_patch_notes');
 
   await import('./core/equip_harmony');
+  await import('./game/blessing_catalog');
+  await import('./systems/blessing_engine');
   await import('./core/core_stats');
   await import('./systems/tutorial_engine');
   await import('./core/core_persistence');
@@ -126,6 +128,7 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_retention');
   await import('./ui/ui_gameplay_achievements');
   await import('./ui/ui_shop');
+  await import('./ui/ui_blessing_build');
   await import('./ui/ui_market');
   await import('./ui/ui_enchant');
   tickBoot(97, bootMsg('loading.phaseUi', 'Preparing interface...'));

@@ -181,6 +181,42 @@ declare global {
     tutorialProgress?: TutorialProgress;
     tempoFimBuffGuerreiro: number;
     tempoFimBuffMistico: number;
+    blessingBuild: { ids: string[]; endsAt: number } | null;
+    BlessingEngine?: {
+      normalizeBlessingBuild: (raw: unknown) => { ids: string[]; endsAt: number } | null;
+      clearExpiredBlessings: () => boolean;
+      getActiveBlessingBuild: () => { ids: string[]; endsAt: number } | null;
+      getActiveBlessingEffects: () => {
+        pAtkMult: number;
+        mAtkMult: number;
+        pDefMult: number;
+        mDefMult: number;
+        maxHpMult: number;
+        maxMpMult: number;
+        critAdd: number;
+        castAdd: number;
+        dodgeAdd: number;
+        atkSpeedMult: number;
+        ids: string[];
+      };
+      isBlessingBuildActive: () => boolean;
+      getBlessingBuildRemainingMs: () => number;
+      applyBlessingBuild: (ids: unknown) =>
+        | { ok: true; endsAt: number; ids: string[]; price: number }
+        | { ok: false; error: 'need_three' | 'adena'; price?: number };
+      clearBlessingBuild: () => void;
+      SLOT_COUNT: number;
+      DURATION_MS: number;
+    };
+    BLESSING_CATALOG?: unknown[];
+    BLESSING_SLOT_COUNT?: number;
+    BLESSING_DURATION_MS?: number;
+    getBlessingDef?: (id: string) => { id: string; color: string; glyph: string; nameKey?: string } | null;
+    composeBlessingEffects?: (ids: string[]) => unknown;
+    abrirBlessingBuild?: () => void;
+    fecharBlessingBuild?: () => void;
+    confirmarBlessingBuild?: () => void | Promise<void>;
+    refreshBlessingBuildTownCta?: () => void;
     buffsAtivos: BuffsAtivos;
     labelTipoHUD: HTMLElement | null;
     labelValorHUD: HTMLElement | null;
@@ -839,7 +875,10 @@ declare global {
   function selecionarItemVenda(nome: string, elemento: HTMLElement | null): void;
   function alterarQtdVenda(delta: number): void;
   function setQtdVendaMax(): void;
-  function comprarBuff(tipo: 'fighter' | 'mage' | string): void;
+  function comprarBuff(tipo?: 'fighter' | 'mage' | string): void;
+  function abrirBlessingBuild(): void;
+  function fecharBlessingBuild(): void;
+  function confirmarBlessingBuild(): void | Promise<void>;
   function fecharEnchant(): void;
   function setEnchantMobileTab(tab: 'gear' | 'scrolls'): void;
   function setAugmentMobileTab(tab: 'weapon' | 'stone'): void;

@@ -292,6 +292,8 @@ window.barraAtalhos = [
 
 window.tempoFimBuffGuerreiro = 0;
 window.tempoFimBuffMistico = 0;
+/** Active Grand Master Blessing Build (null when none). */
+window.blessingBuild = null;
 
 window.calcularXpNecessario = function calcularXpNecessario(lvl: number): number {
   const base = Math.floor(100 * lvl ** 2 + lvl ** 5 * 0.05);

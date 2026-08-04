@@ -576,6 +576,16 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 19;
     }
 
+    if (v < 20) {
+        // Replace legacy Fighter/Mage packs with Blessing Build — drop old timers (no invented conversion).
+        data.tempoFimBuffGuerreiro = 0;
+        data.tempoFimBuffMistico = 0;
+        if (data.blessingBuild != null && typeof data.blessingBuild !== 'object') {
+            data.blessingBuild = null;
+        }
+        v = 20;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -625,8 +635,14 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
         anelEquipado2: (window.anelEquipado2 || null),
         armaImgSrc: (document.getElementById('arma-img') as HTMLImageElement | null)?.src ?? '', 
         barraAtalhos: window.barraAtalhos, 
-        tempoFimBuffGuerreiro: window.tempoFimBuffGuerreiro, 
-        tempoFimBuffMistico: window.tempoFimBuffMistico,
+        tempoFimBuffGuerreiro: 0,
+        tempoFimBuffMistico: 0,
+        blessingBuild: window.blessingBuild && typeof window.blessingBuild === 'object'
+            ? {
+                ids: Array.isArray(window.blessingBuild.ids) ? window.blessingBuild.ids.slice(0, 3) : [],
+                endsAt: Number(window.blessingBuild.endsAt) || 0,
+            }
+            : null,
         olympiadPoints: window.olympiadPoints, 
         olympiadWins: window.olympiadWins, 
         olympiadLosses: window.olympiadLosses,
@@ -794,8 +810,21 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
                 : ['Attack', 'HP Potion', 'Mana Potion', null, null, null, null, null, null, null, null, null])
         );
         
-        window.tempoFimBuffGuerreiro = data.tempoFimBuffGuerreiro || 0; 
-        window.tempoFimBuffMistico = data.tempoFimBuffMistico || 0;
+        window.tempoFimBuffGuerreiro = 0;
+        window.tempoFimBuffMistico = 0;
+        if (window.BlessingEngine && typeof window.BlessingEngine.normalizeBlessingBuild === 'function') {
+            window.blessingBuild = window.BlessingEngine.normalizeBlessingBuild(data.blessingBuild);
+        } else if (data.blessingBuild && typeof data.blessingBuild === 'object') {
+            window.blessingBuild = {
+                ids: Array.isArray(data.blessingBuild.ids) ? data.blessingBuild.ids.slice(0, 3) : [],
+                endsAt: Number(data.blessingBuild.endsAt) || 0,
+            };
+        } else {
+            window.blessingBuild = null;
+        }
+        if (window.BlessingEngine && typeof window.BlessingEngine.clearExpiredBlessings === 'function') {
+            window.BlessingEngine.clearExpiredBlessings();
+        }
     window.olympiadPoints = data.olympiadPoints || 0;
     window.olympiadWins = data.olympiadWins || 0;
     window.olympiadLosses = data.olympiadLosses || 0;

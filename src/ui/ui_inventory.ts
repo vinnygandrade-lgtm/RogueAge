@@ -1255,10 +1255,19 @@ window.renderPainelStatsDetalhado = function (): void {
     }
     h.push('</div>');
 
-    if (b.buffs.fighter || b.buffs.mage) {
+    if (b.buffs && b.buffs.blessingActive && typeof b.buffs.blessingIdsCsv === 'string' && b.buffs.blessingIdsCsv) {
+        var blessNames = b.buffs.blessingIdsCsv.split(',').filter(Boolean).map(function (bid) {
+            try {
+                if (typeof window.t === 'function') {
+                    var nk = 'game.blessingBuild.catalog.' + bid + '.name';
+                    var nv = window.t(nk);
+                    if (nv && nv !== nk) return nv;
+                }
+            } catch (eB) {}
+            return String(bid);
+        }).join(' · ');
         h.push('<div class="status-detail__pill status-detail__pill--buff">'
-            + escapeStatHtml((b.buffs.mage ? L('pillMageBuffLine', 'Grand Master mystic blessing active — stronger spells and tougher against magic.')
-                : L('pillFighterBuffLine', 'Grand Master fighter blessing active — melee-focused bonuses.')))
+            + escapeStatHtml(L('pillBlessingBuild', 'Blessing Build active: {names}', { names: blessNames }))
             + '</div>');
     }
 
@@ -1411,6 +1420,7 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.critParts.armor) otherParts.push(rowKey('lblCritArmor', '  · armor', '+' + String(b.critParts.armor)));
     if (b.critParts.weapon) otherParts.push(rowKey('lblCritWeapon', '  · weapon', '+' + String(b.critParts.weapon)));
     if (b.critParts.jewels) otherParts.push(rowKey('lblCritJewels', '  · jewelry', '+' + String(b.critParts.jewels)));
+    if (b.critParts.blessing) otherParts.push(rowKey('lblCritBlessing', '  · Blessing Build', '+' + String(b.critParts.blessing)));
     if (b.critParts.title) otherParts.push(rowKey('lblCritTitle', '  · equipped title', '+' + String(b.critParts.title)));
     if (typeof b.critParts.rawBeforeCap === 'number' && b.critParts.rawBeforeCap > b.critRate) {
         otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
@@ -1440,6 +1450,7 @@ window.renderPainelStatsDetalhado = function (): void {
     if (dp.fromLevel) otherParts.push(rowKey('lblDodgeLevel', '  · levels', '+' + String(dp.fromLevel) + '%'));
     if (dp.armor) otherParts.push(rowKey('lblDodgeArmor', '  · Light armor', '+' + String(dp.armor) + '%'));
     if (dp.jewels) otherParts.push(rowKey('lblDodgeJewels', '  · Precision jewels', '+' + String(dp.jewels) + '%'));
+    if (dp.blessing) otherParts.push(rowKey('lblDodgeBlessing', '  · Blessing Build', '+' + String(dp.blessing) + '%'));
     if (typeof dp.rawBeforeCap === 'number' && dp.rawBeforeCap > dodgeTotal) {
         otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
             'lblDodgeCapApplied',
@@ -1499,6 +1510,9 @@ window.renderPainelStatsDetalhado = function (): void {
     }
     if (b.castSpeed && b.castSpeed.fromJewels) {
         otherParts.push(rowKey('lblCastSpdJewels', '  · Arcane jewels', '+' + String(b.castSpeed.fromJewels) + '%'));
+    }
+    if (b.castSpeed && b.castSpeed.fromBlessing) {
+        otherParts.push(rowKey('lblCastSpdBlessing', '  · Blessing Build', '+' + String(b.castSpeed.fromBlessing) + '%'));
     }
     if (b.castSpeed && b.castSpeed.fromTitle) {
         otherParts.push(rowKey('lblCastSpdTitle', '  · equipped title', '+' + String(b.castSpeed.fromTitle) + '%'));

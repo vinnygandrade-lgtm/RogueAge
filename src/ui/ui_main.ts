@@ -679,6 +679,7 @@ function fecharTopModal() {
     else if (topModalId === 'janela-daily-boss') { if(typeof window.fecharJanelaDailyBoss === 'function') window.fecharJanelaDailyBoss(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-status-detalhado') { if(typeof fecharStatusDetalhado === 'function') fecharStatusDetalhado(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-harmony-info') { if (typeof window.fecharHarmonyInfo === 'function') window.fecharHarmonyInfo(); else fecharModal(topModalId); }
+    else if (topModalId === 'janela-blessing-build') { if (typeof window.fecharBlessingBuild === 'function') window.fecharBlessingBuild(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-game-settings') { if(typeof fecharGameSettings === 'function') fecharGameSettings(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-nav-menu') { if(typeof window.fecharNavMenu === 'function') window.fecharNavMenu(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-rules') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.closeRulesModal === 'function') window.ExpeditionEngine.closeRulesModal(); else fecharModal(topModalId); }
@@ -725,7 +726,10 @@ function abrirNpc(npcId: string) {
     if (praca) praca.style.display = 'none'; 
     document.querySelectorAll('.npc-menu').forEach((menu) => { (menu as HTMLElement).style.display = 'none'; }); 
     const menuEl = document.getElementById('menu-' + npcId);
-    if (menuEl) menuEl.style.display = 'flex'; 
+    if (menuEl) menuEl.style.display = 'flex';
+    if (npcId === 'classmaster' && typeof window.refreshBlessingBuildTownCta === 'function') {
+        try { window.refreshBlessingBuildTownCta(); } catch (eBb) { /* ignore */ }
+    }
     if (npcId === 'clans' && typeof window.renderizarClans === 'function') {
         if (typeof window.iniciarSistemaClans === 'function') {
             void Promise.resolve(window.iniciarSistemaClans()).then(() => window.renderizarClans()).catch(e => { console.error(e); window.renderizarClans(); });

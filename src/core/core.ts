@@ -31,8 +31,9 @@ function iniciarJogo(): void {
     } else {
         window.barraAtalhos = ['Attack', initialSkill, 'HP Potion', 'Mana Potion', null, null, null, null, null, null, null, null];
     }
-    window.tempoFimBuffGuerreiro = 0; 
+    window.tempoFimBuffGuerreiro = 0;
     window.tempoFimBuffMistico = 0;
+    window.blessingBuild = null;
     window.inventarioEquips = []; 
     window.armaEquipadaBase = typeof window.createStarterWeaponInstance === 'function'
         ? window.createStarterWeaponInstance(window.charClass)
@@ -318,30 +319,59 @@ function atualizar(): void {
 
 // === INTERVALS & REGEN ===
 setInterval(() => {
-    let container = document.getElementById('buffs-ativos-container'); if (!container) return;
-    let agora = Date.now(); let html = ''; let temBuff = false;
-    
-    // Usando window. para evitar ReferenceError caso o arquivo de globals atrase
-    const tfGuerreiro = window.tempoFimBuffGuerreiro || 0;
-    const tfMistico = window.tempoFimBuffMistico || 0;
+    const container = document.getElementById('buffs-ativos-container');
+    if (!container) return;
 
-    if (tfGuerreiro > agora) {
-        temBuff = true; let restam = Math.floor((tfGuerreiro - agora) / 1000); let min = Math.floor(restam / 60); let sec = restam % 60;
-        html += `<div style="display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:bold;"><img src="assets/npcs/magister.png" style="width:18px; height:18px; background:#111; border:1px solid #10b981; object-fit:cover; border-radius:3px;" alt="F"> ${(typeof window.t === 'function' ? window.t('game.core.buffMightHaste') : 'Might/Haste:')} ${min}:${sec < 10 ? '0'+sec : sec}</div>`;
-    }
-    if (tfMistico > agora) {
-        temBuff = true; let restam = Math.floor((tfMistico - agora) / 1000); let min = Math.floor(restam / 60); let sec = restam % 60;
-        html += `<div style="display:flex; align-items:center; gap:6px; font-size:11px; color:#3b82f6; font-weight:bold;"><img src="assets/npcs/magister.png" style="width:18px; height:18px; background:#111; border:1px solid #3b82f6; object-fit:cover; border-radius:3px; filter:hue-rotate(220deg);" alt="M"> ${(typeof window.t === 'function' ? window.t('game.core.buffEmpowerAcumen') : 'Empower/Acumen:')} ${min}:${sec < 10 ? '0'+sec : sec}</div>`;
-    }
-    if (temBuff) { container.style.display = 'flex'; container.innerHTML = html; } 
-    else {
-        container.style.display = 'none'; container.innerHTML = '';
-        if (window.tempoFimBuffGuerreiro !== 0 || window.tempoFimBuffMistico !== 0) {
-            window.tempoFimBuffGuerreiro = 0; window.tempoFimBuffMistico = 0; 
+    if (window.BlessingEngine && typeof window.BlessingEngine.clearExpiredBlessings === 'function') {
+        const cleared = window.BlessingEngine.clearExpiredBlessings();
+        if (cleared) {
             if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
             atualizar();
-            escreverLog(`<span style="color:#fde047; font-style:italic;">${typeof window.t === 'function' ? window.t('game.core.buffsFaded') : '⏳ Your buffs faded. Stats returned to normal.'}</span>`);
+            escreverLog(
+                `<span style="color:#fde047; font-style:italic;">${
+                    typeof window.t === 'function' ? window.t('game.core.buffsFaded') : '⏳ Your buffs faded. Stats returned to normal.'
+                }</span>`,
+            );
         }
+    }
+
+    const active =
+        window.BlessingEngine && typeof window.BlessingEngine.getActiveBlessingBuild === 'function'
+            ? window.BlessingEngine.getActiveBlessingBuild()
+            : null;
+    const remainMs =
+        window.BlessingEngine && typeof window.BlessingEngine.getBlessingBuildRemainingMs === 'function'
+            ? window.BlessingEngine.getBlessingBuildRemainingMs()
+            : 0;
+
+    if (active && remainMs > 0) {
+        const restam = Math.floor(remainMs / 1000);
+        const hrs = Math.floor(restam / 3600);
+        const min = Math.floor((restam % 3600) / 60);
+        const sec = restam % 60;
+        const timer =
+            hrs > 0
+                ? `${hrs}:${min < 10 ? '0' + min : min}:${sec < 10 ? '0' + sec : sec}`
+                : `${min}:${sec < 10 ? '0' + sec : sec}`;
+        const chips = (active.ids || [])
+            .map((id) => {
+                const def = typeof window.getBlessingDef === 'function' ? window.getBlessingDef(id) : null;
+                const color = def?.color || '#fbbf24';
+                const glyph = def?.glyph || '?';
+                return `<span class="hud-bless-chip" style="color:${color};border-color:${color}" title="${id}">${glyph}</span>`;
+            })
+            .join('');
+        const label =
+            typeof window.t === 'function' ? window.t('game.blessingBuild.hudLabel') : 'Blessings';
+        container.style.display = 'flex';
+        container.innerHTML =
+            `<div class="hud-bless-row">${chips}<span>${label}: ${timer}</span></div>`;
+    } else {
+        container.style.display = 'none';
+        container.innerHTML = '';
+        // Legacy timers must stay cleared.
+        window.tempoFimBuffGuerreiro = 0;
+        window.tempoFimBuffMistico = 0;
     }
 }, 1000); 
 

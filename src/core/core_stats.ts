@@ -68,17 +68,24 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let mod = (typeof window.classModifiers !== 'undefined' && window.classModifiers[cl])
         ? window.classModifiers[cl]
         : { hp: 1.0, mp: 1.0, atk: 1.0, def: 1.0, spd: 1.0, crit: 0, dodge: 1 };
-    let buffFighterLigado = (Date.now() < (window.tempoFimBuffGuerreiro || 0));
-    let buffMageLigado = (Date.now() < (window.tempoFimBuffMistico || 0));
 
-    if (buffFighterLigado) { 
-        window.buffsAtivos.pAtkMult = 1.20; window.buffsAtivos.pDefMult = 1.20; window.buffsAtivos.mAtkMult = 1.0; window.buffsAtivos.mDefMult = 1.0; 
-    } else if (buffMageLigado) { 
-        window.buffsAtivos.mAtkMult = 1.30; window.buffsAtivos.mDefMult = 1.10; window.buffsAtivos.pAtkMult = 1.0; window.buffsAtivos.pDefMult = 1.0; 
-    } else { 
-        window.buffsAtivos.pAtkMult = 1.0; window.buffsAtivos.pDefMult = 1.0; window.buffsAtivos.mAtkMult = 1.0; window.buffsAtivos.mDefMult = 1.0; 
-        window.tempoFimBuffGuerreiro = 0; window.tempoFimBuffMistico = 0; 
+    // Legacy packs retired — always clear timers; Blessing Build is the long-buff source.
+    window.tempoFimBuffGuerreiro = 0;
+    window.tempoFimBuffMistico = 0;
+    if (window.BlessingEngine && typeof window.BlessingEngine.clearExpiredBlessings === 'function') {
+        window.BlessingEngine.clearExpiredBlessings();
     }
+    const blessingFx =
+        window.BlessingEngine && typeof window.BlessingEngine.getActiveBlessingEffects === 'function'
+            ? window.BlessingEngine.getActiveBlessingEffects()
+            : {
+                pAtkMult: 1, mAtkMult: 1, pDefMult: 1, mDefMult: 1,
+                maxHpMult: 1, maxMpMult: 1, critAdd: 0, castAdd: 0, dodgeAdd: 0, atkSpeedMult: 1, ids: [] as string[],
+            };
+    window.buffsAtivos.pAtkMult = blessingFx.pAtkMult || 1;
+    window.buffsAtivos.pDefMult = blessingFx.pDefMult || 1;
+    window.buffsAtivos.mAtkMult = blessingFx.mAtkMult || 1;
+    window.buffsAtivos.mDefMult = blessingFx.mDefMult || 1;
 
     const getStat = getItemStat;
 
@@ -230,6 +237,9 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let hpBaseDaClasse = Math.floor((baseHp + ((safeNivel - 1) * hpPerLvl) + bonusAugHp) * mod.hp);
     window.playerStats.maxHp = Math.floor((hpBaseDaClasse + armaduraBonusHp + armaBonusHp + joiasBonusHp) * clanBonusHp);
     if (titleBonus.maxHp > 0) window.playerStats.maxHp += titleBonus.maxHp;
+    if (blessingFx.maxHpMult && blessingFx.maxHpMult !== 1) {
+        window.playerStats.maxHp = Math.floor(window.playerStats.maxHp * blessingFx.maxHpMult);
+    }
 
     let multCP = isMage ? 0.4 : 0.6;
     if (race === "Orc") multCP += 0.1;
@@ -239,6 +249,9 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let mpBaseDaClasse = Math.floor((baseMp + ((safeNivel - 1) * mpPerLvl)) * mod.mp);
     window.playerStats.maxMp = mpBaseDaClasse + armaduraBonusMp + armaBonusMp + joiasBonusMp;
     if (titleBonus.maxMp > 0) window.playerStats.maxMp += titleBonus.maxMp;
+    if (blessingFx.maxMpMult && blessingFx.maxMpMult !== 1) {
+        window.playerStats.maxMp = Math.floor(window.playerStats.maxMp * blessingFx.maxMpMult);
+    }
 
     let atkFisicoBase = isMage ? (base.danoFighter / 2) : base.danoFighter;
     var _bareW = (typeof window.L2MINI_BARE_HAND_WEAPON_ATK === 'number' && window.L2MINI_BARE_HAND_WEAPON_ATK > 0)
@@ -266,8 +279,16 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     window.playerStats.mDef = Math.floor(mdefTotal * mod.def * window.buffsAtivos.mDefMult * castleBonusMDef);
     if (titleBonus.mDef > 0) window.playerStats.mDef += titleBonus.mDef;
     
+    const blessingCritAdd = Math.max(0, Math.floor(Number(blessingFx.critAdd) || 0));
+    const blessingDodgeAdd = Math.max(0, Math.floor(Number(blessingFx.dodgeAdd) || 0));
+    const blessingCastAdd = Math.max(0, Math.floor(Number(blessingFx.castAdd) || 0));
+    const blessingAtkSpdMult =
+        typeof blessingFx.atkSpeedMult === 'number' && blessingFx.atkSpeedMult > 0
+            ? blessingFx.atkSpeedMult
+            : 1;
+
     const critRawBeforeCap = Math.floor(
-      base.critico + mod.crit + bonusAugCrit + armaduraBonusCrit + armaBonusCrit + joiasBonusCrit + titleBonus.critRate,
+      base.critico + mod.crit + bonusAugCrit + armaduraBonusCrit + armaBonusCrit + joiasBonusCrit + titleBonus.critRate + blessingCritAdd,
     );
     window.playerStats.critRate = (typeof window.applyCritRateCap === 'function')
         ? window.applyCritRateCap(critRawBeforeCap)
@@ -279,15 +300,14 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             : 0.12;
     const classDodge = Math.max(0, Number((mod as { dodge?: number }).dodge) || 0);
     const dodgeFromLevel = Math.floor((safeNivel - 1) * dodgePerLvl);
-    let dodgeInvestmentRaw = Math.floor(classDodge + dodgeFromLevel + armaduraBonusDodge + joiasBonusDodge);
+    let dodgeInvestmentRaw = Math.floor(classDodge + dodgeFromLevel + armaduraBonusDodge + joiasBonusDodge + blessingDodgeAdd);
     window.playerStats.dodgeRate = (typeof window.applyDodgeRateCap === 'function')
         ? window.applyDodgeRateCap(dodgeInvestmentRaw)
         : Math.min(Math.max(0, dodgeInvestmentRaw), 55);
     
     let spdBase = isMage ? base.atkSpeedMage : base.atkSpeedFighter;
     let spdTotal = (spdBase - ((safeNivel - 1) * atkSpdMsMenosPorNivel)) * mod.spd;
-    if (buffFighterLigado) spdTotal *= 0.7; 
-    if (buffMageLigado) spdTotal *= 0.6; 
+    if (blessingAtkSpdMult !== 1) spdTotal *= blessingAtkSpdMult;
     spdTotal -= bonusAugSpd; spdTotal -= armaduraBonusSpd; spdTotal -= armaBonusSpd; spdTotal -= joiasBonusSpd;
     if (titleBonus.atkSpeedMs > 0) spdTotal -= titleBonus.atkSpeedMs;
 
@@ -318,7 +338,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     const castFromTitle = Math.max(0, Math.floor(titleBonus.castSpeedPct || 0));
     let castSpeedRawPct = Math.max(
         0,
-        castFromArmor + castFromWeapon + castFromTitle + joiasBonusCast,
+        castFromArmor + castFromWeapon + castFromTitle + joiasBonusCast + blessingCastAdd,
     );
 
     // Equip Harmony: +N% to combat stats where N = min enchant of a complete set (7 slots).
@@ -401,8 +421,16 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             dodge: classDodge,
         },
         buffs: {
-            fighter: buffFighterLigado,
-            mage: buffMageLigado,
+            fighter: false,
+            mage: false,
+            blessingIdsCsv: Array.isArray(blessingFx.ids) ? blessingFx.ids.join(',') : '',
+            blessingActive: Array.isArray(blessingFx.ids) && blessingFx.ids.length > 0,
+            critAdd: blessingCritAdd,
+            castAdd: blessingCastAdd,
+            dodgeAdd: blessingDodgeAdd,
+            atkSpeedMult: blessingAtkSpdMult,
+            maxHpMult: blessingFx.maxHpMult || 1,
+            maxMpMult: blessingFx.maxMpMult || 1,
             pAtkMult: window.buffsAtivos.pAtkMult,
             pDefMult: window.buffsAtivos.pDefMult,
             mAtkMult: window.buffsAtivos.mAtkMult,
@@ -517,6 +545,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             armor: armaduraBonusCrit,
             weapon: armaBonusCrit,
             jewels: joiasBonusCrit,
+            blessing: blessingCritAdd,
             title: titleBonus.critRate,
             rawBeforeCap: harmonyAppliedPct > 0
                 ? Math.floor(critRawBeforeCap * (1 + harmonyAppliedPct / 100))
@@ -530,6 +559,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             fromLevel: dodgeFromLevel,
             armor: armaduraBonusDodge,
             jewels: joiasBonusDodge,
+            blessing: blessingDodgeAdd,
             rawBeforeCap: dodgeInvestmentRaw,
             softCap: (typeof window.L2MINI_DODGE_SOFT_CAP === 'number' ? window.L2MINI_DODGE_SOFT_CAP : 30),
             cap: (typeof window.L2MINI_DODGE_RATE_CAP === 'number' ? window.L2MINI_DODGE_RATE_CAP : 55),
@@ -538,8 +568,9 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         atkSpeed: {
             baseRaceMs: spdBase - ((safeNivel - 1) * atkSpdMsMenosPorNivel),
             afterModSpd: Math.floor((spdBase - ((safeNivel - 1) * atkSpdMsMenosPorNivel)) * mod.spd),
-            buffMeleeMult: buffFighterLigado ? 0.7 : null,
-            buffMageMult: buffMageLigado ? 0.6 : null,
+            buffMeleeMult: null,
+            buffMageMult: null,
+            blessingAtkSpeedMult: blessingAtkSpdMult !== 1 ? blessingAtkSpdMult : null,
             reduceAugMs: bonusAugSpd,
             reduceArmorMs: armaduraBonusSpd,
             reduceWeaponMs: armaBonusSpd,
@@ -557,6 +588,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             fromWeapon: castFromWeapon,
             fromTitle: castFromTitle,
             fromJewels: joiasBonusCast,
+            fromBlessing: blessingCastAdd,
             fromHarmony: harmonyAppliedPct,
             rawBeforeCap: castSpeedRawPct,
             gearSoftPct: castBeforeBuffs,
@@ -642,7 +674,7 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
     var backupKeys = [
         'charRace', 'charGender', 'charClass', 'nivel', 'enchant', 'enchantArmor', 'isAugmented',
         'armaEquipadaBase', 'armaduraEquipada', 'colarEquipado', 'brincoEquipado1', 'brincoEquipado2',
-        'anelEquipado1', 'anelEquipado2', 'tempoFimBuffGuerreiro', 'tempoFimBuffMistico', 'playerClanId',
+        'anelEquipado1', 'anelEquipado2', 'tempoFimBuffGuerreiro', 'tempoFimBuffMistico', 'blessingBuild', 'playerClanId',
         '_calcStatsTitleOverride',
         '_calcStatsSkipSkillBuffs',
     ];
@@ -682,8 +714,13 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
         window.anelEquipado1 = coerce(c4, 'jewel') as EquipInstance | null;
         window.anelEquipado2 = coerce(c5, 'jewel') as EquipInstance | null;
 
-        window.tempoFimBuffGuerreiro = saveLike.tempoFimBuffGuerreiro || 0;
-        window.tempoFimBuffMistico = saveLike.tempoFimBuffMistico || 0;
+        window.tempoFimBuffGuerreiro = 0;
+        window.tempoFimBuffMistico = 0;
+        if (window.BlessingEngine && typeof window.BlessingEngine.normalizeBlessingBuild === 'function') {
+            window.blessingBuild = window.BlessingEngine.normalizeBlessingBuild(saveLike.blessingBuild);
+        } else {
+            window.blessingBuild = (saveLike.blessingBuild as typeof window.blessingBuild) || null;
+        }
         (window as unknown as Record<string, unknown>).playerClanId =
             saveLike.playerClanId !== undefined ? saveLike.playerClanId : null;
 

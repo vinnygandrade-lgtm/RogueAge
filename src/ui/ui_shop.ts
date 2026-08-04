@@ -992,45 +992,13 @@ function confirmarVenda(): void {
     window.atualizar(); abrirLojaVenda(); window.salvarJogo(); 
 }
 
-// ==========================================
-// SISTEMA DE BUFFS (GRAND MASTER)
-// ==========================================
-function comprarBuff(tipo: 'fighter' | 'mage' | string): void {
-    const EB = window.EconomyBalance;
-    let precoBuff = EB && typeof EB.grandMasterBuffPrice === 'function'
-        ? EB.grandMasterBuffPrice(shopPlayerLevel())
-        : 500;
-    
-    if (tipo === 'fighter' && window.tempoFimBuffGuerreiro > Date.now()) return window.mostrarAviso(shopT('game.shop.fighterBuffActive'));
-    if (tipo === 'mage' && window.tempoFimBuffMistico > Date.now()) return window.mostrarAviso(shopT('game.shop.mageBuffActive'));
-
-    if (window.adenas >= precoBuff) {
-        window.adenas -= precoBuff;
-        
-        let tempoFim = Date.now() + 1800000; 
-        
-        if (tipo === 'fighter') {
-            window.tempoFimBuffGuerreiro = tempoFim;
-            window.tempoFimBuffMistico = 0; 
-        } else {
-            window.tempoFimBuffMistico = tempoFim;
-            window.tempoFimBuffGuerreiro = 0; 
-        }
-        
-        if(typeof window.tocarSom === 'function') window.tocarSom('enchant'); 
-        if(typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais(); 
-        window.atualizar();
-        window.salvarJogo();
-        
-        let nomePacote = tipo === 'fighter' ? shopT('game.shop.blessingPackFighter') : shopT('game.shop.blessingPackMage');
-        let corMsg = tipo === 'fighter' ? '#10b981' : '#3b82f6';
-        
-        window.escreverLog(`<span style="color:${corMsg}; font-weight:bold;">${shopT('game.shop.blessingLog', { pack: nomePacote })}</span>`);
-        if(typeof window.fecharNpc === 'function') window.fecharNpc();
-        
-    } else {
-        window.mostrarAviso(shopT('game.shop.blessingsNeedAdena', { amount: precoBuff }));
+/** Legacy Fighter/Mage packs removed — redirect to Blessing Build. */
+function comprarBuff(_tipo?: string): void {
+    if (typeof window.abrirBlessingBuild === 'function') {
+        window.abrirBlessingBuild();
+        return;
     }
+    window.mostrarAviso(shopT('game.town.blessingBuildHint'));
 }
 
 window.fecharLoja = fecharLoja;
