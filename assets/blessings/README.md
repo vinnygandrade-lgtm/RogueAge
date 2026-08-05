@@ -1,58 +1,96 @@
 # Blessing icons (Grand Master Blessing Build)
 
-Drop **256×256 PNG** files here. The client loads them automatically by **stable id**.
+Drop **256×256 PNG** files in this folder. The client loads them by **exact filename**.
 
-These same files can later power matching **Expedition upgrade cards** (shared art language).
+Path: `assets/blessings/<id>.png`
 
-## Required filenames
+## Global art rules (all icons)
 
-| File | Blessing | Role color (UI accent) |
-|------|----------|------------------------|
-| `might.png` | Might (P.Atk) | `#f87171` |
-| `empower.png` | Empower (M.Atk) | `#60a5fa` |
-| `shield.png` | Shield (P.Def) | `#fbbf24` |
-| `magic_barrier.png` | Magic Barrier (M.Def) | `#c084fc` |
-| `focus.png` | Focus (Crit) | `#fb7185` |
-| `haste.png` | Haste (Atk Spd) | `#34d399` |
-| `acumen.png` | Acumen (Cast) | `#a78bfa` |
-| `guidance.png` | Guidance (Evasion) | `#6ee7b7` |
-| `vitality.png` | Vitality (Max HP) | `#4ade80` |
-| `clarity.png` | Clarity (Max MP) | `#38bdf8` |
-| `poison_ward.png` | Poison Ward (−poison dmg) | `#86efac` |
-| `bleed_ward.png` | Bleed Ward (−bleed dmg) | `#fca5a5` |
-| `mana_efficiency.png` | Mana Efficiency (−skill MP cost) | `#7dd3fc` |
+- **Format:** square **1∶1**, export **256×256** PNG
+- **Moldura:** ornamental metal/bronze like `assets/itens` / `assets/skills` (dark brown `#241710` / bronze `#735939`)
+- **Style:** fantasy MMO semi-realistic; **one clear central symbol**
+- **Readability:** must stay clear at ~40–56px (cards + HUD)
+- Until the PNG exists, the UI shows a glyph fallback
 
-## Art brief (match RogueAge skill/item language)
+---
 
-- **Format:** square **1∶1**, export **256×256** PNG (same as skill/item icons).
-- **Moldura:** ornamental metal/bronze frame coherent with `assets/itens` / `assets/skills` (dark brown `#241710` / bronze `#735939`).
-- **Readability:** icon must stay clear at ~40–56px (modal cards + HUD chips).
-- **Style:** fantasy MMO semi-realistic; **one clear symbol** per blessing.
-- Until a file exists, the UI shows a **glyph fallback** in a framed slot — no broken image.
+## Complete set (13)
 
-### Symbol hints (new trio)
+### Offense
 
-| File | Put this in the art |
-|------|---------------------|
-| `poison_ward.png` | Green/emerald ward — antivenom flask, serpent fang crossed out, or toxic droplet sealed by a protective rune. Cool greens (`#86efac` accent), not murky swamp mud. |
-| `bleed_ward.png` | Crimson/rose ward — bandage wrap, sealed blood drop, or hemostatic rune over a wound. Warm reds (`#fca5a5`), still noble/fantasy (not gore-heavy). |
-| `mana_efficiency.png` | Cyan arcane efficiency — mana crystal with a “less waste” motif (streamlined droplet, efficiency rune, or twin flasks with one smaller pour). Cool blues (`#7dd3fc`). |
+#### `might.png` — Might
+- **Effect:** +12% P.Atk
+- **Accent:** `#f87171`
+- **Brief:** Physical power surge — steel sword or blade tip with warm red/orange energy along the edge. Aggressive, readable silhouette of a weapon strike. No full character.
 
-### Symbol hints (existing set)
+#### `empower.png` — Empower
+- **Effect:** +15% M.Atk
+- **Accent:** `#60a5fa`
+- **Brief:** Arcane offense — glowing mana orb, mage spark, or floating rune crystal in cool blue. Magical “burst” feel, not a physical weapon.
 
-| File | Symbol idea |
-|------|-------------|
-| `might.png` | Sword / blade surge |
-| `empower.png` | Arcane orb / mage spark |
-| `shield.png` | Heater shield |
-| `magic_barrier.png` | Hex ward / barrier rune |
-| `focus.png` | Crosshair / precision eye |
-| `haste.png` | Winged boots / speed streaks |
-| `acumen.png` | Open grimoire / cast spark |
-| `guidance.png` | Wind swirl / dodge trail |
-| `vitality.png` | Heart / life gem |
-| `clarity.png` | Mana droplet / blue crystal |
+#### `focus.png` — Focus
+- **Effect:** +6 Crit investment
+- **Accent:** `#fb7185`
+- **Brief:** Precision — crosshair, targeting eye, or sharp rose-red gem with a focused center point. Suggests critical aim, not raw strength.
+
+### Defense
+
+#### `shield.png` — Shield
+- **Effect:** +12% P.Def
+- **Accent:** `#fbbf24`
+- **Brief:** Solid heater/kite shield in gold-bronze metal. Defensive, heavy, grounded. Optional subtle glow on the rim.
+
+#### `magic_barrier.png` — Magic Barrier
+- **Effect:** +12% M.Def
+- **Accent:** `#c084fc`
+- **Brief:** Hexagonal ward / barrier rune / translucent violet shield of force. Magical protection, not a metal shield.
+
+#### `guidance.png` — Guidance
+- **Effect:** +4 Evasion investment
+- **Accent:** `#6ee7b7`
+- **Brief:** Dodge / wind trail — swirling wind, afterimage streak, or light-green motion arcs. Suggests slipping past a hit.
+
+#### `poison_ward.png` — Poison Ward
+- **Effect:** −12% poison damage taken
+- **Accent:** `#86efac`
+- **Brief:** Antivenom ward — sealed green flask, serpent fang blocked by a rune, or toxic droplet locked behind a ward. Cool emerald greens; avoid muddy swamp tones.
+
+#### `bleed_ward.png` — Bleed Ward
+- **Effect:** −12% bleed damage taken
+- **Accent:** `#fca5a5`
+- **Brief:** Hemostatic ward — clean bandage wrap, sealed blood drop, or rose-red rune over a wound. Noble fantasy reds; no heavy gore.
+
+### Tempo
+
+#### `haste.png` — Haste
+- **Effect:** Faster attack interval (Atk Spd)
+- **Accent:** `#34d399`
+- **Brief:** Speed — winged boots, motion streaks, or emerald wind around boots/blades. Clear “faster swings” read.
+
+#### `acumen.png` — Acumen
+- **Effect:** +8% Casting Speed
+- **Accent:** `#a78bfa`
+- **Brief:** Faster casting — open grimoire with violet spark, quick-cast rune, or spell pages flipping with energy. Distinct from Haste (this is cast bar, not auto-attack).
+
+### Sustain
+
+#### `vitality.png` — Vitality
+- **Effect:** +10% Max HP
+- **Accent:** `#4ade80`
+- **Brief:** Life — green heart, life gem, or vital leaf/crystal. Warm life energy, not poison green.
+
+#### `clarity.png` — Clarity
+- **Effect:** +12% Max MP
+- **Accent:** `#38bdf8`
+- **Brief:** Mana pool — blue mana droplet, full crystal vial, or calm azure gem. “More mana”, not “cheaper skills”.
+
+#### `mana_efficiency.png` — Mana Efficiency
+- **Effect:** −12% skill MP cost
+- **Accent:** `#7dd3fc`
+- **Brief:** Efficient mana use — cyan crystal with a “less waste” motif (streamlined droplet, efficiency rune, or controlled mana stream). Distinct from Clarity (cost vs pool size).
+
+---
 
 ## Code
 
-Paths are built in `src/game/blessing_catalog.ts` via `getBlessingIconSrc(id)` → `assets/blessings/<id>.png`.
+`src/game/blessing_catalog.ts` → `getBlessingIconSrc(id)` → `assets/blessings/<id>.png`
