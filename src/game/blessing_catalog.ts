@@ -19,7 +19,10 @@ export type BlessingId =
   | 'acumen'
   | 'guidance'
   | 'vitality'
-  | 'clarity';
+  | 'clarity'
+  | 'poison_ward'
+  | 'bleed_ward'
+  | 'mana_efficiency';
 
 /** UI grouping for a clearer pick list. */
 export type BlessingGroup = 'offense' | 'defense' | 'tempo' | 'sustain';
@@ -39,6 +42,12 @@ export interface BlessingEffects {
   dodgeAdd?: number;
   /** Multiplies attack interval ms (< 1 = faster). */
   atkSpeedMult?: number;
+  /** Reduces poison threat damage taken (%). */
+  poisonResPct?: number;
+  /** Reduces bleed threat damage taken (%). */
+  bleedResPct?: number;
+  /** Reduces skill MP cost (%). */
+  mpCostReductionPct?: number;
 }
 
 export interface BlessingDef {
@@ -118,6 +127,24 @@ export const BLESSING_CATALOG: BlessingDef[] = [
     effects: { dodgeAdd: 4 },
   },
   {
+    id: 'poison_ward',
+    group: 'defense',
+    nameKey: 'game.blessingBuild.catalog.poison_ward.name',
+    descKey: 'game.blessingBuild.catalog.poison_ward.desc',
+    color: '#86efac',
+    glyph: '☠',
+    effects: { poisonResPct: 12 },
+  },
+  {
+    id: 'bleed_ward',
+    group: 'defense',
+    nameKey: 'game.blessingBuild.catalog.bleed_ward.name',
+    descKey: 'game.blessingBuild.catalog.bleed_ward.desc',
+    color: '#fca5a5',
+    glyph: '🩸',
+    effects: { bleedResPct: 12 },
+  },
+  {
     id: 'haste',
     group: 'tempo',
     nameKey: 'game.blessingBuild.catalog.haste.name',
@@ -153,6 +180,15 @@ export const BLESSING_CATALOG: BlessingDef[] = [
     glyph: '◆',
     effects: { maxMpMult: 1.12 },
   },
+  {
+    id: 'mana_efficiency',
+    group: 'sustain',
+    nameKey: 'game.blessingBuild.catalog.mana_efficiency.name',
+    descKey: 'game.blessingBuild.catalog.mana_efficiency.desc',
+    color: '#7dd3fc',
+    glyph: '🔷',
+    effects: { mpCostReductionPct: 12 },
+  },
 ];
 
 const BY_ID: Record<string, BlessingDef> = Object.fromEntries(
@@ -187,6 +223,9 @@ export interface ComposedBlessingEffects {
   castAdd: number;
   dodgeAdd: number;
   atkSpeedMult: number;
+  poisonResPct: number;
+  bleedResPct: number;
+  mpCostReductionPct: number;
   ids: BlessingId[];
 }
 
@@ -202,6 +241,9 @@ export function composeBlessingEffects(ids: string[]): ComposedBlessingEffects {
     castAdd: 0,
     dodgeAdd: 0,
     atkSpeedMult: 1,
+    poisonResPct: 0,
+    bleedResPct: 0,
+    mpCostReductionPct: 0,
     ids: [],
   };
   const seen = new Set<string>();
@@ -222,6 +264,9 @@ export function composeBlessingEffects(ids: string[]): ComposedBlessingEffects {
     if (e.castAdd) out.castAdd += e.castAdd;
     if (e.dodgeAdd) out.dodgeAdd += e.dodgeAdd;
     if (e.atkSpeedMult) out.atkSpeedMult *= e.atkSpeedMult;
+    if (e.poisonResPct) out.poisonResPct += e.poisonResPct;
+    if (e.bleedResPct) out.bleedResPct += e.bleedResPct;
+    if (e.mpCostReductionPct) out.mpCostReductionPct += e.mpCostReductionPct;
   }
   return out;
 }

@@ -24,16 +24,28 @@ const THREAT_RESIST_CAP_PCT = 75;
 
 let poisonTickTimer: ReturnType<typeof setInterval> | null = null;
 
-/** Poison/bleed resist from active expedition run upgrades + build bonuses (0–75% reduction). */
-function getExpeditionThreatDamageMult(kind: 'poison' | 'bleed'): number {
+/**
+ * Poison/bleed resist from expedition run upgrades + Grand Master blessings (0–75%).
+ * Olympiad clean arena strips blessings via BlessingEngine / stats path — still skip here if latch is on.
+ */
+function getThreatDamageMult(kind: 'poison' | 'bleed'): number {
     const win = window as any;
+    let pct = 0;
+    const oly = win.OlympiadEngine;
+    const clean = typeof oly?.areCleanArenaRulesActive === 'function' && !!oly.areCleanArenaRulesActive();
+    if (!clean && win.BlessingEngine && typeof win.BlessingEngine.getActiveBlessingEffects === 'function') {
+        const fx = win.BlessingEngine.getActiveBlessingEffects();
+        pct += Math.max(0, Number(kind === 'poison' ? fx?.poisonResPct : fx?.bleedResPct) || 0);
+    }
     const exp = win.ExpeditionEngine;
-    if (!exp?.state?.active) return 1;
-    const stat = kind === 'poison' ? 'poisonResPct' : 'bleedResPct';
-    const raw = typeof exp.getCombinedBuffPct === 'function'
-        ? Number(exp.getCombinedBuffPct(stat)) || 0
-        : Number((exp.state.runBuffs || {})[stat]) || 0;
-    const pct = Math.max(0, Math.min(THREAT_RESIST_CAP_PCT, raw));
+    if (exp && typeof exp.isRunEffectsActive === 'function' ? exp.isRunEffectsActive() : !!exp?.state?.active) {
+        const stat = kind === 'poison' ? 'poisonResPct' : 'bleedResPct';
+        const raw = typeof exp.getCombinedBuffPct === 'function'
+            ? Number(exp.getCombinedBuffPct(stat)) || 0
+            : Number((exp.state?.runBuffs || {})[stat]) || 0;
+        pct += Math.max(0, raw);
+    }
+    pct = Math.max(0, Math.min(THREAT_RESIST_CAP_PCT, pct));
     return 1 - pct / 100;
 }
 
@@ -81,7 +93,7 @@ function renderPlayerPoisonBuff(expiresAt: number): void {
 
 function applyPoisonFromHit(mobPower: number, hitDamage: number): void {
     const win = window as any;
-    const resistMult = getExpeditionThreatDamageMult('poison');
+    const resistMult = getThreatDamageMult('poison');
     const rawDps = Math.max(1, Math.floor(hitDamage * 0.28 + mobPower * 0.05));
     const dps = Math.max(1, Math.floor(rawDps * resistMult));
     const expiresAt = Date.now() + POISON_DURATION_MS;
@@ -149,7 +161,7 @@ function applyBleedFromHit(
     let extraDamage = 0;
 
     if (mob.bleedHitsOnPlayer >= BLEED_HITS_FOR_BURST) {
-        const resistMult = getExpeditionThreatDamageMult('bleed');
+        const resistMult = getThreatDamageMult('bleed');
         const rawBurst = Math.max(
             1,
             Math.floor(hitDamage * BLEED_BURST_ATK_MULT + mobPower * BLEED_BURST_POWER_MULT)

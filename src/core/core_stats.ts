@@ -80,18 +80,17 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         typeof window.OlympiadEngine !== 'undefined'
         && typeof (window.OlympiadEngine as { areCleanArenaRulesActive?: () => boolean }).areCleanArenaRulesActive === 'function'
         && !!(window.OlympiadEngine as { areCleanArenaRulesActive: () => boolean }).areCleanArenaRulesActive();
+    const emptyBlessingFx = {
+        pAtkMult: 1, mAtkMult: 1, pDefMult: 1, mDefMult: 1,
+        maxHpMult: 1, maxMpMult: 1, critAdd: 0, castAdd: 0, dodgeAdd: 0, atkSpeedMult: 1,
+        poisonResPct: 0, bleedResPct: 0, mpCostReductionPct: 0, ids: [] as string[],
+    };
     const blessingFx = olyClean
-        ? {
-            pAtkMult: 1, mAtkMult: 1, pDefMult: 1, mDefMult: 1,
-            maxHpMult: 1, maxMpMult: 1, critAdd: 0, castAdd: 0, dodgeAdd: 0, atkSpeedMult: 1, ids: [] as string[],
-        }
+        ? emptyBlessingFx
         : (
             window.BlessingEngine && typeof window.BlessingEngine.getActiveBlessingEffects === 'function'
                 ? window.BlessingEngine.getActiveBlessingEffects()
-                : {
-                    pAtkMult: 1, mAtkMult: 1, pDefMult: 1, mDefMult: 1,
-                    maxHpMult: 1, maxMpMult: 1, critAdd: 0, castAdd: 0, dodgeAdd: 0, atkSpeedMult: 1, ids: [] as string[],
-                }
+                : emptyBlessingFx
         );
     window.buffsAtivos.pAtkMult = blessingFx.pAtkMult || 1;
     window.buffsAtivos.pDefMult = blessingFx.pDefMult || 1;

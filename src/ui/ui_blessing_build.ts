@@ -99,6 +99,9 @@ function previewChipsHtml(ids: BlessingId[]): string {
   if (fx.castAdd) push('cast', fx.castAdd);
   if (fx.dodgeAdd) push('eva', fx.dodgeAdd);
   if (fx.atkSpeedMult !== 1) push('atkSpd', Math.round((1 - fx.atkSpeedMult) * 100));
+  if (fx.poisonResPct) push('poisonRes', fx.poisonResPct);
+  if (fx.bleedResPct) push('bleedRes', fx.bleedResPct);
+  if (fx.mpCostReductionPct) push('mpCost', fx.mpCostReductionPct);
   return chips.join('') || `<span class="bless-chip bless-chip--muted">${esc(t('game.blessingBuild.previewEmpty'))}</span>`;
 }
 

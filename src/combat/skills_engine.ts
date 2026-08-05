@@ -32,11 +32,29 @@ function getBancoDeSkills(): Record<string, SkillDef> | undefined {
 function resolveSkillMpCost(baseMp: number): number {
     const base = Math.max(0, Math.floor(Number(baseMp) || 0));
     if (!base) return 0;
-    const eng = (window as Window & { ExpeditionEngine?: { getSkillMpCost?: (n: number) => number } }).ExpeditionEngine;
-    if (eng && typeof eng.getSkillMpCost === 'function') {
-        return eng.getSkillMpCost(base);
+    const win = window as Window & {
+        OlympiadEngine?: { areCleanArenaRulesActive?: () => boolean };
+        BlessingEngine?: { getActiveBlessingEffects?: () => { mpCostReductionPct?: number } };
+        ExpeditionEngine?: {
+            isRunEffectsActive?: () => boolean;
+            getCombinedBuffPct?: (stat: string) => number;
+        };
+    };
+    let pct = 0;
+    const clean = typeof win.OlympiadEngine?.areCleanArenaRulesActive === 'function'
+        && !!win.OlympiadEngine.areCleanArenaRulesActive();
+    if (!clean && typeof win.BlessingEngine?.getActiveBlessingEffects === 'function') {
+        const fx = win.BlessingEngine.getActiveBlessingEffects();
+        pct += Math.max(0, Number(fx?.mpCostReductionPct) || 0);
     }
-    return base;
+    const eng = win.ExpeditionEngine;
+    if (eng && typeof eng.isRunEffectsActive === 'function' && eng.isRunEffectsActive()
+        && typeof eng.getCombinedBuffPct === 'function') {
+        pct += Math.max(0, Number(eng.getCombinedBuffPct('mpCostReductionPct')) || 0);
+    }
+    pct = Math.min(60, pct);
+    if (!pct) return base;
+    return Math.max(1, Math.floor(base * (1 - pct / 100)));
 }
 
 function resolveSkillCooldownMs(baseMs: number): number {

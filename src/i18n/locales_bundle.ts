@@ -2223,7 +2223,10 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         crit: '+{n} Crit',
                         cast: '+{n}% Cast',
                         eva: '+{n}% Evasion',
-                        atkSpd: '+{n}% Atk Spd'
+                        atkSpd: '+{n}% Atk Spd',
+                        poisonRes: '−{n}% poison damage',
+                        bleedRes: '−{n}% bleed damage',
+                        mpCost: '−{n}% skill MP cost'
                     },
                     catalog: {
                         might: { name: 'Might', desc: '+12% P.Atk' },
@@ -2235,7 +2238,10 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         acumen: { name: 'Acumen', desc: '+8% Casting Speed' },
                         guidance: { name: 'Guidance', desc: '+4 Evasion investment' },
                         vitality: { name: 'Vitality', desc: '+10% Max HP' },
-                        clarity: { name: 'Clarity', desc: '+12% Max MP' }
+                        clarity: { name: 'Clarity', desc: '+12% Max MP' },
+                        poison_ward: { name: 'Poison Ward', desc: '−12% poison damage taken' },
+                        bleed_ward: { name: 'Bleed Ward', desc: '−12% bleed damage taken' },
+                        mana_efficiency: { name: 'Mana Efficiency', desc: '−12% skill MP cost' }
                     }
                 },
                 olympiadUi: {
@@ -5539,7 +5545,10 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         crit: '+{n} Crít',
                         cast: '+{n}% Cast',
                         eva: '+{n}% Evasion',
-                        atkSpd: '+{n}% Vel. Atk'
+                        atkSpd: '+{n}% Vel. Atk',
+                        poisonRes: '−{n}% dano de veneno',
+                        bleedRes: '−{n}% dano de sangramento',
+                        mpCost: '−{n}% custo de MP das skills'
                     },
                     catalog: {
                         might: { name: 'Might', desc: '+12% P.Atk' },
@@ -5551,7 +5560,10 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         acumen: { name: 'Acumen', desc: '+8% Vel. de Conjuração' },
                         guidance: { name: 'Guidance', desc: '+4 investimento de Evasion' },
                         vitality: { name: 'Vitality', desc: '+10% HP máx.' },
-                        clarity: { name: 'Clarity', desc: '+12% MP máx.' }
+                        clarity: { name: 'Clarity', desc: '+12% MP máx.' },
+                        poison_ward: { name: 'Guarda tóxica', desc: '−12% dano de veneno recebido' },
+                        bleed_ward: { name: 'Guarda hemostática', desc: '−12% dano de sangramento recebido' },
+                        mana_efficiency: { name: 'Eficiência de mana', desc: '−12% custo de MP das skills' }
                     }
                 },
                 olympiadUi: {

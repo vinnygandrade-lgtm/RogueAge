@@ -197,6 +197,9 @@ declare global {
         castAdd: number;
         dodgeAdd: number;
         atkSpeedMult: number;
+        poisonResPct: number;
+        bleedResPct: number;
+        mpCostReductionPct: number;
         ids: string[];
       };
       isBlessingBuildActive: () => boolean;
