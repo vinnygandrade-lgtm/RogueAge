@@ -72,6 +72,7 @@ export type ExpeditionBuildId =
     | 'vital_pulse'
     | 'executioner'
     | 'warden'
+    | 'phantom_step'
     | 'arcane_channel';
 
 export type ExpeditionBuildRole = 'offense' | 'defense' | 'sustain';
@@ -222,7 +223,7 @@ const JOURNEY_TRAITS: JourneyMobTrait[] = ['brutal', 'swift', 'lethal', 'armored
 
 const RUN_BUILD_IDS: ExpeditionBuildId[] = [
     'swift_caster', 'spell_fortress', 'blade_dancer', 'iron_wall',
-    'mana_well', 'vital_pulse', 'executioner', 'warden', 'arcane_channel'
+    'mana_well', 'vital_pulse', 'executioner', 'warden', 'phantom_step', 'arcane_channel'
 ];
 
 /** Mastery — extra stacked bonus when you unlock many builds in one run. */
@@ -246,7 +247,15 @@ const BUILD_MASTERY_TIERS: {
     },
     {
         count: 7,
-        bonuses: { maxHpPct: 6, pAtkPct: 4, mAtkPct: 4, atkSpeedPct: 5, castSpeedPct: 4, maxMpPct: 4 },
+        bonuses: {
+            maxHpPct: 6,
+            pAtkPct: 4,
+            mAtkPct: 4,
+            atkSpeedPct: 5,
+            castSpeedPct: 4,
+            maxMpPct: 4,
+            dodgeRatePct: 4
+        },
         titleKey: 'game.hunt.expedition.buildMastery7',
         titleFallback: 'Legend of the Trail (7 builds)'
     }
@@ -355,10 +364,26 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         bonuses: { poisonResPct: 10, bleedResPct: 10 }
     },
     {
+        id: 'phantom_step',
+        icon: '🍃',
+        role: 'defense',
+        priority: 7,
+        titleKey: 'game.hunt.expedition.buildPhantomStep',
+        titleFallback: 'Phantom Step',
+        bonusKey: 'game.hunt.expedition.buildPhantomStepBonus',
+        bonusFallback: '+6 Evasion · +5% Attack Speed',
+        // Evasion ×3 (+5) + Atk Spd ×2 (+10) ≈ 5 picks — shares speed with Blade Dancer
+        requirements: [
+            { kind: 'stat', stat: 'dodgeRatePct', minPct: 15 },
+            { kind: 'stat', stat: 'atkSpeedPct', minPct: 20 }
+        ],
+        bonuses: { dodgeRatePct: 6, atkSpeedPct: 5 }
+    },
+    {
         id: 'mana_well',
         icon: '💧',
         role: 'sustain',
-        priority: 7,
+        priority: 8,
         titleKey: 'game.hunt.expedition.buildManaWell',
         titleFallback: 'Mana Well',
         bonusKey: 'game.hunt.expedition.buildManaWellBonus',
@@ -375,7 +400,7 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         id: 'vital_pulse',
         icon: '💚',
         role: 'sustain',
-        priority: 8,
+        priority: 9,
         titleKey: 'game.hunt.expedition.buildVitalPulse',
         titleFallback: 'Vital Pulse',
         bonusKey: 'game.hunt.expedition.buildVitalPulseBonus',
@@ -391,7 +416,7 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         id: 'arcane_channel',
         icon: '🌀',
         role: 'sustain',
-        priority: 9,
+        priority: 10,
         titleKey: 'game.hunt.expedition.buildArcaneChannel',
         titleFallback: 'Arcane Channel',
         bonusKey: 'game.hunt.expedition.buildArcaneChannelBonus',
