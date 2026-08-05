@@ -6621,6 +6621,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .exp-upgrade-card--patk,
 .exp-upgrade-card--matk,
 .exp-upgrade-card--crit,
+.exp-upgrade-card--evasion,
 .exp-upgrade-card--speed,
 .exp-upgrade-card--pdef,
 .exp-upgrade-card--mdef,
@@ -6636,6 +6637,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .exp-upgrade-card--patk { border-left-color: #f87171; }
 .exp-upgrade-card--matk { border-left-color: #c4b5fd; }
 .exp-upgrade-card--crit { border-left-color: #facc15; }
+.exp-upgrade-card--evasion { border-left-color: #34d399; }
 .exp-upgrade-card--speed { border-left-color: #38bdf8; }
 .exp-upgrade-card--pdef { border-left-color: #6ee7b7; }
 .exp-upgrade-card--mdef { border-left-color: #a78bfa; }

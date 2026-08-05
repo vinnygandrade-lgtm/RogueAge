@@ -82,14 +82,22 @@ window.getPlayerDodgeChanceVsMob = function (
   mob?: { lvl?: number; nivel?: number } | null,
   ataqueMagicoDoMonstro = false,
 ): number {
-  // Soft-cap once on (gear raw + Ultimate Evasion), never on an already-softened portrait total.
-  const win = window as Window & { _l2DodgeRawGear?: number };
-  const gearRaw =
-    typeof win._l2DodgeRawGear === 'number'
-      ? Math.max(0, Math.floor(win._l2DodgeRawGear))
-      : Math.max(0, Math.floor(Number(window.playerStats?.dodgeRate) || 0));
+  // Soft-cap once on (gear raw + Ultimate Evasion + expedition run), never on an already-softened portrait total.
+  const win = window as Window & {
+    _l2DodgeRawGear?: number;
+    ExpeditionEngine?: { getRunDodgeInvestment?: () => number };
+  };
+  const hasGearRaw = typeof win._l2DodgeRawGear === 'number';
+  const gearRaw = hasGearRaw
+    ? Math.max(0, Math.floor(win._l2DodgeRawGear as number))
+    : Math.max(0, Math.floor(Number(window.playerStats?.dodgeRate) || 0));
   const buff = Number(motorBuffs().esquiva) || 0;
-  let raw = gearRaw + buff;
+  // Only add run investment on raw gear — portrait dodgeRate may already include it after applyRunBuffs.
+  const runDodge =
+    hasGearRaw && typeof win.ExpeditionEngine?.getRunDodgeInvestment === 'function'
+      ? Math.max(0, Math.floor(Number(win.ExpeditionEngine.getRunDodgeInvestment()) || 0))
+      : 0;
+  let raw = gearRaw + buff + runDodge;
   if (mob) {
     const mobLvl = Number(mob.lvl ?? mob.nivel) || 1;
     const plLvl = Number(window.nivel) || 1;

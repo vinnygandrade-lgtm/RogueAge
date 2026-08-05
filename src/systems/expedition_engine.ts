@@ -42,6 +42,11 @@ export interface ExpeditionRunBuffs {
     atkSpeedPct: number;
     /** Shortens skill cast time during the run (+8% per card; combined with gear, hard-capped at 40%). */
     castSpeedPct: number;
+    /**
+     * Additive Evasion investment during the run (+5 per card).
+     * Soft-caps once with gear / Ultimate Evasion (same curve as town Evasion).
+     */
+    dodgeRatePct: number;
     maxHpPct: number;
     /** Raises Max MP during the run (+8% per card). */
     maxMpPct: number;
@@ -432,6 +437,16 @@ const UPGRADE_POOL: UpgradeDef[] = [
         descFallback: '+5% Crit Rate — more critical hits this run.'
     },
     {
+        id: 'evasion',
+        icon: '🍃',
+        stat: 'dodgeRatePct',
+        value: 5,
+        titleKey: 'game.hunt.expedition.upgradeEvasionTitle',
+        titleFallback: 'Light Footwork',
+        descKey: 'game.hunt.expedition.upgradeEvasionDesc',
+        descFallback: '+5 Evasion investment — dodge more hits this run (soft-caps with your gear).'
+    },
+    {
         id: 'speed',
         icon: '💨',
         stat: 'atkSpeedPct',
@@ -586,6 +601,17 @@ const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = [
         titleFallback: 'Fatal Star',
         descKey: 'game.hunt.expedition.upgradeLegendCritDesc',
         descFallback: '+10% Crit Rate — far more critical hits this run.'
+    },
+    {
+        id: 'evasion',
+        icon: '🍃',
+        stat: 'dodgeRatePct',
+        value: 10,
+        legendary: true,
+        titleKey: 'game.hunt.expedition.upgradeLegendEvasionTitle',
+        titleFallback: 'Ghost Step',
+        descKey: 'game.hunt.expedition.upgradeLegendEvasionDesc',
+        descFallback: '+10 Evasion investment — far more dodges this run (soft-caps with your gear).'
     },
     {
         id: 'vitality',
@@ -1268,6 +1294,7 @@ export class ExpeditionEngine {
             critRatePct: 0,
             atkSpeedPct: 0,
             castSpeedPct: 0,
+            dodgeRatePct: 0,
             maxHpPct: 0,
             maxMpPct: 0,
             poisonResPct: 0,
@@ -1277,6 +1304,12 @@ export class ExpeditionEngine {
             mpCostReductionPct: 0,
             skillCdReductionPct: 0
         };
+    }
+
+    /** Additive Evasion investment from run cards + builds (0 when effects paused). */
+    static getRunDodgeInvestment(): number {
+        if (!this.isRunEffectsActive()) return 0;
+        return Math.max(0, Math.floor(this.getCombinedBuffPct('dodgeRatePct')));
     }
 
 
@@ -1874,8 +1907,9 @@ export class ExpeditionEngine {
 
     static rollRandomRunStat(): keyof ExpeditionRunBuffs {
         const statKeys: (keyof ExpeditionRunBuffs)[] = [
-            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'castSpeedPct', 'maxHpPct', 'maxMpPct',
-            'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpRegenPct', 'mpCostReductionPct', 'skillCdReductionPct'
+            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'castSpeedPct', 'dodgeRatePct',
+            'maxHpPct', 'maxMpPct', 'poisonResPct', 'bleedResPct', 'hpRegenPct', 'mpRegenPct', 'mpCostReductionPct',
+            'skillCdReductionPct'
         ];
         return statKeys[Math.floor(Math.random() * statKeys.length)];
     }
@@ -2026,6 +2060,7 @@ export class ExpeditionEngine {
             critRatePct: ['game.hunt.expedition.runStatCrit', 'Crit'],
             atkSpeedPct: ['game.hunt.expedition.runStatSpd', 'Auto-Atk'],
             castSpeedPct: ['game.hunt.expedition.runStatCastSpd', 'Cast bar'],
+            dodgeRatePct: ['game.hunt.expedition.runStatEvasion', 'Evasion'],
             maxHpPct: ['game.hunt.expedition.runStatHp', 'HP'],
             maxMpPct: ['game.hunt.expedition.runStatMp', 'MP'],
             poisonResPct: ['game.hunt.expedition.runStatPoisonRes', 'Poison res'],
@@ -2251,6 +2286,7 @@ export class ExpeditionEngine {
         maxHp: number;
         maxMp: number;
         castSpeedAdd: number;
+        dodgeAdd: number;
     } {
         return {
             pAtk: 1 + this.getCombinedBuffPct('pAtkPct') / 100,
@@ -2261,7 +2297,8 @@ export class ExpeditionEngine {
             atkSpeed: Math.max(0.5, 1 - this.getCombinedBuffPct('atkSpeedPct') / 100),
             maxHp: 1 + this.getCombinedBuffPct('maxHpPct') / 100,
             maxMp: 1 + this.getCombinedBuffPct('maxMpPct') / 100,
-            castSpeedAdd: Math.max(0, this.getCombinedBuffPct('castSpeedPct'))
+            castSpeedAdd: Math.max(0, this.getCombinedBuffPct('castSpeedPct')),
+            dodgeAdd: Math.max(0, Math.floor(this.getCombinedBuffPct('dodgeRatePct')))
         };
     }
 
@@ -2270,6 +2307,10 @@ export class ExpeditionEngine {
         const win = window as any;
         const ps = win.playerStats;
         if (!ps) return;
+        const gearRaw =
+            typeof win._l2DodgeRawGear === 'number'
+                ? Math.max(0, Math.floor(win._l2DodgeRawGear))
+                : Math.max(0, Math.floor(Number(ps.dodgeRate) || 0));
         const buffed = this.computeRunBuffedStats({
             pAtk: ps.pAtk,
             mAtk: ps.mAtk,
@@ -2279,7 +2320,8 @@ export class ExpeditionEngine {
             atkSpeed: ps.atkSpeed,
             maxHp: ps.maxHp,
             maxMp: ps.maxMp,
-            castSpeed: ps.castSpeed
+            castSpeed: ps.castSpeed,
+            dodgeRaw: gearRaw
         });
         const oldMax = ps.maxHp;
         const oldMaxMp = ps.maxMp;
@@ -2292,6 +2334,7 @@ export class ExpeditionEngine {
         ps.maxHp = buffed.maxHp;
         ps.maxMp = buffed.maxMp;
         ps.castSpeed = buffed.castSpeed;
+        ps.dodgeRate = buffed.dodgeRate;
         if (typeof win.playerHP === 'number' && oldMax > 0) {
             const scaled = Math.floor(win.playerHP * (ps.maxHp / oldMax));
             win.playerHP = Math.max(1, Math.min(ps.maxHp, scaled));
@@ -2316,6 +2359,7 @@ export class ExpeditionEngine {
         maxHp: number;
         maxMp: number;
         castSpeed: number;
+        dodgeRaw: number;
     }) {
         const win = window as any;
         const m = this.getRunBuffMults();
@@ -2323,6 +2367,7 @@ export class ExpeditionEngine {
             typeof win.MAX_CAST_SPEED_PCT === 'number' && win.MAX_CAST_SPEED_PCT > 0
                 ? win.MAX_CAST_SPEED_PCT
                 : 40;
+        const dodgeInvest = Math.max(0, Math.floor(Number(base.dodgeRaw) || 0) + m.dodgeAdd);
         return {
             pAtk: Math.floor(base.pAtk * m.pAtk),
             mAtk: Math.floor(base.mAtk * m.mAtk),
@@ -2339,7 +2384,10 @@ export class ExpeditionEngine {
             castSpeed: Math.min(
                 castCap,
                 Math.max(0, Math.floor(Number(base.castSpeed) || 0) + m.castSpeedAdd)
-            )
+            ),
+            dodgeRate: typeof win.applyDodgeRateCap === 'function'
+                ? win.applyDodgeRateCap(dodgeInvest)
+                : Math.min(55, dodgeInvest)
         };
     }
 
@@ -2354,6 +2402,7 @@ export class ExpeditionEngine {
             maxHp: number;
             maxMp: number;
             castSpeed: number;
+            dodgeRate: number;
         };
         total: {
             pAtk: number;
@@ -2365,6 +2414,7 @@ export class ExpeditionEngine {
             maxHp: number;
             maxMp: number;
             castSpeed: number;
+            dodgeRate: number;
         };
     } {
         const win = window as any;
@@ -2375,6 +2425,10 @@ export class ExpeditionEngine {
             this._skipRunBuffApply = false;
         }
         const ps = win.playerStats || {};
+        const dodgeRaw =
+            typeof win._l2DodgeRawGear === 'number'
+                ? Math.max(0, Math.floor(win._l2DodgeRawGear))
+                : Math.max(0, Math.floor(Number(ps.dodgeRate) || 0));
         const base = {
             pAtk: Math.floor(Number(ps.pAtk) || 0),
             mAtk: Math.floor(Number(ps.mAtk) || 0),
@@ -2384,11 +2438,26 @@ export class ExpeditionEngine {
             atkSpeed: Math.floor(Number(ps.atkSpeed) || 0),
             maxHp: Math.floor(Number(ps.maxHp) || 0),
             maxMp: Math.floor(Number(ps.maxMp) || 0),
-            castSpeed: Math.floor(Number(ps.castSpeed) || 0)
+            castSpeed: Math.floor(Number(ps.castSpeed) || 0),
+            dodgeRate: typeof win.applyDodgeRateCap === 'function'
+                ? win.applyDodgeRateCap(dodgeRaw)
+                : Math.min(55, dodgeRaw)
         };
+        const total = this.computeRunBuffedStats({ ...base, dodgeRaw });
         return {
             base,
-            total: this.computeRunBuffedStats(base)
+            total: {
+                pAtk: total.pAtk,
+                mAtk: total.mAtk,
+                pDef: total.pDef,
+                mDef: total.mDef,
+                critRate: total.critRate,
+                atkSpeed: total.atkSpeed,
+                maxHp: total.maxHp,
+                maxMp: total.maxMp,
+                castSpeed: total.castSpeed,
+                dodgeRate: total.dodgeRate
+            }
         };
     }
 
@@ -2420,6 +2489,7 @@ export class ExpeditionEngine {
         const defenseRows = [
             { label: this.t('game.hunt.expedition.upgradeStatPdef', 'P.Def'), baseVal: base.pDef, totalVal: total.pDef },
             { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, totalVal: total.mDef },
+            { label: this.t('game.hunt.expedition.upgradeStatEvasion', 'Evasion'), baseVal: base.dodgeRate, totalVal: total.dodgeRate },
             { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, totalVal: total.maxHp },
             { label: this.t('game.hunt.expedition.upgradeStatMp', 'Max MP'), baseVal: base.maxMp, totalVal: total.maxMp }
         ];
@@ -2468,6 +2538,7 @@ export class ExpeditionEngine {
             ['skillCdReductionPct', '⏱️', 'offense'],
             ['pDefPct', '🛡️', 'defense'],
             ['mDefPct', '🔮', 'defense'],
+            ['dodgeRatePct', '🍃', 'defense'],
             ['maxHpPct', '❤️', 'defense'],
             ['maxMpPct', '💧', 'defense'],
             ['hpRegenPct', '💚', 'regen'],
@@ -2524,6 +2595,7 @@ export class ExpeditionEngine {
             { label: this.t('game.hunt.expedition.upgradeStatPdef', 'P.Def'), baseVal: base.pDef, bonus: total.pDef - base.pDef },
             { label: this.t('game.hunt.expedition.upgradeStatMdef', 'M.Def'), baseVal: base.mDef, bonus: total.mDef - base.mDef },
             { label: this.t('game.hunt.expedition.upgradeStatCrit', 'Crit'), baseVal: base.critRate, bonus: total.critRate - base.critRate },
+            { label: this.t('game.hunt.expedition.upgradeStatEvasion', 'Evasion'), baseVal: base.dodgeRate, bonus: total.dodgeRate - base.dodgeRate },
             { label: this.t('game.hunt.expedition.upgradeStatSpd', 'Atk Spd'), baseVal: base.atkSpeed, bonus: total.atkSpeed - base.atkSpeed },
             { label: this.t('game.hunt.expedition.upgradeStatCastSpd', 'Cast Spd'), baseVal: base.castSpeed, bonus: total.castSpeed - base.castSpeed },
             { label: this.t('game.hunt.expedition.upgradeStatHp', 'Max HP'), baseVal: base.maxHp, bonus: total.maxHp - base.maxHp },
@@ -2551,6 +2623,7 @@ export class ExpeditionEngine {
             ['pDefPct', '🛡️'],
             ['mDefPct', '🔮'],
             ['critRatePct', '🎯'],
+            ['dodgeRatePct', '🍃'],
             ['atkSpeedPct', '💨'],
             ['castSpeedPct', '✴️'],
             ['maxHpPct', '❤️'],
@@ -3599,6 +3672,7 @@ export class ExpeditionEngine {
         if (b.pAtkPct) chips.push(`⚔️ +${b.pAtkPct}%`);
         if (b.mAtkPct) chips.push(`✨ +${b.mAtkPct}%`);
         if (b.critRatePct) chips.push(`🎯 +${b.critRatePct}%`);
+        if (b.dodgeRatePct) chips.push(`🍃 +${b.dodgeRatePct}%`);
         if (b.atkSpeedPct) chips.push(`💨 +${b.atkSpeedPct}%`);
         if (b.castSpeedPct) chips.push(`✴️ +${b.castSpeedPct}%`);
         if (b.pDefPct) chips.push(`🛡️ +${b.pDefPct}%`);
@@ -3843,8 +3917,8 @@ export class ExpeditionEngine {
 
     static openStormFocusOffers(): void {
         const pool: (keyof ExpeditionRunBuffs)[] = [
-            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'atkSpeedPct', 'castSpeedPct', 'maxHpPct', 'maxMpPct',
-            'hpRegenPct', 'mpRegenPct', 'skillCdReductionPct', 'mpCostReductionPct'
+            'pAtkPct', 'mAtkPct', 'pDefPct', 'mDefPct', 'critRatePct', 'dodgeRatePct', 'atkSpeedPct', 'castSpeedPct',
+            'maxHpPct', 'maxMpPct', 'hpRegenPct', 'mpRegenPct', 'skillCdReductionPct', 'mpCostReductionPct'
         ];
         const shuffled = this.shuffle(pool);
         this._stormFocusStats = shuffled.slice(0, 3);
@@ -4090,6 +4164,7 @@ export class ExpeditionEngine {
         if (runBuffs.pAtkPct) buffParts.push(`+${runBuffs.pAtkPct}% P.Atk`);
         if (runBuffs.mAtkPct) buffParts.push(`+${runBuffs.mAtkPct}% M.Atk`);
         if (runBuffs.critRatePct) buffParts.push(`+${runBuffs.critRatePct}% Crit`);
+        if (runBuffs.dodgeRatePct) buffParts.push(`+${runBuffs.dodgeRatePct}% ${this.runStatLabel('dodgeRatePct')}`);
         if (runBuffs.atkSpeedPct) buffParts.push(`+${runBuffs.atkSpeedPct}% Spd`);
         if (runBuffs.castSpeedPct) buffParts.push(`+${runBuffs.castSpeedPct}% ${this.runStatLabel('castSpeedPct')}`);
         if (runBuffs.pDefPct) buffParts.push(`+${runBuffs.pDefPct}% P.Def`);
