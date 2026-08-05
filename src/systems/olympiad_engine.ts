@@ -6,6 +6,9 @@
  *   fetchOlympiadCharacterRow + applyRealPlayerStatsFromCloudRow → calcularStatusGlobaisFromData
  *   (mesma verdade que inspeção de perfil). Bots: só gerarBotCompleto.
  * - Ver GDD §7 — Inspeção cloud (bullet Olimpíada) e §11.5 checklist item 10.
+ *
+ * Clean arena rules (product): no Grand Master blessings, no Soulshot/Spiritshot.
+ * Forest / Expedition / bosses keep buffs + shots. See docs/olympiad-clean-combat.md.
  */
 import type {
   BotRankingSeed,
@@ -76,6 +79,11 @@ const OlympiadEngine = {
     _claimingReward: false,
     _previewLoading: false,
     _previewOpponent: null as { nome: string; isBot: boolean } | null,
+    /**
+     * When true, `calcularStatusGlobais` strips Grand Master blessings / expedition run buffs
+     * so VERSUS preview and duel use gear+skills+vitals only.
+     */
+    _cleanCombatLatch: false,
     /** UUID de linha `olympiad_matches` (nuvem); obrigatório para persistir MMR em PvP real */
     olyMatchId: null,
     /** Debuffs do rival no jogador (Hamstring, etc.) — multiplicador de P.Atk do atacante */
@@ -161,6 +169,46 @@ const OlympiadEngine = {
         this.carregarRecompensasResgatadas();
         console.log("⚔️ [Olympiad] Motor Semi-Online inicializado.");
         this.refreshOlympiadClaimNotifs();
+    },
+
+    /**
+     * Product contract: Olympiad = clean combat (gear + skills + HP/MP/CP).
+     * Suppresses Grand Master blessings and expedition run % buffs in stats calc.
+     * Soulshots/Spiritshots stay blocked via arena DOM checks in combat math/skills.
+     */
+    areCleanArenaRulesActive(): boolean {
+        if (this._cleanCombatLatch || this.ativo || this._previewLoading || this._previewOpponent) {
+            return true;
+        }
+        const arena = document.getElementById('tela-olympiad-arena');
+        if (arena) {
+            const disp = arena.style.display || (typeof getComputedStyle === 'function' ? getComputedStyle(arena).display : '');
+            if (disp === 'flex') return true;
+        }
+        return false;
+    },
+
+    beginCleanCombatStats(): void {
+        this._cleanCombatLatch = true;
+    },
+
+    /** Clears clean latch and rebuilds town stats (blessings return if still active). */
+    endCleanCombatStats(): void {
+        this._cleanCombatLatch = false;
+        if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
+        const ps = window.playerStats;
+        if (ps) {
+            if (typeof window.playerHP === 'number') {
+                window.playerHP = Math.max(0, Math.min(Number(ps.maxHp) || 0, window.playerHP));
+            }
+            if (typeof window.playerMP === 'number') {
+                window.playerMP = Math.max(0, Math.min(Number(ps.maxMp) || 0, window.playerMP));
+            }
+            if (typeof window.playerCP === 'number') {
+                window.playerCP = Math.max(0, Math.min(Number(ps.maxCp) || 0, window.playerCP));
+            }
+        }
+        if (typeof window.atualizar === 'function') window.atualizar();
     },
 
     /** Patentes com recompensa de rank-up ainda não resgatadas (badge Quick Menu). */
@@ -494,9 +542,11 @@ const OlympiadEngine = {
         this.fecharOlyPreview();
     },
 
-    fecharOlyPreview() {
+    fecharOlyPreview(opts?: { preserveCleanLatch?: boolean }) {
         if (typeof window.fecharModal === 'function') window.fecharModal('janela-oly-preview');
         this._previewOpponent = null;
+        this._previewLoading = false;
+        if (!opts?.preserveCleanLatch) this.endCleanCombatStats();
     },
 
     _renderOlyPreviewLoading() {
@@ -921,6 +971,9 @@ const OlympiadEngine = {
         saveForCalc.nivel = characterRow.level != null ? characterRow.level : (realData.nivel || 1);
         saveForCalc.charRace = realData.charRace || 'Human';
         if (realData.charGender) saveForCalc.charGender = realData.charGender;
+        // Arena: ignore opponent Grand Master blessings in the snapshot.
+        saveForCalc.blessingBuild = null;
+        this.beginCleanCombatStats();
         var st = window.calcularStatusGlobaisFromData(saveForCalc);
         if (!st || typeof st.pAtk !== 'number') return bot;
         bot.maxHp = Math.max(1, st.maxHp);
@@ -1145,6 +1198,7 @@ const OlympiadEngine = {
     async mostrarPreviewDesafio(nome, isBot) {
         if (this._previewLoading) return;
         this._previewLoading = true;
+        this.beginCleanCombatStats();
 
         const needsCloudFetch = !isBot && window.SupabaseAPI && window.SUPABASE_CONFIG?.enabled;
         if (needsCloudFetch) {
@@ -1201,12 +1255,16 @@ const OlympiadEngine = {
 
     async confirmarDesafio() {
         const pending = this._previewOpponent;
-        this.fecharOlyPreview();
-        if (!pending?.nome) return;
+        this.fecharOlyPreview({ preserveCleanLatch: true });
+        if (!pending?.nome) {
+            this.endCleanCombatStats();
+            return;
+        }
         await this.desafiar(pending.nome, pending.isBot);
     },
 
     async desafiar(nome, isBot) {
+        this.beginCleanCombatStats();
         let botData = null;
         let cloudRow = null;
         
@@ -1230,6 +1288,7 @@ const OlympiadEngine = {
                     if (error) throw error;
                     if (!data) {
                         window.l2Alert(this.olyT('olympiad.previewLoadFailedCombat'));
+                        this.endCleanCombatStats();
                         return;
                     }
                     cloudRow = data;
@@ -1237,6 +1296,7 @@ const OlympiadEngine = {
                 } catch (err) {
                     console.error("❌ [Olympiad] Erro ao buscar oponente real para duelo:", err);
                     window.l2Alert(this.olyT('olympiad.previewLoadFailedCombat'));
+                    this.endCleanCombatStats();
                     return;
                 }
             }
@@ -1244,6 +1304,7 @@ const OlympiadEngine = {
 
         if (!botData) {
             window.l2Alert(this.olyT('olympiad.previewOpponentFailed'));
+            this.endCleanCombatStats();
             return;
         }
 
@@ -1263,6 +1324,7 @@ const OlympiadEngine = {
                 if (typeof window.l2Alert === 'function') window.l2Alert(mapped || fallback);
                 const barraGlobalHide = document.getElementById('barra-de-atalhos-dinamica');
                 if (barraGlobalHide) barraGlobalHide.style.setProperty('display', 'none', 'important');
+                this.endCleanCombatStats();
                 return;
             }
             this.olyMatchId = reg.match_id;
@@ -1811,6 +1873,8 @@ const OlympiadEngine = {
         this.ativo = false;
         if (typeof window.cancelSkillCast === 'function') window.cancelSkillCast();
         if (typeof window.restorePlayerVitalsIfDowned === 'function') window.restorePlayerVitalsIfDowned();
+        // Restore town Blessing Build / expedition pause after clean-arena stats.
+        this.endCleanCombatStats();
         if (this.loopInimigo) clearInterval(this.loopInimigo);
         if (Array.isArray(this._olyRivalBurstTimers)) {
             this._olyRivalBurstTimers.forEach((id) => clearTimeout(id));

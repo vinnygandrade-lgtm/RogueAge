@@ -75,13 +75,24 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     if (window.BlessingEngine && typeof window.BlessingEngine.clearExpiredBlessings === 'function') {
         window.BlessingEngine.clearExpiredBlessings();
     }
-    const blessingFx =
-        window.BlessingEngine && typeof window.BlessingEngine.getActiveBlessingEffects === 'function'
-            ? window.BlessingEngine.getActiveBlessingEffects()
-            : {
-                pAtkMult: 1, mAtkMult: 1, pDefMult: 1, mDefMult: 1,
-                maxHpMult: 1, maxMpMult: 1, critAdd: 0, castAdd: 0, dodgeAdd: 0, atkSpeedMult: 1, ids: [] as string[],
-            };
+    // Olympiad clean arena: gear + skills + vitals only (no Grand Master / expedition run %).
+    const olyClean =
+        typeof window.OlympiadEngine !== 'undefined'
+        && typeof (window.OlympiadEngine as { areCleanArenaRulesActive?: () => boolean }).areCleanArenaRulesActive === 'function'
+        && !!(window.OlympiadEngine as { areCleanArenaRulesActive: () => boolean }).areCleanArenaRulesActive();
+    const blessingFx = olyClean
+        ? {
+            pAtkMult: 1, mAtkMult: 1, pDefMult: 1, mDefMult: 1,
+            maxHpMult: 1, maxMpMult: 1, critAdd: 0, castAdd: 0, dodgeAdd: 0, atkSpeedMult: 1, ids: [] as string[],
+        }
+        : (
+            window.BlessingEngine && typeof window.BlessingEngine.getActiveBlessingEffects === 'function'
+                ? window.BlessingEngine.getActiveBlessingEffects()
+                : {
+                    pAtkMult: 1, mAtkMult: 1, pDefMult: 1, mDefMult: 1,
+                    maxHpMult: 1, maxMpMult: 1, critAdd: 0, castAdd: 0, dodgeAdd: 0, atkSpeedMult: 1, ids: [] as string[],
+                }
+        );
     window.buffsAtivos.pAtkMult = blessingFx.pAtkMult || 1;
     window.buffsAtivos.pDefMult = blessingFx.pDefMult || 1;
     window.buffsAtivos.mAtkMult = blessingFx.mAtkMult || 1;
@@ -382,7 +393,8 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         || atkSpeedRawMs !== window.playerStats.atkSpeed;
 
         if (
-        typeof window.ExpeditionEngine !== 'undefined'
+        !olyClean
+        && typeof window.ExpeditionEngine !== 'undefined'
         && window.ExpeditionEngine.state
         && !(window.ExpeditionEngine as { _skipRunBuffApply?: boolean })._skipRunBuffApply
         && typeof window.ExpeditionEngine.applyRunBuffsToPlayerStats === 'function'

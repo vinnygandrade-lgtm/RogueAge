@@ -1162,6 +1162,10 @@ export interface OlympiadEngineApi {
   reset?: () => void;
   rewardsClaimed?: unknown[];
   ativo?: boolean;
+  /** True during VERSUS preview / duel — strip blessings & expedition run % from stats. */
+  areCleanArenaRulesActive?: () => boolean;
+  beginCleanCombatStats?: () => void;
+  endCleanCombatStats?: () => void;
   softNavAway?: () => void;
   allRanks?: unknown[];
   viewedRankIndex?: number;
