@@ -42,6 +42,7 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - 10 builds in Offense / Defense / Sustain (Swift Caster, Blade Dancer, Executioner, Spell Fortress, Iron Wall, Trail Warden, **Phantom Step**, Mana Well, Vital Pulse, Arcane Channel)
 - **Phantom Step:** Evasion cards (`dodgeRatePct` ≥ 15) + Atk Spd (`atkSpeedPct` ≥ 20) → `+6` Evasion investment · `+5%` Atk Spd (stacks; soft-caps with gear)
 - Post-fight upgrade pool includes **Casting Speed** (`castSpeedPct`), **Max MP** (`maxMpPct`), and **Evasion** (`dodgeRatePct`, additive investment + soft-cap with gear) alongside Atk Spd / HP / CDR / etc.
+- Upgrade cards reuse **Blessing Build** art when mapped (`assets/blessings/<id>.png` via `UPGRADE_BLESSING_ICON`) with emoji fallback until the PNG exists.
 - **Legendary upgrade chance** after a win scales by path: combat **15%**, elite **30%**, boss **50%** (fallback 18%). Storm `luckLegendaryNext` still forces one legendary on the next win.
 - Thresholds tuned for **~4–7 dedicated card picks** per build (not 1–2); mastery at **3 / 5 / 7** is a mid/late-run goal
 - Mastery tiers at **3 / 5 / 7** unlocked builds (extra stacked % via `BUILD_MASTERY_TIERS`)

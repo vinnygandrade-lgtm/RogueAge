@@ -94,3 +94,5 @@ Path: `assets/blessings/<id>.png`
 ## Code
 
 `src/game/blessing_catalog.ts` → `getBlessingIconSrc(id)` → `assets/blessings/<id>.png`
+
+**Also used by:** Expedition post-fight upgrade cards (`ExpeditionEngine` / `UPGRADE_BLESSING_ICON`) — same PNG path; emoji glyph until the file exists.

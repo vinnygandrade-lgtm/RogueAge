@@ -189,6 +189,10 @@ interface ExpeditionNodeResult {
 interface UpgradeDef {
     id: string;
     icon: string;
+    /** Shared art with Grand Master Blessing Build (`assets/blessings/<id>.png`). */
+    blessingIconId?: string;
+    /** Accent for icon frame when using blessing art. */
+    iconColor?: string;
     stat: keyof ExpeditionRunBuffs;
     value: number;
     titleKey: string;
@@ -196,6 +200,33 @@ interface UpgradeDef {
     descKey: string;
     descFallback: string;
     legendary?: boolean;
+}
+
+/** Expedition upgrade id → Blessing Build icon id (same PNG). */
+const UPGRADE_BLESSING_ICON: Partial<Record<string, { blessingId: string; color: string }>> = {
+    patk: { blessingId: 'might', color: '#f87171' },
+    matk: { blessingId: 'empower', color: '#60a5fa' },
+    crit: { blessingId: 'focus', color: '#fb7185' },
+    evasion: { blessingId: 'guidance', color: '#6ee7b7' },
+    speed: { blessingId: 'haste', color: '#34d399' },
+    pdef: { blessingId: 'shield', color: '#fbbf24' },
+    mdef: { blessingId: 'magic_barrier', color: '#c084fc' },
+    vitality: { blessingId: 'vitality', color: '#4ade80' },
+    poison_res: { blessingId: 'poison_ward', color: '#86efac' },
+    bleed_res: { blessingId: 'bleed_ward', color: '#fca5a5' },
+    mp_efficiency: { blessingId: 'mana_efficiency', color: '#7dd3fc' },
+    cast_speed: { blessingId: 'acumen', color: '#a78bfa' },
+    max_mp: { blessingId: 'clarity', color: '#38bdf8' }
+};
+
+function enrichUpgradeArt(up: UpgradeDef): UpgradeDef {
+    const mapped = UPGRADE_BLESSING_ICON[up.id];
+    if (!mapped) return up;
+    return {
+        ...up,
+        blessingIconId: up.blessingIconId || mapped.blessingId,
+        iconColor: up.iconColor || mapped.color
+    };
 }
 
 /** Interactive path / rare-event offer shown in the node modal. */
@@ -430,7 +461,7 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
     }
 ];
 
-const UPGRADE_POOL: UpgradeDef[] = [
+const UPGRADE_POOL_RAW: UpgradeDef[] = [
     {
         id: 'patk',
         icon: '⚔️',
@@ -593,7 +624,9 @@ const UPGRADE_POOL: UpgradeDef[] = [
     }
 ];
 
-const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = [
+const UPGRADE_POOL: UpgradeDef[] = UPGRADE_POOL_RAW.map(enrichUpgradeArt);
+
+const LEGENDARY_UPGRADE_POOL_RAW: UpgradeDef[] = [
     {
         id: 'patk',
         icon: '⚔️',
@@ -672,6 +705,8 @@ const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = [
         descFallback: '+15% Max MP — much bigger mana pool this run.'
     }
 ];
+
+const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = LEGENDARY_UPGRADE_POOL_RAW.map(enrichUpgradeArt);
 
 const RARE_EVENT_TYPES: ExpeditionRareEventType[] = ['shrine', 'gambler', 'cache', 'storm'];
 
@@ -3076,6 +3111,31 @@ export class ExpeditionEngine {
         return { valueText, statLabel, tone };
     }
 
+    /** Icon frame: Blessing PNG when mapped, else emoji glyph fallback. */
+    static buildUpgradeIconHtml(up: UpgradeDef): string {
+        const glyph = up.icon || '✦';
+        const color = up.iconColor || '#c9a24f';
+        const blessingId = up.blessingIconId;
+        if (!blessingId) {
+            return `<span class="exp-upgrade-card__icon-frame exp-upgrade-card__icon-frame--emoji" style="--exp-icon:${color}" aria-hidden="true"><span class="exp-upgrade-card__glyph">${glyph}</span></span>`;
+        }
+        const win = window as Window & { getBlessingIconSrc?: (id: string) => string };
+        const src = typeof win.getBlessingIconSrc === 'function'
+            ? win.getBlessingIconSrc(blessingId)
+            : `assets/blessings/${blessingId}.png`;
+        const esc = (v: string) => String(v)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;');
+        return (
+            `<span class="exp-upgrade-card__icon-frame" style="--exp-icon:${esc(color)}" data-bless-icon="${esc(blessingId)}" aria-hidden="true">` +
+            `<span class="exp-upgrade-card__glyph">${glyph}</span>` +
+            `<img class="exp-upgrade-card__img" src="${esc(src)}" alt="" draggable="false" ` +
+            `onload="this.classList.add('is-ready')" onerror="this.remove()">` +
+            `</span>`
+        );
+    }
+
     static buildUpgradeLootMetricsHtml(loot: ExpeditionBagDelta): string {
         const labAdena = this.t('game.hunt.expedition.resultAdena', 'Adena');
         const labXp = this.t('game.hunt.expedition.resultXp', 'XP');
@@ -3129,11 +3189,15 @@ export class ExpeditionEngine {
         }
         return `<button type="button" class="exp-upgrade-card exp-upgrade-card--${up.id} exp-upgrade-card--${effect.tone}${up.legendary ? ' exp-upgrade-card--legendary' : ''}${advanced.length ? ' exp-upgrade-card--builds' : ''}${wouldUnlock.length ? ' exp-upgrade-card--unlocks' : ''}" onclick="ExpeditionEngine.pickUpgrade(${idx})">
             ${legend}
-            <span class="exp-upgrade-card__icon" aria-hidden="true">${up.icon}</span>
-            <span class="exp-upgrade-card__effect">${effect.valueText}</span>
-            <span class="exp-upgrade-card__stat">${effect.statLabel}</span>
-            <span class="exp-upgrade-card__title">${this.t(up.titleKey, up.titleFallback)}</span>
-            ${buildHint}
+            ${this.buildUpgradeIconHtml(up)}
+            <span class="exp-upgrade-card__body">
+                <span class="exp-upgrade-card__effect-row">
+                    <span class="exp-upgrade-card__effect">${effect.valueText}</span>
+                    <span class="exp-upgrade-card__stat">${effect.statLabel}</span>
+                </span>
+                <span class="exp-upgrade-card__title">${this.t(up.titleKey, up.titleFallback)}</span>
+                ${buildHint}
+            </span>
             <span class="exp-upgrade-card__pick">${this.t('game.hunt.expedition.upgradePick', 'Select')}</span>
         </button>`;
     }

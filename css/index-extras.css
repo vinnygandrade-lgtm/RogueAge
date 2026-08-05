@@ -6531,26 +6531,27 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .exp-upgrade-cards {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 .exp-upgrade-card {
+    --exp-card-accent: #c9a24f;
     position: relative;
     display: grid;
-    grid-template-columns: 40px minmax(0, 1fr) auto;
-    grid-template-areas:
-        "icon effect pick"
-        "icon stat pick"
-        "icon title pick";
+    grid-template-columns: 56px minmax(0, 1fr) auto;
     align-items: center;
-    column-gap: 10px;
-    row-gap: 1px;
+    column-gap: 12px;
     width: 100%;
-    min-height: 72px;
-    padding: 12px 12px 12px 10px;
-    border-radius: 12px;
-    border: 1px solid rgba(179, 138, 77, 0.38);
+    min-height: 84px;
+    padding: 12px 12px 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(179, 138, 77, 0.4);
+    border-left: 3px solid var(--exp-card-accent);
     background:
-        linear-gradient(180deg, rgba(40, 30, 18, 0.88), rgba(14, 11, 8, 0.96));
+        linear-gradient(105deg, color-mix(in srgb, var(--exp-card-accent) 14%, transparent) 0%, transparent 42%),
+        linear-gradient(180deg, rgba(42, 32, 20, 0.94), rgba(12, 10, 8, 0.98));
+    box-shadow:
+        inset 0 1px 0 rgba(245, 220, 160, 0.07),
+        0 4px 14px rgba(0, 0, 0, 0.28);
     cursor: pointer;
     text-align: left;
     color: inherit;
@@ -6560,23 +6561,75 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 }
 .exp-upgrade-card:hover,
 .exp-upgrade-card:focus-visible {
-    border-color: rgba(201, 162, 39, 0.65);
-    box-shadow: 0 0 16px rgba(201, 162, 39, 0.18);
+    border-color: color-mix(in srgb, var(--exp-card-accent) 70%, #f0c84a);
+    box-shadow:
+        inset 0 1px 0 rgba(245, 220, 160, 0.1),
+        0 0 18px color-mix(in srgb, var(--exp-card-accent) 28%, transparent);
     outline: none;
 }
 .exp-upgrade-card:active {
     transform: scale(0.985);
 }
-.exp-upgrade-card__icon {
-    grid-area: icon;
-    font-size: 26px;
+.exp-upgrade-card__icon-frame {
+    --exp-icon: #c9a24f;
+    position: relative;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--exp-icon) 55%, #3f2a14);
+    background:
+        linear-gradient(145deg, color-mix(in srgb, var(--exp-icon) 24%, #1a120c) 0%, #0c0a08 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 0 0 1px rgba(0, 0, 0, 0.35),
+        0 2px 10px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.exp-upgrade-card__icon-frame--emoji {
+    font-size: 1.45rem;
+}
+.exp-upgrade-card__glyph {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
     line-height: 1;
-    text-align: center;
+    z-index: 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+}
+.exp-upgrade-card__img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+.exp-upgrade-card__img.is-ready { opacity: 1; }
+.exp-upgrade-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+.exp-upgrade-card__effect-row {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    min-width: 0;
 }
 .exp-upgrade-card__effect {
-    grid-area: effect;
     font-family: 'Cinzel', serif;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 900;
     line-height: 1;
     letter-spacing: 0.02em;
@@ -6585,7 +6638,6 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .exp-upgrade-card--guard .exp-upgrade-card__effect { color: #7dcea0; }
 .exp-upgrade-card--legend .exp-upgrade-card__effect { color: #fde68a; }
 .exp-upgrade-card__stat {
-    grid-area: stat;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -6593,9 +6645,8 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     color: #b8a078;
 }
 .exp-upgrade-card__title {
-    grid-area: title;
     font-family: 'Cinzel', serif;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     color: #e8d5a8;
     letter-spacing: 0.03em;
@@ -6603,67 +6654,63 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     min-width: 0;
 }
 .exp-upgrade-card__pick {
-    grid-area: pick;
     align-self: center;
     flex-shrink: 0;
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 10px 12px;
-    border-radius: 8px;
+    padding: 12px 14px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
     color: #1a1208;
     background: linear-gradient(180deg, #d4a017 0%, #8a6410 55%, #5c420c 100%);
     border: 1px solid rgba(250, 204, 21, 0.45);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     font-family: 'Cinzel', serif;
 }
-.exp-upgrade-card--patk,
-.exp-upgrade-card--matk,
-.exp-upgrade-card--crit,
-.exp-upgrade-card--evasion,
-.exp-upgrade-card--speed,
-.exp-upgrade-card--pdef,
-.exp-upgrade-card--mdef,
-.exp-upgrade-card--vitality,
-.exp-upgrade-card--poison_res,
-.exp-upgrade-card--bleed_res,
-.exp-upgrade-card--hp_regen,
-.exp-upgrade-card--mp_regen,
-.exp-upgrade-card--mp_efficiency,
-.exp-upgrade-card--skill_cdr {
-    border-left-width: 3px;
-}
-.exp-upgrade-card--patk { border-left-color: #f87171; }
-.exp-upgrade-card--matk { border-left-color: #c4b5fd; }
-.exp-upgrade-card--crit { border-left-color: #facc15; }
-.exp-upgrade-card--evasion { border-left-color: #34d399; }
-.exp-upgrade-card--speed { border-left-color: #38bdf8; }
-.exp-upgrade-card--pdef { border-left-color: #6ee7b7; }
-.exp-upgrade-card--mdef { border-left-color: #a78bfa; }
-.exp-upgrade-card--vitality { border-left-color: #fb923c; }
-.exp-upgrade-card--poison_res { border-left-color: #86efac; }
-.exp-upgrade-card--bleed_res { border-left-color: #fca5a5; }
-.exp-upgrade-card--hp_regen { border-left-color: #4ade80; }
-.exp-upgrade-card--mp_regen { border-left-color: #60a5fa; }
-.exp-upgrade-card--mp_efficiency { border-left-color: #7dd3fc; }
-.exp-upgrade-card--skill_cdr { border-left-color: #fbbf24; }
+.exp-upgrade-card--patk { --exp-card-accent: #f87171; }
+.exp-upgrade-card--matk { --exp-card-accent: #60a5fa; }
+.exp-upgrade-card--crit { --exp-card-accent: #fb7185; }
+.exp-upgrade-card--evasion { --exp-card-accent: #6ee7b7; }
+.exp-upgrade-card--speed { --exp-card-accent: #34d399; }
+.exp-upgrade-card--pdef { --exp-card-accent: #fbbf24; }
+.exp-upgrade-card--mdef { --exp-card-accent: #c084fc; }
+.exp-upgrade-card--vitality { --exp-card-accent: #4ade80; }
+.exp-upgrade-card--poison_res { --exp-card-accent: #86efac; }
+.exp-upgrade-card--bleed_res { --exp-card-accent: #fca5a5; }
+.exp-upgrade-card--hp_regen { --exp-card-accent: #4ade80; }
+.exp-upgrade-card--mp_regen { --exp-card-accent: #60a5fa; }
+.exp-upgrade-card--mp_efficiency { --exp-card-accent: #7dd3fc; }
+.exp-upgrade-card--skill_cdr { --exp-card-accent: #fbbf24; }
+.exp-upgrade-card--cast_speed { --exp-card-accent: #a78bfa; }
+.exp-upgrade-card--max_mp { --exp-card-accent: #38bdf8; }
 .exp-upgrade-card--legendary {
     border-color: rgba(250, 204, 21, 0.55);
     background:
-        linear-gradient(180deg, rgba(72, 48, 14, 0.9), rgba(20, 14, 8, 0.98));
-    box-shadow: 0 0 18px rgba(250, 204, 21, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    padding-top: 26px;
+        linear-gradient(105deg, rgba(250, 204, 21, 0.16) 0%, transparent 45%),
+        linear-gradient(180deg, rgba(72, 48, 14, 0.92), rgba(20, 14, 8, 0.98));
+    box-shadow: 0 0 18px rgba(250, 204, 21, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    padding-top: 28px;
 }
 .exp-upgrade-card--legendary:hover,
 .exp-upgrade-card--legendary:focus-visible {
     border-color: rgba(253, 224, 71, 0.75);
-    box-shadow: 0 0 22px rgba(250, 204, 21, 0.22);
+    box-shadow: 0 0 22px rgba(250, 204, 21, 0.24);
+}
+.exp-upgrade-card--legendary .exp-upgrade-card__icon-frame {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 0 1px rgba(250, 204, 21, 0.35),
+        0 0 14px rgba(250, 204, 21, 0.22);
 }
 .exp-upgrade-card__legend {
     position: absolute;
     top: 8px;
-    left: 10px;
+    left: 12px;
     right: auto;
     font-size: 7px;
     font-weight: 900;
@@ -6676,13 +6723,15 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
     z-index: 1;
 }
+.exp-upgrade-card__build-hint {
+    margin: 1px 0 0;
+}
 
-/* Legacy hooks kept harmless */
+/* Legacy hooks kept harmless (do not hide .exp-upgrade-card__body — live layout) */
 .exp-upgrade-stats-panel,
 .exp-upgrade-buff-details,
 .exp-upgrade-buff-details-btn,
-.exp-upgrade-card__desc,
-.exp-upgrade-card__body {
+.exp-upgrade-card__desc {
     display: none;
 }
 
