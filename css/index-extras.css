@@ -4401,6 +4401,19 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .exp-node-icon-wrap--chest { border-color: rgba(250, 204, 21, 0.55); box-shadow: 0 0 16px rgba(250, 204, 21, 0.2); }
 .exp-node-icon-wrap--boss { border-color: rgba(249, 115, 22, 0.55); box-shadow: 0 0 20px rgba(249, 115, 22, 0.25); }
 .exp-node-icon { font-size: 34px; line-height: 1; }
+.exp-node-icon-wrap--art {
+    border-radius: 16px;
+    overflow: hidden;
+}
+.exp-node-icon.exp-path-art {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+}
 .exp-node-desc {
     margin: 0 0 14px;
     color: #cbd5e1;
@@ -4606,13 +4619,13 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 
 /* Roguelike expedition — journey paths + upgrade cards */
 .expedition-panel--rogue {
-    border-color: rgba(167, 139, 250, 0.22);
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(230, 194, 138, 0.06);
+    border-color: rgba(179, 138, 77, 0.28);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(230, 194, 138, 0.08);
 }
 .expedition-map-header--rogue {
     padding: 10px 12px 8px;
-    border-bottom: 1px solid rgba(167, 139, 250, 0.12);
-    background: linear-gradient(180deg, rgba(46, 16, 101, 0.18), transparent);
+    border-bottom: 1px solid rgba(179, 138, 77, 0.18);
+    background: linear-gradient(180deg, rgba(48, 36, 22, 0.55), transparent);
 }
 .expedition-map-header--compact {
     padding-bottom: 8px;
@@ -4671,31 +4684,33 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    padding: 6px 8px;
-    border-radius: 10px;
-    background: linear-gradient(165deg, rgba(76, 29, 149, 0.55), rgba(30, 10, 60, 0.85));
-    border: 1px solid rgba(167, 139, 250, 0.45);
-    box-shadow: 0 0 12px rgba(124, 58, 237, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    min-width: 48px;
+    padding: 7px 9px;
+    border-radius: 12px;
+    background:
+        radial-gradient(circle at 30% 20%, rgba(250, 204, 21, 0.18), transparent 55%),
+        linear-gradient(165deg, rgba(56, 40, 22, 0.95), rgba(18, 14, 10, 0.98));
+    border: 1px solid rgba(201, 162, 39, 0.5);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(245, 220, 160, 0.12);
 }
 .expedition-journey-badge__eyebrow {
     font-size: 7px;
     font-weight: 800;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #c4b5fd;
+    color: #b8a078;
 }
 .expedition-journey-badge__num {
     font-family: 'Cinzel', serif;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     line-height: 1;
     color: #fde68a;
-    text-shadow: 0 0 10px rgba(250, 204, 21, 0.3);
+    text-shadow: 0 1px 2px #000, 0 0 10px rgba(250, 204, 21, 0.25);
 }
 .expedition-map-header--rogue .expedition-map-header__title {
     font-size: 13px;
-    background: linear-gradient(90deg, #e6c28a, #c4b5fd);
+    background: linear-gradient(90deg, #f3e6c0, #c9a24f);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -4879,30 +4894,31 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .expedition-path-section--hero {
     flex: 0 0 auto;
     margin-bottom: 0;
-    padding: 10px 8px 12px;
+    padding: 12px 10px 14px;
 }
 .expedition-path-section--action-focus {
-    border: 1px solid rgba(250, 204, 21, 0.45);
-    background: linear-gradient(165deg, rgba(46, 32, 18, 0.92), rgba(46, 16, 101, 0.35));
+    border: 1px solid rgba(201, 162, 39, 0.42);
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(250, 204, 21, 0.1), transparent 55%),
+        linear-gradient(165deg, rgba(42, 32, 20, 0.96), rgba(12, 10, 8, 0.99));
     box-shadow:
-        0 0 0 1px rgba(167, 139, 250, 0.15),
-        0 0 24px rgba(250, 204, 21, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    animation: expedition-path-section-glow 2.4s ease-in-out infinite;
+        0 0 0 1px rgba(179, 138, 77, 0.12),
+        0 8px 22px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(245, 220, 160, 0.08);
 }
 .expedition-path-section--opening {
-    border-color: rgba(148, 163, 184, 0.5);
+    border-color: rgba(148, 163, 184, 0.4);
     box-shadow:
-        0 0 0 1px rgba(148, 163, 184, 0.2),
-        0 0 22px rgba(148, 163, 184, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        0 0 0 1px rgba(148, 163, 184, 0.12),
+        0 8px 20px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .expedition-path-section--action-focus .expedition-path-section__label {
-    color: #fde68a;
-    text-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
+    color: #f3e6c0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
-.expedition-path-section--action-focus .expedition-path-section__glyph {
-    animation: expedition-path-glyph-bounce 1.8s ease-in-out infinite;
+.expedition-path-section--action-focus .expedition-path-section__kicker {
+    color: #c9a24f;
 }
 .expedition-opening-banner {
     margin-bottom: 10px;
@@ -4964,23 +4980,13 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .expedition-path-section--intel-safe {
     border-color: rgba(74, 222, 128, 0.28);
 }
-@keyframes expedition-path-section-glow {
-    0%, 100% { box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.15), 0 0 20px rgba(250, 204, 21, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
-    50% { box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.35), 0 0 28px rgba(250, 204, 21, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
-}
-@keyframes expedition-path-glyph-bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(3px); }
-}
 @media (prefers-reduced-motion: reduce) {
-    .expedition-path-section--action-focus,
-    .expedition-path-section--action-focus .expedition-path-section__glyph,
     .expedition-path-card--cta {
         animation: none !important;
     }
 }
 .expedition-path-section--hero .expedition-path-section__head {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 .expedition-run-buffs--compact {
     flex-shrink: 0;
@@ -6018,54 +6024,97 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 }
 .expedition-path-section__head {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 12px;
 }
+.expedition-path-section__kicker {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #a89878;
+}
 .expedition-path-section__glyph {
-    font-size: 18px;
-    line-height: 1;
-    filter: drop-shadow(0 0 6px rgba(196, 181, 253, 0.4));
+    display: none;
 }
 .expedition-path-section__label {
     font-family: 'Cinzel', serif;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #e6c28a;
     margin: 0;
     text-align: center;
+    line-height: 1.35;
+    max-width: 22em;
 }
 .expedition-path-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 10px;
 }
+/* Shared path art (cards + node modal) */
+.exp-path-art {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.exp-path-art__glyph {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.55rem;
+    line-height: 1;
+    z-index: 0;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
+}
+.exp-path-art__img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+}
+.exp-path-art__img.is-ready { opacity: 1; }
 .expedition-path-card {
+    --exp-path-accent: #c9a24f;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-end;
-    gap: 4px;
-    min-height: 105px;
-    padding: 24px 6px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(179, 138, 77, 0.28);
-    background: linear-gradient(165deg, rgba(28, 22, 18, 0.95), rgba(12, 10, 14, 0.98));
+    gap: 8px;
+    min-height: 148px;
+    padding: 28px 8px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(179, 138, 77, 0.32);
+    border-top: 3px solid var(--exp-path-accent);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--exp-path-accent) 12%, transparent) 0%, transparent 42%),
+        linear-gradient(165deg, rgba(32, 24, 16, 0.97), rgba(10, 8, 8, 0.99));
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
     -webkit-tap-highlight-color: transparent;
     overflow: hidden;
+    color: inherit;
+    font: inherit;
+    text-align: center;
 }
 .expedition-path-card::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08), transparent 55%);
+    background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.08), transparent 50%);
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.15s ease;
@@ -6075,64 +6124,100 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     opacity: 1;
 }
 .expedition-path-card:active {
-    transform: scale(0.96);
+    transform: scale(0.97);
 }
 .expedition-path-card__badge {
     position: absolute;
-    top: 6px;
+    top: 7px;
     left: 50%;
     transform: translateX(-50%);
     font-size: 7px;
     font-weight: 900;
     letter-spacing: 0.1em;
-    padding: 3px 7px;
+    padding: 3px 8px;
     border-radius: 999px;
     white-space: nowrap;
+    z-index: 2;
 }
 .expedition-path-card__badge--upgrade {
     color: #fde68a;
-    background: rgba(120, 53, 15, 0.55);
-    border: 1px solid rgba(250, 204, 21, 0.4);
+    background: rgba(120, 53, 15, 0.7);
+    border: 1px solid rgba(250, 204, 21, 0.45);
 }
 .expedition-path-card__badge--safe {
     color: #bbf7d0;
-    background: rgba(6, 78, 59, 0.45);
-    border: 1px solid rgba(52, 211, 153, 0.35);
+    background: rgba(6, 78, 59, 0.55);
+    border: 1px solid rgba(52, 211, 153, 0.4);
 }
-.expedition-path-card--combat { border-top: 2px solid #94a3b8; }
-.expedition-path-card--boss {
-    border-top: 2px solid #f97316;
-    box-shadow: 0 0 16px rgba(249, 115, 22, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+.expedition-path-card__badge--risk {
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.6);
+    border: 1px solid rgba(248, 113, 113, 0.5);
 }
-.expedition-path-card--chest { border-top: 2px solid #facc15; }
-.expedition-path-card--elite { border-top: 2px solid #ef4444; }
-.expedition-path-card--merchant { border-top: 2px solid #eab308; }
-.expedition-path-card--forge { border-top: 2px solid #f97316; }
-.expedition-path-card--scout { border-top: 2px solid #38bdf8; }
-.expedition-path-card--patrol { border-top: 2px solid #a3e635; }
-.expedition-path-card--tracks { border-top: 2px solid #94a3b8; }
-.expedition-path-card--warhorn { border-top: 2px solid #c084fc; }
-.expedition-path-card--ambush { border-top: 2px solid #4ade80; }
+.expedition-path-card__badge--boss,
+.expedition-path-card__badge--milestone {
+    color: #1a1208;
+    background: linear-gradient(180deg, #fdba74, #f97316);
+    border: 1px solid rgba(251, 146, 60, 0.65);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.35);
+}
+.expedition-path-card--combat { --exp-path-accent: #94a3b8; }
+.expedition-path-card--boss { --exp-path-accent: #f97316; }
+.expedition-path-card--chest { --exp-path-accent: #facc15; }
+.expedition-path-card--elite { --exp-path-accent: #ef4444; }
+.expedition-path-card--merchant { --exp-path-accent: #eab308; }
+.expedition-path-card--forge { --exp-path-accent: #fb923c; }
+.expedition-path-card--scout { --exp-path-accent: #38bdf8; }
+.expedition-path-card--patrol { --exp-path-accent: #a3e635; }
+.expedition-path-card--tracks { --exp-path-accent: #94a3b8; }
+.expedition-path-card--warhorn { --exp-path-accent: #c084fc; }
+.expedition-path-card--ambush { --exp-path-accent: #4ade80; }
+.expedition-path-card--tone-fight {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 14px color-mix(in srgb, var(--exp-path-accent) 18%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.expedition-path-card--tone-risk {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 16px rgba(248, 113, 113, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.expedition-path-card__art {
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--exp-path-accent) 55%, #3f2a14);
+    background:
+        linear-gradient(145deg, color-mix(in srgb, var(--exp-path-accent) 22%, #1a120c) 0%, #0c0a08 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 2px 10px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+}
+.expedition-path-card__art .exp-path-art__glyph {
+    font-size: 1.7rem;
+}
+.expedition-path-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    width: 100%;
+}
 .expedition-path-card__icon {
-    font-size: 26px;
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+    display: none;
 }
 .expedition-path-card__label {
     font-family: 'Cinzel', serif;
-    font-size: 9px;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #f1f5f9;
+    color: #f3e6c0;
     text-align: center;
-    line-height: 1.25;
+    line-height: 1.2;
 }
 .expedition-path-card__hint {
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 600;
-    line-height: 1.25;
-    color: #94a3b8;
+    line-height: 1.3;
+    color: #a89878;
     text-align: center;
     max-width: 100%;
     padding: 0 2px;
@@ -6155,58 +6240,57 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 }
 .expedition-path-grid--solo {
     grid-template-columns: minmax(0, 1fr);
-    max-width: 220px;
+    max-width: 240px;
     margin: 0 auto;
 }
 .expedition-path-grid--duo {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 280px;
+    max-width: 300px;
     margin: 0 auto;
-    gap: 10px;
-}
-.expedition-path-card--cta {
-    border-color: rgba(250, 204, 21, 0.42);
-    box-shadow:
-        0 4px 18px rgba(0, 0, 0, 0.4),
-        0 0 18px rgba(250, 204, 21, 0.14),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    animation: expedition-path-card-pulse 2.2s ease-in-out infinite;
+    gap: 12px;
 }
 .expedition-path-card--cta:focus-visible {
     outline: 2px solid #fde68a;
     outline-offset: 2px;
 }
-.expedition-path-card--opening {
-    min-height: 112px;
-    border-color: rgba(148, 163, 184, 0.45);
+.expedition-path-card--cta:hover,
+.expedition-path-card--cta:focus-visible {
+    border-color: color-mix(in srgb, var(--exp-path-accent) 70%, #f0c84a);
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.45),
+        0 0 18px color-mix(in srgb, var(--exp-path-accent) 28%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
-.expedition-path-card--opening .expedition-path-card__icon {
-    font-size: 34px;
+.expedition-path-card--opening {
+    min-height: 156px;
+}
+.expedition-path-card--opening .expedition-path-card__art {
+    width: 72px;
+    height: 72px;
 }
 .expedition-path-section--solo .expedition-path-card--cta {
-    min-height: 118px;
-    padding-bottom: 12px;
+    min-height: 168px;
+    padding-bottom: 14px;
+}
+.expedition-path-section--solo .expedition-path-card__art {
+    width: 80px;
+    height: 80px;
 }
 .expedition-path-section--duo .expedition-path-card--cta {
-    min-height: 104px;
-}
-@keyframes expedition-path-card-pulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4), 0 0 16px rgba(250, 204, 21, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
-    50% { transform: scale(1.02); box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45), 0 0 24px rgba(250, 204, 21, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.1); }
-}
-.expedition-path-card__badge--milestone {
-    color: #fde68a;
-    background: rgba(124, 45, 18, 0.65);
-    border: 1px solid rgba(251, 146, 60, 0.55);
-    box-shadow: 0 0 10px rgba(249, 115, 22, 0.25);
+    min-height: 158px;
 }
 .expedition-path-card--milestone {
-    min-height: 108px;
-    border-color: rgba(251, 146, 60, 0.45);
+    min-height: 170px;
+    border-color: rgba(251, 146, 60, 0.5);
     box-shadow: 0 0 22px rgba(249, 115, 22, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
-.expedition-path-card--milestone .expedition-path-card__icon {
-    font-size: 32px;
+.expedition-path-card--milestone .expedition-path-card__art {
+    width: 80px;
+    height: 80px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 0 1px rgba(249, 115, 22, 0.35),
+        0 0 16px rgba(249, 115, 22, 0.25);
 }
 
 .expedition-rare-event {

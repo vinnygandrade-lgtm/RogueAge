@@ -2059,7 +2059,10 @@ export class ExpeditionEngine {
         const cancelBtn = document.getElementById('exp-node-cancel');
 
         if (titleEl) titleEl.innerText = opts.title;
-        if (iconEl) iconEl.innerText = opts.icon;
+        if (iconEl) {
+            iconEl.className = 'exp-node-icon';
+            iconEl.innerText = opts.icon;
+        }
         if (iconWrap) {
             iconWrap.className = `exp-node-icon-wrap exp-node-icon-wrap--${opts.toneClass || 'merchant'}`;
         }
@@ -3712,12 +3715,50 @@ export class ExpeditionEngine {
         this.syncRunBgm();
     }
 
+    /** Path card / node art — drop PNGs in `assets/expedition/paths/<type>.png`. */
+    static getPathArtSrc(type: ExpeditionPathType): string {
+        return `assets/expedition/paths/${type}.png`;
+    }
+
+    /** fight = combat upgrade route · risk = ambush · safe = no fight */
+    static getPathTone(type: ExpeditionPathType): 'fight' | 'safe' | 'risk' {
+        if (type === 'ambush') return 'risk';
+        if (type === 'combat' || type === 'boss' || type === 'elite') return 'fight';
+        return 'safe';
+    }
+
+    static buildPathArtInnerHtml(type: ExpeditionPathType, glyph: string): string {
+        const src = this.getPathArtSrc(type);
+        const esc = (v: string) => String(v)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;');
+        return (
+            `<span class="exp-path-art__glyph" aria-hidden="true">${glyph}</span>` +
+            `<img class="exp-path-art__img" src="${esc(src)}" alt="" draggable="false" ` +
+            `onload="this.classList.add('is-ready')" onerror="this.remove()">`
+        );
+    }
+
+    static applyPathArtToNodeIcon(type: ExpeditionPathType, glyph: string): void {
+        const wrap = document.getElementById('exp-node-icon-wrap');
+        const iconEl = document.getElementById('exp-node-icon');
+        if (wrap) {
+            wrap.className = `exp-node-icon-wrap exp-node-icon-wrap--${type} exp-node-icon-wrap--art`;
+        }
+        if (iconEl) {
+            iconEl.className = 'exp-node-icon exp-path-art';
+            iconEl.innerHTML = this.buildPathArtInnerHtml(type, glyph);
+        }
+    }
+
     static getPathCardMeta(type: ExpeditionPathType, opts?: { milestone?: boolean }) {
         const meta = this.getPathMeta(type);
-        const grantsUpgrade = type === 'combat' || type === 'boss' || type === 'elite';
+        const tone = this.getPathTone(type);
         if (opts?.milestone && type === 'boss') {
             return {
                 ...meta,
+                tone,
                 hint: this.t('game.hunt.expedition.pathCardHintMilestoneBoss', 'Required gate · every 10 journeys'),
                 badge: this.t('game.hunt.expedition.pathBadgeMilestone', 'MILESTONE'),
                 badgeCls: 'expedition-path-card__badge--milestone'
@@ -3749,13 +3790,27 @@ export class ExpeditionEngine {
             warhorn: 'Pick a rally cry',
             ambush: 'Risk · loot or pain'
         };
+        let badge: string;
+        let badgeCls: string;
+        if (type === 'boss') {
+            badge = this.t('game.hunt.expedition.pathBadgeBoss', 'BOSS');
+            badgeCls = 'expedition-path-card__badge--boss';
+        } else if (tone === 'fight') {
+            badge = this.t('game.hunt.expedition.pathBadgeUpgrade', 'UPGRADE');
+            badgeCls = 'expedition-path-card__badge--upgrade';
+        } else if (tone === 'risk') {
+            badge = this.t('game.hunt.expedition.pathBadgeRisk', 'RISK');
+            badgeCls = 'expedition-path-card__badge--risk';
+        } else {
+            badge = this.t('game.hunt.expedition.pathBadgeSafe', 'SAFE');
+            badgeCls = 'expedition-path-card__badge--safe';
+        }
         return {
             ...meta,
+            tone,
             hint: this.t(hintKeys[type], hintFallbacks[type]),
-            badge: grantsUpgrade
-                ? this.t('game.hunt.expedition.pathBadgeUpgrade', 'UPGRADE')
-                : this.t('game.hunt.expedition.pathBadgeSafe', 'SAFE'),
-            badgeCls: grantsUpgrade ? 'expedition-path-card__badge--upgrade' : 'expedition-path-card__badge--safe'
+            badge,
+            badgeCls
         };
     }
 
@@ -3909,11 +3964,13 @@ export class ExpeditionEngine {
         this.state.pathChoices.forEach((choice, idx) => {
             const card = this.getPathCardMeta(choice.type, { milestone });
             pathsHtml += `
-            <button type="button" class="expedition-path-card expedition-path-card--cta expedition-path-card--${choice.type}${milestone ? ' expedition-path-card--milestone' : ''}${opening ? ' expedition-path-card--opening' : ''}" onclick="ExpeditionEngine.clickPath(${idx})">
+            <button type="button" class="expedition-path-card expedition-path-card--cta expedition-path-card--${choice.type} expedition-path-card--tone-${card.tone}${milestone ? ' expedition-path-card--milestone' : ''}${opening ? ' expedition-path-card--opening' : ''}" onclick="ExpeditionEngine.clickPath(${idx})">
                 <span class="expedition-path-card__badge ${card.badgeCls}">${card.badge}</span>
-                <span class="expedition-path-card__icon">${card.icon}</span>
-                <span class="expedition-path-card__label">${card.label}</span>
-                <span class="expedition-path-card__hint">${card.hint}</span>
+                <span class="expedition-path-card__art exp-path-art" aria-hidden="true">${this.buildPathArtInnerHtml(choice.type, card.icon)}</span>
+                <span class="expedition-path-card__body">
+                    <span class="expedition-path-card__label">${card.label}</span>
+                    <span class="expedition-path-card__hint">${card.hint}</span>
+                </span>
             </button>`;
         });
 
@@ -3970,7 +4027,11 @@ export class ExpeditionEngine {
             biasThis ? 'expedition-path-section--intel-' + biasThis : ''
         ].filter(Boolean).join(' ');
 
-        const headGlyph = opening ? '⚔️' : milestone ? '👹' : '👇';
+        const headKicker = milestone
+            ? this.t('game.hunt.expedition.pathSectionKickerBoss', 'Gate')
+            : opening
+                ? this.t('game.hunt.expedition.pathSectionKickerOpening', 'Opening')
+                : this.t('game.hunt.expedition.pathSectionKicker', 'Routes');
 
         return `
                 ${milestoneBanner}
@@ -3980,7 +4041,7 @@ export class ExpeditionEngine {
                 ${pendingIntelBanner}
                 <div class="expedition-path-section ${sectionMods}" role="region" aria-label="${pickHint}">
                     <div class="expedition-path-section__head">
-                        <span class="expedition-path-section__glyph" aria-hidden="true">${headGlyph}</span>
+                        <span class="expedition-path-section__kicker">${headKicker}</span>
                         <div class="expedition-path-section__label">${pickHint}</div>
                     </div>
                     <div class="${gridClass}">${pathsHtml}</div>
@@ -4612,15 +4673,12 @@ export class ExpeditionEngine {
         const win = window as any;
 
         const titleEl = document.getElementById('exp-node-title');
-        const iconWrap = document.getElementById('exp-node-icon-wrap');
-        const iconEl = document.getElementById('exp-node-icon');
         const descEl = document.getElementById('exp-node-desc');
         const outcomesEl = document.getElementById('exp-node-outcomes-list');
         const tagsEl = document.getElementById('exp-node-tags');
 
         if (titleEl) titleEl.innerText = preview.title;
-        if (iconEl) iconEl.innerText = preview.icon;
-        if (iconWrap) iconWrap.className = `exp-node-icon-wrap exp-node-icon-wrap--${choice.type}`;
+        this.applyPathArtToNodeIcon(choice.type, preview.icon);
         if (descEl) descEl.innerText = preview.desc;
         if (outcomesEl) outcomesEl.innerHTML = preview.outcomes.map((line) => `<li>${line}</li>`).join('');
         if (tagsEl) {
