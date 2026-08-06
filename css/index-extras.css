@@ -3689,36 +3689,38 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .expedition-hub__steps {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 .expedition-hub__step {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 9px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(90, 70, 52, 0.7);
-    background: rgba(0, 0, 0, 0.28);
+    gap: 12px;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(179, 138, 77, 0.28);
+    background: rgba(0, 0, 0, 0.32);
 }
 .expedition-hub__step-num {
     flex: 0 0 auto;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 6px;
-    border: 1px solid rgba(201, 162, 39, 0.4);
-    background: rgba(40, 30, 18, 0.9);
+    border-radius: 8px;
+    border: 1px solid rgba(250, 204, 21, 0.45);
+    background: linear-gradient(180deg, #d4a017, #8a6410);
     font-family: 'Cinzel', serif;
-    font-size: 0.78em;
+    font-size: 0.8em;
     font-weight: 900;
-    color: #e8c547;
+    color: #1a1208;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .expedition-hub__step-text {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
-    color: #e7e0d4;
+    color: #e8d5a8;
     line-height: 1.3;
 }
 .expedition-hub__actions {
@@ -3913,7 +3915,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     padding: 0;
     font-size: 10px;
     font-weight: 600;
-    color: #c4b5fd;
+    color: #b8a078;
     letter-spacing: 0.05em;
     line-height: 1.2;
 }
@@ -3929,7 +3931,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     height: 100%;
     width: var(--exp-progress, 0%);
     border-radius: inherit;
-    background: linear-gradient(90deg, #7c3aed, #facc15);
+    background: linear-gradient(90deg, #8a6410, #facc15);
     box-shadow: 0 0 10px rgba(250, 204, 21, 0.35);
     transition: width 0.35s ease;
 }
@@ -3942,15 +3944,16 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 }
 .expedition-map-header__rules {
     flex-shrink: 0;
-    min-height: 38px;
+    min-height: 40px;
     min-width: 68px;
     padding: 0 12px;
     font-size: 9px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    background: rgba(30, 27, 75, 0.9) !important;
-    border: 1px solid rgba(167, 139, 250, 0.35) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    background: rgba(28, 22, 16, 0.95) !important;
+    border: 1px solid rgba(179, 138, 77, 0.4) !important;
+    color: #e8d5a8 !important;
+    box-shadow: inset 0 1px 0 rgba(245, 220, 160, 0.08);
 }
 
 /* Vertical path — scroll inside panel on mobile */
@@ -4357,7 +4360,8 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(230, 194, 138, 0.08);
 }
 .expedition-node-window__header {
-    background: linear-gradient(90deg, #1a1612, #312e81, #1a1612);
+    background: linear-gradient(90deg, #1c1410, #3a2a18, #1c1410);
+    border-bottom: 1px solid rgba(201, 162, 39, 0.28);
 }
 .expedition-node-window__header span {
     letter-spacing: 0.08em;
@@ -4377,15 +4381,15 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .exp-node-icon-wrap--guardian { border-color: rgba(234, 179, 8, 0.55); box-shadow: 0 0 18px rgba(234, 179, 8, 0.22); }
 .exp-node-icon-wrap--merchant { border-color: rgba(56, 189, 248, 0.55); box-shadow: 0 0 16px rgba(56, 189, 248, 0.2); }
 .exp-node-icon-wrap {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 12px;
-    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 14px;
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid rgba(255, 255, 255, 0.12);
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), transparent 55%), rgba(0,0,0,0.4);
+    border: 2px solid rgba(179, 138, 77, 0.35);
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), transparent 55%), rgba(0,0,0,0.45);
     box-shadow: 0 4px 16px rgba(0,0,0,0.4);
 }
 .exp-node-icon-wrap--combat { border-color: rgba(148, 163, 184, 0.5); box-shadow: 0 0 16px rgba(148, 163, 184, 0.15); }
@@ -4608,13 +4612,15 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .exp-result-line__val--buff { color: #fde68a; }
 .exp-result-continue {
     width: 100%;
-    min-height: 46px;
-    margin-top: 4px;
+    min-height: 48px;
+    margin-top: 6px;
     font-family: 'Cinzel', serif;
     letter-spacing: 0.06em;
-    background: linear-gradient(180deg, #44403c, #292524) !important;
-    border: 1px solid rgba(179, 138, 77, 0.45) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    font-weight: 900;
+    color: #1a1208 !important;
+    background: linear-gradient(180deg, #d4a017 0%, #8a6410 55%, #5c420c 100%) !important;
+    border: 1px solid rgba(250, 204, 21, 0.45) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 /* Roguelike expedition — journey paths + upgrade cards */
@@ -4651,12 +4657,15 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    padding: 6px 10px;
+    min-height: 30px;
+    padding: 7px 11px;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(0, 0, 0, 0.45);
-    color: #e2e8f0;
+    border: 1px solid rgba(179, 138, 77, 0.28);
+    background: rgba(0, 0, 0, 0.5);
+    color: #e8d5a8;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
 }
 .expedition-meta-chip--gold {
     color: #fde047;
@@ -5004,32 +5013,33 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .expedition-run-tabs {
     display: flex;
     flex-shrink: 0;
-    gap: 6px;
-    padding: 2px;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(167, 139, 250, 0.22);
+    gap: 4px;
+    padding: 3px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(179, 138, 77, 0.28);
 }
 .expedition-run-tab {
     flex: 1;
     min-width: 0;
-    min-height: 36px;
-    padding: 6px 4px;
+    min-height: 40px;
+    padding: 8px 4px;
     border: 1px solid transparent;
-    border-radius: 8px;
+    border-radius: 9px;
     background: transparent;
-    color: #94a3b8;
+    color: #a89878;
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 .expedition-run-tab--active {
-    background: rgba(76, 29, 149, 0.45);
-    border-color: rgba(167, 139, 250, 0.45);
-    color: #f8fafc;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    background: linear-gradient(180deg, rgba(72, 52, 28, 0.85), rgba(36, 26, 14, 0.95));
+    border-color: rgba(201, 162, 39, 0.5);
+    color: #f3e6c0;
+    box-shadow: inset 0 1px 0 rgba(245, 220, 160, 0.1), 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 .expedition-run-tab--has-builds {
     color: #fde68a;
@@ -5041,8 +5051,8 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 }
 .expedition-run-tab:not(.expedition-run-tab--active):not(:disabled):hover,
 .expedition-run-tab:not(.expedition-run-tab--active):not(:disabled):focus-visible {
-    color: #e2e8f0;
-    border-color: rgba(167, 139, 250, 0.25);
+    color: #e8d5a8;
+    border-color: rgba(179, 138, 77, 0.35);
     background: rgba(255, 255, 255, 0.04);
 }
 .expedition-run-panel {
@@ -5062,10 +5072,10 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     flex: 1 1 0;
     min-height: 0;
     overflow-y: auto;
-    padding: 10px;
-    border-radius: 10px;
-    background: rgba(0, 0, 0, 0.32);
-    border: 1px solid rgba(167, 139, 250, 0.28);
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(179, 138, 77, 0.28);
     -webkit-overflow-scrolling: touch;
 }
 .exp-run-stats-panel__section {
@@ -5078,7 +5088,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #c4b5fd;
+    color: #c9a24f;
     margin-bottom: 8px;
 }
 .exp-run-stats-legend {
@@ -5122,8 +5132,8 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #a78bfa;
-    border-top: 1px solid rgba(167, 139, 250, 0.18);
+    color: #c9a24f;
+    border-top: 1px solid rgba(179, 138, 77, 0.22);
 }
 .exp-run-stats-table__group:first-of-type {
     margin-top: 0;
@@ -5171,14 +5181,14 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .exp-run-upgrades-block {
     margin-top: 14px;
     padding-top: 12px;
-    border-top: 1px solid rgba(167, 139, 250, 0.22);
+    border-top: 1px solid rgba(179, 138, 77, 0.25);
 }
 .exp-run-upgrades-block__label {
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #a78bfa;
+    color: #c9a24f;
     margin-bottom: 8px;
 }
 .exp-run-upgrades-empty {
@@ -5217,8 +5227,8 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     background: rgba(30, 58, 138, 0.28);
 }
 .exp-run-upgrade-chip--resist {
-    border-color: rgba(167, 139, 250, 0.35);
-    background: rgba(76, 29, 149, 0.25);
+    border-color: rgba(192, 132, 252, 0.35);
+    background: rgba(60, 40, 90, 0.28);
 }
 .exp-run-upgrade-chip--forge {
     border-color: rgba(250, 204, 21, 0.4);
@@ -5432,15 +5442,15 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     margin: 0 0 10px;
     padding: 8px 10px;
     border-radius: 8px;
-    background: rgba(167, 139, 250, 0.1);
-    border: 1px solid rgba(167, 139, 250, 0.28);
+    background: rgba(201, 162, 39, 0.08);
+    border: 1px solid rgba(179, 138, 77, 0.3);
 }
 .exp-build-stack__title {
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #c4b5fd;
+    color: #c9a24f;
     margin-bottom: 6px;
 }
 .exp-build-stack__list {
@@ -5451,7 +5461,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     gap: 3px;
     font-size: 10px;
     font-weight: 600;
-    color: #e9d5ff;
+    color: #e8d5a8;
     line-height: 1.35;
 }
 .exp-run-upgrade-chip--has-build {
@@ -5899,11 +5909,12 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .expedition-bag-bar__extract {
     flex: 1 1 0;
     width: auto;
-    min-height: 42px !important;
+    min-height: 46px !important;
     min-width: 0;
     max-width: none;
-    padding: 8px 10px !important;
+    padding: 10px 12px !important;
     font-size: 10px !important;
+    font-weight: 800;
     line-height: 1.15;
     white-space: normal;
     text-align: center;
@@ -6298,27 +6309,29 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 }
 .expedition-rare-event__banner {
     margin-bottom: 8px;
-    padding: 8px 10px;
-    border-radius: 8px;
+    padding: 9px 12px;
+    border-radius: 10px;
     text-align: center;
     font-size: 9px;
     font-weight: 800;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #e9d5ff;
-    background: rgba(76, 29, 149, 0.45);
-    border: 1px solid rgba(167, 139, 250, 0.4);
+    color: #fde68a;
+    background: rgba(72, 48, 14, 0.55);
+    border: 1px solid rgba(250, 204, 21, 0.4);
 }
 .expedition-rare-event__card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 14px 12px;
-    border-radius: 12px;
-    background: linear-gradient(165deg, rgba(46, 16, 101, 0.5), rgba(12, 10, 14, 0.98));
-    border: 1px solid rgba(167, 139, 250, 0.35);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    gap: 10px;
+    padding: 16px 14px;
+    border-radius: 14px;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(250, 204, 21, 0.1), transparent 55%),
+        linear-gradient(165deg, rgba(42, 32, 20, 0.96), rgba(12, 10, 8, 0.99));
+    border: 1px solid rgba(179, 138, 77, 0.4);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(245, 220, 160, 0.08);
 }
 .expedition-rare-event__icon {
     font-size: 32px;
@@ -6388,19 +6401,20 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     align-items: flex-start;
     gap: 4px;
     width: 100%;
-    min-height: 44px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid rgba(167, 139, 250, 0.35);
-    background: rgba(0, 0, 0, 0.35);
-    color: #e2e8f0;
+    min-height: 48px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(179, 138, 77, 0.35);
+    background: rgba(0, 0, 0, 0.38);
+    color: #e8d5a8;
     text-align: left;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 .exp-offer-card:hover:not(:disabled),
 .exp-offer-card:focus-visible:not(:disabled) {
     border-color: rgba(250, 204, 21, 0.55);
-    background: rgba(76, 29, 149, 0.35);
+    background: rgba(56, 42, 20, 0.55);
 }
 .exp-offer-card--disabled,
 .exp-offer-card:disabled {
@@ -6441,10 +6455,10 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .expedition-run-buffs {
     margin-bottom: 12px;
     padding: 10px 12px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(124, 58, 237, 0.25);
-    box-shadow: inset 0 1px 0 rgba(167, 139, 250, 0.08);
+    border: 1px solid rgba(179, 138, 77, 0.28);
+    box-shadow: inset 0 1px 0 rgba(245, 220, 160, 0.06);
 }
 .expedition-run-buffs__title {
     font-family: 'Cinzel', serif;
@@ -6452,7 +6466,7 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #c4b5fd;
+    color: #c9a24f;
     margin-bottom: 8px;
     text-align: center;
 }
@@ -6465,11 +6479,12 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .expedition-run-buffs__chip {
     font-size: 10px;
     font-weight: 700;
-    padding: 5px 10px;
+    padding: 6px 10px;
+    min-height: 28px;
     border-radius: 999px;
-    background: rgba(76, 29, 149, 0.4);
-    border: 1px solid rgba(167, 139, 250, 0.35);
-    color: #e9d5ff;
+    background: rgba(42, 32, 18, 0.75);
+    border: 1px solid rgba(179, 138, 77, 0.35);
+    color: #e8d5a8;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 .expedition-run-buffs__chip--forge {
@@ -6625,8 +6640,8 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     align-items: center;
     column-gap: 12px;
     width: 100%;
-    min-height: 84px;
-    padding: 12px 12px 12px 12px;
+    min-height: 88px;
+    padding: 12px;
     border-radius: 14px;
     border: 1px solid rgba(179, 138, 77, 0.4);
     border-left: 3px solid var(--exp-card-accent);
@@ -6778,7 +6793,6 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
         linear-gradient(105deg, rgba(250, 204, 21, 0.16) 0%, transparent 45%),
         linear-gradient(180deg, rgba(72, 48, 14, 0.92), rgba(20, 14, 8, 0.98));
     box-shadow: 0 0 18px rgba(250, 204, 21, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    padding-top: 28px;
 }
 .exp-upgrade-card--legendary:hover,
 .exp-upgrade-card--legendary:focus-visible {
@@ -6791,21 +6805,22 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
         0 0 0 1px rgba(250, 204, 21, 0.35),
         0 0 14px rgba(250, 204, 21, 0.22);
 }
+/* In-flow chip (never absolute over the icon art) */
 .exp-upgrade-card__legend {
-    position: absolute;
-    top: 8px;
-    left: 12px;
-    right: auto;
-    font-size: 7px;
+    position: static;
+    align-self: flex-start;
+    display: inline-flex;
+    font-size: 8px;
     font-weight: 900;
     letter-spacing: 0.12em;
-    padding: 3px 7px;
+    padding: 3px 8px;
     border-radius: 999px;
     color: #1a1208;
     background: linear-gradient(180deg, #fde68a, #f59e0b);
     border: 1px solid rgba(250, 204, 21, 0.65);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-    z-index: 1;
+    margin-bottom: 2px;
+    line-height: 1.2;
 }
 .exp-upgrade-card__build-hint {
     margin: 1px 0 0;

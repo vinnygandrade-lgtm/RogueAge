@@ -3195,9 +3195,9 @@ export class ExpeditionEngine {
             )}</span>`;
         }
         return `<button type="button" class="exp-upgrade-card exp-upgrade-card--${up.id} exp-upgrade-card--${effect.tone}${up.legendary ? ' exp-upgrade-card--legendary' : ''}${advanced.length ? ' exp-upgrade-card--builds' : ''}${wouldUnlock.length ? ' exp-upgrade-card--unlocks' : ''}" onclick="ExpeditionEngine.pickUpgrade(${idx})">
-            ${legend}
             ${this.buildUpgradeIconHtml(up)}
             <span class="exp-upgrade-card__body">
+                ${legend}
                 <span class="exp-upgrade-card__effect-row">
                     <span class="exp-upgrade-card__effect">${effect.valueText}</span>
                     <span class="exp-upgrade-card__stat">${effect.statLabel}</span>
