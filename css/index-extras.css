@@ -11526,14 +11526,14 @@ html.l2-standalone .settings-section--pwa {
     flex-direction: column;
     align-items: center;
     flex: 1 1 18%;
-    min-width: 64px;
-    max-width: 96px;
-    padding: 6px 4px 8px;
-    border-radius: 12px;
-    border: 1px solid rgba(179, 138, 77, 0.22);
-    background:
-        linear-gradient(180deg, rgba(28, 22, 16, 0.55), rgba(8, 6, 6, 0.35));
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    min-width: 60px;
+    max-width: 90px;
+    /* No panel chrome — sprites sit clean on the battle BG */
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
 }
 .mob-hunt-card--entering {
     animation: mobHuntEnter 0.58s cubic-bezier(0.18, 0.89, 0.32, 1.2) both;
@@ -11563,11 +11563,11 @@ html.l2-standalone .settings-section--pwa {
     }
 }
 .exp-vitals--hit {
-    animation: expVitalsHitPulse 0.5s ease-out;
+    animation: expVitalsHitPulse 0.4s ease-out;
 }
 @keyframes expVitalsHitPulse {
-    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
-    35% { box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.35), 0 0 18px rgba(239, 68, 68, 0.25); }
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2); }
+    40% { box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.18); }
     100% { box-shadow: none; }
 }
 .mob-hunt-card__header {

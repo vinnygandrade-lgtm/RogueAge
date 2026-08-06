@@ -255,20 +255,20 @@ body.l2-skill-casting #barra-de-atalhos-dinamica .shortcut-cast-rail--active {
 }
 
 .combat-hit-flash--damage {
-    background: radial-gradient(ellipse 85% 70% at 50% 40%, rgba(239, 68, 68, 0.32) 0%, rgba(127, 29, 29, 0.12) 42%, transparent 72%);
+    background: radial-gradient(ellipse 70% 55% at 50% 42%, rgba(239, 68, 68, 0.12) 0%, transparent 68%);
 }
 
 .combat-hit-flash--crit {
-    background: radial-gradient(ellipse 80% 65% at 50% 40%, rgba(250, 204, 21, 0.28) 0%, transparent 62%);
+    background: radial-gradient(ellipse 65% 50% at 50% 42%, rgba(250, 204, 21, 0.14) 0%, transparent 62%);
 }
 
 .combat-hit-flash--deal {
-    background: radial-gradient(ellipse 70% 60% at 50% 45%, rgba(255, 255, 255, 0.12) 0%, transparent 58%);
+    background: radial-gradient(ellipse 60% 50% at 50% 45%, rgba(255, 255, 255, 0.07) 0%, transparent 58%);
 }
 
 @keyframes combatHitFlash {
     0% { opacity: 0; }
-    12% { opacity: 1; }
+    20% { opacity: 0.85; }
     100% { opacity: 0; }
 }
 
