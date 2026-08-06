@@ -3682,8 +3682,8 @@ export class ExpeditionEngine {
     }
 
     /**
-     * Pause button — park the run and return to the Forest hub without extracting.
-     * Bag/progress stay saved; player can open town or Resume later.
+     * Pause button — park the run and open World (Resume/Extract dock).
+     * Bag/progress stay saved; player can Resume from World or Forest later.
      */
     static pauseRunToHub(): void {
         if (!this.state.active || this.state.suspended) return;
@@ -3695,9 +3695,13 @@ export class ExpeditionEngine {
                 .forEach((id) => { try { win.fecharModal(id); } catch { /* noop */ } });
         }
         this.suspendRunForWorldLeave({ persist: true });
-        this.showHub();
         this.refreshHubStartButton();
         this.syncHubParkedHint();
+        if (typeof win.irPara === 'function') {
+            win.irPara('world');
+        } else {
+            this.showHub();
+        }
     }
 
     static init() {
