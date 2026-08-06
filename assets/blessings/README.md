@@ -91,6 +91,28 @@ Path: `assets/blessings/<id>.png`
 
 ---
 
+## Expedition-only icons (not in Blessing Build)
+
+Same path / rules: `assets/blessings/<id>.png` · **256×256** · bronze frame · readable at ~56px.  
+Mapped in `ExpeditionEngine` → `UPGRADE_BLESSING_ICON`. Legendaries reuse the base upgrade icons above.
+
+#### `hp_regen.png` — Field Medic (Expedition)
+- **Effect:** +10% HP regen (map + combat, this run)
+- **Accent:** `#4ade80`
+- **Brief:** Field healing — green herb pouch, glowing bandage kit, or life-leaf over a soft emerald pulse. Suggests **regen over time**, not a max-HP heart (that is `vitality.png`). Warm healing green; no poison flask vibe.
+
+#### `mp_regen.png` — Mana Flow (Expedition)
+- **Effect:** +10% MP regen (map + combat, this run)
+- **Accent:** `#60a5fa`
+- **Brief:** Mana recovering — blue rivulet filling a crystal, swirling azure stream into a vial, or calm mana mist rising. Suggests **flow / refill**, not a bigger pool (`clarity.png`) and not cheaper skills (`mana_efficiency.png`).
+
+#### `skill_cdr.png` — Shorter Skill Cooldown (Expedition)
+- **Effect:** −12% skill cooldown (icons recharge faster)
+- **Accent:** `#fbbf24`
+- **Brief:** Cooldown haste — golden hourglass with sand rushing, clock hands spinning, or skill rune with a speed ring. Must read as **faster recharge after cast**, not cast-bar speed (`acumen.png`) and not auto-attack speed (`haste.png`). Warm gold / amber.
+
+---
+
 ## Code
 
 `src/game/blessing_catalog.ts` → `getBlessingIconSrc(id)` → `assets/blessings/<id>.png`

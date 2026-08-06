@@ -216,7 +216,11 @@ const UPGRADE_BLESSING_ICON: Partial<Record<string, { blessingId: string; color:
     bleed_res: { blessingId: 'bleed_ward', color: '#fca5a5' },
     mp_efficiency: { blessingId: 'mana_efficiency', color: '#7dd3fc' },
     cast_speed: { blessingId: 'acumen', color: '#a78bfa' },
-    max_mp: { blessingId: 'clarity', color: '#38bdf8' }
+    max_mp: { blessingId: 'clarity', color: '#38bdf8' },
+    /** Expedition-only art (same folder/loader as blessings). */
+    hp_regen: { blessingId: 'hp_regen', color: '#4ade80' },
+    mp_regen: { blessingId: 'mp_regen', color: '#60a5fa' },
+    skill_cdr: { blessingId: 'skill_cdr', color: '#fbbf24' }
 };
 
 function enrichUpgradeArt(up: UpgradeDef): UpgradeDef {
