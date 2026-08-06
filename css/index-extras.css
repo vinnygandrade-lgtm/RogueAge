@@ -1591,11 +1591,7 @@ details.status-detail-acc[open] .status-detail-acc__scroll::-webkit-scrollbar-th
 .combat-stats-hero__cell--spd .combat-stats-hero__val {
     color: #94a3b8;
 }
-.damage-number.dodge-float {
-    color: #6ee7b7 !important;
-    font-size: 1.05em;
-    letter-spacing: 0.06em;
-}
+/* dodge-float base styles live in effects.css (longer readable hold) */
 .combat-stats-hero__cell--cast .combat-stats-hero__val {
     color: #a78bfa;
 }
@@ -11516,19 +11512,63 @@ html.l2-standalone .settings-section--pwa {
 #mobs-container {
     display: none;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 12px 14px;
     justify-content: center;
+    align-items: flex-end;
     width: 100%;
     min-height: 200px;
-    padding: 10px;
+    padding: 12px 8px 14px;
+    position: relative;
+    z-index: 2;
 }
 .mob-hunt-card {
     display: flex;
     flex-direction: column;
     align-items: center;
     flex: 1 1 18%;
-    min-width: 60px;
-    max-width: 90px;
+    min-width: 64px;
+    max-width: 96px;
+    padding: 6px 4px 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(179, 138, 77, 0.22);
+    background:
+        linear-gradient(180deg, rgba(28, 22, 16, 0.55), rgba(8, 6, 6, 0.35));
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.mob-hunt-card--entering {
+    animation: mobHuntEnter 0.58s cubic-bezier(0.18, 0.89, 0.32, 1.2) both;
+    animation-delay: var(--mob-enter-delay, 0ms);
+}
+@keyframes mobHuntEnter {
+    0% {
+        opacity: 0;
+        transform: translateY(22px) scale(0.86);
+        filter: blur(5px) brightness(1.4);
+    }
+    55% {
+        opacity: 1;
+        transform: translateY(-5px) scale(1.04);
+        filter: blur(0) brightness(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: none;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    .mob-hunt-card--entering {
+        animation: none;
+        opacity: 1;
+    }
+}
+.exp-vitals--hit {
+    animation: expVitalsHitPulse 0.5s ease-out;
+}
+@keyframes expVitalsHitPulse {
+    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.45); }
+    35% { box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.35), 0 0 18px rgba(239, 68, 68, 0.25); }
+    100% { box-shadow: none; }
 }
 .mob-hunt-card__header {
     width: 100%;

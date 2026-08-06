@@ -229,9 +229,20 @@ body.l2-skill-casting #barra-de-atalhos-dinamica .shortcut-cast-rail--active {
 /* Combat impact layers — flash + micro-shake scoped to arena, not full HUD */
 #area-cacada,
 #oly-combate-cena,
-#raid-arena-center {
+#raid-arena-center,
+#tela-floresta,
+#mobs-container {
     position: relative;
+}
+
+#area-cacada,
+#oly-combate-cena,
+#raid-arena-center {
     overflow: hidden;
+}
+
+#tela-floresta > .combat-hit-flash {
+    z-index: 35;
 }
 
 .combat-hit-flash {
@@ -240,24 +251,24 @@ body.l2-skill-casting #barra-de-atalhos-dinamica .shortcut-cast-rail--active {
     pointer-events: none;
     z-index: 40;
     opacity: 0;
-    animation: combatHitFlash 0.48s ease-out forwards;
+    animation: combatHitFlash 0.55s ease-out forwards;
 }
 
 .combat-hit-flash--damage {
-    background: radial-gradient(ellipse 80% 70% at 50% 55%, rgba(239, 68, 68, 0.18) 0%, transparent 68%);
+    background: radial-gradient(ellipse 85% 70% at 50% 40%, rgba(239, 68, 68, 0.32) 0%, rgba(127, 29, 29, 0.12) 42%, transparent 72%);
 }
 
 .combat-hit-flash--crit {
-    background: radial-gradient(ellipse 75% 65% at 50% 50%, rgba(250, 204, 21, 0.22) 0%, transparent 62%);
+    background: radial-gradient(ellipse 80% 65% at 50% 40%, rgba(250, 204, 21, 0.28) 0%, transparent 62%);
 }
 
 .combat-hit-flash--deal {
-    background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 58%);
+    background: radial-gradient(ellipse 70% 60% at 50% 45%, rgba(255, 255, 255, 0.12) 0%, transparent 58%);
 }
 
 @keyframes combatHitFlash {
     0% { opacity: 0; }
-    18% { opacity: 1; }
+    12% { opacity: 1; }
     100% { opacity: 0; }
 }
 
@@ -307,8 +318,19 @@ body.l2-skill-casting #barra-de-atalhos-dinamica .shortcut-cast-rail--active {
 @keyframes warFadeUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
 .war-floating-damage { position: absolute; top: 0; left: 50%; transform: translateX(-50%); font-weight: 900; pointer-events: none; z-index: 100; font-family: 'Tahoma', sans-serif; text-shadow: 2px 2px 4px #000; animation: warFadeUp 0.8s forwards; }
 
-@keyframes piscarPlayerVermelho { 0% { background: #ef4444; } 100% { background: linear-gradient(to right, #059669, #10b981); } }
-.player-dano { animation: piscarPlayerVermelho 0.3s ease-out; }
+@keyframes piscarPlayerVermelho {
+    0% { background: #ef4444; filter: brightness(1.35); }
+    40% { background: #f87171; }
+    100% { background: linear-gradient(to right, #059669, #10b981); filter: brightness(1); }
+}
+.player-dano { animation: piscarPlayerVermelho 0.55s ease-out; }
+#expedition-hp-fill.player-dano {
+    animation: piscarPlayerHpExp 0.55s ease-out;
+}
+@keyframes piscarPlayerHpExp {
+    0% { filter: brightness(1.6); box-shadow: 0 0 12px rgba(248, 113, 113, 0.7); }
+    100% { filter: brightness(1); box-shadow: none; }
+}
 
 @keyframes pulsarShot { 0% { box-shadow: 0 0 5px #60a5fa inset, 0 0 10px #60a5fa; border-color:#60a5fa; } 100% { box-shadow: 0 0 15px #60a5fa inset, 0 0 25px #60a5fa; border-color:#93c5fd; } }
 .auto-shot-active { animation: pulsarShot 0.8s infinite alternate !important; border: 1px solid #60a5fa !important; background: rgba(96, 165, 250, 0.2) !important; }
@@ -362,32 +384,66 @@ body.l2-skill-casting #barra-de-atalhos-dinamica .shortcut-cast-rail--active {
     100% { transform: scale(1) rotate(0); opacity: 0; }
 }
 
-/* Refined Damage Numbers */
+/* Refined Damage Numbers — longer readable hold for mobile */
 .damage-number {
     position: absolute;
     font-weight: 900;
     font-family: 'Cinzel', serif;
+    font-size: 1.35em;
+    line-height: 1;
+    letter-spacing: 0.02em;
     pointer-events: none;
-    z-index: 200;
-    text-shadow: 2px 2px 0 #000, 0 0 10px rgba(0,0,0,0.5);
-    animation: damageFloat 1s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    z-index: 2200;
+    text-shadow:
+        0 0 10px rgba(0, 0, 0, 0.75),
+        2px 2px 0 #000,
+        -1px -1px 0 #000;
+    animation: damageFloatReadable 1.55s cubic-bezier(0.18, 0.89, 0.32, 1.15) forwards;
+    will-change: transform, opacity;
 }
 
 .damage-number.critical {
-    font-size: 1.8em !important;
+    font-size: 1.85em !important;
     color: #facc15 !important;
-    text-shadow: 0 0 15px rgba(250, 204, 21, 0.6), 2px 2px 0 #000;
-    z-index: 201;
+    text-shadow: 0 0 16px rgba(250, 204, 21, 0.7), 2px 2px 0 #000, -1px -1px 0 #000;
+    z-index: 2201;
+    animation-duration: 1.75s;
 }
 
-.damage-number.player { color: #fff; }
-.damage-number.rival { color: #f87171; }
+.damage-number.player { color: #fff; font-size: 1.25em; }
+.damage-number.rival {
+    color: #fca5a5;
+    font-size: 1.55em;
+    text-shadow:
+        0 0 14px rgba(239, 68, 68, 0.65),
+        2px 2px 0 #000,
+        -1px -1px 0 #000;
+}
 .damage-number.heal { color: #22c55e; }
+.damage-number.dodge-float {
+    color: #6ee7b7 !important;
+    font-size: 1.4em !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 14px rgba(16, 185, 129, 0.7),
+        2px 2px 0 #000;
+    animation-name: damageFloatDodge;
+    animation-duration: 1.85s;
+}
 
-@keyframes damageFloat {
-    0% { transform: translate(-50%, 0) scale(0.5); opacity: 0; }
-    20% { transform: translate(-50%, -20px) scale(1.2); opacity: 1; }
-    100% { transform: translate(-50%, -80px) scale(1); opacity: 0; }
+@keyframes damageFloatReadable {
+    0% { transform: translate(-50%, 0) scale(0.55); opacity: 0; }
+    10% { transform: translate(-50%, -10px) scale(1.22); opacity: 1; }
+    55% { transform: translate(-50%, -34px) scale(1.08); opacity: 1; }
+    100% { transform: translate(-50%, -70px) scale(0.95); opacity: 0; }
+}
+
+@keyframes damageFloatDodge {
+    0% { transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+    12% { transform: translate(-50%, -8px) scale(1.28); opacity: 1; }
+    62% { transform: translate(-50%, -28px) scale(1.12); opacity: 1; }
+    100% { transform: translate(-50%, -58px) scale(1); opacity: 0; }
 }
 
 /* Screen Shake (legacy — prefer combat-shake--* on combat layers) */
@@ -402,6 +458,11 @@ body.l2-skill-casting #barra-de-atalhos-dinamica .shortcut-cast-rail--active {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .damage-number,
+    .damage-number.dodge-float,
+    .damage-number.critical {
+        animation-duration: 0.9s !important;
+    }
     .combat-shake--light,
     .combat-shake--medium,
     .combat-shake--heavy,

@@ -37,6 +37,23 @@ export function severityFromDamageRatio(ratio: number): CombatImpactSeverity {
   return 'light';
 }
 
+/** Prefer the visible forest stage — `#area-cacada` is often `display:none` mid-fight. */
+export function resolveForestCombatRootId(): string {
+  const floresta = document.getElementById('tela-floresta');
+  if (floresta) {
+    const style = window.getComputedStyle(floresta);
+    if (style.display !== 'none' && style.visibility !== 'hidden') {
+      return 'tela-floresta';
+    }
+  }
+  const mobs = document.getElementById('mobs-container');
+  if (mobs) {
+    const style = window.getComputedStyle(mobs);
+    if (style.display !== 'none') return 'mobs-container';
+  }
+  return 'area-cacada';
+}
+
 export function triggerCombatImpact(options: {
   rootId: string;
   tone?: CombatImpactTone;
@@ -46,6 +63,18 @@ export function triggerCombatImpact(options: {
   const { rootId, tone = 'damage', severity = 'light', shake = false } = options;
   const root = document.getElementById(rootId);
   if (!root) return;
+
+  // Skip flash on hidden roots (legacy callers still pass area-cacada).
+  const style = window.getComputedStyle(root);
+  if (style.display === 'none' || style.visibility === 'hidden') {
+    if (rootId === 'area-cacada') {
+      const fallback = resolveForestCombatRootId();
+      if (fallback !== rootId) {
+        triggerCombatImpact({ ...options, rootId: fallback });
+      }
+    }
+    return;
+  }
 
   appendFlash(root, tone);
 
@@ -82,6 +111,7 @@ const CombatFeedbackApi = {
   triggerCombatImpact,
   pulseCombatCard,
   severityFromDamageRatio,
+  resolveForestCombatRootId,
 };
 
 registerGlobal('CombatFeedback', CombatFeedbackApi);

@@ -4,7 +4,11 @@
 /* ========================================== */
 
 import { consumableDisplayName } from './combat_i18n';
-import { severityFromDamageRatio, triggerCombatImpact } from './combat_feedback';
+import {
+  resolveForestCombatRootId,
+  severityFromDamageRatio,
+  triggerCombatImpact,
+} from './combat_feedback';
 import { mobAttacksMagically, mobDefenseAgainstPlayer, mobPrimaryAtk } from './mob_combat_stats';
 import { onMobThreatHitPlayer } from './mob_threat';
 import { resolveActiveShotKey } from './shot_ammo';
@@ -123,22 +127,58 @@ window.tryPlayerDodgeIncoming = function (
   return Math.random() * 100 < chance;
 };
 
+function anchorPlayerCombatFloat(): { left: number; top: number } {
+  const expHp = document.getElementById('expedition-hp-fill');
+  const expVitals = document.getElementById('expedition-run-vitals');
+  const anchor =
+    (expVitals && window.getComputedStyle(expVitals).display !== 'none' && expHp) ||
+    document.getElementById('player-hp-fill');
+  if (anchor) {
+    const r = anchor.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) {
+      return {
+        left: r.left + r.width / 2,
+        top: Math.max(48, r.top - 6),
+      };
+    }
+  }
+  return {
+    left: window.innerWidth * 0.5,
+    top: window.innerHeight * 0.42,
+  };
+}
+
+function flashPlayerHpBars(): void {
+  for (const id of ['player-hp-fill', 'expedition-hp-fill']) {
+    const bar = document.getElementById(id);
+    if (!bar) continue;
+    bar.classList.remove('player-dano');
+    void bar.offsetWidth;
+    bar.classList.add('player-dano');
+  }
+  const expRow = document.getElementById('expedition-run-vitals');
+  if (expRow && window.getComputedStyle(expRow).display !== 'none') {
+    expRow.classList.remove('exp-vitals--hit');
+    void expRow.offsetWidth;
+    expRow.classList.add('exp-vitals--hit');
+    setTimeout(() => expRow.classList.remove('exp-vitals--hit'), 520);
+  }
+}
+
 function mostrarEsquivaVisualPlayer(): void {
   const cena = document.getElementById('tela-floresta');
   if (!cena) return;
   const el = document.createElement('div');
-  el.className = 'damage-number rival dodge-float';
+  el.className = 'damage-number dodge-float';
   el.innerText =
     typeof window.t === 'function' ? window.t('game.combatMath.dodgeFloat') : 'EVASION';
-  const offset = Math.random() * 40 - 20;
-  el.style.left = `calc(50% + ${offset}px)`;
-  el.style.top = '52%';
+  const pos = anchorPlayerCombatFloat();
+  const offset = Math.random() * 28 - 14;
+  el.style.left = `${pos.left + offset}px`;
+  el.style.top = `${pos.top}px`;
   el.style.position = 'fixed';
-  el.style.color = '#6ee7b7';
-  el.style.fontWeight = '900';
-  el.style.textShadow = '0 0 8px rgba(16,185,129,0.55), 1px 1px 0 #000';
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 900);
+  setTimeout(() => el.remove(), 1900);
 }
 
 window.calcularDefesaDoPlayer = function (ataqueMagicoDoMonstro: boolean) {
@@ -243,25 +283,20 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
         mostrarDanoVisualMob(extraThreat, 'rival', true, null);
         const threatRatio = extraThreat / maxHp;
         triggerCombatImpact({
-          rootId: 'area-cacada',
+          rootId: resolveForestCombatRootId(),
           tone: 'crit',
           severity: severityFromDamageRatio(threatRatio),
-          shake: threatRatio >= 0.08,
+          shake: threatRatio >= 0.05,
         });
       }
-      const hpBarFill = document.getElementById('player-hp-fill');
-      if (hpBarFill) {
-        hpBarFill.classList.remove('player-dano');
-        void hpBarFill.offsetWidth;
-        hpBarFill.classList.add('player-dano');
-      }
+      flashPlayerHpBars();
 
       mostrarDanoVisualMob(danoRecebido, 'rival', false, null);
       triggerCombatImpact({
-        rootId: 'area-cacada',
+        rootId: resolveForestCombatRootId(),
         tone: 'damage',
         severity: severityFromDamageRatio(hitRatio),
-        shake: hitRatio >= 0.1,
+        shake: hitRatio >= 0.05,
       });
     }
     if (window.playerHP <= 0) {
@@ -299,7 +334,7 @@ function aplicarDanoNoMonstro(index: number, dano: number, isCrit = false) {
   if (isCrit) {
     if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
     triggerCombatImpact({
-      rootId: 'area-cacada',
+      rootId: resolveForestCombatRootId(),
       tone: 'deal',
       severity: 'light',
       shake: true,
@@ -334,28 +369,32 @@ function mostrarDanoVisualMob(
 
   const el = document.createElement('div');
   el.className = `damage-number ${alvo}${isCrit ? ' critical' : ''}`;
-  el.innerText = String(valor);
+  const amount = Math.max(0, Math.floor(Number(valor) || 0));
+  el.innerText = alvo === 'rival' ? `−${amount}` : String(amount);
 
-  const offset = Math.random() * 40 - 20;
+  const offset = Math.random() * 36 - 18;
 
   if (alvo === 'player') {
     const mobCard = mobId ? document.getElementById(`mob-card-${mobId}`) : null;
     if (mobCard) {
       const rect = mobCard.getBoundingClientRect();
       el.style.left = rect.left + rect.width / 2 + offset + 'px';
-      el.style.top = rect.top + offset + 'px';
+      el.style.top = rect.top + Math.max(8, rect.height * 0.15) + 'px';
       el.style.position = 'fixed';
     } else {
       el.style.left = `calc(50% + ${offset}px)`;
-      el.style.top = '40%';
+      el.style.top = '38%';
+      el.style.position = 'fixed';
     }
   } else {
-    el.style.left = `calc(50% + ${offset}px)`;
-    el.style.top = '60%';
+    const pos = anchorPlayerCombatFloat();
+    el.style.left = `${pos.left + offset}px`;
+    el.style.top = `${pos.top + 10}px`;
+    el.style.position = 'fixed';
   }
 
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1000);
+  setTimeout(() => el.remove(), isCrit ? 1800 : 1600);
 }
 
 function mostrarDanoVisualMobPoison(valor: number) {
@@ -363,13 +402,14 @@ function mostrarDanoVisualMobPoison(valor: number) {
   if (!cena) return;
   const el = document.createElement('div');
   el.className = 'damage-number rival poison-dot';
-  el.innerText = String(valor);
-  const offset = Math.random() * 30 - 15;
-  el.style.left = `calc(50% + ${offset}px)`;
-  el.style.top = '58%';
+  el.innerText = `−${Math.max(0, Math.floor(Number(valor) || 0))}`;
+  const pos = anchorPlayerCombatFloat();
+  const offset = Math.random() * 24 - 12;
+  el.style.left = `${pos.left + offset}px`;
+  el.style.top = `${pos.top + 18}px`;
   el.style.position = 'fixed';
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 900);
+  setTimeout(() => el.remove(), 1500);
 }
 
 window.mostrarDanoVisualMobPoison = mostrarDanoVisualMobPoison;

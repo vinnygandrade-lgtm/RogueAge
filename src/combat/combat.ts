@@ -264,7 +264,11 @@ function isExpeditionCombatActive(): boolean {
     return !!(exp?.state?.active);
 }
 
+/** Tracks which mob cards already played the entrance animation this pull. */
+const _forestMobEnteredIds = new Set<string>();
+
 function spawnMonstros() {
+    _forestMobEnteredIds.clear();
     let maxMobs = 1;
     let zonaID = window.zonaAtual.id || 'No-Grade';
 
@@ -410,9 +414,14 @@ function renderizarMonstros() {
         const imgFilter = buildMobSpriteImgFilter(mob);
         const imgClasses = buildMobSpriteImgClasses(mob);
         const bleedPips = buildMobBleedPipsHtml(mob);
+        const mobKey = String(mob.idUnico || '');
+        const isEntering = !!mobKey && !_forestMobEnteredIds.has(mobKey);
+        if (isEntering && mobKey) _forestMobEnteredIds.add(mobKey);
+        const enterDelay = isEntering ? ` style="--mob-enter-delay:${Math.min(index, 8) * 85}ms"` : '';
+        const enterClass = isEntering ? ' mob-hunt-card--entering' : '';
 
         htmlFinal += `
-        <div id="mob-card-${mob.idUnico}" class="mob-hunt-card${mob.mobThreat && mob.mobThreat !== 'none' ? ` mob-hunt-card--${mob.mobThreat}` : ''}${isMagico ? ' mob-hunt-card--magic' : ''}">
+        <div id="mob-card-${mob.idUnico}" class="mob-hunt-card${enterClass}${mob.mobThreat && mob.mobThreat !== 'none' ? ` mob-hunt-card--${mob.mobThreat}` : ''}${isMagico ? ' mob-hunt-card--magic' : ''}"${enterDelay}>
             <div class="mob-hunt-card__header">
                 <div class="mob-hunt-card__name">${formatMobCardName(mob)}${marker}${archetypeTags}</div>
                 <div class="mob-hunt-card__atkbar">
