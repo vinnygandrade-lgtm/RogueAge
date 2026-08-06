@@ -282,11 +282,12 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
         window.playerHP -= extraThreat;
         mostrarDanoVisualMob(extraThreat, 'rival', true, null);
         const threatRatio = extraThreat / maxHp;
+        // Flash only — screen shake is reserved for the player's critical hits.
         triggerCombatImpact({
           rootId: resolveForestCombatRootId(),
           tone: 'crit',
           severity: severityFromDamageRatio(threatRatio),
-          shake: threatRatio >= 0.05,
+          shake: false,
         });
       }
       flashPlayerHpBars();
@@ -296,7 +297,7 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
         rootId: resolveForestCombatRootId(),
         tone: 'damage',
         severity: severityFromDamageRatio(hitRatio),
-        shake: hitRatio >= 0.05,
+        shake: false,
       });
     }
     if (window.playerHP <= 0) {
@@ -333,10 +334,12 @@ function aplicarDanoNoMonstro(index: number, dano: number, isCrit = false) {
   mostrarDanoVisualMob(dano, 'player', isCrit, monstro.idUnico ?? null);
   if (isCrit) {
     if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
+    const maxHp = Math.max(1, Math.floor(Number(monstro.maxHp) || preHp || 1));
+    const critRatio = dano / maxHp;
     triggerCombatImpact({
       rootId: resolveForestCombatRootId(),
       tone: 'deal',
-      severity: 'light',
+      severity: severityFromDamageRatio(Math.max(0.1, critRatio)),
       shake: true,
     });
   }
