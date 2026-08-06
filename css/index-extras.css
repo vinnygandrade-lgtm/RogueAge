@@ -3783,6 +3783,133 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     font-weight: 650;
 }
 
+/* World — Active Expedition dock (replaces hunting zone grid while run is parked) */
+.world-expedition-dock {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px 12px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(201, 162, 39, 0.45);
+    background:
+        linear-gradient(165deg, rgba(72, 48, 14, 0.55) 0%, rgba(18, 14, 10, 0.92) 55%, rgba(10, 10, 14, 0.96) 100%);
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 230, 160, 0.12);
+    box-sizing: border-box;
+}
+.world-expedition-dock[hidden] {
+    display: none !important;
+}
+.world-expedition-dock__crest {
+    align-self: center;
+    font-size: 1.35rem;
+    line-height: 1;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
+}
+.world-expedition-dock__kicker {
+    text-align: center;
+    margin: 0;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #d4b56a;
+}
+.world-expedition-dock__zone {
+    margin: 0;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #f8ecd0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+.world-expedition-dock__journey {
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #c9b896;
+}
+.world-expedition-dock__bag {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 8px;
+    padding: 8px 6px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(201, 162, 39, 0.22);
+}
+.world-expedition-dock__chip {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+.world-expedition-dock__chip--adena {
+    color: #fde68a;
+    background: rgba(120, 80, 12, 0.35);
+    border-color: rgba(250, 204, 21, 0.28);
+}
+.world-expedition-dock__chip--xp {
+    color: #93c5fd;
+    background: rgba(30, 58, 100, 0.4);
+    border-color: rgba(96, 165, 250, 0.28);
+}
+.world-expedition-dock__chip--drop {
+    color: #d8b4fe;
+    background: rgba(60, 30, 80, 0.4);
+    border-color: rgba(192, 132, 252, 0.28);
+}
+.world-expedition-dock__hint {
+    margin: 0;
+    text-align: center;
+    font-size: 0.72rem;
+    line-height: 1.35;
+    color: #a89878;
+}
+.world-expedition-dock__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+}
+.world-expedition-dock__resume,
+.world-expedition-dock__extract {
+    width: 100%;
+    min-height: 44px;
+    margin: 0 !important;
+    box-sizing: border-box;
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 9px !important;
+}
+.world-expedition-dock__resume {
+    background: linear-gradient(180deg, #d4a017 0%, #8a6410 55%, #5c420c 100%) !important;
+    border: 1px solid rgba(250, 204, 21, 0.55) !important;
+    color: #1a1208 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 248, 220, 0.22);
+}
+.world-expedition-dock__extract {
+    background: linear-gradient(180deg, rgba(40, 32, 24, 0.95) 0%, rgba(22, 18, 14, 0.98) 100%) !important;
+    border: 1px solid rgba(168, 152, 120, 0.45) !important;
+    color: #e7e0d4 !important;
+}
+.world-expedition-dock__resume:active {
+    filter: brightness(1.06);
+}
+.world-expedition-dock__extract:active {
+    filter: brightness(1.08);
+}
+
 /* Legacy class hooks (safe if old markup flashes) */
 .expedition-hub__crest,
 .expedition-hub__eyebrow,

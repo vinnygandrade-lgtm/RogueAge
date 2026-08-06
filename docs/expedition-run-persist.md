@@ -16,6 +16,7 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 | Start / journey advance / upgrade pick | Silent `salvarJogo` with snapshot |
 | **Pause expedition** (map footer) | `pauseRunToHub()` — parks run, returns to Forest hub with **Resume** (blocked while a fight is live) |
 | Leave Forest / leave `screen-game` | Parks via `suspendRunForWorldLeave()` **only outside combat**. Live fight → `blockLeaveDuringCombat()` (no retreat). Edge interrupt keeps `combatInterrupted` + same path on Resume. |
+| Open **World** while run active | Hunting Zones grid hidden; `#world-expedition-dock` shows **Resume** / **Collect & exit** (`syncWorldExpeditionPanel`). Adventure cards stay visible. |
 | Re-enter Forest (parked) | Hub shows **Resume Expedition** (does not auto-jump into the map) |
 | Resume | `resumeSuspendedRun()` — restores run vitals + map (town heal does not carry into the run) |
 | **Start on another map while parked** | Hub warns (pending on map A). Confirm → extract 100% bag + victory modal → auto-start new run on map B (`confirmExtractToStartOtherZone`). Cancel keeps the parked run. |

@@ -1280,6 +1280,7 @@ export class ExpeditionEngine {
             win.escreverLog(`<span style="color:#fbbf24; font-weight:bold;">⛺ ${msg}</span>`);
         }
         this.syncRunBgm();
+        this.syncWorldExpeditionPanel();
     }
 
     /** Resume a parked run when entering Forest. */
@@ -1318,6 +1319,7 @@ export class ExpeditionEngine {
             this.persistRun({ silent: true });
             this.syncHubParkedHint();
             this.syncRunBgm();
+            this.syncWorldExpeditionPanel();
             return;
         }
 
@@ -1333,6 +1335,7 @@ export class ExpeditionEngine {
         this.persistRun({ silent: true });
         this.syncHubParkedHint();
         this.syncRunBgm();
+        this.syncWorldExpeditionPanel();
     }
 
     static emptyRunStats(): ExpeditionRunStats {
@@ -3539,6 +3542,87 @@ export class ExpeditionEngine {
         return zoneId || 'No-Grade';
     }
 
+    /** World gatekeeper: hunting zone grid vs Resume/Extract dock when a run is active. */
+    static syncWorldExpeditionPanel(): void {
+        const dock = document.getElementById('world-expedition-dock');
+        const grid = document.getElementById('world-hunting-zones-grid')
+            || document.querySelector('.world-gatekeeper .tp-grid') as HTMLElement | null;
+        const subtitle = document.getElementById('world-gk-subtitle');
+        if (!dock || !grid) return;
+
+        const active = !!this.state.active;
+        dock.hidden = !active;
+        grid.hidden = active;
+        grid.style.display = active ? 'none' : '';
+
+        if (subtitle) {
+            if (active) {
+                subtitle.removeAttribute('data-i18n');
+                subtitle.textContent = this.t(
+                    'game.world.expeditionDock.subtitle',
+                    'Active Expedition'
+                );
+            } else {
+                subtitle.setAttribute('data-i18n', 'game.world.huntingZones');
+                subtitle.textContent = this.t('game.world.huntingZones', 'Hunting Zones');
+            }
+        }
+
+        if (active) this.fillWorldExpeditionDock();
+    }
+
+    static fillWorldExpeditionDock(): void {
+        const zoneEl = document.getElementById('world-exp-dock-zone');
+        const journeyEl = document.getElementById('world-exp-dock-journey');
+        const bagEl = document.getElementById('world-exp-dock-bag');
+        if (zoneEl) zoneEl.textContent = this.getZoneLabel(this.state.zoneId);
+
+        if (journeyEl) {
+            journeyEl.textContent = this.t(
+                'game.world.expeditionDock.journey',
+                'Journey {n}',
+                { n: String(Math.max(1, Math.floor(Number(this.state.journey) || 1))) }
+            );
+        }
+
+        if (bagEl) {
+            const bag = this.getBagSnapshot();
+            const drops = this.countBagDropStacks(bag.drops);
+            const labDrops = this.t('game.hunt.expedition.bagRiskDropsLabel', 'Drops');
+            const dropsHtml = drops > 0
+                ? `<span class="world-expedition-dock__chip world-expedition-dock__chip--drop">${drops} ${labDrops}</span>`
+                : '';
+            bagEl.innerHTML = `
+                <span class="world-expedition-dock__chip world-expedition-dock__chip--adena">+${bag.adenas.toLocaleString()}</span>
+                <span class="world-expedition-dock__chip world-expedition-dock__chip--xp">+${bag.xp.toLocaleString()} XP</span>
+                ${dropsHtml}`;
+        }
+
+        const resumeBtn = document.getElementById('world-exp-dock-resume');
+        const extractBtn = document.getElementById('world-exp-dock-extract');
+        if (resumeBtn) {
+            resumeBtn.setAttribute('data-i18n', 'game.world.expeditionDock.resume');
+            resumeBtn.textContent = this.t('game.world.expeditionDock.resume', 'Resume Expedition');
+        }
+        if (extractBtn) {
+            extractBtn.setAttribute('data-i18n', 'game.world.expeditionDock.extract');
+            extractBtn.textContent = this.t('game.world.expeditionDock.extract', 'Collect & exit');
+        }
+    }
+
+    /** World dock CTA — open Forest and continue the parked run. */
+    static resumeFromWorld(): void {
+        if (!this.state.active) return;
+        const win = window as any;
+        if (typeof win.irPara === 'function') win.irPara('floresta');
+        if (this.state.suspended) {
+            this.resumeSuspendedRun();
+        } else {
+            this.syncForestEntryUi();
+        }
+        this.syncWorldExpeditionPanel();
+    }
+
     static isPendingRunOnOtherZone(targetZoneId?: string): boolean {
         if (!this.state.active) return false;
         const target = targetZoneId != null ? String(targetZoneId) : this.getCurrentHuntZoneId();
@@ -3713,6 +3797,7 @@ export class ExpeditionEngine {
             }
         } catch (e) { /* ignore */ }
         this.syncRunBgm();
+        this.syncWorldExpeditionPanel();
     }
 
     /** Path card / node art — drop PNGs in `assets/expedition/paths/<type>.png`. */
@@ -5514,6 +5599,7 @@ export class ExpeditionEngine {
         }
         this.wireStartButton();
         this.syncRunBgm();
+        this.syncWorldExpeditionPanel();
     }
 
     static onPlayerDeath() {

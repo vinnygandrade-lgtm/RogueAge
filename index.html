@@ -1830,11 +1830,25 @@
                         <img src="assets/npcs/gatekeeper.png" class="gk-avatar">
                         <div class="gk-title">
                             <h3>Clarissa</h3>
-                            <p data-i18n="game.world.huntingZones">Hunting Zones</p>
+                            <p id="world-gk-subtitle" data-i18n="game.world.huntingZones">Hunting Zones</p>
+                        </div>
+                    </div>
+
+                    <!-- Shown when an expedition run is active (parked); replaces hunting zone grid -->
+                    <div id="world-expedition-dock" class="world-expedition-dock" hidden aria-live="polite">
+                        <div class="world-expedition-dock__crest" aria-hidden="true">⛺</div>
+                        <div class="world-expedition-dock__kicker" data-i18n="game.world.expeditionDock.kicker">Expedition in progress</div>
+                        <h3 id="world-exp-dock-zone" class="world-expedition-dock__zone">—</h3>
+                        <div id="world-exp-dock-journey" class="world-expedition-dock__journey"></div>
+                        <div id="world-exp-dock-bag" class="world-expedition-dock__bag" role="status"></div>
+                        <p class="world-expedition-dock__hint" data-i18n="game.world.expeditionDock.hint">Run upgrades last until you extract. Collect keeps 100% of the bag.</p>
+                        <div class="world-expedition-dock__actions">
+                            <button type="button" id="world-exp-dock-resume" class="btn-l2 world-expedition-dock__resume" onclick="ExpeditionEngine.resumeFromWorld()" data-i18n="game.world.expeditionDock.resume">Resume Expedition</button>
+                            <button type="button" id="world-exp-dock-extract" class="btn-l2 world-expedition-dock__extract" onclick="ExpeditionEngine.promptExitAndExtract()" data-i18n="game.world.expeditionDock.extract">Collect &amp; exit</button>
                         </div>
                     </div>
                     
-                    <div class="tp-grid">
+                    <div id="world-hunting-zones-grid" class="tp-grid">
                         <button class="tp-button" onclick="abrirDetalhesZona('No-Grade')"><span data-i18n="game.zones.ng.name">Talking Island</span> <span data-i18n="game.zones.ng.costShort">Free</span></button>
                         <button type="button" class="tp-button tp-button--d" onclick="abrirDetalhesZona('D')"><span data-i18n="game.zones.d.name">Ruins of Despair</span> <span data-i18n="game.zones.d.costShort">100a</span></button>
                         <button type="button" class="tp-button tp-button--c" onclick="abrirDetalhesZona('C')"><span data-i18n="game.zones.c.name">Death Pass</span> <span data-i18n="game.zones.c.costShort">500a</span></button>

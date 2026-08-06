@@ -2321,6 +2321,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 world: {
                     sectionTitle: 'WORLD & ADVENTURE',
                     huntingZones: 'Hunting Zones',
+                    expeditionDock: {
+                        subtitle: 'Active Expedition',
+                        kicker: 'Expedition in progress',
+                        journey: 'Journey {n}',
+                        hint: 'Run upgrades last until you extract. Collect keeps 100% of the bag.',
+                        resume: 'Resume Expedition',
+                        extract: 'Collect & exit'
+                    },
                     cardClanTitle: 'Clan Battlefield',
                     cardClanDesc: 'Massive 12v12 combat with your allies.',
                     badgeNew: 'NEW',
@@ -5648,6 +5656,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 world: {
                     sectionTitle: 'MUNDO E AVENTURA',
                     huntingZones: 'Zonas de caça',
+                    expeditionDock: {
+                        subtitle: 'Expedição ativa',
+                        kicker: 'Expedição em andamento',
+                        journey: 'Jornada {n}',
+                        hint: 'Upgrades da run valem até o extract. Recolher mantém 100% da bag.',
+                        resume: 'Retomar expedição',
+                        extract: 'Recolher e sair'
+                    },
                     cardClanTitle: 'Campo de batalha do clã',
                     cardClanDesc: 'Combate massivo 12v12 com seus aliados.',
                     badgeNew: 'NOVO',

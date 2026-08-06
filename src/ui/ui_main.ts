@@ -943,6 +943,9 @@ function executarTrocaSubScreen(lugar) {
             cardClanWar.style.display = isLider ? 'flex' : 'none';
         }
         window.refreshNavMenuNotifications?.();
+        if (typeof window.ExpeditionEngine?.syncWorldExpeditionPanel === 'function') {
+            window.ExpeditionEngine.syncWorldExpeditionPanel();
+        }
     }
     
     if (lugar === 'floresta') { 
