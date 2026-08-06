@@ -59,6 +59,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-06',
+                        items: [
+                            'Forest Expedition Pause now opens World with an Active Expedition panel — Resume or Collect & exit without hunting-zone clutter inviting a second run.',
+                            'Expedition path cards show journey route art; upgrade picks use blessing icons, clearer legendary badges, and a cleaner mobile bag HUD.',
+                            'Forest battles feel sharper: readable floating damage and hit feedback, with screen shake reserved for your critical hits only.',
+                            'Olympiad stays a clean arena — blessings and soulshots stay on the expedition / field hunt side.'
+                        ]
+                    },
+                    {
                         date: '2026-08-04',
                         items: [
                             'Blessing Build at the Grand Master: pick any 3 blessings (Might, Empower, Shield, Focus, Acumen, and more) for a shared 2-hour timer — the old Fighter/Mage packs are gone.',
@@ -3393,6 +3402,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-06',
+                        items: [
+                            'Pause na Expedição da Floresta abre o Mundo com o painel Expedição ativa — Retomar ou Recolher e sair, sem a lista de zonas a convidar outra run.',
+                            'Cartas de caminho da Expedição com arte da rota; upgrades com ícones de bênção, badge lendário mais claro e bag HUD mais limpa no mobile.',
+                            'Combate na Floresta mais legível: dano flutuante e feedback de hit; a tela só treme no teu crítico.',
+                            'Olimpíada continua arena limpa — bênçãos e soulshots ficam do lado da Expedição / caça no campo.'
+                        ]
+                    },
                     {
                         date: '2026-08-04',
                         items: [
