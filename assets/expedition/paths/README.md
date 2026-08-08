@@ -44,7 +44,7 @@ Until a PNG exists, the UI shows the emoji glyph fallback.
 #### `ambush.png` — Ambush
 - **Badge:** RISK
 - **Accent:** `#4ade80`
-- **Brief:** Brush trap — vines / thorns closing on a trail, yellow eyes in foliage, or a snapped snare. Suggests **gamble** (loot or pain), not a fair fight.
+- **Brief:** Brush trap — vines / thorns closing on a trail, yellow eyes in foliage, or a snapped snare. Suggests a **bag gamble** (loot or lose Adena/drops), never HP.
 
 ### Safe routes
 

@@ -28,14 +28,20 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - Run % buffs and temporary forge enchants **do not** apply in town
 - Resume reapplies them on the expedition map
 
-## Path choices (merchant / rare / warhorn)
+## Path choices (safe / risk / fight)
 
-- **Merchant** — pick 1 of 3 deals (heal / free mats / named +8% pact); paid deals spend **bag Adena**
-- **Rare events** — 2 choices per type (shrine / gambler / cache / storm); storm “Focused” opens a secondary +8% pick
-- **Warhorn** — Assault / Tempo / Iron Rally packages (not a fixed buff)
-- **Scout / Tracks** — real foresight: Scout (J2+) sets `nextPathBias` (`fight`|`safe`) for the next journey; Tracks (~50%) sets `nextPathGuarantee` (forced path type). Consumed in `generatePathChoices` (ignored on milestone boss / combat-only). Persisted on `expeditionRun`.
-- Offers resolve in the same click (no extra save fields for merchant/rare/warhorn)
-- **Rules modal** (`#janela-expedition-rules`) + path legend must stay aligned with these systems (i18n `game.hunt.expedition.rules*` / `legendPath*`)
+- **Safe path → next journey fights-only** still applies. Scout/Tracks intel **survives** that stretch and is consumed on the next *flexible* map (not cleared inside combat-only).
+- **Merchant** — pick 1 of 3: free supply crate · bag-Adena pact (+8% run stat) · lucky omen (`luckLegendaryNext`). No HP heal deal.
+- **Forge** — choose weapon / armor / jewel slot for +1 temp enchant (fallback +8% run stat if no gear).
+- **Scout** — choose fight-heavy vs safer for the map **after** the next fight-only stretch; sets `nextPathBias`.
+- **Tracks** — choose force Warhorn / Forge / Elite / Fight; sets `nextPathGuarantee` for after fight-only.
+- **Patrol** — March token (`marchToken`): next combat win rolls **4** upgrade cards.
+- **Chest** — Secure (modest loot) vs Gamble (~70% big loot / ~30% `lootCurseNextFight` = next fight bag loot ×0.5). **No HP damage.**
+- **Ambush** — bag gamble: success = Adena/mats; fail = lose bag Adena % and sometimes a drop stack. **Never HP.**
+- **Warhorn** — Assault / Tempo / Iron Rally packages (unchanged)
+- **Rare events** — 2 choices per type (shrine / gambler / cache / storm); storm “Focused” opens a secondary +8% pick (HP chips there are a follow-up debt)
+- Persist: `marchToken`, `lootCurseNextFight`, `nextPathBias`, `nextPathGuarantee` on `expeditionRun`
+- **Rules modal** + path legend must stay aligned (i18n `game.hunt.expedition.rules*` / `legendPath*`)
 
 ## Run builds (synergy)
 

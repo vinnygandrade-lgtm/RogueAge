@@ -124,12 +124,22 @@ export interface ExpeditionState {
     combatOnlyNextJourney: boolean;
     /** True while the current map step was forced to fights-only (UI hint). */
     combatOnlyThisJourney: boolean;
-    /** Scout intel — applied when generating the next journey's path cards. */
+    /**
+     * Scout intel — applied on the next *flexible* path generation
+     * (survives the forced fight-only journey after a safe path).
+     */
     nextPathBias: ExpeditionPathBias | null;
-    /** Tracks intel — force one path type to appear on the next journey. */
+    /**
+     * Tracks intel — force one path type on the next flexible journey
+     * (survives fight-only).
+     */
     nextPathGuarantee: ExpeditionPathType | null;
     /** Bias that shaped the current journey's cards (map banner). */
     pathBiasThisJourney: ExpeditionPathBias | null;
+    /** Patrol: next combat win rolls +1 upgrade option (4 cards). */
+    marchToken: boolean;
+    /** Chest gamble fail: next combat win bag loot ×0.5. */
+    lootCurseNextFight: boolean;
     runBuffs: ExpeditionRunBuffs;
     /**
      * Synergy builds unlocked this run (stack — complete as many as you can).
@@ -949,6 +959,8 @@ export class ExpeditionEngine {
             nextPathBias: null,
             nextPathGuarantee: null,
             pathBiasThisJourney: null,
+            marchToken: false,
+            lootCurseNextFight: false,
             runBuffs: ExpeditionEngine.emptyRunBuffs(),
             unlockedBuildIds: [],
             buildBonusBuffs: ExpeditionEngine.emptyRunBuffs(),
@@ -1013,6 +1025,8 @@ export class ExpeditionEngine {
             nextPathBias: this.state.nextPathBias,
             nextPathGuarantee: this.state.nextPathGuarantee,
             pathBiasThisJourney: this.state.pathBiasThisJourney,
+            marchToken: !!this.state.marchToken,
+            lootCurseNextFight: !!this.state.lootCurseNextFight,
             runBuffs: { ...this.state.runBuffs },
             unlockedBuildIds: [...(this.state.unlockedBuildIds || [])],
             runEnchantBonus: { ...this.state.runEnchantBonus },
@@ -1139,6 +1153,8 @@ export class ExpeditionEngine {
             pathBiasThisJourney: raw.pathBiasThisJourney === 'fight' || raw.pathBiasThisJourney === 'safe'
                 ? raw.pathBiasThisJourney
                 : null,
+            marchToken: !!(raw as ExpeditionRunSave).marchToken,
+            lootCurseNextFight: !!(raw as ExpeditionRunSave).lootCurseNextFight,
             runBuffs: baseBuffs,
             unlockedBuildIds: [],
             buildBonusBuffs: this.emptyRunBuffs(),
@@ -1781,6 +1797,27 @@ export class ExpeditionEngine {
         return targets;
     }
 
+    static applyForgeEnchantToSlot(slot: ExpeditionEnchantSlot):
+        | { ok: true; slot: ExpeditionEnchantSlot; itemName: string; slotLabel: string; before: number; after: number }
+        | { ok: false; reason: 'no_gear' | 'max_enchant' | 'missing' } {
+        const targets = this.collectForgeEnchantTargets();
+        const pick = targets.find((t) => t.slot === slot);
+        if (!pick) {
+            return { ok: false, reason: targets.length === 0 ? 'no_gear' : 'missing' };
+        }
+        const before = this.getEffectiveRunEnchantLevel(pick.slot, pick.item);
+        if (before >= 25) return { ok: false, reason: 'max_enchant' };
+        this.state.runEnchantBonus[pick.slot] += 1;
+        return {
+            ok: true,
+            slot: pick.slot,
+            itemName: pick.name,
+            slotLabel: this.t(pick.slotLabelKey, pick.slot),
+            before,
+            after: before + 1
+        };
+    }
+
     static applyRandomForgeEnchant():
         | { ok: true; slot: ExpeditionEnchantSlot; itemName: string; slotLabel: string; before: number; after: number }
         | { ok: false; reason: 'no_gear' | 'max_enchant' } {
@@ -1800,6 +1837,20 @@ export class ExpeditionEngine {
             before,
             after: before + 1
         };
+    }
+
+    /** Group eligible forge targets into weapon / armor / jewels for the offer UI. */
+    static getForgeOfferGroups(): Array<{ id: string; slot: ExpeditionEnchantSlot; icon: string; itemName: string }> {
+        const eligible = this.collectForgeEnchantTargets()
+            .filter((t) => this.getEffectiveRunEnchantLevel(t.slot, t.item) < 25);
+        const groups: Array<{ id: string; slot: ExpeditionEnchantSlot; icon: string; itemName: string }> = [];
+        const weapon = eligible.find((t) => t.slot === 'weapon');
+        if (weapon) groups.push({ id: 'weapon', slot: 'weapon', icon: '⚔️', itemName: weapon.name });
+        const armor = eligible.find((t) => t.slot === 'armor');
+        if (armor) groups.push({ id: 'armor', slot: 'armor', icon: '🛡️', itemName: armor.name });
+        const jewel = eligible.find((t) => t.slot !== 'weapon' && t.slot !== 'armor');
+        if (jewel) groups.push({ id: 'jewel', slot: jewel.slot, icon: '💎', itemName: jewel.name });
+        return groups;
     }
 
     static buildRunEnchantChipsHtml(): string {
@@ -1953,14 +2004,15 @@ export class ExpeditionEngine {
         let weights: number[];
 
         if (journey < 2) {
-            types = ['patrol', 'tracks', 'forge', 'scout', 'warhorn', 'ambush'];
-            weights = [22, 20, 18, 16, 14, 10];
+            // Unreachable today (J1 is fight-only), kept for consistency.
+            types = ['forge', 'scout', 'tracks', 'warhorn', 'patrol', 'ambush'];
+            weights = [20, 18, 18, 16, 14, 14];
         } else if (journey < 5) {
-            types = ['chest', 'merchant', 'forge', 'scout', 'patrol', 'ambush', 'tracks', 'warhorn'];
-            weights = [30, 22, 14, 12, 10, 6, 4, 2];
+            types = ['forge', 'scout', 'merchant', 'tracks', 'ambush', 'warhorn', 'chest', 'patrol'];
+            weights = [16, 14, 16, 12, 12, 10, 12, 8];
         } else {
-            types = ['chest', 'merchant', 'forge', 'scout', 'patrol', 'ambush', 'tracks', 'warhorn'];
-            weights = [26, 18, 12, 12, 10, 8, 8, 6];
+            types = ['forge', 'scout', 'merchant', 'tracks', 'ambush', 'warhorn', 'chest', 'patrol'];
+            weights = [14, 14, 14, 12, 12, 12, 14, 8];
         }
 
         const total = weights.reduce((a, b) => a + b, 0);
@@ -2010,6 +2062,26 @@ export class ExpeditionEngine {
         if (this.getBagAdena() < cost) return false;
         this.state.bag.adenas -= cost;
         return true;
+    }
+
+    /** Lose a % of bag Adena (never below 0). Returns amount lost. */
+    static loseBagAdenaPct(pct: number, minLoss = 0): number {
+        const bag = this.getBagAdena();
+        if (bag <= 0) return 0;
+        const loss = Math.min(bag, Math.max(minLoss, Math.floor(bag * Math.max(0, pct))));
+        this.state.bag.adenas -= loss;
+        return loss;
+    }
+
+    /** Remove one drop stack from the bag. Returns null if empty. */
+    static loseOneBagDropStack(): { name: string; qty: number } | null {
+        const drops = this.state.bag.drops || {};
+        const keys = Object.keys(drops).filter((k) => Math.floor(Number(drops[k]) || 0) > 0);
+        if (!keys.length) return null;
+        const name = keys[Math.floor(Math.random() * keys.length)];
+        const qty = Math.max(1, Math.floor(Number(drops[name]) || 0));
+        delete this.state.bag.drops[name];
+        return { name, qty };
     }
 
     /** Cost = max(min, floor(bag * pct)). */
@@ -2167,9 +2239,7 @@ export class ExpeditionEngine {
             this.state.combatOnlyNextJourney = false;
             this.state.combatOnlyThisJourney = true;
             this.state.pathBiasThisJourney = null;
-            // Forced fight-only journey ignores scout/tracks foresight
-            this.state.nextPathBias = null;
-            this.state.nextPathGuarantee = null;
+            // Keep Scout/Tracks intel — consumed on the next flexible map after these fights.
             return this.buildCombatOnlyPathChoices(journey);
         }
 
@@ -2320,7 +2390,7 @@ export class ExpeditionEngine {
                 ].filter((o, i) => o && o !== `game.hunt.expedition.nodeMerchantOutcome${i + 1}`),
                 tags: [
                     { text: this.t('game.hunt.expedition.nodeMerchantTagSafe', 'No combat'), cls: 'exp-node-tag--safe' as const },
-                    { text: this.t('game.hunt.expedition.nodeMerchantTagReward', 'Random aid'), cls: 'exp-node-tag--reward' as const }
+                    { text: this.t('game.hunt.expedition.nodeMerchantTagReward', 'Choose a deal'), cls: 'exp-node-tag--reward' as const }
                 ]
             };
         }
@@ -3141,7 +3211,8 @@ export class ExpeditionEngine {
             `<span class="exp-upgrade-card__icon-frame" style="--exp-icon:${esc(color)}" data-bless-icon="${esc(blessingId)}" aria-hidden="true">` +
             `<span class="exp-upgrade-card__glyph">${glyph}</span>` +
             `<img class="exp-upgrade-card__img" src="${esc(src)}" alt="" draggable="false" ` +
-            `onload="this.classList.add('is-ready')" onerror="this.remove()">` +
+            `onload="this.classList.add('is-ready');this.parentElement&&this.parentElement.classList.add('has-art')" ` +
+            `onerror="this.remove()">` +
             `</span>`
         );
     }
@@ -3215,7 +3286,9 @@ export class ExpeditionEngine {
     static showUpgradeModal(loot: ExpeditionBagDelta) {
         const win = window as any;
         this._upgradePickLocked = false;
-        this.pendingUpgradeOptions = this.rollUpgradeOptions(3);
+        const upgradeCount = this.state.marchToken ? 4 : 3;
+        if (this.state.marchToken) this.state.marchToken = false;
+        this.pendingUpgradeOptions = this.rollUpgradeOptions(upgradeCount);
         this.lastCombatLoot = loot;
 
         const lootEl = document.getElementById('exp-upgrade-loot');
@@ -3763,6 +3836,8 @@ export class ExpeditionEngine {
             nextPathBias: null,
             nextPathGuarantee: null,
             pathBiasThisJourney: null,
+            marchToken: false,
+            lootCurseNextFight: false,
             runBuffs: this.emptyRunBuffs(),
             unlockedBuildIds: [],
             buildBonusBuffs: this.emptyRunBuffs(),
@@ -3825,7 +3900,8 @@ export class ExpeditionEngine {
         return (
             `<span class="exp-path-art__glyph" aria-hidden="true">${glyph}</span>` +
             `<img class="exp-path-art__img" src="${esc(src)}" alt="" draggable="false" ` +
-            `onload="this.classList.add('is-ready')" onerror="this.remove()">`
+            `onload="this.classList.add('is-ready');var p=this.closest('.exp-path-art,.expedition-path-card__art,.exp-node-icon');if(p)p.classList.add('has-art');var f=this.closest('.expedition-path-card__art');if(f)f.classList.add('has-art')" ` +
+            `onerror="this.remove()">`
         );
     }
 
@@ -3869,15 +3945,15 @@ export class ExpeditionEngine {
         const hintFallbacks: Record<ExpeditionPathType, string> = {
             combat: 'Win → pick 1 upgrade',
             boss: 'Hard fight · ×2 loot',
-            chest: 'Loot now · no upgrade',
+            chest: 'Secure or gamble loot',
             elite: 'Champions · premium',
             merchant: 'Choose 1 of 3 deals',
-            forge: 'Random +1 enchant · no fight',
-            scout: 'Foresight · bag bonus',
-            patrol: 'XP march · no gifts',
-            tracks: 'Trait · path guarantee',
+            forge: 'Pick a slot · +1 enchant',
+            scout: 'Choose fight-heavy or safer',
+            patrol: 'March token · +1 upgrade',
+            tracks: 'Force a path ahead',
             warhorn: 'Pick a rally cry',
-            ambush: 'Risk · loot or pain'
+            ambush: 'Bag gamble · no HP risk'
         };
         let badge: string;
         let badgeCls: string;
@@ -4083,17 +4159,30 @@ export class ExpeditionEngine {
             : '';
 
         const pendingBits: string[] = [];
+        const afterFights = this.state.combatOnlyThisJourney || this.state.combatOnlyNextJourney;
         if (this.state.nextPathBias === 'fight') {
-            pendingBits.push(this.t('game.hunt.expedition.intelPendingFight', 'Next journey: fight-heavy'));
+            pendingBits.push(afterFights
+                ? this.t('game.hunt.expedition.intelPendingFightAfter', 'After these fights: fight-heavy routes')
+                : this.t('game.hunt.expedition.intelPendingFight', 'Next flexible map: fight-heavy'));
         } else if (this.state.nextPathBias === 'safe') {
-            pendingBits.push(this.t('game.hunt.expedition.intelPendingSafe', 'Next journey: safer paths'));
+            pendingBits.push(afterFights
+                ? this.t('game.hunt.expedition.intelPendingSafeAfter', 'After these fights: safer routes')
+                : this.t('game.hunt.expedition.intelPendingSafe', 'Next flexible map: safer paths'));
         }
         if (this.state.nextPathGuarantee) {
             pendingBits.push(this.t(
-                'game.hunt.expedition.intelPendingGuarantee',
-                'Guaranteed: {path}',
+                afterFights
+                    ? 'game.hunt.expedition.intelPendingGuaranteeAfter'
+                    : 'game.hunt.expedition.intelPendingGuarantee',
+                afterFights ? 'After these fights — guaranteed: {path}' : 'Guaranteed: {path}',
                 { path: this.pathTypeLabel(this.state.nextPathGuarantee) }
             ));
+        }
+        if (this.state.marchToken) {
+            pendingBits.push(this.t('game.hunt.expedition.intelMarchToken', 'March token: +1 upgrade choice next win'));
+        }
+        if (this.state.lootCurseNextFight) {
+            pendingBits.push(this.t('game.hunt.expedition.intelLootCurse', 'Curse: next fight loot ×0.5'));
         }
         const pendingIntelBanner = pendingBits.length
             ? `<div class="expedition-intel-banner expedition-intel-banner--pending">${pendingBits.join(' · ')}</div>`
@@ -4964,7 +5053,11 @@ export class ExpeditionEngine {
         this.state.combatInterrupted = false;
         this.restoreMobTuning();
 
-        const combatMult = (this as any)._combatLootMult || 1;
+        let combatMult = (this as any)._combatLootMult || 1;
+        if (this.state.lootCurseNextFight) {
+            combatMult *= 0.5;
+            this.state.lootCurseNextFight = false;
+        }
         const displayedLoot = this.scaleLootForDisplay(lootTurno, combatMult);
         this.applyBagLoot(lootTurno, combatMult);
         (this as any)._combatLootMult = 1;
@@ -4984,8 +5077,8 @@ export class ExpeditionEngine {
         }
         this._merchantPactStat = this.pickMerchantPactStat();
         const journeyMult = this.getJourneyRewardMult();
-        const healCost = this.bagPctCost(0.4, Math.max(150, Math.floor(150 * journeyMult)));
-        const pactCost = this.bagPctCost(0.55, Math.max(250, Math.floor(250 * journeyMult)));
+        const pactCost = this.bagPctCost(0.45, Math.max(220, Math.floor(220 * journeyMult)));
+        const omenCost = this.bagPctCost(0.5, Math.max(280, Math.floor(280 * journeyMult)));
         const pactLabel = this.runStatLabel(this._merchantPactStat);
 
         this.showOfferModal({
@@ -4998,15 +5091,6 @@ export class ExpeditionEngine {
             ),
             toneClass: 'merchant',
             offers: [
-                {
-                    id: 'heal',
-                    icon: '💚',
-                    titleKey: 'game.hunt.expedition.offerMerchantHealTitle',
-                    titleFallback: 'Patch-up',
-                    descKey: 'game.hunt.expedition.offerMerchantHealDesc',
-                    descFallback: 'Restore most of your HP and MP.',
-                    costAdena: healCost
-                },
                 {
                     id: 'supply',
                     icon: '📦',
@@ -5025,47 +5109,27 @@ export class ExpeditionEngine {
                     descFallback: '+8% {stat} for this run.',
                     descParams: { stat: pactLabel },
                     costAdena: pactCost
+                },
+                {
+                    id: 'omen',
+                    icon: '✨',
+                    titleKey: 'game.hunt.expedition.offerMerchantOmenTitle',
+                    titleFallback: 'Lucky omen',
+                    descKey: 'game.hunt.expedition.offerMerchantOmenDesc',
+                    descFallback: 'Next upgrade pick is guaranteed to include a legendary.',
+                    costAdena: omenCost
                 }
             ],
-            onPick: (offerId) => this.applyMerchantOffer(offerId, healCost, pactCost)
+            onPick: (offerId) => this.applyMerchantOffer(offerId, 0, pactCost, omenCost)
         });
     }
 
-    static applyMerchantOffer(id: string, healCost: number, pactCost: number): void {
+    static applyMerchantOffer(id: string, _healCost: number, pactCost: number, omenCost = 0): void {
         const win = window as any;
         const journeyMult = this.getJourneyRewardMult();
         let result: ExpeditionNodeResult;
 
-        if (id === 'heal') {
-            if (!this.spendBagAdena(healCost)) {
-                this.resolveMerchantPath();
-                return;
-            }
-            this.state.runStats.merchantsUsed += 1;
-            const hpBefore = Number(win.playerHP) || 0;
-            const mpBefore = Number(win.playerMP) || 0;
-            const maxHp = Number(win.playerStats?.maxHp) || hpBefore;
-            const maxMp = Number(win.playerStats?.maxMp) || mpBefore;
-            const healPct = 0.6 + Math.random() * 0.4;
-            win.playerHP = Math.min(maxHp, Math.max(hpBefore, Math.floor(maxHp * healPct)));
-            win.playerMP = Math.min(maxMp, Math.max(mpBefore, Math.floor(maxMp * healPct)));
-            if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
-            win.atualizar();
-            result = {
-                nodeType: 'merchant',
-                tone: 'success',
-                icon: '💚',
-                titleKey: 'game.hunt.expedition.resultMerchantHealTitle',
-                titleFallback: 'Field patch-up',
-                summaryKey: 'game.hunt.expedition.resultMerchantHealDesc',
-                summaryFallback: 'The merchant\'s salves restore your line — Adena spent from the bag.',
-                effects: {
-                    hpRestored: Math.max(0, (Number(win.playerHP) || 0) - hpBefore),
-                    mpRestored: Math.max(0, (Number(win.playerMP) || 0) - mpBefore),
-                    bagAdenaLost: healCost
-                }
-            };
-        } else if (id === 'pact') {
+        if (id === 'pact') {
             if (!this.spendBagAdena(pactCost)) {
                 this.resolveMerchantPath();
                 return;
@@ -5091,6 +5155,26 @@ export class ExpeditionEngine {
                     bagAdenaLost: pactCost
                 }
             };
+        } else if (id === 'omen') {
+            if (!this.spendBagAdena(omenCost)) {
+                this.resolveMerchantPath();
+                return;
+            }
+            this.state.runStats.merchantsUsed += 1;
+            this.state.luckLegendaryNext = true;
+            result = {
+                nodeType: 'merchant',
+                tone: 'success',
+                icon: '✨',
+                titleKey: 'game.hunt.expedition.resultMerchantOmenTitle',
+                titleFallback: 'Lucky omen',
+                summaryKey: 'game.hunt.expedition.resultMerchantOmenDesc',
+                summaryFallback: 'Fate bends — your next upgrade choice will include a legendary card.',
+                effects: {
+                    buffText: this.t('game.hunt.expedition.resultMerchantOmenBuff', 'Next upgrade: legendary guaranteed'),
+                    bagAdenaLost: omenCost
+                }
+            };
         } else {
             this.state.runStats.merchantsUsed += 1;
             const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore', 'Life Stone'];
@@ -5114,63 +5198,105 @@ export class ExpeditionEngine {
     }
 
     static resolveForgePath() {
-        const win = window as any;
-        const forged = this.applyRandomForgeEnchant();
-        this.state.runStats.forgesUsed += 1;
-
-        if (forged.ok) {
-            if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
-            win.atualizar();
-            this.showResultModal({
-                nodeType: 'forge',
-                tone: 'success',
-                icon: '🔨',
-                titleKey: 'game.hunt.expedition.resultForgeTitle',
-                titleFallback: 'Field forge',
-                summaryKey: 'game.hunt.expedition.resultForgeDesc',
-                summaryFallback: '{item} ({slot}) +1 enchant for this run — now +{after} (was +{before}).',
-                summaryParams: {
-                    item: forged.itemName,
-                    slot: forged.slotLabel,
-                    before: forged.before,
-                    after: forged.after
-                },
-                effects: {
-                    buffText: this.t('game.hunt.expedition.resultForgeBuff', '+1 {item} ({before}→{after})', {
-                        item: forged.itemName,
-                        before: forged.before,
-                        after: forged.after
-                    })
-                }
-            });
+        const groups = this.getForgeOfferGroups();
+        if (!groups.length) {
+            this.applyForgeFallback();
             return;
         }
+        if (groups.length === 1) {
+            this.applyForgeOffer(groups[0].id);
+            return;
+        }
+        this.showOfferModal({
+            icon: '🔨',
+            title: this.t('game.hunt.expedition.offerForgeTitle', 'Field Forge'),
+            desc: this.t(
+                'game.hunt.expedition.offerForgeDesc',
+                'Choose which gear gets +1 temporary enchant for this run.'
+            ),
+            toneClass: 'forge',
+            offers: groups.map((g) => ({
+                id: g.id,
+                icon: g.icon,
+                titleKey: g.id === 'weapon'
+                    ? 'game.hunt.expedition.offerForgeWeaponTitle'
+                    : g.id === 'armor'
+                        ? 'game.hunt.expedition.offerForgeArmorTitle'
+                        : 'game.hunt.expedition.offerForgeJewelTitle',
+                titleFallback: g.id === 'weapon' ? 'Weapon' : g.id === 'armor' ? 'Armor' : 'Jewel',
+                descKey: 'game.hunt.expedition.offerForgeSlotDesc',
+                descFallback: '+1 enchant on {item} for this run.',
+                descParams: { item: g.itemName }
+            })),
+            onPick: (offerId) => this.applyForgeOffer(offerId)
+        });
+    }
 
+    static applyForgeFallback(): void {
+        const win = window as any;
+        this.state.runStats.forgesUsed += 1;
+        const targets = this.collectForgeEnchantTargets();
+        const reason: 'no_gear' | 'max_enchant' = targets.length === 0 ? 'no_gear' : 'max_enchant';
         const stat = this.rollRandomRunStat();
         const boost = 8;
         this.state.runBuffs[stat] += boost;
         this.evaluateRunBuilds({ notify: true });
         if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
         win.atualizar();
-
-        const forgeFailReason = (forged as { ok: false; reason: 'no_gear' | 'max_enchant' }).reason;
-        const fallbackKey = forgeFailReason === 'no_gear'
-            ? 'game.hunt.expedition.resultForgeFallbackNoGear'
-            : 'game.hunt.expedition.resultForgeFallbackMax';
-        const fallbackMsg = forgeFailReason === 'no_gear'
-            ? 'Nothing equipped to enchant — sparks still boost a run stat.'
-            : 'All gear is already +25 — sparks boost a run stat instead.';
-
         this.showResultModal({
             nodeType: 'forge',
-            tone: forgeFailReason === 'no_gear' ? 'neutral' : 'warning',
+            tone: reason === 'no_gear' ? 'neutral' : 'warning',
             icon: '🔨',
             titleKey: 'game.hunt.expedition.resultForgeFallbackTitle',
             titleFallback: 'Anvil sparks',
-            summaryKey: fallbackKey,
-            summaryFallback: fallbackMsg,
+            summaryKey: reason === 'no_gear'
+                ? 'game.hunt.expedition.resultForgeFallbackNoGear'
+                : 'game.hunt.expedition.resultForgeFallbackMax',
+            summaryFallback: reason === 'no_gear'
+                ? 'Nothing equipped to enchant — sparks still boost a run stat.'
+                : 'All gear is already +25 — sparks boost a run stat instead.',
             summaryParams: { stat: this.runStatLabel(stat), pct: boost },
             effects: { buffText: `+${boost}% ${this.runStatLabel(stat)}` }
+        });
+    }
+
+    static applyForgeOffer(id: string): void {
+        const win = window as any;
+        const groups = this.getForgeOfferGroups();
+        const group = groups.find((g) => g.id === id) || groups[0];
+        if (!group) {
+            this.applyForgeFallback();
+            return;
+        }
+        const forged = this.applyForgeEnchantToSlot(group.slot);
+        this.state.runStats.forgesUsed += 1;
+        if (!forged.ok) {
+            this.applyForgeFallback();
+            return;
+        }
+        if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
+        win.atualizar();
+        this.showResultModal({
+            nodeType: 'forge',
+            tone: 'success',
+            icon: '🔨',
+            titleKey: 'game.hunt.expedition.resultForgeTitle',
+            titleFallback: 'Field forge',
+            summaryKey: 'game.hunt.expedition.resultForgeDesc',
+            summaryFallback: '{item} ({slot}) +1 enchant for this run — now +{after} (was +{before}).',
+            summaryParams: {
+                item: forged.itemName,
+                slot: forged.slotLabel,
+                before: forged.before,
+                after: forged.after
+            },
+            effects: {
+                buffText: this.t('game.hunt.expedition.resultForgeBuff', '+1 {item} ({before}→{after})', {
+                    item: forged.itemName,
+                    before: forged.before,
+                    after: forged.after
+                })
+            }
         });
     }
 
@@ -5182,61 +5308,96 @@ export class ExpeditionEngine {
         const xpGain = this.scalePlayerXpReward(
             Math.floor(((early ? 50 : 60) + Math.random() * (early ? 50 : 120)) * journeyMult),
         );
+        // Grant bag loot first, then let the player choose foresight.
         if (adenaGain > 0) this.state.bag.adenas += adenaGain;
         this.state.bag.xp += xpGain;
+        (this as any)._pendingScoutLoot = { adenas: adenaGain, xp: xpGain, trait };
 
-        const intelBits: string[] = [
+        this.showOfferModal({
+            icon: '🔭',
+            title: this.t('game.hunt.expedition.offerScoutTitle', 'Trail Scout'),
+            desc: this.t(
+                'game.hunt.expedition.offerScoutDesc',
+                'Enemy trait: {trait}. Choose the path mix for the flexible map after the next fight-only stretch.',
+                { trait: this.t(`game.hunt.expedition.trait_${trait}`, trait) }
+            ),
+            toneClass: 'scout',
+            offers: [
+                {
+                    id: 'fight',
+                    icon: '⚔️',
+                    titleKey: 'game.hunt.expedition.offerScoutFightTitle',
+                    titleFallback: 'Fight-heavy',
+                    descKey: 'game.hunt.expedition.offerScoutFightDesc',
+                    descFallback: 'After the next fights, routes skew toward combat and elites.'
+                },
+                {
+                    id: 'safe',
+                    icon: '🌿',
+                    titleKey: 'game.hunt.expedition.offerScoutSafeTitle',
+                    titleFallback: 'Safer trails',
+                    descKey: 'game.hunt.expedition.offerScoutSafeDesc',
+                    descFallback: 'After the next fights, routes skew toward safe prep paths.'
+                }
+            ],
+            onPick: (offerId) => this.applyScoutOffer(offerId)
+        });
+    }
+
+    static applyScoutOffer(id: string): void {
+        const pending = (this as any)._pendingScoutLoot as { adenas: number; xp: number; trait: JourneyMobTrait } | undefined;
+        const trait = pending?.trait || this.state.journeyTrait;
+        const adenaGain = pending?.adenas || 0;
+        const xpGain = pending?.xp || 0;
+        (this as any)._pendingScoutLoot = null;
+
+        const fightHeavy = id !== 'safe';
+        this.state.nextPathBias = fightHeavy ? 'fight' : 'safe';
+        this.state.runStats.scoutsUsed += 1;
+
+        const intelBits = [
             this.t('game.hunt.expedition.resultScoutIntel', 'Enemy trait: {trait}', {
                 trait: this.t(`game.hunt.expedition.trait_${trait}`, trait)
-            })
+            }),
+            fightHeavy
+                ? this.t('game.hunt.expedition.resultScoutForesightFight', 'After the next fights: fight-heavy routes')
+                : this.t('game.hunt.expedition.resultScoutForesightSafe', 'After the next fights: safer routes')
         ];
-        if (!early) {
-            const fightHeavy = Math.random() < 0.5;
-            this.state.nextPathBias = fightHeavy ? 'fight' : 'safe';
-            intelBits.push(fightHeavy
-                ? this.t('game.hunt.expedition.resultScoutForesightFight', 'Next stretch looks fight-heavy')
-                : this.t('game.hunt.expedition.resultScoutForesightSafe', 'Next stretch looks safer'));
-        }
 
-        this.state.runStats.scoutsUsed += 1;
         this.showResultModal({
             nodeType: 'scout',
             tone: 'neutral',
             icon: '🔭',
-            titleKey: early ? 'game.hunt.expedition.resultScoutEarlyTitle' : 'game.hunt.expedition.resultScoutTitle',
-            titleFallback: early ? 'Recon sweep' : 'Trail intel',
-            summaryKey: early ? 'game.hunt.expedition.resultScoutEarlyDesc' : 'game.hunt.expedition.resultScoutDesc',
-            summaryFallback: early
-                ? 'You map the zone trait and earn march XP — no free Adena on the opening step.'
-                : 'You read the land ahead — bonus bag loot and enemy intel.',
+            titleKey: 'game.hunt.expedition.resultScoutTitle',
+            titleFallback: 'Trail intel',
+            summaryKey: 'game.hunt.expedition.resultScoutDesc',
+            summaryFallback: 'You chart the land ahead — foresight applies after the next fight stretch.',
             summaryParams: {
                 trait: this.t(`game.hunt.expedition.trait_${trait}`, trait)
             },
-            bag: { adenas: adenaGain || undefined, xp: xpGain },
-            effects: {
-                buffText: intelBits.join(' · ')
-            }
+            bag: { adenas: adenaGain || undefined, xp: xpGain || undefined },
+            effects: { buffText: intelBits.join(' · ') }
         });
     }
 
     static resolvePatrolPath() {
         const journeyMult = this.getJourneyRewardMult();
-        const xpGain = this.scalePlayerXpReward(Math.floor((Math.random() * 140 + 90) * journeyMult));
-        const adenaGain = this.state.journey >= 2
-            ? Math.floor((Math.random() * 120 + 60) * journeyMult)
-            : 0;
+        const xpGain = this.scalePlayerXpReward(Math.floor((Math.random() * 100 + 60) * journeyMult));
         this.state.bag.xp += xpGain;
-        if (adenaGain > 0) this.state.bag.adenas += adenaGain;
+        this.state.marchToken = true;
 
         this.showResultModal({
             nodeType: 'patrol',
-            tone: 'neutral',
+            tone: 'success',
             icon: '🚶',
             titleKey: 'game.hunt.expedition.resultPatrolTitle',
             titleFallback: 'Perimeter patrol',
             summaryKey: 'game.hunt.expedition.resultPatrolDesc',
-            summaryFallback: 'You march the edge of the hunt zone — XP in the bag, no merchant handouts.',
-            bag: { adenas: adenaGain || undefined, xp: xpGain }
+            summaryFallback: 'Steady march — you earn a March token: next combat win offers 4 upgrade cards.',
+            bag: { xp: xpGain },
+            effects: {
+                buffText: this.t('game.hunt.expedition.resultPatrolToken', 'March token: +1 upgrade choice next win')
+            }
         });
     }
 
@@ -5245,36 +5406,46 @@ export class ExpeditionEngine {
         const nextTrait = this.state.nextJourneyTrait;
         const xpGain = this.scalePlayerXpReward(Math.floor((Math.random() * 80 + 70) * journeyMult));
         this.state.bag.xp += xpGain;
+        (this as any)._pendingTracksXp = xpGain;
 
-        let adenaGain = 0;
-        let drops: Record<string, number> | undefined;
-        const extraBits: string[] = [
-            this.t('game.hunt.expedition.resultTracksIntel', 'Next journey trait: {trait}', {
-                trait: this.t(`game.hunt.expedition.trait_${nextTrait}`, nextTrait)
-            })
+        const pathOpts: Array<{ id: ExpeditionPathType; icon: string }> = [
+            { id: 'warhorn', icon: '📯' },
+            { id: 'forge', icon: '🔨' },
+            { id: 'elite', icon: '💀' },
+            { id: 'combat', icon: '⚔️' }
         ];
-        if (Math.random() < 0.5) {
-            const guaranteed = this.rollTracksPathGuarantee(this.state.journey);
-            this.state.nextPathGuarantee = guaranteed;
-            extraBits.push(this.t(
-                'game.hunt.expedition.resultTracksGuarantee',
-                'Next path includes: {path}',
-                { path: this.pathTypeLabel(guaranteed) }
-            ));
-        }
-        if (Math.random() < 0.3) {
-            if (Math.random() < 0.5) {
-                adenaGain = Math.floor((Math.random() * 120 + 40) * journeyMult);
-                this.state.bag.adenas += adenaGain;
-                extraBits.push(this.t('game.hunt.expedition.resultTracksBonusAdena', 'Scavenged coins along the trail'));
-            } else {
-                const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal'];
-                const mat = mats[Math.floor(Math.random() * mats.length)];
-                this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + 1;
-                drops = { [mat]: 1 };
-                extraBits.push(this.t('game.hunt.expedition.resultTracksBonusMat', 'Found a spare material'));
-            }
-        }
+
+        this.showOfferModal({
+            icon: '👣',
+            title: this.t('game.hunt.expedition.offerTracksTitle', 'Fresh Tracks'),
+            desc: this.t(
+                'game.hunt.expedition.offerTracksDesc',
+                'Next trait: {trait}. Force one path to appear on the flexible map after the next fight-only stretch.',
+                { trait: this.t(`game.hunt.expedition.trait_${nextTrait}`, nextTrait) }
+            ),
+            toneClass: 'tracks',
+            offers: pathOpts.map((p) => ({
+                id: p.id,
+                icon: p.icon,
+                titleKey: `game.hunt.expedition.path${p.id.charAt(0).toUpperCase()}${p.id.slice(1)}Title`,
+                titleFallback: this.pathTypeLabel(p.id),
+                descKey: 'game.hunt.expedition.offerTracksForceDesc',
+                descFallback: 'Guarantee {path} after the next fights.',
+                descParams: { path: this.pathTypeLabel(p.id) }
+            })),
+            onPick: (offerId) => this.applyTracksOffer(offerId)
+        });
+    }
+
+    static applyTracksOffer(id: string): void {
+        const xpGain = Math.max(0, Math.floor(Number((this as any)._pendingTracksXp) || 0));
+        (this as any)._pendingTracksXp = 0;
+        const allowed: ExpeditionPathType[] = ['warhorn', 'forge', 'elite', 'combat'];
+        const guaranteed = allowed.includes(id as ExpeditionPathType)
+            ? (id as ExpeditionPathType)
+            : 'forge';
+        this.state.nextPathGuarantee = guaranteed;
+        const nextTrait = this.state.nextJourneyTrait;
 
         this.showResultModal({
             nodeType: 'tracks',
@@ -5283,13 +5454,22 @@ export class ExpeditionEngine {
             titleKey: 'game.hunt.expedition.resultTracksTitle',
             titleFallback: 'Fresh tracks',
             summaryKey: 'game.hunt.expedition.resultTracksDesc',
-            summaryFallback: 'You read signs on the trail — XP logged and the next journey trait revealed.',
+            summaryFallback: 'You mark the trail — a path is forced after the next fight stretch.',
             summaryParams: {
                 trait: this.t(`game.hunt.expedition.trait_${nextTrait}`, nextTrait)
             },
-            bag: { xp: xpGain, adenas: adenaGain || undefined, drops },
+            bag: { xp: xpGain || undefined },
             effects: {
-                buffText: extraBits.join(' · ')
+                buffText: [
+                    this.t('game.hunt.expedition.resultTracksIntel', 'Next journey trait: {trait}', {
+                        trait: this.t(`game.hunt.expedition.trait_${nextTrait}`, nextTrait)
+                    }),
+                    this.t(
+                        'game.hunt.expedition.resultTracksGuarantee',
+                        'After the next fights — guaranteed: {path}',
+                        { path: this.pathTypeLabel(guaranteed) }
+                    )
+                ].join(' · ')
             }
         });
     }
@@ -5385,19 +5565,18 @@ export class ExpeditionEngine {
     }
 
     static resolveAmbushPath() {
-        const win = window as any;
         const journeyMult = this.getJourneyRewardMult();
         const early = this.state.journey < 2;
         const successRoll = early ? 0.55 : 0.62;
 
         if (Math.random() < successRoll) {
-            const adenaGain = Math.floor((Math.random() * (early ? 220 : 380) + (early ? 80 : 140)) * journeyMult);
+            const adenaGain = Math.floor((Math.random() * (early ? 280 : 480) + (early ? 100 : 180)) * journeyMult);
             this.state.bag.adenas += adenaGain;
             let drops: Record<string, number> | undefined;
-            if (!early && Math.random() < 0.45) {
-                const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal'];
+            if (!early && Math.random() < 0.5) {
+                const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore'];
                 const mat = mats[Math.floor(Math.random() * mats.length)];
-                const matQty = Math.max(1, Math.floor((Math.random() * 2 + 1) * journeyMult));
+                const matQty = Math.max(1, Math.floor((Math.random() * 3 + 1) * journeyMult));
                 this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
                 drops = { [mat]: matQty };
             }
@@ -5412,10 +5591,24 @@ export class ExpeditionEngine {
                 bag: { adenas: adenaGain, drops }
             });
         } else {
-            const pct = early ? 0.16 : 0.12;
-            const dmg = Math.floor(win.playerStats.maxHp * pct);
-            win.playerHP = Math.max(1, win.playerHP - dmg);
-            win.atualizar();
+            const pct = early ? 0.4 : 0.3;
+            const lostAdena = this.loseBagAdenaPct(pct, early ? 40 : 80);
+            const lostDrop = Math.random() < 0.45 ? this.loseOneBagDropStack() : null;
+            const bits: string[] = [];
+            if (lostAdena > 0) {
+                bits.push(this.t('game.hunt.expedition.resultAmbushLostAdena', 'Lost {n} bag Adena', {
+                    n: lostAdena.toLocaleString()
+                }));
+            }
+            if (lostDrop) {
+                bits.push(this.t('game.hunt.expedition.resultAmbushLostDrop', 'Lost {qty}× {item}', {
+                    qty: lostDrop.qty,
+                    item: lostDrop.name
+                }));
+            }
+            if (!bits.length) {
+                bits.push(this.t('game.hunt.expedition.resultAmbushEmptyBag', 'The trap snaps — bag was already empty.'));
+            }
             this.showResultModal({
                 nodeType: 'ambush',
                 tone: 'danger',
@@ -5423,8 +5616,11 @@ export class ExpeditionEngine {
                 titleKey: 'game.hunt.expedition.resultAmbushFailTitle',
                 titleFallback: 'Caught in the brush',
                 summaryKey: 'game.hunt.expedition.resultAmbushFailDesc',
-                summaryFallback: 'Snares and blades nick you — use potions, then pick your next path.',
-                effects: { hpLost: dmg }
+                summaryFallback: 'The snare costs bag loot — never your HP. Potions cannot undo this.',
+                effects: {
+                    bagAdenaLost: lostAdena || undefined,
+                    buffText: bits.join(' · ')
+                }
             });
         }
     }
@@ -5434,47 +5630,91 @@ export class ExpeditionEngine {
             this.resolvePatrolPath();
             return;
         }
-        const win = window as any;
+        this.showOfferModal({
+            icon: '🎁',
+            title: this.t('game.hunt.expedition.offerChestTitle', 'Trail Chest'),
+            desc: this.t(
+                'game.hunt.expedition.offerChestDesc',
+                'Secure a smaller haul, or gamble for more — failure curses the next fight\'s loot (no HP damage).'
+            ),
+            toneClass: 'chest',
+            offers: [
+                {
+                    id: 'secure',
+                    icon: '🔒',
+                    titleKey: 'game.hunt.expedition.offerChestSecureTitle',
+                    titleFallback: 'Secure',
+                    descKey: 'game.hunt.expedition.offerChestSecureDesc',
+                    descFallback: 'Guaranteed modest Adena and materials. No curse.'
+                },
+                {
+                    id: 'gamble',
+                    icon: '🎲',
+                    titleKey: 'game.hunt.expedition.offerChestGambleTitle',
+                    titleFallback: 'Gamble',
+                    descKey: 'game.hunt.expedition.offerChestGambleDesc',
+                    descFallback: '~70% big loot · ~30% curse: next fight bag loot ×0.5.'
+                }
+            ],
+            onPick: (offerId) => this.applyChestOffer(offerId)
+        });
+    }
+
+    static applyChestOffer(id: string): void {
         const journeyMult = this.getJourneyRewardMult();
-        const isMimic = Math.random() < 0.18;
-        let result: ExpeditionNodeResult;
-
         this.state.runStats.chestsOpened += 1;
+        const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore'];
 
-        if (isMimic) {
-            const dmg = Math.floor(win.playerStats.maxHp * 0.28);
-            win.playerHP = Math.max(1, win.playerHP - dmg);
-            win.atualizar();
-            result = {
-                nodeType: 'chest',
-                tone: 'danger',
-                icon: '🦷',
-                titleKey: 'game.hunt.expedition.resultChestMimicTitle',
-                titleFallback: 'Mimic attack!',
-                summaryKey: 'game.hunt.expedition.resultChestMimicDesc',
-                summaryFallback: 'No upgrade and no loot — only pain. Next journey hits harder.',
-                effects: { hpLost: dmg }
-            };
-        } else {
-            const adenaGain = Math.floor((Math.random() * 700 + 250) * journeyMult);
-            this.state.bag.adenas += adenaGain;
-            const mats = ['Animal Skin', 'Animal Bone', 'Coal', 'Charcoal', 'Iron Ore'];
-            const mat = mats[Math.floor(Math.random() * mats.length)];
-            const matQty = Math.max(1, Math.floor((Math.random() * 4 + 2) * journeyMult));
-            this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
-            result = {
-                nodeType: 'chest',
-                tone: 'success',
-                icon: '🎁',
-                titleKey: 'game.hunt.expedition.resultChestLootTitle',
-                titleFallback: 'Treasure found',
-                summaryKey: 'game.hunt.expedition.resultChestLootDesc',
-                summaryFallback: 'Quick bag loot — you skipped the fight and any upgrade card.',
-                bag: { adenas: adenaGain, drops: { [mat]: matQty } }
-            };
+        if (id === 'gamble') {
+            if (Math.random() < 0.7) {
+                const adenaGain = Math.floor((Math.random() * 900 + 400) * journeyMult);
+                this.state.bag.adenas += adenaGain;
+                const mat = mats[Math.floor(Math.random() * mats.length)];
+                const matQty = Math.max(2, Math.floor((Math.random() * 5 + 3) * journeyMult));
+                this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
+                this.showResultModal({
+                    nodeType: 'chest',
+                    tone: 'success',
+                    icon: '🎁',
+                    titleKey: 'game.hunt.expedition.resultChestGambleWinTitle',
+                    titleFallback: 'Jackpot cache',
+                    summaryKey: 'game.hunt.expedition.resultChestGambleWinDesc',
+                    summaryFallback: 'The gamble pays — rich haul for the bag.',
+                    bag: { adenas: adenaGain, drops: { [mat]: matQty } }
+                });
+            } else {
+                this.state.lootCurseNextFight = true;
+                this.showResultModal({
+                    nodeType: 'chest',
+                    tone: 'danger',
+                    icon: '🦷',
+                    titleKey: 'game.hunt.expedition.resultChestGambleFailTitle',
+                    titleFallback: 'Cursed lid',
+                    summaryKey: 'game.hunt.expedition.resultChestGambleFailDesc',
+                    summaryFallback: 'No loot — the next fight pays half bag loot. Your HP is untouched.',
+                    effects: {
+                        buffText: this.t('game.hunt.expedition.resultChestCurseBuff', 'Curse: next fight loot ×0.5')
+                    }
+                });
+            }
+            return;
         }
 
-        this.showResultModal(result);
+        const adenaGain = Math.floor((Math.random() * 350 + 160) * journeyMult);
+        this.state.bag.adenas += adenaGain;
+        const mat = mats[Math.floor(Math.random() * mats.length)];
+        const matQty = Math.max(1, Math.floor((Math.random() * 3 + 1) * journeyMult));
+        this.state.bag.drops[mat] = (this.state.bag.drops[mat] || 0) + matQty;
+        this.showResultModal({
+            nodeType: 'chest',
+            tone: 'success',
+            icon: '🎁',
+            titleKey: 'game.hunt.expedition.resultChestLootTitle',
+            titleFallback: 'Treasure secured',
+            summaryKey: 'game.hunt.expedition.resultChestLootDesc',
+            summaryFallback: 'A careful take — smaller haul, no curse.',
+            bag: { adenas: adenaGain, drops: { [mat]: matQty } }
+        });
     }
 
     static extract() {

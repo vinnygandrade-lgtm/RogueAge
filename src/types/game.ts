@@ -839,10 +839,14 @@ export interface ExpeditionRunSave {
   combatOnlyThisJourney: boolean;
   /** Scout foresight pending for next journey (`fight` | `safe`). */
   nextPathBias?: 'fight' | 'safe' | null;
-  /** Tracks foresight — guaranteed path type on next journey. */
+  /** Tracks foresight — guaranteed path type after the next fight-only stretch. */
   nextPathGuarantee?: string | null;
   /** Bias that shaped the current journey (UI banner). */
   pathBiasThisJourney?: 'fight' | 'safe' | null;
+  /** Patrol March token — next combat win offers +1 upgrade card. */
+  marchToken?: boolean;
+  /** Chest gamble curse — next combat win bag loot ×0.5. */
+  lootCurseNextFight?: boolean;
   runBuffs: Record<string, number>;
   /** Unlocked synergy build ids this run (optional — older saves may use activeBuildId). */
   unlockedBuildIds?: string[];
