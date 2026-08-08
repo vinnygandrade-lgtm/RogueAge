@@ -64,7 +64,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             'Floating messenger chat: the bottom dock is gone — tap the Chat bubble for SYSTEM / GLOBAL / CLAN. Starts closed, shows an unread badge, and you can drag the icon anywhere on screen.',
                             'Forest Expedition fights get their own combat stage + HUD (battle log beside CP/HP/MP) so the fight stays readable without eating the whole phone.',
                             'Expedition rare path events now risk your bag purse (Adena / curse), not random HP chips outside combat.',
-                            'When a mob falls in expedition combat, survivors slide into place instead of jumping — smoother field pacing.'
+                            'When a mob falls in expedition combat, survivors slide into place instead of jumping — smoother field pacing.',
+                            'Basic Attack now has a short wind-up cast (faster than skills; quicker classes wind up sooner) so it no longer lands in the same beat as a skill release.'
                         ]
                     },
                     {
@@ -3467,7 +3468,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             'Chat flutuante estilo messenger: saiu o painel de baixo — toca na bolha Chat para SISTEMA / GLOBAL / CLÃ. Começa fechado, mostra badge de não lidas, e podes arrastar o ícone para qualquer sítio do ecrã.',
                             'Lutas da Expedição da Floresta ganham stage + HUD próprios (log de combate ao lado de CP/HP/MP), mais legível no telemóvel.',
                             'Eventos raros no caminho da Expedição arriscam a bolsa (Adena / maldição), não HP aleatório fora de combate.',
-                            'Quando um mob cai na Expedição, os sobreviventes deslizam para o lugar — combate mais fluido.'
+                            'Quando um mob cai na Expedição, os sobreviventes deslizam para o lugar — combate mais fluido.',
+                            'Ataque Básico agora tem um cast curto (mais rápido que skills; classes rápidas carregam antes) — deixa de sair no mesmo tempo que a skill.'
                         ]
                     },
                     {

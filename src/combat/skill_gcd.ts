@@ -1,7 +1,8 @@
 /**
  * Shared skill cast / launch lock.
  * Cast fills first (red bar); skill effect resolves when cast ends;
- * then personal recharge CD starts. Does NOT gate Attack / potions / shots.
+ * then personal recharge CD starts. Does NOT gate potions / shots.
+ * Starting a skill cancels Attack wind-up (basic attack has its own short cast).
  * Cast duration comes from resolveSkillCastMs (not expedition skill CDR).
  */
 
@@ -137,6 +138,13 @@ export function beginSkillCast(
 ): void {
   const name = String(skillName || '');
   if (!name) return;
+
+  // Skills interrupt Attack wind-up so AA + skill never resolve together.
+  try {
+    window.cancelAttackWindup?.({ preserveCastVisual: true });
+  } catch {
+    /* ignore */
+  }
 
   const castDur = Math.max(200, Math.floor(castMs != null && castMs > 0 ? castMs : SKILL_GCD_MS));
   const recharge = Math.max(0, Math.floor(Number(rechargeMs) || 0));

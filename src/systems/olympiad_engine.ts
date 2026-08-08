@@ -1740,57 +1740,71 @@ const OlympiadEngine = {
     playerAtaca() {
         if (!this.ativo || !this.inimigo) return;
         const agora = Date.now();
-        // Wait for skill cast-lock; Attack keeps its own personal swing CD.
+        // Wait for skill cast-lock / Attack wind-up; Attack keeps its own personal swing CD.
+        if (typeof window.isAttackWindupActive === 'function' && window.isAttackWindupActive()) return;
         if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) return;
         if (agora < (this.olyBasicAttackLockUntil || 0)) return;
         if (this._lastAttackTime && agora - this._lastAttackTime < 200) return;
-        this._lastAttackTime = agora;
 
-        const isMage = window.isClasseMagica(window.charClass);
-        this.olyPrunePlayerDebuff(agora);
-        const atkRaw = isMage ? window.playerStats.mAtk : window.playerStats.pAtk;
-        const atk = Math.max(1, Math.floor(atkRaw * (this.olyPlayerPAtkMult || 1)));
-        const def = this.getRivalDefVsPlayer(isMage);
+        const resolveSwing = () => {
+            if (!this.ativo || !this.inimigo) return;
+            if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) return;
+            const t = Date.now();
+            if (t < (this.olyBasicAttackLockUntil || 0)) return;
+            this._lastAttackTime = t;
 
-        let dano = Math.floor((atk * 1100) / (350 + def));
-        const floorA = Math.max(0.02, Math.min(0.12, Number(this.olyFloorPlayerAuto) || 0.045));
-        dano = Math.max(Math.floor(atk * floorA), dano);
-        dano = Math.floor(dano * this.multDanoPlayer);
+            const isMage = window.isClasseMagica(window.charClass);
+            this.olyPrunePlayerDebuff(t);
+            const atkRaw = isMage ? window.playerStats.mAtk : window.playerStats.pAtk;
+            const atk = Math.max(1, Math.floor(atkRaw * (this.olyPlayerPAtkMult || 1)));
+            const def = this.getRivalDefVsPlayer(isMage);
 
-        if (this.inimigo.cp > 0) {
-            if (this.inimigo.cp >= dano) this.inimigo.cp -= dano;
-            else {
-                const sobra = dano - this.inimigo.cp;
-                this.inimigo.cp = 0;
-                this.inimigo.hp -= sobra;
+            let dano = Math.floor((atk * 1100) / (350 + def));
+            const floorA = Math.max(0.02, Math.min(0.12, Number(this.olyFloorPlayerAuto) || 0.045));
+            dano = Math.max(Math.floor(atk * floorA), dano);
+            dano = Math.floor(dano * this.multDanoPlayer);
+
+            if (this.inimigo.cp > 0) {
+                if (this.inimigo.cp >= dano) this.inimigo.cp -= dano;
+                else {
+                    const sobra = dano - this.inimigo.cp;
+                    this.inimigo.cp = 0;
+                    this.inimigo.hp -= sobra;
+                }
+            } else {
+                this.inimigo.hp -= dano;
             }
-        } else {
-            this.inimigo.hp -= dano;
+
+            this.danoCausado += dano;
+            this.escreverLog(`You dealt <span style="color:#fff;">${dano}</span> damage.`);
+
+            const isCrit = Math.random() < 0.1;
+            this.mostrarDanoVisual(dano, 'player', isCrit);
+            if (isCrit) {
+                this.shakeScreen(true);
+                if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
+            }
+
+            if (this.inimigo.hp <= 0) {
+                this.inimigo.hp = 0;
+                this.finalizarDuelo(true);
+            }
+
+            this.renderizarUI();
+            if (typeof window.atualizar === 'function') window.atualizar();
+
+            const tempoCD = Math.max(300, window.playerStats.atkSpeed || 3800);
+            this.olyBasicAttackLockUntil = Date.now() + tempoCD;
+            if (typeof window.dispararAnimacaoCooldown === 'function') {
+                window.dispararAnimacaoCooldown('Attack', tempoCD);
+            }
+        };
+
+        if (typeof window.beginAttackWindup === 'function') {
+            window.beginAttackWindup(resolveSwing);
+            return;
         }
-
-        this.danoCausado += dano;
-        this.escreverLog(`You dealt <span style="color:#fff;">${dano}</span> damage.`);
-
-        const isCrit = Math.random() < 0.1;
-        this.mostrarDanoVisual(dano, 'player', isCrit);
-        if (isCrit) {
-            this.shakeScreen(true);
-            if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
-        }
-
-        if (this.inimigo.hp <= 0) {
-            this.inimigo.hp = 0;
-            this.finalizarDuelo(true);
-        }
-
-        this.renderizarUI();
-        if (typeof window.atualizar === 'function') window.atualizar();
-
-        const tempoCD = Math.max(300, window.playerStats.atkSpeed || 3800);
-        this.olyBasicAttackLockUntil = agora + tempoCD;
-        if (typeof window.dispararAnimacaoCooldown === 'function') {
-            window.dispararAnimacaoCooldown('Attack', tempoCD);
-        }
+        resolveSwing();
     },
 
     playerUsaSkill(nomeSkill) {

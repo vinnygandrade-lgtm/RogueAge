@@ -432,6 +432,11 @@ window.pararAutoAtaque = function () {
   window.autoAtaqueAtivo = false;
   if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
   loopAutoAtaque = null;
+  try {
+    window.cancelAttackWindup?.();
+  } catch {
+    /* ignore */
+  }
   if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
 };
 
@@ -459,20 +464,15 @@ function scheduleNextAutoAttackSwing(delayMs: number): void {
 }
 
 /**
- * One basic Attack swing (forest / raid). Respects Attack CD.
- * Also waits for skill cast-lock (does not reset Attack load).
+ * Resolve one basic Attack hit (forest / raid) after wind-up completes.
  * Returns true if a swing was performed.
  */
-function tentarGolpeAtaqueBasico(): boolean {
+function executarGolpeAtaqueBasico(): boolean {
   if (window.playerHP <= 0) return false;
 
-  // Wait for skill launch lock — Attack CD keeps loading, just cannot fire yet.
   if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) {
     return false;
   }
-
-  const cdLeft = getAttackCooldownRemainingMs();
-  if (cdLeft > 0) return false;
 
   if (estaEmCombateRaid()) {
     if (typeof window.RaidEngine?.playerAtaca === 'function') {
@@ -572,7 +572,46 @@ function tentarGolpeAtaqueBasico(): boolean {
   return true;
 }
 
-/** Manual Attack: one swing. Does not toggle auto-attack (use toggleAutoAtaque). */
+/**
+ * Request a basic Attack: short wind-up, then swing.
+ * Returns true if wind-up started (or already winding).
+ */
+function tentarGolpeAtaqueBasico(opts?: { rescheduleAuto?: boolean }): boolean {
+  if (window.playerHP <= 0) return false;
+
+  if (typeof window.isAttackWindupActive === 'function' && window.isAttackWindupActive()) {
+    return true;
+  }
+
+  // Wait for skill launch lock — Attack CD keeps loading, just cannot fire yet.
+  if (typeof window.isSkillGcdBlocked === 'function' && window.isSkillGcdBlocked()) {
+    return false;
+  }
+
+  const cdLeft = getAttackCooldownRemainingMs();
+  if (cdLeft > 0) return false;
+
+  const rescheduleAuto = !!opts?.rescheduleAuto;
+  const begin =
+    typeof window.beginAttackWindup === 'function' ? window.beginAttackWindup : null;
+
+  if (!begin) {
+    const swung = executarGolpeAtaqueBasico();
+    if (swung && rescheduleAuto && window.autoAtaqueAtivo) {
+      scheduleNextAutoAttackSwing(getAttackSwingCdMs());
+    }
+    return swung;
+  }
+
+  return begin(() => {
+    const swung = executarGolpeAtaqueBasico();
+    if (rescheduleAuto && window.autoAtaqueAtivo) {
+      scheduleNextAutoAttackSwing(swung ? getAttackSwingCdMs() : 100);
+    }
+  });
+}
+
+/** Manual Attack: one wind-up + swing. Does not toggle auto-attack (use toggleAutoAtaque). */
 window.atacar = function () {
   if (window.playerHP <= 0) return;
   const naRaid = estaEmCombateRaid();
@@ -585,10 +624,7 @@ window.atacar = function () {
     );
     return;
   }
-  const swung = tentarGolpeAtaqueBasico();
-  if (swung && window.autoAtaqueAtivo) {
-    scheduleNextAutoAttackSwing(getAttackSwingCdMs());
-  }
+  tentarGolpeAtaqueBasico({ rescheduleAuto: !!window.autoAtaqueAtivo });
 };
 
 /** Start/continue the auto-attack swing loop (no log). Used by settings defaults. */
@@ -641,6 +677,15 @@ function realizarGolpeAutoAtaque() {
     return;
   }
 
+  if (typeof window.isAttackWindupActive === 'function' && window.isAttackWindupActive()) {
+    const windLeft =
+      typeof window.getAttackWindupRemainingMs === 'function'
+        ? window.getAttackWindupRemainingMs()
+        : 50;
+    scheduleNextAutoAttackSwing(Math.max(16, windLeft));
+    return;
+  }
+
   const cdLeft = getAttackCooldownRemainingMs();
   if (cdLeft > 0) {
     scheduleNextAutoAttackSwing(cdLeft);
@@ -662,12 +707,11 @@ function realizarGolpeAutoAtaque() {
     return;
   }
 
-  const swung = tentarGolpeAtaqueBasico();
-  if (!swung) {
-    if (window.autoAtaqueAtivo) scheduleNextAutoAttackSwing(100);
-    return;
+  // Wind-up owns the next reschedule when the swing lands.
+  const started = tentarGolpeAtaqueBasico({ rescheduleAuto: true });
+  if (!started && window.autoAtaqueAtivo) {
+    scheduleNextAutoAttackSwing(100);
   }
-  scheduleNextAutoAttackSwing(getAttackSwingCdMs());
 }
 
 export {};

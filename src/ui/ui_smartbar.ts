@@ -508,8 +508,10 @@ function renderizarBarraAtalhos(): void {
           if (auraAtiva) classExtra = 'auto-attack-active';
 
           const imgAtaque = shortcutAttackIconSrc();
+          const castRailAttack = `<div class="shortcut-cast-rail" data-cast-rail="Attack" aria-hidden="true"><div class="shortcut-cast-rail__fill"></div></div>`;
 
           conteudo = `
+                        ${castRailAttack}
                         <div class="cd-overlay" data-cd="Attack" style="height: ${pct}%;"></div>
                         ${htmlTimer}
                         <img class="shortcut-slot__icon" src="${imgAtaque}" alt="" draggable="false">
@@ -878,6 +880,9 @@ function getHotbarCdOverlays(): HTMLElement[] {
 function hotbarHasActiveVisuals(agora: number): boolean {
   const ui = window.skillCastUi;
   if (ui && ui.name && ui.endsAt > agora) return true;
+  if (typeof window.isAttackWindupActive === 'function' && window.isAttackWindupActive()) {
+    return true;
+  }
   if (typeof window.getSkillGcdRemainingMs === 'function' && window.getSkillGcdRemainingMs() > 0) {
     return true;
   }

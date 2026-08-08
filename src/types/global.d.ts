@@ -692,6 +692,14 @@ declare global {
     SKILL_GCD_MS?: number;
     MIN_CAST_MS?: number;
     MAX_CAST_SPEED_PCT?: number;
+    MIN_ATTACK_WINDUP_MS?: number;
+    MAX_ATTACK_WINDUP_MS?: number;
+    resolveAttackWindupMs?: (atkSpeedMs?: number) => number;
+    isAttackWindupActive?: () => boolean;
+    getAttackWindupRemainingMs?: () => number;
+    getAttackWindupTotalMs?: () => number;
+    beginAttackWindup?: (onComplete: () => void) => boolean;
+    cancelAttackWindup?: (opts?: { preserveCastVisual?: boolean }) => void;
     getSkillGcdRemainingMs?: () => number;
     isSkillGcdBlocked?: () => boolean;
     armSkillGcd?: (ms?: number, castSkillName?: string) => void;
