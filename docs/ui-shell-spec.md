@@ -117,7 +117,7 @@ Social / Olimpíada / Guerra: usáveis na moldura larga.
 
 ## Expedição (portrait fit + PC desk)
 
-- **Portrait:** `css/expedition-portrait-fit.css` (depois de `index-extras.css`) — vitals numa linha; chat oculto; hotbar no painel da run; hub compacto. Regras de **tamanho/fonte compactos** usam `html:not([data-l2-layout="landscape"])` para não esmagar o PC.
+- **Portrait:** `css/expedition-portrait-fit.css` (depois de `index-extras.css`) — vitals numa linha; chat oculto; hotbar no painel da run; hub compacto; **log de combate** `#expedition-combat-log-dock` só em fight. Regras de **tamanho/fonte compactos** usam `html:not([data-l2-layout="landscape"])` para não esmagar o PC.
 - **Landscape:** `css/shell-landscape.css` (último) — tipografia e espaçamento de desk; bag bar em **duas linhas** (info → acções).
 
 Não alterar tokens `--l2-shell-*` para remendar expedição — portrait no ficheiro de fit, PC no landscape.

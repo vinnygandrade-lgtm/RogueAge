@@ -11,9 +11,97 @@
     padding: 4px var(--l2-screen-padding-x) 2px;
 }
 
-/* Run: hide chat during active expedition */
+/* Run: hide chat during active expedition (combat uses #expedition-combat-log-dock instead) */
 .game-container.expedition-run-locked:has(#tela-floresta.expedition-run-active) .log-container {
     display: none !important;
+}
+
+/* —— Fight-only combat log (above hotbar) —— */
+.expedition-combat-log-dock {
+    display: none;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 96px;
+    border-top: 1px solid rgba(179, 138, 77, 0.28);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.35);
+    background: linear-gradient(180deg, rgba(10, 9, 12, 0.94), rgba(6, 5, 8, 0.98));
+    z-index: 5;
+}
+#tela-floresta.expedition-combat-open .expedition-combat-log-dock:not([hidden]) {
+    display: flex;
+}
+.expedition-combat-log-dock__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: 3px 8px;
+    min-height: 26px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.expedition-combat-log-dock__title {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #b38a4d;
+}
+.expedition-combat-log-dock__toggle {
+    flex-shrink: 0;
+    min-width: 28px;
+    min-height: 24px;
+    padding: 0 6px;
+    border: 1px solid rgba(179, 138, 77, 0.35);
+    border-radius: 4px;
+    background: rgba(20, 16, 12, 0.9);
+    color: #e7d3a3;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+}
+.expedition-combat-log-dock__toggle:focus-visible {
+    outline: 2px solid rgba(250, 204, 21, 0.55);
+    outline-offset: 1px;
+}
+.expedition-combat-log {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 68px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 4px 8px 6px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #d6d3d1;
+    -webkit-overflow-scrolling: touch;
+}
+.expedition-combat-log__line {
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    word-break: break-word;
+}
+.expedition-combat-log__line:last-child {
+    border-bottom: none;
+}
+.expedition-combat-log-dock--collapsed {
+    max-height: none;
+}
+.expedition-combat-log-dock--collapsed .expedition-combat-log {
+    display: none;
+}
+.expedition-combat-log-dock--collapsed .expedition-combat-log-dock__bar {
+    border-bottom: none;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-combat-open .expedition-combat-log-dock:not([hidden]) {
+    max-height: 84px;
+}
+html:not([data-l2-layout="landscape"]) .expedition-combat-log {
+    max-height: 56px;
+    font-size: 10.5px;
 }
 
 /* Hub durante run ativa — sem hotbar global (usa slot da jornada/combate) */

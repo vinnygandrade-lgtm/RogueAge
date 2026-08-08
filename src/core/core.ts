@@ -6,10 +6,27 @@ import type { ItemCatalogBase } from '../types/game';
 
 function writeGameLog(msg: string): void {
     const log = document.getElementById('log');
-    if (!log) return;
-    log.innerHTML = msg + "<br>" + log.innerHTML;
-    log.scrollTop = 0;
+    if (log) {
+        log.innerHTML = msg + "<br>" + log.innerHTML;
+        log.scrollTop = 0;
+    }
     window.refreshLogCollapsedPreview?.();
+
+    // Expedition combat hides the global log dock — mirror lines into the fight-only panel.
+    const floresta = document.getElementById('tela-floresta');
+    const expLog = document.getElementById('expedition-combat-log');
+    if (floresta?.classList.contains('expedition-combat-open') && expLog) {
+        const row = document.createElement('div');
+        row.className = 'expedition-combat-log__line';
+        row.innerHTML = msg;
+        expLog.insertBefore(row, expLog.firstChild);
+        while (expLog.childElementCount > 60) {
+            const last = expLog.lastElementChild;
+            if (!last) break;
+            expLog.removeChild(last);
+        }
+        expLog.scrollTop = 0;
+    }
 }
 
 function iniciarJogo(): void {

@@ -1041,9 +1041,17 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > #tut
     z-index: 120;
 }
 
-/* Expedition: hide chat window */
+/* Expedition: hide chat window (fight uses #expedition-combat-log-dock) */
 html[data-l2-layout="landscape"] .game-container.game-ingame.expedition-run-locked:has(#tela-floresta.expedition-run-active) #screen-game > .log-container {
     display: none !important;
+}
+
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .expedition-combat-log-dock:not([hidden]) {
+    max-height: 120px;
+}
+html[data-l2-layout="landscape"] .expedition-combat-log {
+    max-height: 88px;
+    font-size: 12px;
 }
 
 /* ?? HUD: one balanced desk bar ??

@@ -28,6 +28,12 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - Run % buffs and temporary forge enchants **do not** apply in town
 - Resume reapplies them on the expedition map
 
+## Combat log (fight UI)
+
+- During an active expedition run the global `.log-container` (chat + SYSTEM) stays **hidden** (portrait + landscape).
+- In **combat** only, `#expedition-combat-log-dock` shows a compact fight log above the hotbar. Lines mirror `escreverLog` / `writeGameLog` while `#tela-floresta.expedition-combat-open`.
+- Cleared on fight enter; collapsible via `ExpeditionEngine.toggleCombatLogCollapsed()`. No chat input here — social chat comes later as a floating messenger.
+
 ## Path choices (safe / risk / fight)
 
 - **Safe path → next journey fights-only** still applies. Scout/Tracks intel **survives** that stretch and is consumed on the next *flexible* map (not cleared inside combat-only).

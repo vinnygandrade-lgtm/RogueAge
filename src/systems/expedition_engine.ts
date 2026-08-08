@@ -3454,8 +3454,54 @@ export class ExpeditionEngine {
         if (mode === 'combat' && this.state.active) {
             this.ensureRunVitalsForCombat();
         }
+        this.syncCombatLogDock(mode);
         this.syncExpeditionCombatControls(mode);
         this.syncExpeditionHotbar(mode);
+    }
+
+    /** Fight-only combat log (global `.log-container` stays hidden during expedition runs). */
+    static syncCombatLogDock(mode: 'hub' | 'map' | 'combat' | 'idle'): void {
+        const dock = document.getElementById('expedition-combat-log-dock');
+        if (!dock) return;
+        const show = mode === 'combat' && !!this.state.active;
+        const enteringCombat = show && dock.hidden;
+        dock.hidden = !show;
+        dock.setAttribute('aria-hidden', show ? 'false' : 'true');
+        if (enteringCombat) {
+            this.clearCombatLog();
+            dock.classList.remove('expedition-combat-log-dock--collapsed');
+            const btn = document.getElementById('btn-expedition-combat-log-toggle');
+            if (btn) {
+                btn.setAttribute('aria-expanded', 'true');
+                btn.textContent = '▾';
+                btn.title = this.t(
+                    'game.hunt.expedition.combatLogCollapseTitle',
+                    'Collapse combat log'
+                );
+            }
+        }
+    }
+
+    static clearCombatLog(): void {
+        const expLog = document.getElementById('expedition-combat-log');
+        if (expLog) expLog.innerHTML = '';
+    }
+
+    static toggleCombatLogCollapsed(): void {
+        const dock = document.getElementById('expedition-combat-log-dock');
+        if (!dock || dock.hidden) return;
+        const collapsed = dock.classList.toggle('expedition-combat-log-dock--collapsed');
+        const btn = document.getElementById('btn-expedition-combat-log-toggle');
+        if (btn) {
+            btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            btn.textContent = collapsed ? '▴' : '▾';
+            btn.title = this.t(
+                collapsed
+                    ? 'game.hunt.expedition.combatLogExpandTitle'
+                    : 'game.hunt.expedition.combatLogCollapseTitle',
+                collapsed ? 'Expand combat log' : 'Collapse combat log'
+            );
+        }
     }
 
     static showHub() {

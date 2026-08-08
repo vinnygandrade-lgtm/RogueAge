@@ -2036,6 +2036,14 @@
                 <div id="mob-type-legend" class="mob-type-legend" hidden aria-hidden="true"></div>
             </div>
 
+            <div id="expedition-combat-log-dock" class="expedition-combat-log-dock" hidden aria-hidden="true">
+                <div class="expedition-combat-log-dock__bar">
+                    <span class="expedition-combat-log-dock__title" data-i18n="game.hunt.expedition.combatLogTitle">Combat Log</span>
+                    <button type="button" id="btn-expedition-combat-log-toggle" class="expedition-combat-log-dock__toggle" onclick="ExpeditionEngine.toggleCombatLogCollapsed()" data-i18n-title="game.hunt.expedition.combatLogToggleTitle" title="Collapse or expand combat log" aria-expanded="true" aria-controls="expedition-combat-log">▾</button>
+                </div>
+                <div id="expedition-combat-log" class="expedition-combat-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+            </div>
+
             <div id="expedition-combat-hotbar-slot" class="expedition-hotbar-slot" aria-hidden="true"></div>
 
             <div id="botoes-combate">
