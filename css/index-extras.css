@@ -11135,6 +11135,10 @@ html.l2-standalone .settings-section--pwa {
 #tela-floresta.forest-battle-bg-active #botoes-combate {
     position: relative;
     z-index: 2;
+}
+/* Hotbar stays opaque under the stage art; HUD paints its own chrome */
+#tela-floresta.forest-battle-bg-active #expedition-combat-hotbar-slot,
+#tela-floresta.forest-battle-bg-active #botoes-combate {
     background-color: #0a0908;
 }
 #tela-floresta.forest-battle-bg-active .forest-death-overlay,

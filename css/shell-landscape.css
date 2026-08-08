@@ -1047,23 +1047,38 @@ html[data-l2-layout="landscape"] .game-container.game-ingame.expedition-run-lock
 }
 
 html[data-l2-layout="landscape"] .expedition-combat-hud {
-    --exp-combat-hud-h: 108px;
+    --exp-combat-hud-h: 112px;
 }
 html[data-l2-layout="landscape"] .expedition-combat-log {
     font-size: 12px;
-    line-height: 1.35;
+    line-height: 1.36;
+    padding: 4px 14px 8px;
+}
+html[data-l2-layout="landscape"] .expedition-combat-hud__log-head {
+    padding: 7px 14px 4px;
 }
 html[data-l2-layout="landscape"] .expedition-combat-hud__log-title {
-    font-size: 9.5px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+}
+html[data-l2-layout="landscape"] .expedition-combat-hud__vitals {
+    padding: 10px 14px 9px;
+}
+html[data-l2-layout="landscape"] .expedition-combat-hud .exp-run-vital {
+    grid-template-columns: 24px 1fr;
+    gap: 8px;
+}
+html[data-l2-layout="landscape"] .expedition-combat-hud .exp-run-vital__tag {
+    font-size: 9px;
 }
 html[data-l2-layout="landscape"] .expedition-combat-hud .exp-run-vital__track {
-    height: 13px;
+    height: 14px;
 }
 html[data-l2-layout="landscape"] .expedition-combat-hud .exp-run-vital--hp .exp-run-vital__track {
-    height: 15px;
+    height: 16px;
 }
 html[data-l2-layout="landscape"] .expedition-combat-hud .exp-run-vital__text {
-    font-size: 9px;
+    font-size: 9.5px;
 }
 
 /* ?? HUD: one balanced desk bar ??

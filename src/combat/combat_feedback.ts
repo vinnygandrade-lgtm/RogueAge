@@ -37,12 +37,21 @@ export function severityFromDamageRatio(ratio: number): CombatImpactSeverity {
   return 'light';
 }
 
+function isExpeditionCombatOpen(): boolean {
+  return !!document.getElementById('tela-floresta')?.classList.contains('expedition-combat-open');
+}
+
 /** Prefer the visible forest stage — `#area-cacada` is often `display:none` mid-fight. */
 export function resolveForestCombatRootId(): string {
   const floresta = document.getElementById('tela-floresta');
   if (floresta) {
     const style = window.getComputedStyle(floresta);
     if (style.display !== 'none' && style.visibility !== 'hidden') {
+      // Expedition fight: stage only (HUD/hotbar stay still; no full-screen blink).
+      if (floresta.classList.contains('expedition-combat-open')) {
+        const stage = document.getElementById('expedition-combat-stage');
+        if (stage) return 'expedition-combat-stage';
+      }
       return 'tela-floresta';
     }
   }
@@ -76,7 +85,13 @@ export function triggerCombatImpact(options: {
     return;
   }
 
-  appendFlash(root, tone);
+  // Expedition: no full-screen hit flash — reads as a black blink over the stage/HUD.
+  // HP bar pulse + floating damage already cover player feedback.
+  const skipFlash = isExpeditionCombatOpen()
+    || rootId === 'expedition-combat-stage';
+  if (!skipFlash) {
+    appendFlash(root, tone);
+  }
 
   if (!shake || prefersReducedMotion()) return;
 

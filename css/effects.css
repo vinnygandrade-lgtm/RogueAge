@@ -241,8 +241,15 @@ body.l2-skill-casting #barra-de-atalhos-dinamica .shortcut-cast-rail--active {
     overflow: hidden;
 }
 
-#tela-floresta > .combat-hit-flash {
+#tela-floresta > .combat-hit-flash,
+#expedition-combat-stage > .combat-hit-flash {
     z-index: 35;
+}
+
+/* Expedition: never paint a full-screen hit veil (even from legacy callers). */
+#tela-floresta.expedition-combat-open > .combat-hit-flash,
+#tela-floresta.expedition-combat-open #expedition-combat-stage > .combat-hit-flash {
+    display: none !important;
 }
 
 .combat-hit-flash {
