@@ -699,7 +699,7 @@ declare global {
     getAttackWindupRemainingMs?: () => number;
     getAttackWindupTotalMs?: () => number;
     beginAttackWindup?: (onComplete: () => void) => boolean;
-    cancelAttackWindup?: (opts?: { preserveCastVisual?: boolean }) => void;
+    cancelAttackWindup?: (opts?: { preserveCastVisual?: boolean; resumeAuto?: boolean }) => void;
     getSkillGcdRemainingMs?: () => number;
     isSkillGcdBlocked?: () => boolean;
     armSkillGcd?: (ms?: number, castSkillName?: string) => void;

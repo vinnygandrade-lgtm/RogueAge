@@ -186,13 +186,32 @@ export function beginSkillCast(
       console.warn('[skill_gcd] cast complete failed:', err);
     }
 
-    if (recharge <= 0) return;
+    if (recharge <= 0) {
+      // Skill had no personal CD — still wake AA in case wind-up was interrupted.
+      if (window.autoAtaqueAtivo && typeof window.resumeAutoAtaqueLoop === 'function') {
+        try {
+          window.resumeAutoAtaqueLoop();
+        } catch {
+          /* ignore */
+        }
+      }
+      return;
+    }
 
     // Personal recharge starts only after cast (and launch) finishes.
     if (typeof window.dispararAnimacaoCooldown === 'function') {
       window.dispararAnimacaoCooldown(name, recharge);
     } else if (window.cooldownsAtivos) {
       window.cooldownsAtivos[name] = nowMs() + recharge;
+    }
+
+    // Wake auto-attack after skill release (wind-up may have been cancelled mid-cast).
+    if (window.autoAtaqueAtivo && typeof window.resumeAutoAtaqueLoop === 'function') {
+      try {
+        window.resumeAutoAtaqueLoop();
+      } catch {
+        /* ignore */
+      }
     }
   }, castDur);
 }

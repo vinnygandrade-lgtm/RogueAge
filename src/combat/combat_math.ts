@@ -433,7 +433,8 @@ window.pararAutoAtaque = function () {
   if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
   loopAutoAtaque = null;
   try {
-    window.cancelAttackWindup?.();
+    // Do not nudge AA resume — we are turning auto off.
+    window.cancelAttackWindup?.({ resumeAuto: false });
   } catch {
     /* ignore */
   }
@@ -633,6 +634,23 @@ window.resumeAutoAtaqueLoop = function () {
   if (!estaEmCombateRaid() && !estaEmCombateFloresta()) return;
   window.autoAtaqueAtivo = true;
   if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
+
+  if (typeof window.isAttackWindupActive === 'function' && window.isAttackWindupActive()) {
+    const windLeft =
+      typeof window.getAttackWindupRemainingMs === 'function'
+        ? window.getAttackWindupRemainingMs()
+        : 50;
+    scheduleNextAutoAttackSwing(Math.max(16, windLeft));
+    return;
+  }
+
+  const castLeft =
+    typeof window.getSkillGcdRemainingMs === 'function' ? window.getSkillGcdRemainingMs() : 0;
+  if (castLeft > 0) {
+    scheduleNextAutoAttackSwing(castLeft);
+    return;
+  }
+
   const cdLeft = getAttackCooldownRemainingMs();
   if (cdLeft > 0) scheduleNextAutoAttackSwing(cdLeft);
   else realizarGolpeAutoAtaque();
@@ -668,6 +686,11 @@ window.toggleAutoAtaque = function () {
     );
     if (loopAutoAtaque) clearTimeout(loopAutoAtaque);
     loopAutoAtaque = null;
+    try {
+      window.cancelAttackWindup?.({ resumeAuto: false });
+    } catch {
+      /* ignore */
+    }
   }
 };
 

@@ -76,8 +76,27 @@ function clearAttackCastVisual(): void {
   }
 }
 
+/**
+ * When wind-up is cancelled / aborted, the auto-attack loop may have been
+ * waiting only on the wind-up callback — nudge it so AA does not stall.
+ */
+function nudgeAutoAttackLoop(): void {
+  if (!window.autoAtaqueAtivo) return;
+  try {
+    setTimeout(() => {
+      if (!window.autoAtaqueAtivo) return;
+      if (typeof window.resumeAutoAtaqueLoop === 'function') {
+        window.resumeAutoAtaqueLoop();
+      }
+    }, 16);
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Cancel in-flight Attack wind-up (skill cast interrupt, death, leave combat). */
-export function cancelAttackWindup(opts?: { preserveCastVisual?: boolean }): void {
+export function cancelAttackWindup(opts?: { preserveCastVisual?: boolean; resumeAuto?: boolean }): void {
+  const wasActive = windupTimer != null || windupEndsAt > nowMs();
   if (windupTimer != null) {
     clearTimeout(windupTimer);
     windupTimer = null;
@@ -88,6 +107,10 @@ export function cancelAttackWindup(opts?: { preserveCastVisual?: boolean }): voi
   // Skill cast start passes preserveCastVisual — glow is re-armed by onSkillCastStarted.
   if (!opts?.preserveCastVisual && !skillCastBlockingAttack()) {
     clearAttackCastVisual();
+  }
+  // Default: resume AA after interrupt (skill cast). pararAutoAtaque passes resumeAuto:false.
+  if (wasActive && opts?.resumeAuto !== false) {
+    nudgeAutoAttackLoop();
   }
 }
 
@@ -123,13 +146,21 @@ export function beginAttackWindup(onComplete: () => void): boolean {
 
     clearAttackCastVisual();
 
-    if (Number(window.playerHP) <= 0) return;
-    if (skillCastBlockingAttack()) return;
+    if (Number(window.playerHP) <= 0) {
+      nudgeAutoAttackLoop();
+      return;
+    }
+    // Skill cast started in the same window — do not swing; keep AA alive.
+    if (skillCastBlockingAttack()) {
+      nudgeAutoAttackLoop();
+      return;
+    }
 
     try {
       onComplete();
     } catch (err) {
       console.warn('[attack_windup] swing failed:', err);
+      nudgeAutoAttackLoop();
     }
   }, dur);
 
