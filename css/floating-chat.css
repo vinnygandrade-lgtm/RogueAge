@@ -1,0 +1,166 @@
+/* ========================================= */
+/* FLOATING CHAT — messenger FAB + panel     */
+/* Portrait + shared shell; landscape tweaks */
+/* in shell-landscape.css                    */
+/* ========================================= */
+
+.floating-chat {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 130;
+    pointer-events: none;
+}
+.game-container.game-ingame .floating-chat {
+    display: block;
+}
+
+.floating-chat-fab {
+    pointer-events: auto;
+    position: absolute;
+    left: 10px;
+    bottom: calc(56px + var(--l2-safe-bottom, 0px));
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 44px;
+    padding: 0 14px 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(201, 162, 39, 0.45);
+    background:
+        linear-gradient(180deg, rgba(42, 34, 26, 0.96) 0%, rgba(14, 12, 10, 0.98) 100%);
+    color: #e7d3a3;
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(245, 220, 160, 0.12);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.floating-chat-fab:hover,
+.floating-chat-fab:focus-visible {
+    border-color: rgba(250, 204, 21, 0.7);
+    box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(250, 204, 21, 0.15),
+        inset 0 1px 0 rgba(245, 220, 160, 0.18);
+    outline: none;
+}
+.floating-chat-fab:active {
+    transform: scale(0.97);
+}
+.floating-chat-fab__glyph {
+    display: inline-flex;
+    color: #f5dca0;
+}
+.floating-chat-fab__label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.floating-chat-fab__badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #ef4444, #b91c1c);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 18px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.floating-chat-fab__badge[hidden] {
+    display: none !important;
+}
+
+/* Panel — overlay, not a flex foot dock */
+.game-container.game-ingame .floating-chat .log-container.floating-chat__panel {
+    pointer-events: auto;
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: calc(56px + var(--l2-safe-bottom, 0px));
+    width: auto;
+    max-width: 420px;
+    height: min(42vh, 290px);
+    max-height: min(42vh, 290px);
+    margin: 0;
+    flex-shrink: 0;
+    display: none;
+    flex-direction: column;
+    border-radius: 12px;
+    border: 1px solid rgba(179, 138, 77, 0.42);
+    background:
+        linear-gradient(180deg, rgba(28, 22, 18, 0.98) 0%, rgba(10, 9, 8, 0.99) 100%);
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 rgba(245, 220, 160, 0.1);
+    overflow: hidden;
+}
+.game-container.game-ingame .floating-chat.floating-chat--open .log-container.floating-chat__panel {
+    display: flex;
+}
+.game-container.game-ingame .floating-chat.floating-chat--open .log-container.floating-chat__panel[hidden] {
+    display: flex; /* JS clears hidden when open; belt-and-suspenders */
+}
+.game-container.game-ingame .floating-chat.floating-chat--closed .log-container.floating-chat__panel {
+    display: none !important;
+}
+.game-container.game-ingame .floating-chat.floating-chat--open .floating-chat-fab {
+    display: none;
+}
+
+.floating-chat .log-collapse-btn.floating-chat__close {
+    width: 40px;
+    font-size: 13px;
+    color: #c4b5a0;
+}
+.floating-chat .log-collapse-btn.floating-chat__close:hover {
+    color: #f87171;
+}
+
+/* Collapsed preview strip unused in messenger mode (FAB + badge replace it) */
+.floating-chat .log-collapsed-preview {
+    display: none !important;
+}
+/* Open panel never uses the old "collapsed height strip" — closed hides the whole panel */
+.floating-chat.floating-chat--open .log-container {
+    height: min(42vh, 290px) !important;
+    max-height: min(42vh, 290px) !important;
+}
+.floating-chat .log-content.active {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+}
+
+/* Expedition: keep messenger available (combat log lives in fight HUD) */
+.game-container.expedition-run-locked:has(#tela-floresta.expedition-run-active) .floating-chat {
+    display: block;
+    z-index: 160;
+}
+.game-container.expedition-run-locked:has(#tela-floresta.expedition-run-active) .floating-chat .log-container {
+    /* override old hide-all-chat rule if any remains elsewhere */
+    visibility: visible;
+}
+/* Sit FAB above expedition fight HUD + hotbar */
+.game-container.expedition-run-locked:has(#tela-floresta.expedition-combat-open) .floating-chat-fab,
+.game-container.expedition-run-locked:has(#tela-floresta.expedition-combat-open) .floating-chat.floating-chat--open .log-container.floating-chat__panel {
+    bottom: calc(56px + var(--exp-combat-hud-h, 96px) + var(--l2-safe-bottom, 0px));
+}
+
+/* Hunt-log-only inside floating panel (normal forest fight) */
+.floating-chat .log-container--hunt-log-only:not(.log-container--collapsed) {
+    height: min(36vh, 220px);
+    max-height: min(36vh, 220px);
+}

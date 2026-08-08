@@ -12,9 +12,11 @@ Suporta **dois modos efectivos**: **portrait** (telemóvel) e **landscape** (PC 
 | `css/shell.css` | Cálculo de `--l2-shell-w` / `--l2-shell-h` em `.game-container` (portrait / contain) |
 | `css/shell-landscape.css` | Overrides sob `html[data-l2-layout="landscape"]` — **carregar por último** no `index.html` (depois de auth-flow / inventory-grid) |
 | `css/layout.css` | Estrutura interna (viewport, hotbar, tabs) |
+| `css/floating-chat.css` | Chat messenger (FAB + painel flutuante) — portrait + partilhado |
 | `css/index-extras.css` | Expedição base, floresta, modais extra |
 | `css/expedition-portrait-fit.css` | Expedição — caber no shell portrait (depois de `index-extras`) |
 | `src/ui/ui_layout_mode.ts` | Preferência `auto` / `portrait` / `landscape` + `data-l2-layout` |
+| `src/ui/ui_chat.ts` | Motor do chat + `toggleFloatingChat` / badge |
 
 ## Números oficiais
 
@@ -46,7 +48,7 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Tiers responsivos (landscape):** `≥1600px` sobe perfil/chat (`560/520`, side `400`, chat `460×260`); `≤1440px` **ou** altura `≤800px` desce (`460/420`, side `340`, chat `360×190`) e o `#tela-perfil` ganha `padding-left` = largura do chat para o dock não cobrir o paperdoll/botões; `≤1100px` e `≤980px` mantêm os fallbacks existentes.
 
-**Grelha in-game:** HUD → viewport → hotbar → tabs. Chat **não** entra no grid — é painel absoluto no canto inferior esquerdo, acima da hotbar. Hotbar slots **52px** centrados. **Nunca** `width: 100%` no paperdoll.
+**Grelha in-game:** HUD → viewport → hotbar → tabs. Chat **não** entra no grid — messenger flutuante (`#floating-chat-root`: FAB fechado / painel SYSTEM·GLOBAL·CLAN aberto), acima da hotbar. Hotbar slots **52px** centrados. **Nunca** `width: 100%` no paperdoll.
 
 **HUD (landscape):** uma única faixa equilibrada — cluster esquerdo (avatar → nome → barras), **XP flexível a preencher o meio** (`flex: 1`), cluster direito (pill de moedas horizontais + status online). **Não** voltar a fixar a XP em largura pequena com `margin-left: auto` — era isso que deixava um buraco vazio no meio da barra.
 
@@ -100,7 +102,7 @@ Sob `data-l2-layout="landscape"` e `#screen-game` (classe `game-ingame` no `.gam
 
 - Shell full-width; `#screen-game` continua **flex** (não grid — evita partir a largura).
 - Tabs reordenadas para baixo via `order`.
-- **Chat** = janela flutuante canto inferior esquerdo (420×260).
+- **Chat** = messenger flutuante (FAB + painel ~420×240); fechado por defeito; badge de não lidas.
 - Hotbar centrada; inventário/perfil com tamanhos ideais.
 
 Social / Olimpíada / Guerra: usáveis na moldura larga.
@@ -117,7 +119,7 @@ Social / Olimpíada / Guerra: usáveis na moldura larga.
 
 ## Expedição (portrait fit + PC desk)
 
-- **Portrait:** `css/expedition-portrait-fit.css` (depois de `index-extras.css`) — vitals no mapa; chat oculto; hotbar no painel da run; hub compacto; fight = stage (BG) + HUD fixo `#expedition-combat-hud` (log|vitais) + hotbar. Regras de **tamanho/fonte compactos** usam `html:not([data-l2-layout="landscape"])` para não esmagar o PC.
+- **Portrait:** `css/expedition-portrait-fit.css` (depois de `index-extras.css`) — vitals no mapa; messenger FAB disponível (combat log na fight HUD); hotbar no painel da run; hub compacto; fight = stage (BG) + HUD fixo `#expedition-combat-hud` (log|vitais) + hotbar. Regras de **tamanho/fonte compactos** usam `html:not([data-l2-layout="landscape"])` para não esmagar o PC.
 - **Landscape:** `css/shell-landscape.css` (último) — tipografia e espaçamento de desk; bag bar em **duas linhas** (info → acções).
 
 Não alterar tokens `--l2-shell-*` para remendar expedição — portrait no ficheiro de fit, PC no landscape.

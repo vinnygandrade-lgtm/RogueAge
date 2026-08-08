@@ -11,10 +11,7 @@
     padding: 4px var(--l2-screen-padding-x) 2px;
 }
 
-/* Run: hide chat during active expedition (fight HUD has its own combat log) */
-.game-container.expedition-run-locked:has(#tela-floresta.expedition-run-active) .log-container {
-    display: none !important;
-}
+/* Run: fight HUD has its own combat log; social chat stays as floating messenger (FAB) */
 
 /* —— Combat stage (BG + mobs) above fixed fight HUD —— */
 .expedition-combat-stage {

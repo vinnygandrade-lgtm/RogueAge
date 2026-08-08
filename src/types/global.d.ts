@@ -552,6 +552,8 @@ declare global {
     maybeShowNavCoachToasts?: (mailUnread: number, missionsPending: number) => void;
     dismissNavCoachToast?: () => void;
     toggleChatCollapse?: () => void;
+    toggleFloatingChat?: () => void;
+    setFloatingChatOpen?: (open: boolean) => void;
     setChatCollapsedForCombat?: (inCombat: boolean) => void;
     setChatCollapsedForInventory?: (inInventory: boolean) => void;
     refreshLogCollapsedPreview?: () => void;

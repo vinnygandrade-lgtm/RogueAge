@@ -173,9 +173,11 @@ async function sincronizarAbaClanChatCloud() {
 }
 
 // ==========================================
-// CHAT RECOLHÍVEL (ganha espaço vertical no mobile)
+// FLOATING CHAT (messenger FAB + panel)
+// collapsed === panel closed (FAB visible)
 // ==========================================
 const CHAT_COLLAPSED_KEY = 'l2mini_chat_collapsed';
+const FLOATING_CHAT_UNREAD_CAP = 99;
 
 type ChatPanelId = 'chat-global' | 'chat-clan';
 
@@ -184,6 +186,113 @@ const chatStickToBottom: Record<ChatPanelId, boolean> = {
     'chat-global': true,
     'chat-clan': true,
 };
+
+let floatingChatUnread = 0;
+
+function getFloatingChatRoot(): HTMLElement | null {
+    return document.getElementById('floating-chat-root');
+}
+
+function getFloatingChatPanel(): HTMLElement | null {
+    return document.getElementById('floating-chat-panel')
+        || document.querySelector<HTMLElement>('.floating-chat .log-container');
+}
+
+function isFloatingChatOpen(): boolean {
+    const root = getFloatingChatRoot();
+    if (root) return root.classList.contains('floating-chat--open');
+    const panel = getFloatingChatPanel();
+    return !!(panel && !panel.classList.contains('log-container--collapsed'));
+}
+
+function isExpeditionCombatUiActive(): boolean {
+    const eng = window.ExpeditionEngine as { isExpeditionCombatUiActive?: () => boolean } | undefined;
+    return typeof eng?.isExpeditionCombatUiActive === 'function' && !!eng.isExpeditionCombatUiActive();
+}
+
+function updateFloatingChatBadge(): void {
+    const badge = document.getElementById('floating-chat-badge');
+    if (!badge) return;
+    if (floatingChatUnread <= 0 || isFloatingChatOpen()) {
+        badge.hidden = true;
+        badge.setAttribute('aria-hidden', 'true');
+        badge.textContent = '0';
+        return;
+    }
+    const label = floatingChatUnread > FLOATING_CHAT_UNREAD_CAP
+        ? `${FLOATING_CHAT_UNREAD_CAP}+`
+        : String(floatingChatUnread);
+    badge.hidden = false;
+    badge.setAttribute('aria-hidden', 'false');
+    badge.textContent = label;
+}
+
+function clearFloatingChatUnread(): void {
+    floatingChatUnread = 0;
+    updateFloatingChatBadge();
+}
+
+function bumpFloatingChatUnread(): void {
+    if (isFloatingChatOpen()) return;
+    floatingChatUnread = Math.min(FLOATING_CHAT_UNREAD_CAP + 1, floatingChatUnread + 1);
+    updateFloatingChatBadge();
+}
+
+/**
+ * Open/close the floating messenger panel.
+ * `open === true` shows SYSTEM/GLOBAL/CLAN; closed shows the FAB (+ badge).
+ */
+function setFloatingChatOpen(open: boolean): void {
+    const root = getFloatingChatRoot();
+    const panel = getFloatingChatPanel();
+    const fab = document.getElementById('floating-chat-fab');
+    const closeBtn = document.getElementById('btn-log-collapse');
+    if (!root && !panel) return;
+
+    root?.classList.toggle('floating-chat--open', open);
+    root?.classList.toggle('floating-chat--closed', !open);
+    panel?.classList.toggle('log-container--collapsed', !open);
+    if (panel) {
+        if (open) panel.removeAttribute('hidden');
+        else panel.setAttribute('hidden', '');
+    }
+    if (fab) {
+        fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+        const titleKey = open ? 'chat.fabCloseTitle' : 'chat.fabOpenTitle';
+        const title = typeof window.t === 'function'
+            ? window.t(titleKey)
+            : (open ? 'Close chat' : 'Open chat');
+        fab.setAttribute('title', title);
+    }
+    if (closeBtn) {
+        closeBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        closeBtn.textContent = '✕';
+    }
+    if (open) {
+        clearFloatingChatUnread();
+        const active = getActiveLogPanel();
+        if (active && (active.id === 'chat-global' || active.id === 'chat-clan')) {
+            flushPendingChatScroll(active);
+        }
+    } else {
+        updateFloatingChatBadge();
+    }
+    refreshLogCollapsedPreview();
+}
+
+function toggleFloatingChat(): void {
+    const open = !isFloatingChatOpen();
+    setFloatingChatOpen(open);
+    if (chatCollapsedBeforeCombat !== null) {
+        chatCollapsedBeforeCombat = !open;
+    } else if (chatCollapsedBeforeInventory !== null) {
+        chatCollapsedBeforeInventory = !open;
+    } else {
+        try {
+            localStorage.setItem(CHAT_COLLAPSED_KEY, open ? '0' : '1');
+        } catch (e) { /* storage cheio/indisponível — estado só da sessão */ }
+    }
+}
 
 function isChatPanelNearBottom(panel: HTMLElement): boolean {
     return panel.scrollHeight - panel.scrollTop - panel.clientHeight < 80;
@@ -319,72 +428,48 @@ function logPreviewTagForKind(kind: LogPreviewKind): string {
 }
 
 function refreshLogCollapsedPreview(): void {
+    // Messenger mode: FAB + unread badge replace the collapsed preview strip.
     const preview = document.getElementById('log-collapsed-preview');
+    if (preview) {
+        preview.hidden = true;
+        preview.className = 'log-collapsed-preview';
+    }
     const tagEl = document.getElementById('log-collapsed-preview-tag');
     const textEl = document.getElementById('log-collapsed-preview-text');
-    const cont = document.querySelector('.log-container');
-    if (!preview || !textEl || !cont) return;
-
-    const collapsed = cont.classList.contains('log-container--collapsed');
-    if (!collapsed) {
-        preview.hidden = true;
-        if (tagEl) tagEl.textContent = '';
-        textEl.textContent = '';
-        preview.className = 'log-collapsed-preview';
-        return;
-    }
-
-    const panel = getActiveLogPanel();
-    if (!panel) return;
-
-    const { html, text } = getLatestPanelEntry(panel);
-    const emptyLabel = typeof window.t === 'function' ? window.t('chat.collapsedEmpty') : 'No recent messages';
-
-    if (!text) {
-        preview.className = 'log-collapsed-preview log-collapsed-preview--neutral';
-        if (tagEl) tagEl.textContent = '';
-        textEl.textContent = emptyLabel;
-        preview.hidden = false;
-        return;
-    }
-
-    const kind = inferLogPreviewKind(html, text, panel.id);
-    preview.className = `log-collapsed-preview log-collapsed-preview--${kind}`;
-    if (tagEl) tagEl.textContent = logPreviewTagForKind(kind);
-    textEl.textContent = text.slice(0, 96);
-    preview.hidden = false;
+    if (tagEl) tagEl.textContent = '';
+    if (textEl) textEl.textContent = '';
 }
 
+/** Bridge for legacy callers: collapsed === floating panel closed. */
 function aplicarChatCollapse(collapsed: boolean): void {
-    const cont = document.querySelector('.log-container');
-    const btn = document.getElementById('btn-log-collapse');
-    if (!cont) return;
-    cont.classList.toggle('log-container--collapsed', collapsed);
-    if (btn) {
-        btn.textContent = collapsed ? '▴' : '▾';
-        btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-    }
-    refreshLogCollapsedPreview();
-    if (!collapsed) {
-        const panel = getActiveLogPanel();
-        if (panel && (panel.id === 'chat-global' || panel.id === 'chat-clan')) {
-            flushPendingChatScroll(panel);
-        }
-    }
+    setFloatingChatOpen(!collapsed);
 }
 
 let combatLogTabDefaultLabel: string | null = null;
 
-/** Recolhe o chat durante combate na floresta; modo log-only (só SYSTEM). */
+/**
+ * Normal forest hunt: close messenger + SYSTEM-only (combat log in panel).
+ * Expedition fight: combat log lives in `#expedition-combat-hud` — leave messenger alone.
+ */
 function setChatCollapsedForCombat(inCombat: boolean): void {
-    const cont = document.querySelector('.log-container');
+    const cont = getFloatingChatPanel();
     if (!cont) return;
+
+    if (isExpeditionCombatUiActive()) {
+        // Do not force hunt-log-only / SYSTEM-only during expedition runs.
+        if (!inCombat && chatCollapsedBeforeCombat !== null) {
+            const restoreCollapsed = chatCollapsedBeforeCombat;
+            chatCollapsedBeforeCombat = null;
+            aplicarChatCollapse(restoreCollapsed);
+        }
+        return;
+    }
 
     const combatTab = document.getElementById('btn-tab-combat');
 
     if (inCombat) {
         if (chatCollapsedBeforeCombat !== null) return;
-        chatCollapsedBeforeCombat = cont.classList.contains('log-container--collapsed');
+        chatCollapsedBeforeCombat = !isFloatingChatOpen();
         cont.classList.add('log-container--hunt-log-only');
         if (combatTab) {
             if (combatLogTabDefaultLabel === null) combatLogTabDefaultLabel = combatTab.textContent || 'SYSTEM';
@@ -409,51 +494,24 @@ function setChatCollapsedForCombat(inCombat: boolean): void {
 }
 
 /**
- * Collapse chat while Inventory is open (portrait only) so Bag/Hotbar fit.
- * Skips when combat already owns collapse state; restores previous height on leave.
+ * Floating chat is an overlay — inventory no longer needs to reclaim foot-dock height.
+ * Kept as a no-op bridge for existing callers.
  */
-function setChatCollapsedForInventory(inInventory: boolean): void {
-    const cont = document.querySelector('.log-container');
-    if (!cont) return;
-
-    const isLandscape = document.documentElement.getAttribute('data-l2-layout') === 'landscape';
-    if (inInventory) {
-        if (isLandscape || chatCollapsedBeforeCombat !== null) return;
-        if (chatCollapsedBeforeInventory !== null) return;
-        chatCollapsedBeforeInventory = cont.classList.contains('log-container--collapsed');
-        if (!chatCollapsedBeforeInventory) aplicarChatCollapse(true);
-        return;
-    }
-
-    if (chatCollapsedBeforeInventory === null) return;
-    const restoreCollapsed = chatCollapsedBeforeInventory;
-    chatCollapsedBeforeInventory = null;
-    // Combat owns collapse UI — don't fight it; just drop the inventory bookmark.
-    if (chatCollapsedBeforeCombat !== null) return;
-    aplicarChatCollapse(restoreCollapsed);
+function setChatCollapsedForInventory(_inInventory: boolean): void {
+    // intentionally empty (messenger overlay does not steal flex space)
 }
 
 function toggleChatCollapse(): void {
-    const cont = document.querySelector('.log-container');
-    const collapsed = !(cont && cont.classList.contains('log-container--collapsed'));
-    aplicarChatCollapse(collapsed);
-    if (chatCollapsedBeforeCombat !== null) {
-        chatCollapsedBeforeCombat = collapsed;
-    } else if (chatCollapsedBeforeInventory !== null) {
-        chatCollapsedBeforeInventory = collapsed;
-    } else {
-        try {
-            localStorage.setItem(CHAT_COLLAPSED_KEY, collapsed ? '1' : '0');
-        } catch (e) { /* storage cheio/indisponível — estado só da sessão */ }
-    }
+    toggleFloatingChat();
 }
 
+/** Messenger defaults closed; only reopen if player explicitly saved open (`0`). */
 function restaurarChatCollapse(): void {
-    let collapsed = false;
+    let preferOpen = false;
     try {
-        collapsed = localStorage.getItem(CHAT_COLLAPSED_KEY) === '1';
+        preferOpen = localStorage.getItem(CHAT_COLLAPSED_KEY) === '0';
     } catch (e) { /* ignore */ }
-    if (collapsed) aplicarChatCollapse(true);
+    setFloatingChatOpen(preferOpen);
 }
 
 if (document.readyState === 'loading') {
@@ -664,6 +722,8 @@ function adicionarMensagemChat(
         const panelId = chatContainer.id as ChatPanelId;
         if (ehOMeuPersonagem) chatStickToBottom[panelId] = true;
         scrollChatPanelToBottom(chatContainer, ehOMeuPersonagem);
+        // Unread badge while messenger is closed (skip own lines).
+        if (!ehOMeuPersonagem) bumpFloatingChatUnread();
     }
     window.refreshLogCollapsedPreview?.();
 }
@@ -1218,6 +1278,8 @@ function refreshChatPanelsI18n(): void {
 
 window.switchLogTab = switchLogTab;
 window.toggleChatCollapse = toggleChatCollapse;
+window.toggleFloatingChat = toggleFloatingChat;
+window.setFloatingChatOpen = setFloatingChatOpen;
 window.setChatCollapsedForCombat = setChatCollapsedForCombat;
 window.setChatCollapsedForInventory = setChatCollapsedForInventory;
 window.refreshLogCollapsedPreview = refreshLogCollapsedPreview;

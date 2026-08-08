@@ -437,8 +437,17 @@
     box-shadow: 0 -8px 24px rgba(0,0,0,0.6); 
 }
 
-.game-ingame .log-container {
+/* Foot-dock chat removed — messenger lives in `.floating-chat` (see floating-chat.css).
+ * Keep this rule out of the floating overlay so closed panels stay hidden. */
+.game-ingame > .log-container,
+.game-ingame #screen-game > .log-container {
     display: flex;
+}
+.game-ingame .floating-chat .log-container.floating-chat__panel {
+    /* visibility controlled by .floating-chat--open / --closed */
+    margin-top: 0;
+    border-top: none;
+    box-shadow: none;
 }
 
 .log-tabs { 

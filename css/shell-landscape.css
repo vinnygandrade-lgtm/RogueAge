@@ -982,12 +982,17 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .tra
 }
 
 /*
- * Traditional MMORPG chat: floating panel, bottom-left corner,
- * above hotbar + tabs ? does NOT own a grid column.
+ * Floating messenger (FAB + panel) — bottom-left above travel menu.
  */
-html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .log-container {
+html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat {
+    z-index: 140;
+}
+html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat-fab {
+    left: 12px;
+    bottom: var(--l2-landscape-chat-bottom);
+}
+html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat.floating-chat--open .log-container.floating-chat__panel {
     position: absolute !important;
-    order: 0;
     left: 12px;
     right: auto;
     bottom: var(--l2-landscape-chat-bottom);
@@ -995,43 +1000,30 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .log
     width: var(--l2-landscape-chat-w) !important;
     max-width: calc(100% - 24px);
     height: var(--l2-landscape-chat-h) !important;
-    max-height: var(--l2-landscape-chat-h);
+    max-height: var(--l2-landscape-chat-h) !important;
     margin: 0 !important;
-    flex: none !important;
-    align-self: auto !important;
     border: 1px solid rgba(90, 70, 52, 0.55);
     border-radius: 8px;
-    background: rgba(10, 9, 7, 0.82) !important;
+    background: rgba(10, 9, 7, 0.88) !important;
     backdrop-filter: blur(4px);
     box-shadow:
         0 8px 28px rgba(0, 0, 0, 0.6),
         inset 0 1px 0 rgba(230, 194, 138, 0.06);
     display: flex !important;
     flex-direction: column;
-    z-index: 140;
-    pointer-events: auto;
     overflow: hidden;
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .log-container .log-content.active {
+html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat .log-container .log-content.active {
     flex: 1 1 auto;
     min-height: 0;
     max-height: none;
     overflow-y: auto;
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .log-container--collapsed {
-    height: auto !important;
-    max-height: none;
-}
-
-html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .log-container--hunt-log-only:not(.log-container--collapsed) {
+html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat .log-container--hunt-log-only {
     height: var(--l2-landscape-chat-h) !important;
-    max-height: var(--l2-landscape-chat-h);
-}
-
-html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .log-container--hunt-log-only:not(.log-container--collapsed) .log-content.active {
-    max-height: none;
+    max-height: var(--l2-landscape-chat-h) !important;
 }
 
 html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > #nav-menu-town-coach,
@@ -1041,10 +1033,7 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > #tut
     z-index: 120;
 }
 
-/* Expedition: hide chat window (fight uses #expedition-combat-hud) */
-html[data-l2-layout="landscape"] .game-container.game-ingame.expedition-run-locked:has(#tela-floresta.expedition-run-active) #screen-game > .log-container {
-    display: none !important;
-}
+/* Expedition: fight HUD owns combat log; floating messenger FAB stays available */
 
 html[data-l2-layout="landscape"] .expedition-combat-hud {
     --exp-combat-hud-h: 112px;
@@ -1626,8 +1615,8 @@ html[data-l2-layout="landscape"] #tela-cidade #praca-cidade .npc-card--craft-wid
 }
 
 /* City open: glass chat dock (same spirit as marketplace) */
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game > .log-container,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game > .log-container {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game .floating-chat .log-container,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game .floating-chat .log-container {
     width: min(var(--l2-landscape-chat-w), 380px) !important;
     background: rgba(8, 7, 6, 0.42) !important;
     backdrop-filter: blur(12px) saturate(1.05);
@@ -1638,32 +1627,32 @@ html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[st
         inset 0 1px 0 rgba(230, 194, 138, 0.08);
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game > .log-container:not(.log-container--collapsed),
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game > .log-container:not(.log-container--collapsed) {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game .floating-chat .log-container:not(.log-container--collapsed),
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game .floating-chat .log-container:not(.log-container--collapsed) {
     height: min(var(--l2-landscape-chat-h), 200px) !important;
     max-height: min(var(--l2-landscape-chat-h), 200px);
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game > .log-container--collapsed,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game > .log-container--collapsed {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game .floating-chat .log-container--collapsed,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game .floating-chat .log-container--collapsed {
     height: auto !important;
     max-height: none !important;
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game > .log-container .log-tabs,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game > .log-container .log-tabs {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game .floating-chat .log-container .log-tabs,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game .floating-chat .log-container .log-tabs {
     background: rgba(0, 0, 0, 0.28);
     border-bottom-color: rgba(90, 70, 52, 0.35);
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game > .log-container .log-content,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game > .log-container .log-content {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game .floating-chat .log-container .log-content,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game .floating-chat .log-container .log-content {
     background: transparent;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game > .log-container #chat-input-container,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game > .log-container #chat-input-container {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game .floating-chat .log-container #chat-input-container,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game .floating-chat .log-container #chat-input-container {
     background: rgba(12, 10, 8, 0.55);
     border-top-color: rgba(90, 70, 52, 0.28);
 }
@@ -1820,8 +1809,8 @@ html[data-l2-layout="landscape"] #tela-cidade #menu-equipment-grades .npc-action
         margin-bottom: 10px;
     }
 
-    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game > .log-container:not(.log-container--collapsed),
-    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game > .log-container:not(.log-container--collapsed) {
+    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display: flex"]) #screen-game .floating-chat .log-container:not(.log-container--collapsed),
+    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[style*="display:flex"]) #screen-game .floating-chat .log-container:not(.log-container--collapsed) {
         height: min(var(--l2-landscape-chat-h), 170px) !important;
         max-height: min(var(--l2-landscape-chat-h), 170px);
     }
@@ -2453,8 +2442,8 @@ html[data-l2-layout="landscape"] #menu-social-market.npc-menu {
  * market stays centered; chat stays usable without shoving the desk.
  * Height only when expanded ? never fight .log-container--collapsed.
  */
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game .floating-chat .log-container,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game .floating-chat .log-container {
     width: min(var(--l2-landscape-chat-w), 380px) !important;
     background: rgba(8, 7, 6, 0.42) !important;
     backdrop-filter: blur(12px) saturate(1.05);
@@ -2465,32 +2454,32 @@ html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-ma
         inset 0 1px 0 rgba(230, 194, 138, 0.08);
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container:not(.log-container--collapsed),
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container:not(.log-container--collapsed) {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game .floating-chat .log-container:not(.log-container--collapsed),
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game .floating-chat .log-container:not(.log-container--collapsed) {
     height: min(var(--l2-landscape-chat-h), 200px) !important;
     max-height: min(var(--l2-landscape-chat-h), 200px);
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container--collapsed,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container--collapsed {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game .floating-chat .log-container--collapsed,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game .floating-chat .log-container--collapsed {
     height: auto !important;
     max-height: none !important;
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container .log-tabs,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container .log-tabs {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game .floating-chat .log-container .log-tabs,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game .floating-chat .log-container .log-tabs {
     background: rgba(0, 0, 0, 0.28);
     border-bottom-color: rgba(90, 70, 52, 0.35);
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container .log-content,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container .log-content {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game .floating-chat .log-container .log-content,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game .floating-chat .log-container .log-content {
     background: transparent;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
 }
 
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container #chat-input-container,
-html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container #chat-input-container {
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game .floating-chat .log-container #chat-input-container,
+html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game .floating-chat .log-container #chat-input-container {
     background: rgba(12, 10, 8, 0.55);
     border-top-color: rgba(90, 70, 52, 0.28);
 }
@@ -2828,13 +2817,13 @@ html[data-l2-layout="landscape"] #janela-market-seletor .btn-market-back {
         max-width: min(1100px, 94%);
     }
 
-    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container,
-    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container {
+    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game .floating-chat .log-container,
+    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game .floating-chat .log-container {
         width: min(var(--l2-landscape-chat-w), 320px) !important;
     }
 
-    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game > .log-container:not(.log-container--collapsed),
-    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game > .log-container:not(.log-container--collapsed) {
+    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display: flex"]) #screen-game .floating-chat .log-container:not(.log-container--collapsed),
+    html[data-l2-layout="landscape"] .game-container.game-ingame:has(#menu-social-market[style*="display:flex"]) #screen-game .floating-chat .log-container:not(.log-container--collapsed) {
         height: min(var(--l2-landscape-chat-h), 170px) !important;
         max-height: min(var(--l2-landscape-chat-h), 170px);
     }

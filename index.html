@@ -45,6 +45,7 @@
     <link rel="stylesheet" href="css/expedition-portrait-fit.css">
     <link rel="stylesheet" href="css/auth-flow.css">
     <link rel="stylesheet" href="css/inventory-grid.css">
+    <link rel="stylesheet" href="css/floating-chat.css">
     <!-- Landscape PC: DEVE ficar por último para vencer auth-flow / screens -->
     <link rel="stylesheet" href="css/shell-landscape.css">
     <script>
@@ -2734,24 +2735,35 @@
             </div>
         </div>
 
-        <!-- 5. CHAT / LOG (FIXO NO RODAPÉ DO FLEX) -->
-        <div class="log-container">
-            <div class="log-tabs">
-                <div id="btn-tab-combat" class="log-tab active" onclick="switchLogTab('combat')">SYSTEM</div>
-                <div id="btn-tab-chat" class="log-tab" onclick="switchLogTab('chat')">GLOBAL CHAT</div>
-                <div id="btn-tab-clan" class="log-tab" onclick="switchLogTab('clan')">CLAN</div>
-                <button type="button" id="btn-log-collapse" class="log-collapse-btn" onclick="toggleChatCollapse()" data-i18n-title="chat.toggleCollapse" title="Show/hide chat" aria-expanded="true">▾</button>
-            </div>
-            <div id="log-collapsed-preview" class="log-collapsed-preview" hidden role="button" tabindex="0" data-i18n-aria-label="chat.collapsedPreview" aria-label="Expand chat" onclick="toggleChatCollapse()">
-                <span id="log-collapsed-preview-tag" class="log-collapsed-preview__tag" aria-hidden="true"></span>
-                <span id="log-collapsed-preview-text" class="log-collapsed-preview__text"></span>
-            </div>
-            <div id="log" class="log-content active" data-i18n="game.core.welcomeLog">Welcome to the Rogue Age.</div>
-            <div id="chat-global" class="log-content"></div>
-            <div id="chat-clan" class="log-content"></div>
-            <div id="chat-input-container">
-                <input type="text" id="input-chat-msg" data-i18n-placeholder="chat.placeholderInput" placeholder="Press Enter to send...">
-                <button type="button" class="btn-l2 btn-chat-send" data-i18n="chat.send" onclick="enviarMensagemPlayer()">SEND</button>
+        <!-- 5. FLOATING CHAT (messenger) — FAB + panel; SYSTEM / GLOBAL / CLAN -->
+        <div id="floating-chat-root" class="floating-chat floating-chat--closed" aria-live="polite">
+            <button type="button" id="floating-chat-fab" class="floating-chat-fab" onclick="toggleFloatingChat()" data-i18n-title="chat.fabOpenTitle" title="Open chat" aria-expanded="false" aria-controls="floating-chat-panel">
+                <span class="floating-chat-fab__glyph" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4.5 6.5h15a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5H10l-3.5 3v-3H4.5A1.5 1.5 0 0 1 3 15V8a1.5 1.5 0 0 1 1.5-1.5z"/>
+                    </svg>
+                </span>
+                <span class="floating-chat-fab__label" data-i18n="chat.fabLabel">Chat</span>
+                <span id="floating-chat-badge" class="floating-chat-fab__badge" hidden aria-hidden="true">0</span>
+            </button>
+            <div class="log-container floating-chat__panel" id="floating-chat-panel" role="dialog" data-i18n-aria-label="chat.panelAria" aria-label="Chat" hidden>
+                <div class="log-tabs">
+                    <div id="btn-tab-combat" class="log-tab active" onclick="switchLogTab('combat')" data-i18n="chat.tabSystem">SYSTEM</div>
+                    <div id="btn-tab-chat" class="log-tab" onclick="switchLogTab('chat')" data-i18n="chat.tabGlobal">GLOBAL</div>
+                    <div id="btn-tab-clan" class="log-tab" onclick="switchLogTab('clan')" data-i18n="chat.tabClan">CLAN</div>
+                    <button type="button" id="btn-log-collapse" class="log-collapse-btn floating-chat__close" onclick="toggleFloatingChat()" data-i18n-title="chat.fabCloseTitle" title="Close chat" aria-expanded="false">✕</button>
+                </div>
+                <div id="log-collapsed-preview" class="log-collapsed-preview" hidden role="button" tabindex="0" data-i18n-aria-label="chat.collapsedPreview" aria-label="Expand chat" onclick="toggleFloatingChat()">
+                    <span id="log-collapsed-preview-tag" class="log-collapsed-preview__tag" aria-hidden="true"></span>
+                    <span id="log-collapsed-preview-text" class="log-collapsed-preview__text"></span>
+                </div>
+                <div id="log" class="log-content active" data-i18n="game.core.welcomeLog">Welcome to the Rogue Age.</div>
+                <div id="chat-global" class="log-content"></div>
+                <div id="chat-clan" class="log-content"></div>
+                <div id="chat-input-container">
+                    <input type="text" id="input-chat-msg" data-i18n-placeholder="chat.placeholderInput" placeholder="Press Enter to send...">
+                    <button type="button" class="btn-l2 btn-chat-send" data-i18n="chat.send" onclick="enviarMensagemPlayer()">SEND</button>
+                </div>
             </div>
         </div>
     </div>
