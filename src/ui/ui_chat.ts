@@ -14,6 +14,12 @@ import type {
   PlayerStats,
 } from '../types/game';
 import { buildChatTitlePayload, resolveChatTitleBadge } from './chat_title_resolver';
+import {
+  clearFloatingChatPanelPlacement,
+  initFloatingChatFabPosition,
+  layoutFloatingChatPanelNearFab,
+  refreshFloatingChatFabPosition,
+} from './ui_floating_chat_position';
 
 function chatT(key: string, params?: Record<string, string | number>): string {
     return typeof window.t === 'function' ? window.t(key, params) : key;
@@ -258,11 +264,12 @@ function setFloatingChatOpen(open: boolean): void {
     }
     if (fab) {
         fab.setAttribute('aria-expanded', open ? 'true' : 'false');
-        const titleKey = open ? 'chat.fabCloseTitle' : 'chat.fabOpenTitle';
+        const titleKey = open ? 'chat.fabCloseTitle' : 'chat.fabDragTitle';
         const title = typeof window.t === 'function'
             ? window.t(titleKey)
-            : (open ? 'Close chat' : 'Open chat');
+            : (open ? 'Close chat' : 'Drag to move · tap to open');
         fab.setAttribute('title', title);
+        fab.setAttribute('data-i18n-title', titleKey);
     }
     if (closeBtn) {
         closeBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -270,12 +277,17 @@ function setFloatingChatOpen(open: boolean): void {
     }
     if (open) {
         clearFloatingChatUnread();
-        const active = getActiveLogPanel();
-        if (active && (active.id === 'chat-global' || active.id === 'chat-clan')) {
-            flushPendingChatScroll(active);
-        }
+        requestAnimationFrame(() => {
+            layoutFloatingChatPanelNearFab();
+            const active = getActiveLogPanel();
+            if (active && (active.id === 'chat-global' || active.id === 'chat-clan')) {
+                flushPendingChatScroll(active);
+            }
+        });
     } else {
+        clearFloatingChatPanelPlacement();
         updateFloatingChatBadge();
+        refreshFloatingChatFabPosition();
     }
     refreshLogCollapsedPreview();
 }
@@ -517,10 +529,12 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         restaurarChatCollapse();
         bindLogCollapsedPreviewKeys();
+        initFloatingChatFabPosition();
     });
 } else {
     restaurarChatCollapse();
     bindLogCollapsedPreviewKeys();
+    initFloatingChatFabPosition();
 }
 
 function bindLogCollapsedPreviewKeys(): void {
@@ -1151,6 +1165,8 @@ function enviarMensagemPlayer(): void {
 function iniciarChatAutomatico() {
     // Entering the game: messenger stays closed until the player taps the FAB.
     setFloatingChatOpen(false);
+    initFloatingChatFabPosition();
+    refreshFloatingChatFabPosition();
 
     const cloudEnabled = !!(window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.enabled);
     const cloudUser = isCloudChatUser();

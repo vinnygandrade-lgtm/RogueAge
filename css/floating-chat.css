@@ -34,9 +34,16 @@
     box-shadow:
         0 8px 22px rgba(0, 0, 0, 0.55),
         inset 0 1px 0 rgba(245, 220, 160, 0.12);
-    cursor: pointer;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
     -webkit-tap-highlight-color: transparent;
     transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.floating-chat-fab.floating-chat-fab--placed {
+    bottom: auto !important;
+    right: auto !important;
 }
 .floating-chat-fab:hover,
 .floating-chat-fab:focus-visible {
@@ -47,12 +54,21 @@
         inset 0 1px 0 rgba(245, 220, 160, 0.18);
     outline: none;
 }
-.floating-chat-fab:active {
-    transform: scale(0.97);
+.floating-chat-fab:active,
+.floating-chat-fab.floating-chat-fab--dragging {
+    cursor: grabbing;
+    transform: scale(1.04);
+    border-color: rgba(250, 204, 21, 0.85);
+    box-shadow:
+        0 14px 32px rgba(0, 0, 0, 0.65),
+        0 0 0 1px rgba(250, 204, 21, 0.22),
+        inset 0 1px 0 rgba(245, 220, 160, 0.2);
+    transition: none;
 }
 .floating-chat-fab__glyph {
     display: inline-flex;
     color: #f5dca0;
+    pointer-events: none;
 }
 .floating-chat-fab__label {
     font-family: 'Cinzel', serif;
@@ -60,6 +76,7 @@
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    pointer-events: none;
 }
 .floating-chat-fab__badge {
     position: absolute;
@@ -77,6 +94,7 @@
     text-align: center;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    pointer-events: none;
 }
 .floating-chat-fab__badge[hidden] {
     display: none !important;
@@ -105,6 +123,10 @@
         0 16px 40px rgba(0, 0, 0, 0.65),
         inset 0 1px 0 rgba(245, 220, 160, 0.1);
     overflow: hidden;
+}
+.game-container.game-ingame .floating-chat .log-container.floating-chat__panel.floating-chat__panel--placed {
+    right: auto !important;
+    bottom: auto !important;
 }
 .game-container.game-ingame .floating-chat.floating-chat--open .log-container.floating-chat__panel {
     display: flex;
@@ -150,12 +172,11 @@
     z-index: 160;
 }
 .game-container.expedition-run-locked:has(#tela-floresta.expedition-run-active) .floating-chat .log-container {
-    /* override old hide-all-chat rule if any remains elsewhere */
     visibility: visible;
 }
-/* Sit FAB above expedition fight HUD + hotbar */
-.game-container.expedition-run-locked:has(#tela-floresta.expedition-combat-open) .floating-chat-fab,
-.game-container.expedition-run-locked:has(#tela-floresta.expedition-combat-open) .floating-chat.floating-chat--open .log-container.floating-chat__panel {
+/* Default (unplaced) FAB sits above expedition fight HUD + hotbar */
+.game-container.expedition-run-locked:has(#tela-floresta.expedition-combat-open) .floating-chat-fab:not(.floating-chat-fab--placed),
+.game-container.expedition-run-locked:has(#tela-floresta.expedition-combat-open) .floating-chat.floating-chat--open .log-container.floating-chat__panel:not(.floating-chat__panel--placed) {
     bottom: calc(56px + var(--exp-combat-hud-h, 96px) + var(--l2-safe-bottom, 0px));
 }
 

@@ -17,6 +17,7 @@ Suporta **dois modos efectivos**: **portrait** (telemóvel) e **landscape** (PC 
 | `css/expedition-portrait-fit.css` | Expedição — caber no shell portrait (depois de `index-extras`) |
 | `src/ui/ui_layout_mode.ts` | Preferência `auto` / `portrait` / `landscape` + `data-l2-layout` |
 | `src/ui/ui_chat.ts` | Motor do chat + `toggleFloatingChat` / badge |
+| `src/ui/ui_floating_chat_position.ts` | FAB arrastável (posição em `localStorage`) |
 
 ## Números oficiais
 
@@ -102,7 +103,7 @@ Sob `data-l2-layout="landscape"` e `#screen-game` (classe `game-ingame` no `.gam
 
 - Shell full-width; `#screen-game` continua **flex** (não grid — evita partir a largura).
 - Tabs reordenadas para baixo via `order`.
-- **Chat** = messenger flutuante (FAB + painel ~420×240); fechado por defeito; badge de não lidas.
+- **Chat** = messenger flutuante (FAB + painel ~420×240); fechado por defeito; badge de não lidas; FAB **arrastável** (posição persistida).
 - Hotbar centrada; inventário/perfil com tamanhos ideais.
 
 Social / Olimpíada / Guerra: usáveis na moldura larga.

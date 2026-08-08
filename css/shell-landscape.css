@@ -987,16 +987,12 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .tra
 html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat {
     z-index: 140;
 }
-html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat-fab {
+html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat-fab:not(.floating-chat-fab--placed) {
     left: 12px;
     bottom: var(--l2-landscape-chat-bottom);
 }
 html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat.floating-chat--open .log-container.floating-chat__panel {
     position: absolute !important;
-    left: 12px;
-    right: auto;
-    bottom: var(--l2-landscape-chat-bottom);
-    top: auto;
     width: var(--l2-landscape-chat-w) !important;
     max-width: calc(100% - 24px);
     height: var(--l2-landscape-chat-h) !important;
@@ -1012,6 +1008,12 @@ html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat.floa
     display: flex !important;
     flex-direction: column;
     overflow: hidden;
+}
+html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat.floating-chat--open .log-container.floating-chat__panel:not(.floating-chat__panel--placed) {
+    left: 12px;
+    right: auto;
+    bottom: var(--l2-landscape-chat-bottom);
+    top: auto;
 }
 
 html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat .log-container .log-content.active {
