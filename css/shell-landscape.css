@@ -1041,17 +1041,29 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > #tut
     z-index: 120;
 }
 
-/* Expedition: hide chat window (fight uses #expedition-combat-log-dock) */
+/* Expedition: hide chat window (fight uses #expedition-combat-hud) */
 html[data-l2-layout="landscape"] .game-container.game-ingame.expedition-run-locked:has(#tela-floresta.expedition-run-active) #screen-game > .log-container {
     display: none !important;
 }
 
-html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .expedition-combat-log-dock:not([hidden]) {
-    max-height: 120px;
+html[data-l2-layout="landscape"] .expedition-combat-hud {
+    --exp-combat-hud-h: 108px;
 }
 html[data-l2-layout="landscape"] .expedition-combat-log {
-    max-height: 88px;
     font-size: 12px;
+    line-height: 1.35;
+}
+html[data-l2-layout="landscape"] .expedition-combat-hud__log-title {
+    font-size: 9.5px;
+}
+html[data-l2-layout="landscape"] .expedition-combat-hud .exp-run-vital__track {
+    height: 13px;
+}
+html[data-l2-layout="landscape"] .expedition-combat-hud .exp-run-vital--hp .exp-run-vital__track {
+    height: 15px;
+}
+html[data-l2-layout="landscape"] .expedition-combat-hud .exp-run-vital__text {
+    font-size: 9px;
 }
 
 /* ?? HUD: one balanced desk bar ??
@@ -3648,8 +3660,8 @@ html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-co
     justify-content: center !important;
     flex-wrap: nowrap;
     gap: 28px !important;
-    /* Room below sprites so HP / atk bars aren’t clipped by hotbar */
-    padding: 12px 24px clamp(28px, 5vh, 48px) !important;
+    /* Stage ends above fixed fight HUD — modest bottom padding for feet on the path */
+    padding: 12px 24px clamp(16px, 3vh, 32px) !important;
     box-sizing: border-box;
     overflow-x: auto !important;
     overflow-y: visible !important;

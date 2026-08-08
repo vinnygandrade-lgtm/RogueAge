@@ -3454,54 +3454,41 @@ export class ExpeditionEngine {
         if (mode === 'combat' && this.state.active) {
             this.ensureRunVitalsForCombat();
         }
-        this.syncCombatLogDock(mode);
+        this.syncCombatHud(mode);
         this.syncExpeditionCombatControls(mode);
         this.syncExpeditionHotbar(mode);
     }
 
-    /** Fight-only combat log (global `.log-container` stays hidden during expedition runs). */
-    static syncCombatLogDock(mode: 'hub' | 'map' | 'combat' | 'idle'): void {
-        const dock = document.getElementById('expedition-combat-log-dock');
-        if (!dock) return;
+    /**
+     * Fixed fight HUD above the hotbar: combat log (left) + vitals (right).
+     * Global `.log-container` stays hidden during expedition runs.
+     */
+    static syncCombatHud(mode: 'hub' | 'map' | 'combat' | 'idle'): void {
+        const hud = document.getElementById('expedition-combat-hud');
+        const vitals = document.getElementById('expedition-run-vitals');
+        const home = document.getElementById('expedition-vitals-home');
+        const slot = document.getElementById('expedition-combat-vitals-slot');
+        if (!hud) return;
+
         const show = mode === 'combat' && !!this.state.active;
-        const enteringCombat = show && dock.hidden;
-        dock.hidden = !show;
-        dock.setAttribute('aria-hidden', show ? 'false' : 'true');
-        if (enteringCombat) {
-            this.clearCombatLog();
-            dock.classList.remove('expedition-combat-log-dock--collapsed');
-            const btn = document.getElementById('btn-expedition-combat-log-toggle');
-            if (btn) {
-                btn.setAttribute('aria-expanded', 'true');
-                btn.textContent = '▾';
-                btn.title = this.t(
-                    'game.hunt.expedition.combatLogCollapseTitle',
-                    'Collapse combat log'
-                );
+        const enteringCombat = show && hud.hidden;
+        hud.hidden = !show;
+        hud.setAttribute('aria-hidden', show ? 'false' : 'true');
+
+        if (vitals && home && slot) {
+            if (show) {
+                if (vitals.parentElement !== slot) slot.appendChild(vitals);
+            } else if (vitals.parentElement !== home) {
+                home.appendChild(vitals);
             }
         }
+
+        if (enteringCombat) this.clearCombatLog();
     }
 
     static clearCombatLog(): void {
         const expLog = document.getElementById('expedition-combat-log');
         if (expLog) expLog.innerHTML = '';
-    }
-
-    static toggleCombatLogCollapsed(): void {
-        const dock = document.getElementById('expedition-combat-log-dock');
-        if (!dock || dock.hidden) return;
-        const collapsed = dock.classList.toggle('expedition-combat-log-dock--collapsed');
-        const btn = document.getElementById('btn-expedition-combat-log-toggle');
-        if (btn) {
-            btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-            btn.textContent = collapsed ? '▴' : '▾';
-            btn.title = this.t(
-                collapsed
-                    ? 'game.hunt.expedition.combatLogExpandTitle'
-                    : 'game.hunt.expedition.combatLogCollapseTitle',
-                collapsed ? 'Expand combat log' : 'Collapse combat log'
-            );
-        }
     }
 
     static showHub() {

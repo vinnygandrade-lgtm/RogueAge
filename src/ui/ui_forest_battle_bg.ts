@@ -1,5 +1,6 @@
 /**
- * Full-screen zone battle backgrounds.
+ * Zone battle backgrounds — painted inside `#expedition-combat-stage`
+ * (above the fight HUD / hotbar), not behind the whole Forest screen.
  *
  * Portrait (mobile): `assets/zones/battle_<slug>.webp` — 1080×2340
  * Landscape (PC):    `assets/zones/battle_<slug>_wide.webp` — 1920×1080

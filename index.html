@@ -1916,7 +1916,6 @@
         </div>
 
         <div id="tela-floresta" class="screen-content">
-            <div id="forest-battle-bg" class="forest-battle-bg" aria-hidden="true"></div>
             <div id="forest-death-overlay" class="forest-death-overlay" aria-hidden="true">
                 <div class="forest-death-panel">
                     <div class="forest-death-skull" aria-hidden="true">☠</div>
@@ -1938,32 +1937,36 @@
                     <button type="button" id="forest-flee-success-to-town" class="forest-flee-success-btn" data-i18n="game.hunt.fleeSuccessToTown" onclick="confirmForestFleeReturnToTown()">RETURN TO TOWN</button>
                 </div>
             </div>
-            <div id="expedition-run-vitals" class="expedition-run-vitals" role="group" data-i18n-aria-label="game.hunt.expedition.runVitalsLabel" aria-label="Character vitals">
-                <div class="expedition-run-vitals__bars">
-                    <div class="exp-run-vital exp-run-vital--cp">
-                        <span class="exp-run-vital__tag">CP</span>
-                        <div class="exp-run-vital__track">
-                            <div id="expedition-cp-fill" class="exp-run-vital__fill exp-run-vital__fill--cp"></div>
-                            <span id="expedition-cp-text" class="exp-run-vital__text">—</span>
+            <div id="expedition-vitals-home" class="expedition-vitals-home">
+                <div id="expedition-run-vitals" class="expedition-run-vitals" role="group" data-i18n-aria-label="game.hunt.expedition.runVitalsLabel" aria-label="Character vitals">
+                    <div class="expedition-run-vitals__bars">
+                        <div class="exp-run-vital exp-run-vital--cp">
+                            <span class="exp-run-vital__tag">CP</span>
+                            <div class="exp-run-vital__track">
+                                <div id="expedition-cp-fill" class="exp-run-vital__fill exp-run-vital__fill--cp"></div>
+                                <span id="expedition-cp-text" class="exp-run-vital__text">—</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="exp-run-vital exp-run-vital--hp">
-                        <span class="exp-run-vital__tag">HP</span>
-                        <div class="exp-run-vital__track">
-                            <div id="expedition-hp-fill" class="exp-run-vital__fill exp-run-vital__fill--hp"></div>
-                            <span id="expedition-hp-text" class="exp-run-vital__text">—</span>
+                        <div class="exp-run-vital exp-run-vital--hp">
+                            <span class="exp-run-vital__tag">HP</span>
+                            <div class="exp-run-vital__track">
+                                <div id="expedition-hp-fill" class="exp-run-vital__fill exp-run-vital__fill--hp"></div>
+                                <span id="expedition-hp-text" class="exp-run-vital__text">—</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="exp-run-vital exp-run-vital--mp">
-                        <span class="exp-run-vital__tag">MP</span>
-                        <div class="exp-run-vital__track">
-                            <div id="expedition-mp-fill" class="exp-run-vital__fill exp-run-vital__fill--mp"></div>
-                            <span id="expedition-mp-text" class="exp-run-vital__text">—</span>
+                        <div class="exp-run-vital exp-run-vital--mp">
+                            <span class="exp-run-vital__tag">MP</span>
+                            <div class="exp-run-vital__track">
+                                <div id="expedition-mp-fill" class="exp-run-vital__fill exp-run-vital__fill--mp"></div>
+                                <span id="expedition-mp-text" class="exp-run-vital__text">—</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="tela-floresta-inner">
+            <div id="expedition-combat-stage" class="expedition-combat-stage">
+                <div id="forest-battle-bg" class="forest-battle-bg" aria-hidden="true"></div>
+                <div class="tela-floresta-inner">
                 <h4 id="hud-zona-nome" data-i18n="game.zones.ng.name">Talking Island</h4>
 
                 <div id="expedition-hub" class="expedition-hub">
@@ -2034,14 +2037,17 @@
 
                 <div id="mobs-container"></div>
                 <div id="mob-type-legend" class="mob-type-legend" hidden aria-hidden="true"></div>
+                </div>
             </div>
 
-            <div id="expedition-combat-log-dock" class="expedition-combat-log-dock" hidden aria-hidden="true">
-                <div class="expedition-combat-log-dock__bar">
-                    <span class="expedition-combat-log-dock__title" data-i18n="game.hunt.expedition.combatLogTitle">Combat Log</span>
-                    <button type="button" id="btn-expedition-combat-log-toggle" class="expedition-combat-log-dock__toggle" onclick="ExpeditionEngine.toggleCombatLogCollapsed()" data-i18n-title="game.hunt.expedition.combatLogToggleTitle" title="Collapse or expand combat log" aria-expanded="true" aria-controls="expedition-combat-log">▾</button>
-                </div>
-                <div id="expedition-combat-log" class="expedition-combat-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+            <div id="expedition-combat-hud" class="expedition-combat-hud" hidden aria-hidden="true">
+                <section class="expedition-combat-hud__log" aria-labelledby="expedition-combat-log-title">
+                    <header class="expedition-combat-hud__log-head">
+                        <span id="expedition-combat-log-title" class="expedition-combat-hud__log-title" data-i18n="game.hunt.expedition.combatLogTitle">Combat Log</span>
+                    </header>
+                    <div id="expedition-combat-log" class="expedition-combat-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+                </section>
+                <section class="expedition-combat-hud__vitals" id="expedition-combat-vitals-slot" aria-label="Character vitals"></section>
             </div>
 
             <div id="expedition-combat-hotbar-slot" class="expedition-hotbar-slot" aria-hidden="true"></div>
