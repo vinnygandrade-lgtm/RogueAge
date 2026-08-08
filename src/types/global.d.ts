@@ -747,7 +747,7 @@ declare global {
   function forceRemoveStuckDeadForestMob(monstro: unknown): void;
   function confirmForestFleeReturnToTown(): void;
   function confirmForestDeathReturnToTown(): void;
-  function renderizarMonstros(): void;
+  function renderizarMonstros(opts?: { animateLayout?: boolean }): void;
   function renderizarBarraAtalhos(): void;
   function dispararAnimacaoGCD(ms: number, skillName: string): void;
   function tocarSom(nome: import('./game').GameSoundKey): void;

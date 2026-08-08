@@ -11704,10 +11704,35 @@ html.l2-standalone .settings-section--pwa {
         filter: none;
     }
 }
+/* Dying card collapses its flex slot — survivors ease toward the new center */
+.mob-hunt-card--exiting {
+    pointer-events: none;
+    overflow: hidden !important;
+    transition:
+        flex-basis 0.65s cubic-bezier(0.45, 0, 0.2, 1),
+        width 0.65s cubic-bezier(0.45, 0, 0.2, 1),
+        min-width 0.65s cubic-bezier(0.45, 0, 0.2, 1),
+        max-width 0.65s cubic-bezier(0.45, 0, 0.2, 1),
+        opacity 0.4s ease,
+        transform 0.65s cubic-bezier(0.45, 0, 0.2, 1),
+        margin 0.65s cubic-bezier(0.45, 0, 0.2, 1),
+        padding 0.65s cubic-bezier(0.45, 0, 0.2, 1) !important;
+}
+.mob-hunt-card--reflow {
+    will-change: transform;
+    z-index: 3;
+}
 @media (prefers-reduced-motion: reduce) {
     .mob-hunt-card--entering {
         animation: none;
         opacity: 1;
+    }
+    .mob-hunt-card--exiting {
+        transition: opacity 0.2s ease !important;
+    }
+    .mob-hunt-card--reflow {
+        transition: none !important;
+        transform: none !important;
     }
 }
 .exp-vitals--hit {

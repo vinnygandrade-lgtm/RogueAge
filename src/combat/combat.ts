@@ -385,9 +385,91 @@ function spawnMonstros() {
     }
 }
 
-function renderizarMonstros() {
+function prefersReducedMobMotion(): boolean {
+    try {
+        return typeof window.matchMedia === 'function'
+            && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch {
+        return false;
+    }
+}
+
+/** Snapshot card screen boxes before a layout rebuild (FLIP). */
+function captureMobCardRects(): Map<string, DOMRect> {
+    const map = new Map<string, DOMRect>();
+    const container = document.getElementById('mobs-container');
+    if (!container) return map;
+    container.querySelectorAll<HTMLElement>('.mob-hunt-card[id^="mob-card-"]').forEach((el) => {
+        const id = el.id.slice('mob-card-'.length);
+        if (!id) return;
+        map.set(id, el.getBoundingClientRect());
+    });
+    return map;
+}
+
+/** Slide surviving cards from old positions to the new centered layout. */
+function playMobCardFlip(prev: Map<string, DOMRect>): void {
+    if (!prev.size || prefersReducedMobMotion()) return;
+    prev.forEach((first, id) => {
+        const el = document.getElementById(`mob-card-${id}`) as HTMLElement | null;
+        if (!el) return;
+        const last = el.getBoundingClientRect();
+        const dx = first.left - last.left;
+        const dy = first.top - last.top;
+        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+        el.classList.add('mob-hunt-card--reflow');
+        el.style.transition = 'none';
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+        void el.offsetWidth;
+        el.style.transition = 'transform 0.48s cubic-bezier(0.22, 1, 0.36, 1)';
+        el.style.transform = 'translate(0px, 0px)';
+        const clear = () => {
+            el.style.transition = '';
+            el.style.transform = '';
+            el.classList.remove('mob-hunt-card--reflow');
+            el.removeEventListener('transitionend', clear);
+        };
+        el.addEventListener('transitionend', clear, { once: true });
+        setTimeout(clear, 560);
+    });
+}
+
+/**
+ * Collapse a defeated card so flexbox starts recentering survivors during the death anim.
+ */
+function beginMobCardExit(idUnico: string | number | undefined): void {
+    if (idUnico == null) return;
+    const card = document.getElementById(`mob-card-${idUnico}`) as HTMLElement | null;
+    if (!card || card.classList.contains('mob-hunt-card--exiting')) return;
+    if (prefersReducedMobMotion()) {
+        card.classList.add('mob-hunt-card--exiting');
+        return;
+    }
+    const w = Math.max(1, Math.round(card.getBoundingClientRect().width));
+    card.style.flex = `0 0 ${w}px`;
+    card.style.width = `${w}px`;
+    card.style.minWidth = `${w}px`;
+    card.style.maxWidth = `${w}px`;
+    card.style.overflow = 'hidden';
+    card.classList.add('mob-hunt-card--exiting');
+    void card.offsetWidth;
+    card.style.flex = '0 0 0px';
+    card.style.width = '0px';
+    card.style.minWidth = '0px';
+    card.style.maxWidth = '0px';
+    card.style.opacity = '0';
+    card.style.transform = 'scale(0.55) translateY(-18px)';
+    card.style.marginLeft = '0';
+    card.style.marginRight = '0';
+    card.style.paddingLeft = '0';
+    card.style.paddingRight = '0';
+}
+
+function renderizarMonstros(opts?: { animateLayout?: boolean }) {
     const container = document.getElementById('mobs-container');
     if(!container) return;
+
+    const prevRects = opts?.animateLayout ? captureMobCardRects() : null;
     
     let htmlFinal = '';
 
@@ -444,6 +526,9 @@ function renderizarMonstros() {
 
     container.innerHTML = htmlFinal;
     _forestMobDomCache = Object.create(null) as ForestMobDomCache;
+    if (prevRects && prevRects.size) {
+        playMobCardFlip(prevRects);
+    }
 }
 
 type ForestMobDomCache = Record<string, { fill: HTMLElement | null; img: HTMLImageElement | null }>;
@@ -796,6 +881,8 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
         void mobImgDie.offsetWidth;
         mobImgDie.classList.add('mob-desintegrando');
     }
+    // Collapse the slot while the die FX plays so survivors ease toward center (not a hard snap).
+    beginMobCardExit(mobMorto.idUnico);
 
     // Aviso no log se o monstro foi farmado com Spoil
     const defeatedLine = (typeof window.t === 'function') ? window.t('game.combat.monsterDefeated') : 'The monster was defeated!';
@@ -816,7 +903,9 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
     if (window.monstrosAtivos.length === 0) {
         iniciarFechamentoVitoriaCacada();
     } else {
-        setTimeout(() => { if (window.monstrosAtivos.length > 0) renderizarMonstros(); }, 700);
+        setTimeout(() => {
+            if (window.monstrosAtivos.length > 0) renderizarMonstros({ animateLayout: true });
+        }, 700);
     }
 }
 
