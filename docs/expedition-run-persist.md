@@ -39,7 +39,7 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - **Chest** — Secure (modest loot) vs Gamble (~70% big loot / ~30% `lootCurseNextFight` = next fight bag loot ×0.5). **No HP damage.**
 - **Ambush** — bag gamble: success = Adena/mats; fail = lose bag Adena % and sometimes a drop stack. **Never HP.**
 - **Warhorn** — Assault / Tempo / Iron Rally packages (unchanged)
-- **Rare events** — 2 choices per type (shrine / gambler / cache / storm); storm “Focused” opens a secondary +8% pick (HP chips there are a follow-up debt)
+- **Rare events** — 2 choices per type (shrine / gambler / cache / storm); **no HP chips**. Gambler high stake = bag Adena (`Purse wager`); shrine sells bag/regen or Max HP buff (heal is optional QoL on Moon bounty only). Storm “Focused” opens a secondary +8% pick.
 - Persist: `marchToken`, `lootCurseNextFight`, `nextPathBias`, `nextPathGuarantee` on `expeditionRun`
 - **Rules modal** + path legend must stay aligned (i18n `game.hunt.expedition.rules*` / `legendPath*`)
 

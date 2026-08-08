@@ -4026,16 +4026,17 @@ export class ExpeditionEngine {
                 {
                     id: 'a',
                     label: this.t('game.hunt.expedition.rareChoice_shrine_a', 'Moon bounty'),
-                    hint: this.t('game.hunt.expedition.rareChoice_shrine_a_hint', 'Rich bag loot · +8% HP regen · full restore')
+                    hint: this.t('game.hunt.expedition.rareChoice_shrine_a_hint', 'Rich bag loot · +8% HP regen')
                 },
                 {
                     id: 'b',
                     label: this.t('game.hunt.expedition.rareChoice_shrine_b', 'Vital oath'),
-                    hint: this.t('game.hunt.expedition.rareChoice_shrine_b_hint', 'Partial heal · +8% Max HP')
+                    hint: this.t('game.hunt.expedition.rareChoice_shrine_b_hint', '+8% Max HP this run')
                 }
             ];
         }
         if (type === 'gambler') {
+            const stake = this.getGamblerPurseStake();
             return [
                 {
                     id: 'a',
@@ -4044,8 +4045,12 @@ export class ExpeditionEngine {
                 },
                 {
                     id: 'b',
-                    label: this.t('game.hunt.expedition.rareChoice_gambler_b', 'Blood wager'),
-                    hint: this.t('game.hunt.expedition.rareChoice_gambler_b_hint', '−12% HP now · +120% next loot')
+                    label: this.t('game.hunt.expedition.rareChoice_gambler_b', 'Purse wager'),
+                    hint: this.t(
+                        'game.hunt.expedition.rareChoice_gambler_b_hint',
+                        'Stake {n} bag Adena · +120% next loot',
+                        { n: stake.toLocaleString() }
+                    )
                 }
             ];
         }
@@ -4312,18 +4317,19 @@ export class ExpeditionEngine {
         });
     }
 
+    /** Purse wager stake — % of bag Adena with a journey floor (never HP). */
+    static getGamblerPurseStake(): number {
+        const journeyMult = this.getJourneyRewardMult();
+        return this.bagPctCost(0.2, Math.max(120, Math.floor(120 * journeyMult)));
+    }
+
     static applyRareEventChoice(type: ExpeditionRareEventType, choice: 'a' | 'b'): ExpeditionNodeResult | null {
         const win = window as any;
 
         if (type === 'shrine') {
-            const hpBefore = Number(win.playerHP) || 0;
-            const mpBefore = Number(win.playerMP) || 0;
-            const maxHp = Number(win.playerStats?.maxHp) || hpBefore;
-            const maxMp = Number(win.playerStats?.maxMp) || mpBefore;
             const journeyMult = this.getJourneyRewardMult();
             if (choice === 'b') {
-                win.playerHP = Math.min(maxHp, Math.max(hpBefore, Math.floor(maxHp * 0.55)));
-                win.playerMP = Math.min(maxMp, Math.max(mpBefore, Math.floor(maxMp * 0.55)));
+                // Vital oath — lasting Max HP for the run (no heal theater; potions cover HP)
                 this.state.runBuffs.maxHpPct += 8;
                 this.evaluateRunBuilds({ notify: true });
                 if (typeof win.calcularStatusGlobais === 'function') win.calcularStatusGlobais();
@@ -4335,15 +4341,17 @@ export class ExpeditionEngine {
                     titleKey: 'game.hunt.expedition.rareResult_shrine_vital_title',
                     titleFallback: 'Vital oath',
                     summaryKey: 'game.hunt.expedition.rareResult_shrine_vital_desc',
-                    summaryFallback: 'Partial recovery and a lasting +8% Max HP for this run.',
+                    summaryFallback: 'A lasting +8% Max HP for this run.',
                     effects: {
-                        hpRestored: Math.max(0, (Number(win.playerHP) || 0) - hpBefore),
-                        mpRestored: Math.max(0, (Number(win.playerMP) || 0) - mpBefore),
                         buffText: `+8% ${this.runStatLabel('maxHpPct')}`
                     }
                 };
             }
-            // Moon bounty — bag wealth + run regen (heal is a bonus; potions already cover emergency HP)
+            // Moon bounty — bag wealth + run regen (optional full restore is QoL, not the stake)
+            const hpBefore = Number(win.playerHP) || 0;
+            const mpBefore = Number(win.playerMP) || 0;
+            const maxHp = Number(win.playerStats?.maxHp) || hpBefore;
+            const maxMp = Number(win.playerStats?.maxMp) || mpBefore;
             win.playerHP = maxHp;
             win.playerMP = maxMp;
             const adenaGain = Math.floor((Math.random() * 400 + 900) * journeyMult);
@@ -4375,20 +4383,28 @@ export class ExpeditionEngine {
 
         if (type === 'gambler') {
             if (choice === 'b') {
-                const dmg = Math.floor((Number(win.playerStats?.maxHp) || 100) * 0.12);
-                win.playerHP = Math.max(1, (Number(win.playerHP) || 1) - dmg);
-                win.atualizar();
+                const stake = this.getGamblerPurseStake();
+                if (!this.spendBagAdena(stake)) {
+                    if (typeof win.l2Alert === 'function') {
+                        win.l2Alert(this.t(
+                            'game.hunt.expedition.rareGamblerNeedAdena',
+                            'Not enough bag Adena for this wager. Take the lucky charm, or earn more first.'
+                        ));
+                    }
+                    return null;
+                }
                 this.state.luckLootMult = 2.2;
                 return {
                     nodeType: 'event',
-                    tone: 'danger',
+                    tone: 'warning',
                     icon: '🎲',
                     titleKey: 'game.hunt.expedition.rareResult_gambler_blood_title',
-                    titleFallback: 'Blood wager',
+                    titleFallback: 'Purse wager',
                     summaryKey: 'game.hunt.expedition.rareResult_gambler_blood_desc',
-                    summaryFallback: 'You paid in blood — next fight pays +120% bag loot.',
+                    summaryFallback: 'You staked bag Adena — next fight pays +120% bag loot.',
+                    summaryParams: { n: stake.toLocaleString() },
                     effects: {
-                        hpLost: dmg,
+                        bagAdenaLost: stake,
                         buffText: this.t('game.hunt.expedition.rareBuffLootHigh', '+120% next fight loot')
                     }
                 };
