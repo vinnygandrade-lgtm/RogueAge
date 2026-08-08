@@ -287,11 +287,11 @@ function toggleFloatingChat(): void {
         chatCollapsedBeforeCombat = !open;
     } else if (chatCollapsedBeforeInventory !== null) {
         chatCollapsedBeforeInventory = !open;
-    } else {
-        try {
-            localStorage.setItem(CHAT_COLLAPSED_KEY, open ? '0' : '1');
-        } catch (e) { /* storage cheio/indisponível — estado só da sessão */ }
     }
+    // Session-only: always start closed on next game entry (do not persist open).
+    try {
+        localStorage.setItem(CHAT_COLLAPSED_KEY, '1');
+    } catch (e) { /* ignore */ }
 }
 
 function isChatPanelNearBottom(panel: HTMLElement): boolean {
@@ -505,13 +505,12 @@ function toggleChatCollapse(): void {
     toggleFloatingChat();
 }
 
-/** Messenger defaults closed; only reopen if player explicitly saved open (`0`). */
+/** Always start with the messenger closed — open only on FAB click. */
 function restaurarChatCollapse(): void {
-    let preferOpen = false;
+    setFloatingChatOpen(false);
     try {
-        preferOpen = localStorage.getItem(CHAT_COLLAPSED_KEY) === '0';
+        localStorage.setItem(CHAT_COLLAPSED_KEY, '1');
     } catch (e) { /* ignore */ }
-    setFloatingChatOpen(preferOpen);
 }
 
 if (document.readyState === 'loading') {
@@ -586,8 +585,6 @@ function switchLogTab(tab: ChatLogTab | string): void {
         aplicarChatCollapse(false);
         if (chatCollapsedBeforeCombat !== null) {
             chatCollapsedBeforeCombat = false;
-        } else {
-            try { localStorage.setItem(CHAT_COLLAPSED_KEY, '0'); } catch (e) { /* ignore */ }
         }
     }
     applyLogTabSwitch(tab);
@@ -1152,6 +1149,9 @@ function enviarMensagemPlayer(): void {
  * Inicia o loop de mensagens automáticas dos bots
  */
 function iniciarChatAutomatico() {
+    // Entering the game: messenger stays closed until the player taps the FAB.
+    setFloatingChatOpen(false);
+
     const cloudEnabled = !!(window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.enabled);
     const cloudUser = isCloudChatUser();
 
