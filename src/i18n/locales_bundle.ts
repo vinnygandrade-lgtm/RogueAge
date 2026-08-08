@@ -59,6 +59,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-08',
+                        items: [
+                            'Floating messenger chat: the bottom dock is gone — tap the Chat bubble for SYSTEM / GLOBAL / CLAN. Starts closed, shows an unread badge, and you can drag the icon anywhere on screen.',
+                            'Forest Expedition fights get their own combat stage + HUD (battle log beside CP/HP/MP) so the fight stays readable without eating the whole phone.',
+                            'Expedition rare path events now risk your bag purse (Adena / curse), not random HP chips outside combat.',
+                            'When a mob falls in expedition combat, survivors slide into place instead of jumping — smoother field pacing.'
+                        ]
+                    },
+                    {
                         date: '2026-08-06',
                         items: [
                             'Forest Expedition Pause now opens World with an Active Expedition panel — Resume or Collect & exit without hunting-zone clutter inviting a second run.',
@@ -3452,6 +3461,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-08',
+                        items: [
+                            'Chat flutuante estilo messenger: saiu o painel de baixo — toca na bolha Chat para SISTEMA / GLOBAL / CLÃ. Começa fechado, mostra badge de não lidas, e podes arrastar o ícone para qualquer sítio do ecrã.',
+                            'Lutas da Expedição da Floresta ganham stage + HUD próprios (log de combate ao lado de CP/HP/MP), mais legível no telemóvel.',
+                            'Eventos raros no caminho da Expedição arriscam a bolsa (Adena / maldição), não HP aleatório fora de combate.',
+                            'Quando um mob cai na Expedição, os sobreviventes deslizam para o lugar — combate mais fluido.'
+                        ]
+                    },
                     {
                         date: '2026-08-06',
                         items: [
