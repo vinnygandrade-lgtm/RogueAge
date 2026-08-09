@@ -127,31 +127,48 @@ export function finishBootLoading(): void {
   hideBootOverlay(BOOT_HIDE_MS);
 }
 
-/** Usado por AuthEngine após operações de login (não confundir com boot inicial). */
-export function hideLoadingOverlay(): void {
-  hideBootOverlay(220);
+let loadingSimTimer: number | null = null;
+
+function stopLoadingSim(): void {
+  if (loadingSimTimer !== null) {
+    window.clearInterval(loadingSimTimer);
+    loadingSimTimer = null;
+  }
 }
 
-/** Re-exibe overlay (auth / pós-boot). */
-export function showLoadingOverlay(message?: string): void {
+/** Usado por AuthEngine após operações de login (não confundir com boot inicial). */
+export function hideLoadingOverlay(): void {
+  stopLoadingSim();
+  setBootProgress(100);
+  window.setTimeout(() => {
+    hideBootOverlay(220);
+  }, 120);
+}
+
+/** Re-exibe overlay (auth / pós-boot) com progresso dinâmico de 0% a 100%. */
+export function showLoadingOverlay(message?: string, startPct: number = 8): void {
+  stopLoadingSim();
+
   const overlay = overlayEl();
   if (!overlay) return;
 
   overlay.classList.remove('loading-overlay--boot');
-  const fill = barFillEl();
-  if (fill) {
-    fill.style.width = '';
-    fill.classList.remove('loading-bar-fill--determinate');
-    fill.classList.add('loading-bar-fill--indeterminate');
-  }
 
-  if (message) {
-    const status = statusEl();
-    if (status) status.textContent = message;
-  }
+  setBootProgress(startPct, message);
 
   overlay.style.display = 'flex';
   overlay.style.opacity = '1';
   overlay.style.pointerEvents = 'auto';
   overlay.setAttribute('aria-hidden', 'false');
+
+  let current = startPct;
+  loadingSimTimer = window.setInterval(() => {
+    if (current < 92) {
+      const step = Math.max(1, Math.floor((95 - current) / 7));
+      current = Math.min(92, current + step);
+      setBootProgress(current, message);
+    } else {
+      stopLoadingSim();
+    }
+  }, 100);
 }
