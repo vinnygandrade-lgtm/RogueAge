@@ -818,12 +818,18 @@ function executarSkillNaRaid(nomeSlot: string, skill: SkillCatalogEntry): void {
       const multiplicadorDefesa = 1000 / (1000 + defDoBoss);
       let danoFinal = Math.floor(danoBruto * multSkill * multiplicadorDefesa);
 
-      if (Math.random() * 100 <= window.playerStats.critRate) {
-        danoFinal *= isMage ? 1.5 : 2;
+      const roll =
+        typeof window.rollSkillDamageCrit === 'function'
+          ? window.rollSkillDamageCrit({ skillName: nomeSlot, isMagic: !!isMage })
+          : { isCrit: Math.random() * 100 <= (window.playerStats.critRate || 0), damageMult: isMage ? 1.5 : 2 };
+      if (roll.isCrit) {
+        danoFinal = Math.floor(danoFinal * roll.damageMult);
         raidNow.escreverLogRaid(`<span style="color:${skill.cor || '#fff'}; font-weight:bold;">${smartbarT('game.raid.criticalSkillDamage', { damage: danoFinal })}</span>`);
         if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
+        raidNow.mostrarDanoVisual?.(danoFinal, true);
       } else {
         raidNow.escreverLogRaid(smartbarT('game.raid.magicDamageBoss', { damage: danoFinal }));
+        raidNow.mostrarDanoVisual?.(danoFinal, false);
       }
       raidNow.receberDanoBoss(danoFinal, true);
     } else if (skill.tipo === 'cura') {

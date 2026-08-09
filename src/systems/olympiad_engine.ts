@@ -1841,6 +1841,11 @@ const OlympiadEngine = {
                 const cura = Math.floor(window.playerStats.maxHp * (skill.poder || 0.3));
                 window.playerHP = Math.min(window.playerStats.maxHp, window.playerHP + cura);
                 this.escreverLog(`<span style="color:#10b981;">[${nomeSkill}] Healed +${cura} HP.</span>`);
+            } else if (
+                skill.tipo === 'buff_spd' || skill.tipo === 'buff_def' || skill.tipo === 'buff_atk'
+                || skill.tipo === 'utilidade' || skill.tipo === 'pet' || skill.tipo === 'cura_mp'
+            ) {
+                this.escreverLog(`<span style="color:${skill.cor || '#fff'};">[${nomeSkill}]</span>`);
             } else {
                 const isMage = window.isClasseMagica(window.charClass);
                 this.olyPrunePlayerDebuff(Date.now());
@@ -1852,6 +1857,16 @@ const OlympiadEngine = {
                 const floorS = Math.max(0.025, Math.min(0.15, Number(this.olyFloorPlayerSkill) || 0.06));
                 dano = Math.max(Math.floor(atk * floorS), dano);
                 dano = Math.floor(dano * this.multDanoPlayer);
+
+                let isCrit = false;
+                if (typeof window.rollSkillDamageCrit === 'function') {
+                    const roll = window.rollSkillDamageCrit({ skillName: nomeSkill, isMagic: !!isMage });
+                    if (roll.isCrit) {
+                        dano = Math.floor(dano * roll.damageMult);
+                        isCrit = true;
+                        if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
+                    }
+                }
 
                 if (this.inimigo.cp > 0) {
                     if (this.inimigo.cp >= dano) this.inimigo.cp -= dano;
@@ -1865,7 +1880,13 @@ const OlympiadEngine = {
                 }
 
                 this.danoCausado += dano;
-                this.escreverLog(`[${nomeSkill}] Dealt <span style="color:#fff;">${dano}</span> damage.`);
+                this.escreverLog(
+                    isCrit
+                        ? `[${nomeSkill}] <span style="color:#ff3333; font-weight:bold;">CRITICAL</span> <span style="color:#fff;">${dano}</span> damage.`
+                        : `[${nomeSkill}] Dealt <span style="color:#fff;">${dano}</span> damage.`
+                );
+                this.mostrarDanoVisual(dano, 'player', isCrit);
+                if (isCrit) this.shakeScreen(true);
             }
 
             if (this.inimigo.hp <= 0) {

@@ -2,9 +2,15 @@
  * Basic Attack wind-up (short cast before the swing).
  * Faster than skill casts; shorter when atkSpeed is lower (faster classes).
  * Does NOT arm the shared skill GCD — skills can interrupt this wind-up.
+ * Expedition: lower wind-up floor so uncapped atkSpeed can feel snappy.
  */
 
-/** Floor so Attack never feels instant. */
+import {
+  EXPEDITION_MIN_ATTACK_WINDUP_MS,
+  isExpeditionRunEffectsActive,
+} from './expedition_combat';
+
+/** Floor so Attack never feels instant (world). */
 export const MIN_ATTACK_WINDUP_MS = 180;
 /** Cap — always under typical skill MIN_CAST_MS (375). */
 export const MAX_ATTACK_WINDUP_MS = 350;
@@ -50,7 +56,10 @@ export function resolveAttackWindupMs(atkSpeedMs?: number): number {
       : Number(window.playerStats?.atkSpeed);
   const spd = Number.isFinite(spdRaw) && spdRaw > 0 ? spdRaw : 3800;
   const raw = Math.floor(spd * ATTACK_WINDUP_ATKSPEED_RATIO);
-  return Math.max(MIN_ATTACK_WINDUP_MS, Math.min(MAX_ATTACK_WINDUP_MS, raw));
+  const minFloor = isExpeditionRunEffectsActive()
+    ? EXPEDITION_MIN_ATTACK_WINDUP_MS
+    : MIN_ATTACK_WINDUP_MS;
+  return Math.max(minFloor, Math.min(MAX_ATTACK_WINDUP_MS, raw));
 }
 
 export function isAttackWindupActive(): boolean {

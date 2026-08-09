@@ -2434,7 +2434,8 @@ export class ExpeditionEngine {
             pDef: 1 + this.getCombinedBuffPct('pDefPct') / 100,
             mDef: 1 + this.getCombinedBuffPct('mDefPct') / 100,
             crit: 1 + this.getCombinedBuffPct('critRatePct') / 100,
-            atkSpeed: Math.max(0.5, 1 - this.getCombinedBuffPct('atkSpeedPct') / 100),
+            // No 0.5× floor — late-run speed upgrades keep scaling (timer sanity elsewhere).
+            atkSpeed: Math.max(0.05, 1 - this.getCombinedBuffPct('atkSpeedPct') / 100),
             maxHp: 1 + this.getCombinedBuffPct('maxHpPct') / 100,
             maxMp: 1 + this.getCombinedBuffPct('maxMpPct') / 100,
             castSpeedAdd: Math.max(0, this.getCombinedBuffPct('castSpeedPct')),
@@ -2503,11 +2504,12 @@ export class ExpeditionEngine {
     }) {
         const win = window as any;
         const m = this.getRunBuffMults();
-        const castCap =
-            typeof win.MAX_CAST_SPEED_PCT === 'number' && win.MAX_CAST_SPEED_PCT > 0
-                ? win.MAX_CAST_SPEED_PCT
-                : 40;
         const dodgeInvest = Math.max(0, Math.floor(Number(base.dodgeRaw) || 0) + m.dodgeAdd);
+        // Expedition snowball: no world atk-speed floor / cast-speed soft-cap on run buffs.
+        const absAtkMin =
+            typeof win.EXPEDITION_ATK_SPEED_ABS_MIN_MS === 'number' && win.EXPEDITION_ATK_SPEED_ABS_MIN_MS > 0
+                ? win.EXPEDITION_ATK_SPEED_ABS_MIN_MS
+                : 50;
         return {
             pAtk: Math.floor(base.pAtk * m.pAtk),
             mAtk: Math.floor(base.mAtk * m.mAtk),
@@ -2516,15 +2518,10 @@ export class ExpeditionEngine {
             critRate: typeof win.applyCritRateCap === 'function'
                 ? win.applyCritRateCap(Math.floor(base.critRate * m.crit))
                 : Math.min(90, Math.floor(base.critRate * m.crit)),
-            atkSpeed: typeof win.applyAtkSpeedFloor === 'function'
-                ? win.applyAtkSpeedFloor(Math.floor(base.atkSpeed * m.atkSpeed))
-                : Math.max(160, Math.floor(base.atkSpeed * m.atkSpeed)),
+            atkSpeed: Math.max(absAtkMin, Math.floor(base.atkSpeed * m.atkSpeed)),
             maxHp: Math.floor(base.maxHp * m.maxHp),
             maxMp: Math.floor(base.maxMp * m.maxMp),
-            castSpeed: Math.min(
-                castCap,
-                Math.max(0, Math.floor(Number(base.castSpeed) || 0) + m.castSpeedAdd)
-            ),
+            castSpeed: Math.max(0, Math.floor(Number(base.castSpeed) || 0) + m.castSpeedAdd),
             dodgeRate: typeof win.applyDodgeRateCap === 'function'
                 ? win.applyDodgeRateCap(dodgeInvest)
                 : Math.min(55, dodgeInvest)

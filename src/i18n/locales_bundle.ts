@@ -70,6 +70,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-09',
                         items: [
+                            'Damaging skills now roll your Crit Rate in every mode (forest, expedition, raid, Olympiad) — Mortal Strike / Deadly Blow still get their +12 bonus; Backstab / Lethal Blow keep their specials.',
+                            'Forest Expedition: Attack Speed and Casting Speed no longer hit the world soft-caps — late-run speed cards keep scaling hard (tiny timer floors only).',
                             'Login & boot polish: gothic login card, ember atmosphere, password show/hide, Remember Account, Caps Lock warning, realm online badge, and a clearer loading screen with % progress and game tips.',
                             'Loading after you enter your password now animates the percentage again — it no longer sits stuck at 100% from the first boot.',
                             'Player inspect rebuilt: dressed paperdoll with real gear on one screen, tap to enlarge the visual, and a loading state while cloud stats fetch.',
@@ -3506,6 +3508,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-09',
                         items: [
+                            'Skills de dano agora usam a tua Taxa de Crítico em todos os modos (floresta, expedição, raid, Olimpíada) — Mortal Strike / Deadly Blow mantêm o +12; Backstab / Lethal Blow mantêm as especialidades.',
+                            'Expedição da Floresta: Attack Speed e Casting Speed já não batem nos soft-caps do mundo — cartas de velocidade no late-run continuam a escalar (só há um piso mínimo de timer).',
                             'Login e carregamento renovados: cartão gótico, brasas no fundo, mostrar/ocultar senha, Lembrar conta, aviso de Caps Lock, badge do reino online e ecrã de load com % e dicas do RogueAge.',
                             'Depois da senha, a percentagem de loading volta a animar — já não fica presa em 100% do primeiro boot.',
                             'Inspeção de jogador redesenhada: paperdoll vestido com o equipamento real num só ecrã, toque para ampliar o visual, e loading enquanto busca os status na nuvem.',

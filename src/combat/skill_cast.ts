@@ -1,11 +1,16 @@
 /**
  * Skill cast duration: base castMs (catalog / tipo default) shortened by player castSpeed %.
  * Separate from personal skill CD and from Attack atkSpeed.
+ * Expedition runs skip the world cast soft-cap and use a lower cast floor.
  */
 
 import type { SkillCatalogEntry } from '../types/game';
+import {
+  EXPEDITION_MIN_CAST_MS,
+  isExpeditionRunEffectsActive,
+} from './expedition_combat';
 
-/** Floor so cast never becomes machine-gun instant. */
+/** Floor so cast never becomes machine-gun instant (world / Olympiad / raid). */
 export const MIN_CAST_MS = 375;
 
 /** Absolute hard ceiling for cast-time reduction % (soft curve asymptote). */
@@ -50,10 +55,14 @@ export function getSkillBaseCastMs(
   return DEFAULT_CAST_MS;
 }
 
-/** Current player castSpeed % (already soft-capped in core_stats). */
+/** Current player castSpeed % (soft-capped in world; uncapped in expedition). */
 export function getPlayerCastSpeedPct(): number {
   const raw = Number(window.playerStats?.castSpeed);
   if (!Number.isFinite(raw) || raw <= 0) return 0;
+  if (isExpeditionRunEffectsActive()) {
+    // Cap only at 95% so castBase * (1 - pct/100) never goes negative.
+    return Math.min(95, Math.max(0, Math.floor(raw)));
+  }
   if (typeof window.applyCastSpeedCap === 'function') {
     return window.applyCastSpeedCap(raw);
   }
@@ -64,6 +73,7 @@ export function getPlayerCastSpeedPct(): number {
  * Final cast lock duration for a skill.
  * castFinal = clamp(castBase * (1 - castSpeed/100), MIN_CAST, castBase)
  * Attack / basico with 0 base → 0 (no skill cast lock).
+ * Expedition: no cast-speed soft-cap; lower MIN_CAST floor.
  */
 export function resolveSkillCastMs(
   skill: SkillCatalogEntry | null | undefined,
@@ -72,17 +82,20 @@ export function resolveSkillCastMs(
   const castBase = getSkillBaseCastMs(skill);
   if (castBase <= 0) return 0;
 
+  const expedition = isExpeditionRunEffectsActive();
   const pctRaw =
     castSpeedPct != null && Number.isFinite(castSpeedPct)
       ? Math.max(0, Number(castSpeedPct))
       : getPlayerCastSpeedPct();
-  const pct =
-    typeof window.applyCastSpeedCap === 'function'
+  const pct = expedition
+    ? Math.min(95, Math.max(0, Math.floor(pctRaw)))
+    : typeof window.applyCastSpeedCap === 'function'
       ? window.applyCastSpeedCap(pctRaw)
       : Math.min(MAX_CAST_SPEED_PCT, Math.floor(pctRaw));
 
   const reduced = Math.floor(castBase * (1 - pct / 100));
-  return Math.max(MIN_CAST_MS, Math.min(castBase, reduced));
+  const minCast = expedition ? EXPEDITION_MIN_CAST_MS : MIN_CAST_MS;
+  return Math.max(minCast, Math.min(castBase, reduced));
 }
 
 window.resolveSkillCastMs = resolveSkillCastMs;

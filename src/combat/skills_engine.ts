@@ -6,6 +6,7 @@
 import { petDisplayName, writeSkillLog } from './combat_i18n';
 import { mobDefenseAgainstPlayer } from './mob_combat_stats';
 import { resolveSkillCastMs } from './skill_cast';
+import { rollSkillDamageCrit } from './skill_crit';
 import { setSkillCombatBuff } from './skill_combat_buffs';
 import { resolveActiveShotKey } from './shot_ammo';
 import type { SkillCatalogEntry } from '../types/game';
@@ -237,25 +238,17 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
             }
             if (danoFinal < 1) danoFinal = 1;
             let foiCriticoSkill = false;
-            if (nomeSkill === "Mortal Strike" || nomeSkill === "Deadly Blow") {
-                const chanceCrit = (typeof window.applyCritRateCap === 'function')
-                    ? window.applyCritRateCap(window.playerStats.critRate + 12)
-                    : Math.min((window.playerStats.critRate || 0) + 12, 70);
-                if ((Math.random() * 100) < chanceCrit) { 
-                    danoFinal = Math.floor(danoFinal * window.motorBuffsEspeciais.critMult); 
-                    foiCriticoSkill = true;
-                    writeSkillLog('criticalBlow', undefined, 'color:#ff3333; font-weight:bold;');
-                }
-            }
+            // Backstab: fail chance OR guaranteed crit — separate from the global skill crit roll.
             if (nomeSkill === "Backstab") {
                 if ((Math.random() * 100) < 35) { writeSkillLog('backstabFailed', undefined, 'color:#aaa; font-weight:bold;'); return; }
-                else { 
-                    danoFinal = Math.floor(danoFinal * window.motorBuffsEspeciais.critMult); 
+                else {
+                    const critM = Number(window.motorBuffsEspeciais?.critMult) || 2;
+                    danoFinal = Math.floor(danoFinal * critM);
                     foiCriticoSkill = true;
-                    writeSkillLog('backstabFatal', undefined, 'color:#ef4444; font-weight:bold; font-size:1.1em;'); 
+                    writeSkillLog('backstabFatal', undefined, 'color:#ef4444; font-weight:bold; font-size:1.1em;');
                 }
             }
-            if (nomeSkill === "Lethal Blow" && Math.random() * 100 <= 15) { 
+            if (nomeSkill === "Lethal Blow" && Math.random() * 100 <= 15) {
                 let curHpLb = Math.floor(Number(monstro.hp)) || 0;
                 let vidaArrancada = Math.floor(curHpLb / 2);
                 monstro.hp = Math.max(0, curHpLb - vidaArrancada);
@@ -264,6 +257,19 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
                 foiCriticoSkill = true;
                 writeSkillLog('lethalStrikeHalfHp', undefined, 'color:#000; background:#10b981; font-weight:bold; padding:2px 5px; border-radius:3px;');
                 if (typeof window.tryProcessForestMobDeath === 'function') window.tryProcessForestMobDeath(monstro);
+            }
+            // All damaging skills roll gear critRate (Mortal Strike / Deadly Blow get +12 inside helper).
+            if (!foiCriticoSkill) {
+                const roll =
+                    typeof window.rollSkillDamageCrit === 'function'
+                        ? window.rollSkillDamageCrit({ skillName: nomeSkill, isMagic: !!isMagico })
+                        : rollSkillDamageCrit({ skillName: nomeSkill, isMagic: !!isMagico });
+                if (roll.isCrit) {
+                    danoFinal = Math.floor(danoFinal * roll.damageMult);
+                    foiCriticoSkill = true;
+                    writeSkillLog('criticalBlow', undefined, 'color:#ff3333; font-weight:bold;');
+                    if (typeof window.tocarSomCritico === 'function') window.tocarSomCritico();
+                }
             }
             if ((nomeSkill === "Stun Shot" || nomeSkill === "Shield Stun" || nomeSkill === "Hammer Crush") && Math.random() * 100 <= 60) {
                 if (window.monstrosAtivos.includes(monstro)) {

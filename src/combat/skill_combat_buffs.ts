@@ -3,6 +3,10 @@
  * Survives calcularStatusGlobais — applied at the end of every recalc while active.
  */
 
+import {
+  EXPEDITION_ATK_SPEED_ABS_MIN_MS,
+  isExpeditionRunEffectsActive,
+} from './expedition_combat';
 import { MAX_CAST_SPEED_PCT } from './skill_cast';
 
 export type SkillCombatBuffKind = 'atk' | 'def' | 'spd';
@@ -133,24 +137,42 @@ export function applySkillCombatBuffsToPlayerStats(): void {
   if (mAtkM !== 1) window.playerStats.mAtk = Math.floor(window.playerStats.mAtk * mAtkM);
   if (pDefM !== 1) window.playerStats.pDef = Math.floor(window.playerStats.pDef * pDefM);
   if (mDefM !== 1) window.playerStats.mDef = Math.floor(window.playerStats.mDef * mDefM);
+  const expedition = isExpeditionRunEffectsActive();
+
   if (spdM !== 1) {
     const nextMs = Math.floor(window.playerStats.atkSpeed * spdM);
-    window.playerStats.atkSpeed = (typeof window.applyAtkSpeedFloor === 'function')
-      ? window.applyAtkSpeedFloor(nextMs)
-      : Math.max(160, nextMs);
+    if (expedition) {
+      window.playerStats.atkSpeed = Math.max(EXPEDITION_ATK_SPEED_ABS_MIN_MS, nextMs);
+    } else {
+      window.playerStats.atkSpeed = (typeof window.applyAtkSpeedFloor === 'function')
+        ? window.applyAtkSpeedFloor(nextMs)
+        : Math.max(160, nextMs);
+    }
   }
 
   // Soft-cap once on (gear raw + buff), matching Crit / Evasion investment curves.
+  // Expedition: keep run castSpeedAdd and skip world soft-cap.
   if (castSpdBonus > 0) {
-    const win = window as Window & { _l2CastSpeedRawGear?: number };
+    const win = window as Window & {
+      _l2CastSpeedRawGear?: number;
+      ExpeditionEngine?: { getCombinedBuffPct?: (stat: string) => number };
+    };
     const gearRaw =
       typeof win._l2CastSpeedRawGear === 'number'
         ? Math.max(0, Math.floor(win._l2CastSpeedRawGear))
         : Math.max(0, Math.floor(Number(window.playerStats.castSpeed) || 0));
-    const castRaw = Math.max(0, gearRaw + Math.floor(castSpdBonus));
-    window.playerStats.castSpeed = (typeof window.applyCastSpeedCap === 'function')
-      ? window.applyCastSpeedCap(castRaw)
-      : Math.min(MAX_CAST_SPEED_PCT, castRaw);
+    const runCastAdd =
+      expedition && typeof win.ExpeditionEngine?.getCombinedBuffPct === 'function'
+        ? Math.max(0, Math.floor(Number(win.ExpeditionEngine.getCombinedBuffPct('castSpeedPct')) || 0))
+        : 0;
+    const castRaw = Math.max(0, gearRaw + runCastAdd + Math.floor(castSpdBonus));
+    if (expedition) {
+      window.playerStats.castSpeed = castRaw;
+    } else {
+      window.playerStats.castSpeed = (typeof window.applyCastSpeedCap === 'function')
+        ? window.applyCastSpeedCap(castRaw)
+        : Math.min(MAX_CAST_SPEED_PCT, castRaw);
+    }
   }
 }
 
