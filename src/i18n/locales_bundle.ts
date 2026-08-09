@@ -456,14 +456,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 charLimitReached: 'Character limit reached! Only 1 hero per account is allowed.',
                 welcomeBack: 'Welcome back, {name}!',
                 tips: [
-                    'Use Soulshots to significantly increase your damage. They are essential for tough battles.',
-                    'Join a Clan to participate in Castle Sieges and gain exclusive bonuses.',
-                    'The Olympiad is the ultimate test of skill. Become a Hero of Aden!',
-                    'Level up your skills at the Master NPCs found in every major city.',
-                    'Keep your equipment updated. Better armor and weapons are the key to survival.',
-                    'Trade with other players to acquire rare items and accumulate Adena.',
-                    'Watch out for PKs (Player Killers) in open fields. Safety in numbers!',
-                    'Each class has unique strengths. Find the one that fits your playstyle best.'
+                    'Equip Soulshots for physical attacks or Spiritshots for magic spells to double your combat effectiveness.',
+                    'Join a Clan to unlock Castle Domination buffs and compete in 11v11 Clan War tournaments.',
+                    'The Grand Olympiad is the ultimate 1v1 arena. Earn MMR points to climb seasonal rankings!',
+                    'Hunt Elite Champions in the Forest Expedition to earn Renown and claim weekly rewards.',
+                    'Craft Vesper Grade S equipment and Epic Jewels using recipes. Elite gear cannot be bought in shops!',
+                    'Enchant your gear up to +25. Weapons start glowing with aura at +4 and reach golden radiance at +16!',
+                    'Sell crafted gear and rare drops on the Rogue Exchange marketplace. Payouts arrive in your Mailbox.',
+                    'Castles generate passive Adena income and grant a cumulative +1% Attack and Defense buff to clan members.',
+                    'Drag the floating chat button anywhere on your screen for quick access to Global and Clan channels.',
+                    'Check your Character Stats breakdown in the Inventory to see exact bonuses from gear, buffs, and clan dominance.'
                 ]
             },
             mailbox: {
@@ -3869,14 +3871,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 charLimitReached: 'Limite de personagens atingido! Apenas 1 herói por conta é permitido.',
                 welcomeBack: 'Bem-vindo, {name}!',
                 tips: [
-                    'Use Soulshots para aumentar muito seu dano. Essenciais em lutas difíceis.',
-                    'Entre em um Clã para participar de Castle Siege e ganhar bônus exclusivos.',
-                    'A Olympiad é o teste máximo de habilidade. Torne-se um Herói de Aden!',
-                    'Evolua suas skills com os NPCs Mestres das grandes cidades.',
-                    'Mantenha o equipamento em dia. Melhor armadura e arma são chave para sobreviver.',
-                    'Negocie com outros jogadores para itens raros e acumular Adena.',
-                    'Cuidado com PKs em áreas abertas. Unir-se em grupo ajuda!',
-                    'Cada classe tem pontos fortes. Encontre a que combina com seu estilo.'
+                    'Equipe Soulshots para ataques físicos ou Spiritshots para magias para dobrar sua eficiência em combate.',
+                    'Entre em um Clã para desbloquear buffs de Castelo e disputar torneios de Guerra de Clãs 11v11.',
+                    'A Grand Olympiad é a arena 1v1 definitiva. Ganhe pontos de MMR para subir no ranking de temporada!',
+                    'Cace Campeões Elites na Expedição da Floresta para acumular Renome e resgatar recompensas semanais.',
+                    'Forje equipamentos de Grade S Vesper e Joias Épicas com receitas. Itens de elite não vendem em lojas!',
+                    'Encante seus equipamentos até +25. Armas ganham brilho de aura no +4 e iluminação dourada no +16!',
+                    'Venda itens forjados e drops raros no Mercado Rogue Exchange. O ouro chega direto no seu Correio.',
+                    'Castelos geram renda passiva de Adena e concedem +1% cumulativo de Ataque e Defesa para membros do clã.',
+                    'Arraste o botão de chat flutuante para qualquer lugar da tela para acessar o chat Global e do Clã.',
+                    'Abra o \'Status do Personagem\' no Inventário para ver a soma detalhada de atributos, buffs e bônus de clã.'
                 ]
             },
             mailbox: {

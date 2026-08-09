@@ -35,14 +35,16 @@ const AuthEngine = {
     _fromAuthStateSignedIn: false,
 
     tips: [
-        "Use Soulshots to significantly increase your damage. They are essential for tough battles.",
-        "Join a Clan to participate in Castle Sieges and gain exclusive bonuses.",
-        "The Olympiad is the ultimate test of skill. Become a Hero of Aden!",
-        "Level up your skills at the Master NPCs found in every major city.",
-        "Keep your equipment updated. Better armor and weapons are the key to survival.",
-        "Trade with other players to acquire rare items and accumulate Adena.",
-        "Watch out for PKs (Player Killers) in open fields. Safety in numbers!",
-        "Each class has unique strengths. Find the one that fits your playstyle best."
+        "Equip Soulshots for physical attacks or Spiritshots for magic spells to double your combat effectiveness.",
+        "Join a Clan to unlock Castle Domination buffs and compete in 11v11 Clan War tournaments.",
+        "The Grand Olympiad is the ultimate 1v1 arena. Earn MMR points to climb seasonal rankings!",
+        "Hunt Elite Champions in the Forest Expedition to earn Renown and claim weekly rewards.",
+        "Craft Vesper Grade S equipment and Epic Jewels using recipes. Elite gear cannot be bought in shops!",
+        "Enchant your gear up to +25. Weapons start glowing with aura at +4 and reach golden radiance at +16!",
+        "Sell crafted gear and rare drops on the Rogue Exchange marketplace. Payouts arrive in your Mailbox.",
+        "Castles generate passive Adena income and grant a cumulative +1% Attack and Defense buff to clan members.",
+        "Drag the floating chat button anywhere on your screen for quick access to Global and Clan channels.",
+        "Check your Character Stats breakdown in the Inventory to see exact bonuses from gear, buffs, and clan dominance."
     ],
     
     init() {

@@ -398,9 +398,13 @@
 }
 
 .login-brand-group {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     text-align: center;
     animation: authFadeInDown 0.8s ease-out;
+}
+
+.login-brand-group .server-status-chip {
+    margin-top: 12px;
 }
 
 @keyframes authFadeInDown {
