@@ -1016,6 +1016,12 @@ declare global {
   var SUPABASE_CONFIG: SupabaseConfig;
   function atualizarVisualPaperdoll(): void;
   function atualizarPaperdollCharSelect(charData: import('./game').PaperdollCharSelectData): void;
+  function atualizarPaperdollInspect(
+    rootOrSelector: Element | string | null | undefined,
+    charData: import('./game').PaperdollCharSelectData,
+  ): void;
+  function abrirZoomInspecaoPaperdoll(): void;
+  function fecharZoomInspecaoPaperdoll(): void;
   function atualizarBrilhoArma(): void;
   function syncProfileEquipmentSlotGlows(): void;
   function syncProfileHarmonyBadge(): void;

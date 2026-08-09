@@ -686,9 +686,16 @@ function fecharTopModal() {
     else if (topModalId === 'janela-expedition-node') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.cancelNode === 'function') window.ExpeditionEngine.cancelNode(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-result') { if (window.ExpeditionEngine && typeof window.ExpeditionEngine.continueFromResult === 'function') window.ExpeditionEngine.continueFromResult(); else fecharModal(topModalId); }
     else if (topModalId === 'janela-expedition-upgrade') { /* upgrade requires card pick */ return; }
+    else if (topModalId === 'modal-inspect-zoom') {
+        fecharZoomInspecaoPaperdoll();
+    }
     else if (topModalId === 'modal-perfil-ranking') {
+        fecharZoomInspecaoPaperdoll();
         const modalPerfil = document.getElementById('modal-perfil-ranking');
-        if (modalPerfil) modalPerfil.style.display = 'none';
+        if (modalPerfil) {
+            modalPerfil.style.display = 'none';
+            modalPerfil.innerHTML = '';
+        }
         toggleModalBackdrop('modal-perfil-ranking', false);
     }
     else if (topModalId === 'janela-mailbox') { fecharModal(topModalId); window.syncNavMenuActiveItem?.(); }
@@ -1433,6 +1440,10 @@ function inspectSocialT(key: string, fallback: string, params?: Record<string, s
     return fallback;
 }
 
+const INSPECT_ZOOM_Z = 1850;
+const INSPECT_PD_BLANK =
+    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 function mostrarLoadingInspecao(nome: string): void {
     const modalPerfil = document.getElementById('modal-perfil-ranking');
     if (!modalPerfil) return;
@@ -1450,6 +1461,127 @@ function mostrarLoadingInspecao(nome: string): void {
     modalPerfil.style.display = 'flex';
 }
 
+function inspectEquipImg(it: Record<string, unknown> | null | undefined): string {
+    if (!it) return 'assets/itens/item_generic.png';
+    const base = (it.base && typeof it.base === 'object') ? (it.base as Record<string, unknown>) : null;
+    const img = it.img || base?.img;
+    if (img && String(img).trim()) return String(img);
+    const id = it.id || base?.id;
+    if (id) {
+        const tipo = String(it.tipoItem || base?.tipoItem || it.tipo || '').toLowerCase();
+        if (tipo.includes('weapon') || String(id).startsWith('wpn_')) {
+            return 'assets/armas/' + id + '.png';
+        }
+        if (tipo.includes('neck') || tipo.includes('ear') || tipo.includes('ring') || String(id).startsWith('j_')) {
+            return typeof window.catalogJewelIconPath === 'function'
+                ? window.catalogJewelIconPath(String(id))
+                : 'assets/joias/' + id + '.png';
+        }
+        return 'assets/itens/' + id + '.png';
+    }
+    return 'assets/itens/item_generic.png';
+}
+
+function inspectEquipName(it: Record<string, unknown> | null | undefined): string {
+    if (!it) return inspectSocialT('inspectUnknownItem', 'Unknown item');
+    const base = (it.base && typeof it.base === 'object') ? (it.base as Record<string, unknown>) : null;
+    return String(it.nome || base?.nome || it.id || base?.id || inspectSocialT('inspectUnknownItem', 'Unknown item'));
+}
+
+function inspectItemEnchant(it: Record<string, unknown> | null | undefined, fallback = 0): number {
+    if (!it) return fallback;
+    if (typeof it.enchant === 'number') return it.enchant;
+    if (typeof it.enchantArmor === 'number') return it.enchantArmor;
+    if (typeof it.enchantJewel === 'number') return it.enchantJewel;
+    return fallback;
+}
+
+function buildInspectPaperdollLayersHtml(idPrefix: string): string {
+    const b = INSPECT_PD_BLANK;
+    return `
+        <div class="paperdoll-character-stack" aria-hidden="true">
+            <div class="paperdoll-foot-shadow" aria-hidden="true"></div>
+            <img data-pd-layer="base" id="${idPrefix}-base" class="char-layer char-base-layer" src="${b}" alt="" hidden>
+            <img data-pd-layer="armor" id="${idPrefix}-armor" class="char-layer" src="${b}" alt="" hidden>
+            <img data-pd-layer="weaponGlow" id="${idPrefix}-weapon-glow" class="char-layer paperdoll-weapon-glow-img" src="${b}" alt="" hidden>
+            <img data-pd-layer="weapon" id="${idPrefix}-weapon" class="char-layer" src="${b}" alt="" hidden>
+            <img data-pd-layer="weaponGrip" id="${idPrefix}-weapon-grip" class="char-layer char-weapon-grip-layer" src="${b}" alt="" hidden>
+            <img data-pd-layer="hands" id="${idPrefix}-hands" class="char-layer char-hands-layer" src="${b}" alt="" hidden>
+        </div>
+    `;
+}
+
+function buildInspectSlotBtn(
+    kind: 'arma' | 'armadura' | 'joia',
+    label: string,
+    item: Record<string, unknown> | null | undefined,
+    jewelIdx?: number,
+    sharedEnchant = 0,
+): string {
+    const enc = inspectItemEnchant(item, sharedEnchant);
+    const title = item
+        ? (enc > 0 ? '+' + enc + ' ' : '') + inspectEquipName(item)
+        : label;
+    const onclick = kind === 'joia'
+        ? `window.abrirAcaoItemBot('joia', ${jewelIdx || 0})`
+        : `window.abrirAcaoItemBot('${kind}')`;
+    if (!item) {
+        return `<button type="button" class="inspect-slot inspect-slot--empty" disabled title="${escapeInspectHtml(label)}"><span class="inspect-slot__label">${escapeInspectHtml(label)}</span></button>`;
+    }
+    const encBadge = enc > 0 ? `<span class="inspect-slot__enc">+${enc}</span>` : '';
+    return `<button type="button" class="inspect-slot" onclick="${onclick}" title="${escapeInspectHtml(title)}"><img src="${escapeInspectHtml(inspectEquipImg(item))}" alt="">${encBadge}</button>`;
+}
+
+function paintInspectPaperdoll(rootSelector: string, bot: Record<string, unknown>): void {
+    const equips = (bot.equipamentos || {}) as Record<string, unknown>;
+    const race = String(bot.raca || bot.charRace || 'Human');
+    const charClass = String(bot._classKey || bot.classe || 'Fighter');
+    const gender = bot.charGender === 'Female' ? 'Female' : 'Male';
+    const charData = {
+        charRace: race,
+        charClass,
+        charGender: gender,
+        armaduraEquipada: equips.armadura || null,
+        armaEquipadaBase: equips.arma || null,
+    };
+    if (typeof window.atualizarPaperdollInspect === 'function') {
+        window.atualizarPaperdollInspect(rootSelector, charData as never);
+    }
+}
+
+function abrirZoomInspecaoPaperdoll(): void {
+    const bot = window.botAtualVisualizado as Record<string, unknown> | null | undefined;
+    if (!bot) return;
+    const zoom = document.getElementById('modal-inspect-zoom');
+    if (!zoom) return;
+    const safeNome = escapeInspectHtml(bot.nome || '');
+    zoom.innerHTML = `
+        <div class="inspect-zoom-sheet l2-modal" role="dialog" aria-modal="true" aria-label="${safeNome}">
+            <button type="button" class="inspect-sheet__close" onclick="fecharZoomInspecaoPaperdoll()" aria-label="${escapeInspectHtml(inspectSocialT('inspectClose', 'Close'))}">&times;</button>
+            <p class="inspect-zoom-sheet__title">${safeNome}</p>
+            <div class="l2-paperdoll l2-paperdoll--inspect-zoom" id="inspect-paperdoll-zoom-root" role="img" aria-label="${escapeInspectHtml(inspectSocialT('inspectZoomTitle', 'Character preview'))}">
+                <div class="paperdoll-scenery" aria-hidden="true"></div>
+                <div class="paperdoll-frame-vignette" aria-hidden="true"></div>
+                <div class="paperdoll-stage" aria-hidden="true"></div>
+                ${buildInspectPaperdollLayersHtml('inspect-zoom')}
+            </div>
+            <button type="button" class="btn-l2 inspect-zoom-sheet__close-btn" onclick="fecharZoomInspecaoPaperdoll()">${escapeInspectHtml(inspectSocialT('inspectClose', 'CLOSE'))}</button>
+        </div>
+    `;
+    abrirModal('modal-inspect-zoom', INSPECT_ZOOM_Z);
+    zoom.style.display = 'flex';
+    requestAnimationFrame(() => paintInspectPaperdoll('#inspect-paperdoll-zoom-root', bot));
+}
+
+function fecharZoomInspecaoPaperdoll(): void {
+    const zoom = document.getElementById('modal-inspect-zoom');
+    if (zoom) {
+        zoom.style.display = 'none';
+        zoom.innerHTML = '';
+    }
+    toggleModalBackdrop('modal-inspect-zoom', false);
+}
+
 function abrirPerfilJogadorRanking(nome, isBot) {
     if (!isBot && nome === window.charName) {
         irPara('perfil');
@@ -1458,7 +1590,6 @@ function abrirPerfilJogadorRanking(nome, isBot) {
 
     let bot = null;
 
-    // Se já foi definido externamente (como no caso de outro jogador real)
     if (window.botAtualVisualizado && window.botAtualVisualizado.nome === nome) {
         bot = window.botAtualVisualizado;
     } else {
@@ -1492,7 +1623,7 @@ function abrirPerfilJogadorRanking(nome, isBot) {
 
     abrirModal('modal-perfil-ranking', INSPECT_PROFILE_Z);
 
-    let rankData = typeof getOlympiadRank === 'function' ? getOlympiadRank(bot.olympiadPoints) : { nomeCompleto: 'Unranked' };
+    const rankData = typeof getOlympiadRank === 'function' ? getOlympiadRank(bot.olympiadPoints) : { nomeCompleto: 'Unranked' };
 
     let ascHtml = '';
     if (bot.isCloudPlayerInspection || bot.ascensionTitle) {
@@ -1505,63 +1636,26 @@ function abrirPerfilJogadorRanking(nome, isBot) {
         ascHtml = `<div class="inspect-sheet__asc">${escapeInspectHtml(line)}</div>`;
     }
 
-    let htmlEquips = '';
-    if (bot.equipamentos) {
-        let arma = bot.equipamentos.arma;
-        let armadura = bot.equipamentos.armadura;
-        let enchant = bot.equipamentos.enchant || 0;
-        
-        const getImg = (it) => it?.img || it?.base?.img || 'assets/itens/item_generic.png';
-        const getNome = (it) => it?.nome || it?.base?.nome || inspectSocialT('inspectUnknownItem', 'Unknown Item');
-        const labelWeapon = inspectSocialT('inspectWeapon', 'Weapon');
-        const labelArmor = inspectSocialT('inspectArmor', 'Armor');
-        const noWeapon = inspectSocialT('inspectNoWeapon', 'No weapon');
-        const noArmor = inspectSocialT('inspectNoArmor', 'No armor');
+    const equips = (bot.equipamentos || {}) as Record<string, unknown>;
+    const sharedEnc = Number(equips.enchant) || 0;
+    const arma = equips.arma as Record<string, unknown> | null | undefined;
+    const armadura = equips.armadura as Record<string, unknown> | null | undefined;
+    const joias = Array.isArray(equips.joias) ? (equips.joias as Record<string, unknown>[]) : [];
 
-        const armaNome = (enchant > 0 ? '+' + enchant + ' ' : '') + getNome(arma);
-        const armNome = (enchant > 0 ? '+' + enchant + ' ' : '') + getNome(armadura);
-        let armaHtml = arma
-            ? `<button type="button" class="inspect-equip-row" onclick="window.abrirAcaoItemBot('arma')"><img src="${getImg(arma)}" alt=""><span class="inspect-equip-row__text"><span class="inspect-equip-row__name">${escapeInspectHtml(armaNome)}</span><span class="inspect-equip-row__slot">${escapeInspectHtml(labelWeapon)}</span></span></button>`
-            : `<div class="inspect-equip-empty">${escapeInspectHtml(noWeapon)}</div>`;
-        let armaduraHtml = armadura
-            ? `<button type="button" class="inspect-equip-row" onclick="window.abrirAcaoItemBot('armadura')"><img src="${getImg(armadura)}" alt=""><span class="inspect-equip-row__text"><span class="inspect-equip-row__name inspect-equip-row__name--armor">${escapeInspectHtml(armNome)}</span><span class="inspect-equip-row__slot">${escapeInspectHtml(labelArmor)}</span></span></button>`
-            : `<div class="inspect-equip-empty">${escapeInspectHtml(noArmor)}</div>`;
-        
-        let joiasHtml = '';
-        if (bot.equipamentos.joias && bot.equipamentos.joias.length > 0) {
-            joiasHtml = `<div class="inspect-jewels">`;
-            bot.equipamentos.joias.forEach((j, idx) => {
-                const jTitle = (enchant > 0 ? '+' + enchant + ' ' : '') + getNome(j);
-                joiasHtml += `<img src="${getImg(j)}" onclick="window.abrirAcaoItemBot('joia', ${idx})" title="${escapeInspectHtml(jTitle)}" alt="">`;
-            });
-            joiasHtml += `</div>`;
-        }
-        
-        htmlEquips = `
-            <div class="inspect-sheet__equips">
-                <h4 class="inspect-sheet__section-title">${escapeInspectHtml(inspectSocialT('inspectEquipment', 'Current equipment'))}</h4>
-                ${armaHtml}
-                ${armaduraHtml}
-                ${joiasHtml}
-            </div>
-        `;
+    const gearSlots =
+        buildInspectSlotBtn('arma', inspectSocialT('inspectWeapon', 'Weapon'), arma, undefined, sharedEnc)
+        + buildInspectSlotBtn('armadura', inspectSocialT('inspectArmor', 'Armor'), armadura, undefined, sharedEnc);
+
+    let jewelSlots = '';
+    if (joias.length) {
+        joias.slice(0, 5).forEach((j, idx) => {
+            jewelSlots += buildInspectSlotBtn('joia', 'J', j, idx, sharedEnc);
+        });
+    } else {
+        jewelSlots = `<button type="button" class="inspect-slot inspect-slot--empty" disabled><span class="inspect-slot__label">—</span></button>`;
     }
 
-    let imgBot = "assets/chars/base_fighter.png";
     const raceForImg = bot.raca || bot.charRace || 'Human';
-    if (typeof window.AuthEngine !== 'undefined' && typeof window.AuthEngine.getAvatarForClass === 'function'
-        && (bot.charGender === 'Male' || bot.charGender === 'Female')) {
-        imgBot = window.AuthEngine.getAvatarForClass(bot._classKey || bot.classe, raceForImg, bot.charGender);
-    } else if (typeof radarDeRacas !== 'undefined' && radarDeRacas[raceForImg]) {
-        imgBot = typeof window.getCharacterPortraitSrc === 'function'
-            ? window.getCharacterPortraitSrc(
-                raceForImg,
-                bot.charGender === 'Female' ? 'Female' : 'Male',
-                bot._classKey || bot.classe,
-            )
-            : 'assets/chars/base_fighter.png';
-    }
-
     const clsSubtitle = (typeof window.formatClassDisplayName === 'function')
         ? window.formatClassDisplayName(bot.classe || '')
         : String(bot.classe || '').replace(/_/g, ' ');
@@ -1570,40 +1664,44 @@ function abrirPerfilJogadorRanking(nome, isBot) {
         : '';
     const inspectSubParts = [`Lv.${bot.nivel}`, raceForImg, genderLabel, clsSubtitle].filter(function (p) { return p && String(p).trim() !== ''; });
     const inspectSubtitle = inspectSubParts.join(' · ');
-    let modalPerfil = document.getElementById('modal-perfil-ranking');
+    const modalPerfil = document.getElementById('modal-perfil-ranking');
     if (!modalPerfil) return;
 
-    const avatarClass = bot.isMage ? 'inspect-sheet__avatar--mage' : 'inspect-sheet__avatar--fighter';
     const safeNome = escapeInspectHtml(bot.nome || nome);
     const safeSub = escapeInspectHtml(inspectSubtitle);
     const mmrLabel = `${bot.olympiadPoints} MMR · ${olympiadRankDisplay(rankData.nomeCompleto)}`;
+    const zoomHint = escapeInspectHtml(inspectSocialT('inspectTapZoom', 'Tap character to enlarge'));
 
     modalPerfil.innerHTML = `
-        <div class="inspect-sheet l2-modal" role="dialog" aria-modal="true" aria-label="${safeNome}">
+        <div class="inspect-sheet inspect-sheet--doll l2-modal" role="dialog" aria-modal="true" aria-label="${safeNome}">
             <button type="button" class="inspect-sheet__close" onclick="fecharTopModal()" aria-label="${escapeInspectHtml(inspectSocialT('inspectClose', 'Close'))}">&times;</button>
-            <div class="inspect-sheet__hero">
-                <div class="inspect-sheet__avatar ${avatarClass}">
-                    <img src="${imgBot}" alt="">
+            <header class="inspect-sheet__head">
+                <h2 class="inspect-sheet__name">${safeNome}</h2>
+                <div class="inspect-sheet__meta">${safeSub}</div>
+                <div class="inspect-sheet__mmr">${escapeInspectHtml(mmrLabel)}</div>
+                ${ascHtml}
+            </header>
+            <div class="inspect-sheet__stage">
+                <div class="l2-paperdoll l2-paperdoll--inspect" id="inspect-paperdoll-root" role="group" aria-label="${escapeInspectHtml(inspectSocialT('inspectEquipment', 'Current equipment'))}">
+                    <div class="paperdoll-scenery" aria-hidden="true"></div>
+                    <div class="paperdoll-frame-vignette" aria-hidden="true"></div>
+                    <aside class="paperdoll-col paperdoll-col--gear inspect-slot-col">${gearSlots}</aside>
+                    <div class="paperdoll-stage" aria-hidden="true"></div>
+                    ${buildInspectPaperdollLayersHtml('inspect')}
+                    <button type="button" class="inspect-paperdoll-hit" onclick="abrirZoomInspecaoPaperdoll()" aria-label="${zoomHint}" title="${zoomHint}"></button>
+                    <aside class="paperdoll-col paperdoll-col--jewels inspect-slot-col">${jewelSlots}</aside>
                 </div>
-                <div class="inspect-sheet__identity">
-                    <h2 class="inspect-sheet__name">${safeNome}</h2>
-                    <div class="inspect-sheet__meta">${safeSub}</div>
-                    <div class="inspect-sheet__mmr">${escapeInspectHtml(mmrLabel)}</div>
-                    ${ascHtml}
-                </div>
+                <p class="inspect-paperdoll-hint">${zoomHint}</p>
             </div>
-            <div class="inspect-sheet__body">
-                <div class="inspect-sheet__stats">
-                    <div class="inspect-stat inspect-stat--hp"><span class="inspect-stat__label">HP</span><span class="inspect-stat__value">${bot.maxHp}</span></div>
-                    <div class="inspect-stat inspect-stat--mp"><span class="inspect-stat__label">MP</span><span class="inspect-stat__value">${bot.maxMp}</span></div>
-                    <div class="inspect-stat inspect-stat--patk"><span class="inspect-stat__label">P.Atk</span><span class="inspect-stat__value">${bot.pAtk}</span></div>
-                    <div class="inspect-stat inspect-stat--matk"><span class="inspect-stat__label">M.Atk</span><span class="inspect-stat__value">${bot.mAtk}</span></div>
-                    <div class="inspect-stat inspect-stat--pdef"><span class="inspect-stat__label">P.Def</span><span class="inspect-stat__value">${bot.pDef}</span></div>
-                    <div class="inspect-stat inspect-stat--mdef"><span class="inspect-stat__label">M.Def</span><span class="inspect-stat__value">${bot.mDef}</span></div>
-                    <div class="inspect-stat inspect-stat--spd"><span class="inspect-stat__label">Atk.Spd</span><span class="inspect-stat__value">${bot.atkSpd}</span></div>
-                    <div class="inspect-stat inspect-stat--crit"><span class="inspect-stat__label">Crit</span><span class="inspect-stat__value">${bot.critRate}%</span></div>
-                </div>
-                ${htmlEquips}
+            <div class="inspect-sheet__stats inspect-sheet__stats--compact">
+                <div class="inspect-stat inspect-stat--hp"><span class="inspect-stat__label">HP</span><span class="inspect-stat__value">${bot.maxHp}</span></div>
+                <div class="inspect-stat inspect-stat--mp"><span class="inspect-stat__label">MP</span><span class="inspect-stat__value">${bot.maxMp}</span></div>
+                <div class="inspect-stat inspect-stat--patk"><span class="inspect-stat__label">P.Atk</span><span class="inspect-stat__value">${bot.pAtk}</span></div>
+                <div class="inspect-stat inspect-stat--matk"><span class="inspect-stat__label">M.Atk</span><span class="inspect-stat__value">${bot.mAtk}</span></div>
+                <div class="inspect-stat inspect-stat--pdef"><span class="inspect-stat__label">P.Def</span><span class="inspect-stat__value">${bot.pDef}</span></div>
+                <div class="inspect-stat inspect-stat--mdef"><span class="inspect-stat__label">M.Def</span><span class="inspect-stat__value">${bot.mDef}</span></div>
+                <div class="inspect-stat inspect-stat--spd"><span class="inspect-stat__label">Spd</span><span class="inspect-stat__value">${bot.atkSpd}</span></div>
+                <div class="inspect-stat inspect-stat--crit"><span class="inspect-stat__label">Crit</span><span class="inspect-stat__value">${bot.critRate}%</span></div>
             </div>
             <div class="inspect-sheet__footer">
                 <button type="button" class="btn-l2" onclick="fecharTopModal()">${escapeInspectHtml(inspectSocialT('inspectClose', 'CLOSE'))}</button>
@@ -1612,6 +1710,7 @@ function abrirPerfilJogadorRanking(nome, isBot) {
     `;
 
     modalPerfil.style.display = 'flex';
+    requestAnimationFrame(() => paintInspectPaperdoll('#inspect-paperdoll-root', bot as Record<string, unknown>));
 }
 
 window.abrirAcaoItemBot = function abrirAcaoItemBot(tipo: string, index = 0) {
@@ -2006,6 +2105,8 @@ window.refreshHuntZoneHud = refreshHuntZoneHud;
 window.recolherLootRaid = recolherLootRaid;
 window.abrirPerfilJogadorRanking = abrirPerfilJogadorRanking;
 window.mostrarLoadingInspecao = mostrarLoadingInspecao;
+window.abrirZoomInspecaoPaperdoll = abrirZoomInspecaoPaperdoll;
+window.fecharZoomInspecaoPaperdoll = fecharZoomInspecaoPaperdoll;
 window.renderizarSocial = renderizarSocial;
 window.mudarAbaSocial = mudarAbaSocial;
 window.renderizarRankingMundial = renderizarRankingMundial;

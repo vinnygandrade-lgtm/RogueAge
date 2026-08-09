@@ -1182,8 +1182,26 @@ window.atualizarVisualPaperdoll = function (): void {
   });
 };
 
-window.atualizarPaperdollCharSelect = function (charData: PaperdollCharSelectData): void {
-  const root = document.querySelector('.char-hero-showcase .l2-paperdoll--char-select');
+function _coercePaperdollEquip(
+  item: EquipInstance | ItemCatalogBase | null | undefined,
+  kind: 'armor' | 'weapon',
+): EquipInstance | ItemCatalogBase | null {
+  if (item == null) return null;
+  let eq: unknown = item;
+  if (typeof window.coerceInspectEquipItem === 'function') {
+    eq = window.coerceInspectEquipItem(eq, kind);
+  }
+  if (eq && typeof window.enrichEquipBaseFromCatalogIfNeeded === 'function') {
+    eq = window.enrichEquipBaseFromCatalogIfNeeded(eq);
+  }
+  return (eq as EquipInstance | ItemCatalogBase) || null;
+}
+
+function _refreshPaperdollFromCharData(
+  root: Element | null,
+  charData: PaperdollCharSelectData | null | undefined,
+  opts?: { force?: boolean },
+): void {
   if (!root || !charData) return;
 
   const race = charData.charRace || 'Human';
@@ -1194,22 +1212,35 @@ window.atualizarPaperdollCharSelect = function (charData: PaperdollCharSelectDat
       ? window.resolvePaperdollPresetIdFor(race, charClass, gender)
       : 'human_fighter';
 
-  const armor =
-    typeof window.coerceInspectEquipItem === 'function'
-      ? window.coerceInspectEquipItem(charData.armaduraEquipada, 'armor')
-      : charData.armaduraEquipada;
-  const weapon =
-    typeof window.coerceInspectEquipItem === 'function'
-      ? window.coerceInspectEquipItem(charData.armaEquipadaBase, 'weapon')
-      : charData.armaEquipadaBase;
-
   _refreshPaperdollRoot(root, {
     presetId,
-    armaduraEquipada: armor ?? null,
-    armaEquipadaBase: weapon ?? null,
+    armaduraEquipada: _coercePaperdollEquip(charData.armaduraEquipada ?? null, 'armor') as EquipInstance | null,
+    armaEquipadaBase: _coercePaperdollEquip(charData.armaEquipadaBase ?? null, 'weapon') as EquipInstance | null,
     syncProfileGlows: false,
     syncWeaponGlow: true,
+    force: opts?.force === true,
   });
+
+  if (typeof window.schedulePaperdollFootShadowSyncWithRetries === 'function') {
+    window.schedulePaperdollFootShadowSyncWithRetries();
+  }
+}
+
+window.atualizarPaperdollCharSelect = function (charData: PaperdollCharSelectData): void {
+  const root = document.querySelector('.char-hero-showcase .l2-paperdoll--char-select');
+  _refreshPaperdollFromCharData(root, charData, { force: true });
+};
+
+/** Dress any `.l2-paperdoll` root (inspect modal / zoom) with race+class+gender and gear. */
+window.atualizarPaperdollInspect = function (
+  rootOrSelector: Element | string | null | undefined,
+  charData: PaperdollCharSelectData,
+): void {
+  const root =
+    typeof rootOrSelector === 'string'
+      ? document.querySelector(rootOrSelector)
+      : rootOrSelector || null;
+  _refreshPaperdollFromCharData(root, charData, { force: true });
 };
 
 function bindPaperdollFootShadowVisibilityObserver(): void {

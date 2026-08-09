@@ -3152,7 +3152,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     inspectArmor: 'Armor',
                     inspectNoWeapon: 'No weapon',
                     inspectNoArmor: 'No armor',
-                    inspectUnknownItem: 'Unknown item'
+                    inspectUnknownItem: 'Unknown item',
+                    inspectTapZoom: 'Tap character to enlarge',
+                    inspectZoomTitle: 'Character preview'
                 },
                 classes: {
                     title: 'CLASS TRANSFER',
@@ -6576,7 +6578,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     inspectArmor: 'Armadura',
                     inspectNoWeapon: 'Sem arma',
                     inspectNoArmor: 'Sem armadura',
-                    inspectUnknownItem: 'Item desconhecido'
+                    inspectUnknownItem: 'Item desconhecido',
+                    inspectTapZoom: 'Toque no personagem para ampliar',
+                    inspectZoomTitle: 'Visual do personagem'
                 },
                 classes: {
                     title: 'TRANSFERÊNCIA DE CLASSE',
