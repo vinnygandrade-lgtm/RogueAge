@@ -37,6 +37,11 @@ export function setBootProgress(percent: number, message?: string): void {
     fill.setAttribute('aria-valuenow', String(pct));
   }
 
+  const pctEl = document.getElementById('loading-percentage');
+  if (pctEl) {
+    pctEl.textContent = `${pct}%`;
+  }
+
   const status = statusEl();
   if (status && message) {
     status.textContent = message;

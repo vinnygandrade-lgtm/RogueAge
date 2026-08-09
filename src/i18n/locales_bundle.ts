@@ -49,7 +49,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 toggleToPt: 'Português',
                 toggleToEn: 'English',
                 discordShort: 'Discord',
-                discordCommunity: 'Join our Discord community'
+                discordCommunity: 'Join our Discord community',
+                rememberAccount: 'REMEMBER ACCOUNT',
+                capsLockOn: '⚠️ Caps Lock is ON',
+                serverOnline: 'REALM ONLINE',
+                serverOffline: 'OFFLINE MODE',
+                passMismatch: 'Passwords do not match',
+                passMatch: 'Passwords match ✓',
+                emailMismatch: 'Emails do not match',
+                emailMatch: 'Emails match ✓',
+                nextTip: 'NEXT TIP ↻'
             },
             patchNotes: {
                 eyebrow: 'Realm Dispatch',
@@ -3453,7 +3462,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 toggleToPt: 'Português',
                 toggleToEn: 'English',
                 discordShort: 'Discord',
-                discordCommunity: 'Entrar na comunidade Discord'
+                discordCommunity: 'Entrar na comunidade Discord',
+                rememberAccount: 'LEMBRAR MINHA CONTA',
+                capsLockOn: '⚠️ Caps Lock Ativado',
+                serverOnline: 'REINO ONLINE',
+                serverOffline: 'MODO OFFLINE',
+                passMismatch: 'As senhas não coincidem',
+                passMatch: 'Senhas coincidem ✓',
+                emailMismatch: 'Os e-mails não coincidem',
+                emailMatch: 'E-mails coincidem ✓',
+                nextTip: 'PRÓXIMA DICA ↻'
             },
             patchNotes: {
                 eyebrow: 'Despacho do Reino',

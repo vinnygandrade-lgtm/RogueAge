@@ -77,14 +77,19 @@ const AuthEngine = {
         // 2. ESCUTA O SUPABASE
         if (typeof window.SupabaseAPI !== 'undefined') {
             window.SupabaseAPI.init().then(() => {
+                this.updateServerStatusBadge();
                 window.SupabaseAPI.client.auth.onAuthStateChange((event, session) => {
                     if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && isRecovery)) {
                         console.log("🔄 [Auth] Sessão de recuperação ativa.");
                         this.onPasswordRecoverySession(session);
                     }
                 });
+            }).catch(() => {
+                this.updateServerStatusBadge();
             });
         }
+
+        this.setupLoginEventListeners();
     },
 
     showLoading(text) {
@@ -669,6 +674,170 @@ const AuthEngine = {
         btnElement.setAttribute('aria-label', ariaLabel);
     },
 
+    cycleNextTip() {
+        const tipEl = document.getElementById('loading-tip');
+        if (!tipEl) return;
+        let tipList = (typeof window.I18n !== 'undefined' && window.I18n.getArray)
+            ? window.I18n.getArray('auth.tips')
+            : [];
+        if (!tipList || !tipList.length) tipList = this.tips;
+        const currentText = tipEl.innerText.replace(/^"|"$/g, '');
+        const available = tipList.filter((t: string) => t !== currentText);
+        const pool = available.length ? available : tipList;
+        const nextTip = pool[Math.floor(Math.random() * pool.length)];
+        tipEl.style.opacity = '0';
+        setTimeout(() => {
+            tipEl.innerText = '"' + nextTip + '"';
+            tipEl.style.opacity = '1';
+        }, 150);
+    },
+
+    updateServerStatusBadge() {
+        const badge = document.getElementById('server-status-badge');
+        if (!badge) return;
+        const dot = badge.querySelector('.status-dot');
+        const text = badge.querySelector('.status-text');
+        const isOnline = typeof window.SupabaseAPI !== 'undefined' && window.SUPABASE_CONFIG.enabled;
+        if (dot) {
+            dot.className = isOnline ? 'status-dot status-dot--online' : 'status-dot status-dot--offline';
+        }
+        if (text) {
+            const key = isOnline ? 'login.serverOnline' : 'login.serverOffline';
+            text.setAttribute('data-i18n', key);
+            text.textContent = typeof window.t === 'function' ? window.t(key) : (isOnline ? 'REALM ONLINE' : 'OFFLINE MODE');
+        }
+    },
+
+    setupLoginEventListeners() {
+        this.updateServerStatusBadge();
+
+        // 1. Enter Key Submit handlers
+        const bindEnter = (inputId: string, action: () => void) => {
+            const el = document.getElementById(inputId);
+            if (el) {
+                el.addEventListener('keydown', (e: Event) => {
+                    if ((e as KeyboardEvent).key === 'Enter') {
+                        e.preventDefault();
+                        action();
+                    }
+                });
+            }
+        };
+
+        const doLogin = () => {
+            const u = (document.getElementById('input-username') as HTMLInputElement)?.value;
+            const p = (document.getElementById('input-password') as HTMLInputElement)?.value;
+            AuthEngine.login(u, p);
+        };
+
+        bindEnter('input-username', doLogin);
+        bindEnter('input-password', doLogin);
+
+        const doRegister = () => {
+            const u = (document.getElementById('reg-username') as HTMLInputElement)?.value;
+            const p = (document.getElementById('reg-password') as HTMLInputElement)?.value;
+            const pc = (document.getElementById('reg-confirm') as HTMLInputElement)?.value;
+            const e = (document.getElementById('reg-email') as HTMLInputElement)?.value;
+            const ec = (document.getElementById('reg-email-confirm') as HTMLInputElement)?.value;
+            AuthEngine.register(u, p, pc, e, ec);
+        };
+
+        bindEnter('reg-username', doRegister);
+        bindEnter('reg-email', doRegister);
+        bindEnter('reg-email-confirm', doRegister);
+        bindEnter('reg-password', doRegister);
+        bindEnter('reg-confirm', doRegister);
+
+        const doRecover = () => {
+            const u = (document.getElementById('recover-user') as HTMLInputElement)?.value;
+            AuthEngine.recoverPassword(u);
+        };
+        bindEnter('recover-user', doRecover);
+
+        const doRecoverLogin = () => {
+            const e = (document.getElementById('recover-login-email') as HTMLInputElement)?.value;
+            AuthEngine.recoverUsername(e);
+        };
+        bindEnter('recover-login-email', doRecoverLogin);
+
+        // 2. Caps Lock Warning
+        const passInputs = ['input-password', 'reg-password', 'reg-confirm', 'recovery-new-password'];
+        const handleCaps = (e: Event) => {
+            const kbEvent = e as KeyboardEvent;
+            const isCaps = kbEvent.getModifierState && kbEvent.getModifierState('CapsLock');
+            const targetId = (e.target as HTMLElement)?.id;
+            let warnDivId = 'caps-lock-warning-login';
+            if (targetId && targetId.startsWith('reg-')) warnDivId = 'caps-lock-warning-reg';
+            const warnEl = document.getElementById(warnDivId) || document.getElementById('caps-lock-warning-login');
+            if (warnEl) {
+                warnEl.style.display = isCaps ? 'inline-block' : 'none';
+            }
+        };
+
+        passInputs.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('keyup', handleCaps);
+                el.addEventListener('keydown', handleCaps);
+            }
+        });
+
+        // 3. Real-time Registration Match Validation
+        const validateMatches = () => {
+            const p1 = (document.getElementById('reg-password') as HTMLInputElement)?.value || '';
+            const p2 = (document.getElementById('reg-confirm') as HTMLInputElement)?.value || '';
+            const pHint = document.getElementById('reg-pass-match-hint');
+
+            if (pHint) {
+                if (p1 && p2) {
+                    pHint.style.display = 'block';
+                    if (p1 === p2) {
+                        pHint.className = 'field-match-hint field-match-hint--valid';
+                        pHint.textContent = typeof window.t === 'function' ? window.t('login.passMatch') : 'Passwords match ✓';
+                    } else {
+                        pHint.className = 'field-match-hint field-match-hint--invalid';
+                        pHint.textContent = typeof window.t === 'function' ? window.t('login.passMismatch') : 'Passwords do not match';
+                    }
+                } else {
+                    pHint.style.display = 'none';
+                }
+            }
+
+            const e1 = (document.getElementById('reg-email') as HTMLInputElement)?.value || '';
+            const e2 = (document.getElementById('reg-email-confirm') as HTMLInputElement)?.value || '';
+            const eHint = document.getElementById('reg-email-match-hint');
+
+            if (eHint) {
+                if (e1 && e2) {
+                    eHint.style.display = 'block';
+                    if (e1 === e2) {
+                        eHint.className = 'field-match-hint field-match-hint--valid';
+                        eHint.textContent = typeof window.t === 'function' ? window.t('login.emailMatch') : 'Emails match ✓';
+                    } else {
+                        eHint.className = 'field-match-hint field-match-hint--invalid';
+                        eHint.textContent = typeof window.t === 'function' ? window.t('login.emailMismatch') : 'Emails do not match';
+                    }
+                } else {
+                    eHint.style.display = 'none';
+                }
+            }
+        };
+
+        ['reg-password', 'reg-confirm', 'reg-email', 'reg-email-confirm'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', validateMatches);
+        });
+
+        // 4. Remembered Account restore
+        const remembered = localStorage.getItem('l2mini_remembered_account');
+        const inputUser = document.getElementById('input-username') as HTMLInputElement | null;
+        const checkRem = document.getElementById('remember-account-check') as HTMLInputElement | null;
+        if (remembered && inputUser) {
+            inputUser.value = remembered;
+            if (checkRem) checkRem.checked = true;
+        }
+    },
+
     showRegister() {
         this._passwordRecoveryMode = false;
         this._offlinePasswordResetKey = null;
@@ -748,6 +917,13 @@ const AuthEngine = {
     onLoginSuccess(username) {
         this.currentAccount = username;
         localStorage.setItem('l2mini_active_account', username);
+        
+        const checkRem = document.getElementById('remember-account-check') as HTMLInputElement | null;
+        if (checkRem && checkRem.checked) {
+            localStorage.setItem('l2mini_remembered_account', username);
+        } else if (checkRem && !checkRem.checked) {
+            localStorage.removeItem('l2mini_remembered_account');
+        }
         
         // Limpa estado de personagem anterior para evitar bugs de persistência visual
         window.charName = "";

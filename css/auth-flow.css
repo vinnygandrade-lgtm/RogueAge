@@ -1196,23 +1196,315 @@
     max-width: 180px;
 }
 
+/* —— Server Status Chip —— */
+.server-status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    background: rgba(13, 10, 8, 0.82);
+    border: 1px solid #3d3126;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #a39282;
+    transition: all 0.2s ease;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+}
+
+.status-dot--online {
+    background: #22c55e;
+    box-shadow: 0 0 8px #22c55e;
+}
+
+.status-dot--online::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.4);
+    animation: statusPulse 2s infinite ease-out;
+}
+
+.status-dot--offline {
+    background: #f59e0b;
+    box-shadow: 0 0 8px #f59e0b;
+}
+
+@keyframes statusPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* —— Gothic Checkbox —— */
+.login-remember-group {
+    margin: 12px 0 16px;
+    text-align: left;
+}
+
+.login-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.login-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkbox-custom {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #3d3126;
+    background: #060504;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.login-checkbox-label:hover .checkbox-custom {
+    border-color: #ca8a04;
+}
+
+.login-checkbox:checked + .checkbox-custom {
+    background: #281e14;
+    border-color: #facc15;
+    box-shadow: 0 0 8px rgba(202, 138, 4, 0.3);
+}
+
+.login-checkbox:checked + .checkbox-custom::after {
+    content: '✓';
+    font-size: 11px;
+    color: #facc15;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.checkbox-text {
+    font-family: 'Cinzel', serif;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #8a7a6a;
+    letter-spacing: 0.12em;
+    transition: color 0.2s ease;
+}
+
+.login-checkbox-label:hover .checkbox-text {
+    color: #c4b5a0;
+}
+
+/* —— Caps Lock Warning —— */
+.caps-lock-warning {
+    margin-top: 6px;
+    font-size: 0.68rem;
+    font-family: 'Cinzel', serif;
+    color: #facc15;
+    background: rgba(250, 204, 21, 0.1);
+    border: 1px solid rgba(250, 204, 21, 0.3);
+    padding: 4px 8px;
+    border-radius: 2px;
+    letter-spacing: 0.08em;
+    display: inline-block;
+    animation: authFormFadeIn 0.2s ease-out;
+}
+
+/* —— Field Match Hints (Register) —— */
+.field-match-hint {
+    margin-top: 5px;
+    font-size: 0.68rem;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.06em;
+    padding: 3px 6px;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.field-match-hint--valid {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+}
+
+.field-match-hint--invalid {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+}
+
+/* —— Loading Overlay Polish —— */
 #loading-overlay {
     background: #050403 !important;
+    overflow: hidden;
+}
+
+.loading-embers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.loading-embers .ember {
+    position: absolute;
+    bottom: -10px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #facc15;
+    box-shadow: 0 0 6px #ca8a04, 0 0 12px #facc15;
+    opacity: 0;
+    animation: floatEmber 6s infinite ease-out;
+}
+
+.loading-embers .ember:nth-child(1) { left: 20%; animation-delay: 0s; animation-duration: 5s; }
+.loading-embers .ember:nth-child(2) { left: 40%; animation-delay: 1.5s; animation-duration: 6.5s; width: 4px; height: 4px; }
+.loading-embers .ember:nth-child(3) { left: 60%; animation-delay: 0.5s; animation-duration: 5.5s; }
+.loading-embers .ember:nth-child(4) { left: 80%; animation-delay: 2.2s; animation-duration: 7s; }
+.loading-embers .ember:nth-child(5) { left: 90%; animation-delay: 3.8s; animation-duration: 4.8s; }
+
+#loading-overlay .loading-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#loading-overlay .loading-brand-group {
+    margin-bottom: 24px;
 }
 
 #loading-overlay .loading-logo {
+    font-size: clamp(2.8rem, 9vw, 3.8rem);
     color: #fff;
-    text-shadow: 0 0 20px rgba(202, 138, 4, 0.4);
+    text-shadow: 0 0 24px rgba(202, 138, 4, 0.45), 0 3px 8px rgba(0, 0, 0, 0.9);
+    margin-bottom: 0;
+    letter-spacing: 0.04em;
+}
+
+#loading-overlay .loading-logo span {
+    color: #facc15;
+    background: linear-gradient(180deg, #fef08a 0%, #ca8a04 60%, #854d0e 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.loading-brand-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 6px auto 0;
+    width: 200px;
+    opacity: 0.8;
+}
+
+.loading-brand-divider .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #ca8a04 50%, transparent 100%);
+}
+
+.loading-brand-divider .gem {
+    color: #facc15;
+    font-size: 0.65rem;
+}
+
+.loading-status-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 8px;
+    font-family: 'Cinzel', serif;
+}
+
+#loading-overlay .loading-status {
+    font-size: 0.72rem;
+    color: #ca8a04;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0;
+    text-align: left;
+}
+
+.loading-percentage {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #facc15;
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.4);
 }
 
 #loading-overlay .loading-bar-container {
-    height: 3px;
-    background: #1a1510;
-    border: 1px solid #261c14;
+    height: 6px;
+    background: #0d0a08;
+    border: 1px solid #3d3126;
+    border-radius: 3px;
+    margin-bottom: 24px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9);
 }
 
 #loading-overlay .loading-bar-fill--determinate {
-    background: linear-gradient(90deg, #854d0e, #ca8a04);
+    background: linear-gradient(90deg, #854d0e 0%, #ca8a04 60%, #facc15 100%);
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.loading-bar-shimmer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+    animation: barShimmer 1.8s infinite linear;
+}
+
+@keyframes barShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.btn-next-tip {
+    margin-top: 10px;
+    background: transparent;
+    border: 1px solid #3d3126;
+    color: #8a7a6a;
+    font-family: 'Cinzel', serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-next-tip:hover {
+    color: #facc15;
+    border-color: #ca8a04;
+    background: rgba(202, 138, 4, 0.1);
 }
 
 /* —— Patch notes (pre-login) —— */

@@ -1142,6 +1142,9 @@ export interface AuthEngineApi {
   showLogin: () => void;
   showRegister: () => void;
   togglePasswordVisibility?: (inputId: string, btnElement: HTMLElement) => void;
+  cycleNextTip?: () => void;
+  updateServerStatusBadge?: () => void;
+  setupLoginEventListeners?: () => void;
   startNewCharacter: () => void;
   init: () => void;
   showLoading: (text?: string) => void;
