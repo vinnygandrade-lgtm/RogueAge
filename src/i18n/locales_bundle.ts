@@ -68,6 +68,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-09',
+                        items: [
+                            'Login & boot polish: gothic login card, ember atmosphere, password show/hide, Remember Account, Caps Lock warning, realm online badge, and a clearer loading screen with % progress and game tips.',
+                            'Loading after you enter your password now animates the percentage again — it no longer sits stuck at 100% from the first boot.',
+                            'Player inspect rebuilt: dressed paperdoll with real gear on one screen, tap to enlarge the visual, and a loading state while cloud stats fetch.',
+                            'Inspect from Rankings opens on top of the ladder (no more closing Rankings first).',
+                            'Fixed a bug where inspecting another player could drain your HP, MP, and CP.'
+                        ]
+                    },
+                    {
                         date: '2026-08-08',
                         items: [
                             'Floating messenger chat: the bottom dock is gone — tap the Chat bubble for SYSTEM / GLOBAL / CLAN. Starts closed, shows an unread badge, and you can drag the icon anywhere on screen.',
@@ -3493,6 +3503,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-09',
+                        items: [
+                            'Login e carregamento renovados: cartão gótico, brasas no fundo, mostrar/ocultar senha, Lembrar conta, aviso de Caps Lock, badge do reino online e ecrã de load com % e dicas do RogueAge.',
+                            'Depois da senha, a percentagem de loading volta a animar — já não fica presa em 100% do primeiro boot.',
+                            'Inspeção de jogador redesenhada: paperdoll vestido com o equipamento real num só ecrã, toque para ampliar o visual, e loading enquanto busca os status na nuvem.',
+                            'Inspecionar no Rankings abre por cima da lista (já não precisas de fechar o ranking primeiro).',
+                            'Corrigido o bug em que inspecionar outro jogador podia baixar o teu HP, MP e CP.'
+                        ]
+                    },
                     {
                         date: '2026-08-08',
                         items: [
