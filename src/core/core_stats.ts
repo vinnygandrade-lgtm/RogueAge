@@ -621,9 +621,14 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         joiasPorStat: joiasContribLinhas
     };
 
-    if (window.playerHP > window.playerStats.maxHp) window.playerHP = window.playerStats.maxHp;
-    if (window.playerMP > window.playerStats.maxMp) window.playerMP = window.playerStats.maxMp;
-    if (window.playerCP > window.playerStats.maxCp) window.playerCP = window.playerStats.maxCp;
+    // Inspeção cloud (`calcularStatusGlobaisFromData`) aplica temporariamente o save do alvo —
+    // não clampar vitais do jogador local contra o maxHp/Mp/Cp alheio (sintoma: HP/MP/CP baixam ao inspecionar).
+    const skipVitalClamp = !!(window as unknown as { _calcStatsSkipVitalClamp?: boolean })._calcStatsSkipVitalClamp;
+    if (!skipVitalClamp) {
+        if (window.playerHP > window.playerStats.maxHp) window.playerHP = window.playerStats.maxHp;
+        if (window.playerMP > window.playerStats.maxMp) window.playerMP = window.playerStats.maxMp;
+        if (window.playerCP > window.playerStats.maxCp) window.playerCP = window.playerStats.maxCp;
+    }
 
     // Glow/slots only (no 1080× layer rebuild) when Profile is visible — e.g. after enchant.
     const _tpPerf = document.getElementById('tela-perfil');
@@ -688,14 +693,20 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
         'anelEquipado1', 'anelEquipado2', 'tempoFimBuffGuerreiro', 'tempoFimBuffMistico', 'blessingBuild', 'playerClanId',
         '_calcStatsTitleOverride',
         '_calcStatsSkipSkillBuffs',
+        '_calcStatsSkipVitalClamp',
     ];
     var backup: Record<string, unknown> = {};
     for (var bi = 0; bi < backupKeys.length; bi++) {
         backup[backupKeys[bi]] = (window as unknown as Record<string, unknown>)[backupKeys[bi]];
     }
+    // Vitais do jogador local — o clamp em calcularStatusGlobais() usava o max do alvo e “roubava” HP/MP/CP.
+    var backupHP = window.playerHP;
+    var backupMP = window.playerMP;
+    var backupCP = window.playerCP;
 
     try {
         (window as unknown as { _calcStatsSkipSkillBuffs?: boolean })._calcStatsSkipSkillBuffs = true;
+        (window as unknown as { _calcStatsSkipVitalClamp?: boolean })._calcStatsSkipVitalClamp = true;
         window.charRace = saveLike.charRace || 'Human';
         window.charClass = saveLike.charClass || 'Fighter';
         if (saveLike.charGender) window.charGender = saveLike.charGender;
@@ -763,6 +774,15 @@ window.calcularStatusGlobaisFromData = function calcularStatusGlobaisFromData(
             (window as unknown as Record<string, unknown>)[bk] = backup[bk];
         }
         if (typeof window.calcularStatusGlobais === 'function') window.calcularStatusGlobais();
+        // Repor vitais depois do recalc local (maxHp/Mp/Cp já são os teus outra vez).
+        if (Number.isFinite(backupHP)) window.playerHP = backupHP as number;
+        if (Number.isFinite(backupMP)) window.playerMP = backupMP as number;
+        if (Number.isFinite(backupCP)) window.playerCP = backupCP as number;
+        if (window.playerStats) {
+            if (window.playerHP > window.playerStats.maxHp) window.playerHP = window.playerStats.maxHp;
+            if (window.playerMP > window.playerStats.maxMp) window.playerMP = window.playerStats.maxMp;
+            if (window.playerCP > window.playerStats.maxCp) window.playerCP = window.playerStats.maxCp;
+        }
     }
 };
 
