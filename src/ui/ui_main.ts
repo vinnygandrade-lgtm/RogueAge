@@ -1413,6 +1413,43 @@ async function renderizarRankingMundial() {
     listaHTML.innerHTML = html;
 }
 
+/** Must sit above #janela-stat-ranking (1600) so inspect opens over Rankings. */
+const INSPECT_PROFILE_Z = 1750;
+
+function escapeInspectHtml(s: unknown): string {
+    return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function inspectSocialT(key: string, fallback: string, params?: Record<string, string | number>): string {
+    const full = 'game.social.' + key;
+    if (typeof window.t === 'function') {
+        const v = params ? window.t(full, params) : window.t(full);
+        if (v && v !== full) return v;
+    }
+    return fallback;
+}
+
+function mostrarLoadingInspecao(nome: string): void {
+    const modalPerfil = document.getElementById('modal-perfil-ranking');
+    if (!modalPerfil) return;
+    const safeName = escapeInspectHtml(nome);
+    modalPerfil.innerHTML = `
+        <div class="inspect-sheet inspect-sheet--loading l2-modal" role="dialog" aria-modal="true" aria-busy="true">
+            <button type="button" class="inspect-sheet__close" onclick="fecharTopModal()" aria-label="${escapeInspectHtml(inspectSocialT('inspectClose', 'Close'))}">&times;</button>
+            <div class="inspect-loading__spinner" aria-hidden="true"></div>
+            <p class="inspect-loading__title">${escapeInspectHtml(inspectSocialT('inspectLoadingTitle', 'Inspecting'))}</p>
+            <p class="inspect-loading__name">${safeName}</p>
+            <p class="inspect-loading__hint">${escapeInspectHtml(inspectSocialT('inspectLoadingHint', 'Fetching gear and combat stats…'))}</p>
+        </div>
+    `;
+    abrirModal('modal-perfil-ranking', INSPECT_PROFILE_Z);
+    modalPerfil.style.display = 'flex';
+}
+
 function abrirPerfilJogadorRanking(nome, isBot) {
     if (!isBot && nome === window.charName) {
         irPara('perfil');
@@ -1453,7 +1490,7 @@ function abrirPerfilJogadorRanking(nome, isBot) {
 
     window.botAtualVisualizado = bot;
 
-    abrirModal('modal-perfil-ranking', 1600);
+    abrirModal('modal-perfil-ranking', INSPECT_PROFILE_Z);
 
     let rankData = typeof getOlympiadRank === 'function' ? getOlympiadRank(bot.olympiadPoints) : { nomeCompleto: 'Unranked' };
 
@@ -1465,7 +1502,7 @@ function abrirPerfilJogadorRanking(nome, isBot) {
             typeof window.t === 'function'
                 ? window.t('game.endgame.inspectModalLine', { title: tit, renown: ren })
                 : tit + (tit ? ' · ' : '') + 'Renown ' + ren;
-        ascHtml = `<div style="color:#e9d5ff;font-size:0.74em;margin-top:5px;font-weight:600;font-family:'Cinzel',serif;letter-spacing:0.03em;">${line}</div>`;
+        ascHtml = `<div class="inspect-sheet__asc">${escapeInspectHtml(line)}</div>`;
     }
 
     let htmlEquips = '';
@@ -1474,26 +1511,35 @@ function abrirPerfilJogadorRanking(nome, isBot) {
         let armadura = bot.equipamentos.armadura;
         let enchant = bot.equipamentos.enchant || 0;
         
-        // Se for um player real, os dados de equipamentos podem estar em outro formato
-        // Normaliza para exibição
         const getImg = (it) => it?.img || it?.base?.img || 'assets/itens/item_generic.png';
-        const getNome = (it) => it?.nome || it?.base?.nome || 'Unknown Item';
+        const getNome = (it) => it?.nome || it?.base?.nome || inspectSocialT('inspectUnknownItem', 'Unknown Item');
+        const labelWeapon = inspectSocialT('inspectWeapon', 'Weapon');
+        const labelArmor = inspectSocialT('inspectArmor', 'Armor');
+        const noWeapon = inspectSocialT('inspectNoWeapon', 'No weapon');
+        const noArmor = inspectSocialT('inspectNoArmor', 'No armor');
 
-        let armaHtml = arma ? `<div onclick="window.abrirAcaoItemBot('arma')" style="display:flex; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer; padding:6px; background:rgba(0,0,0,0.4); border:1px solid #333; border-radius:6px; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='#ca8a04'" onmouseout="this.style.background='rgba(0,0,0,0.4)'; this.style.borderColor='#333'"><img src="${getImg(arma)}" style="width:34px; height:34px; border:1px solid #555; background:#111; border-radius:4px;"> <div style="display:flex; flex-direction:column;"><span style="color:#fde047; font-size:0.9em; font-weight:bold;">${enchant > 0 ? '+'+enchant+' ' : ''}${getNome(arma)}</span><span style="color:#666; font-size:0.7em; text-transform:uppercase;">Weapon</span></div></div>` : '<div style="color:#777; padding:5px;">Sem Arma</div>';
-        let armaduraHtml = armadura ? `<div onclick="window.abrirAcaoItemBot('armadura')" style="display:flex; align-items:center; gap:10px; margin-bottom:8px; cursor:pointer; padding:6px; background:rgba(0,0,0,0.4); border:1px solid #333; border-radius:6px; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'; this.style.borderColor='#ca8a04'" onmouseout="this.style.background='rgba(0,0,0,0.4)'; this.style.borderColor='#333'"><img src="${getImg(armadura)}" style="width:34px; height:34px; border:1px solid #555; background:#111; border-radius:4px;"> <div style="display:flex; flex-direction:column;"><span style="color:#cbd5e1; font-size:0.9em; font-weight:bold;">${enchant > 0 ? '+'+enchant+' ' : ''}${getNome(armadura)}</span><span style="color:#666; font-size:0.7em; text-transform:uppercase;">Armor</span></div></div>` : '<div style="color:#777; padding:5px;">Sem Armadura</div>';
+        const armaNome = (enchant > 0 ? '+' + enchant + ' ' : '') + getNome(arma);
+        const armNome = (enchant > 0 ? '+' + enchant + ' ' : '') + getNome(armadura);
+        let armaHtml = arma
+            ? `<button type="button" class="inspect-equip-row" onclick="window.abrirAcaoItemBot('arma')"><img src="${getImg(arma)}" alt=""><span class="inspect-equip-row__text"><span class="inspect-equip-row__name">${escapeInspectHtml(armaNome)}</span><span class="inspect-equip-row__slot">${escapeInspectHtml(labelWeapon)}</span></span></button>`
+            : `<div class="inspect-equip-empty">${escapeInspectHtml(noWeapon)}</div>`;
+        let armaduraHtml = armadura
+            ? `<button type="button" class="inspect-equip-row" onclick="window.abrirAcaoItemBot('armadura')"><img src="${getImg(armadura)}" alt=""><span class="inspect-equip-row__text"><span class="inspect-equip-row__name inspect-equip-row__name--armor">${escapeInspectHtml(armNome)}</span><span class="inspect-equip-row__slot">${escapeInspectHtml(labelArmor)}</span></span></button>`
+            : `<div class="inspect-equip-empty">${escapeInspectHtml(noArmor)}</div>`;
         
         let joiasHtml = '';
         if (bot.equipamentos.joias && bot.equipamentos.joias.length > 0) {
-            joiasHtml = `<div style="display:flex; gap:8px; margin-top:10px; padding:5px; background:rgba(0,0,0,0.2); border-radius:6px; justify-content:center;">`;
+            joiasHtml = `<div class="inspect-jewels">`;
             bot.equipamentos.joias.forEach((j, idx) => {
-                joiasHtml += `<img src="${getImg(j)}" onclick="window.abrirAcaoItemBot('joia', ${idx})" title="${enchant > 0 ? '+'+enchant+' ' : ''}${getNome(j)}" style="width:32px; height:32px; border:1px solid #555; background:#111; border-radius:4px; cursor:pointer; transition:transform 0.1s;" onmouseover="this.style.transform='scale(1.1)'; this.style.borderColor='#ca8a04'" onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#555'">`;
+                const jTitle = (enchant > 0 ? '+' + enchant + ' ' : '') + getNome(j);
+                joiasHtml += `<img src="${getImg(j)}" onclick="window.abrirAcaoItemBot('joia', ${idx})" title="${escapeInspectHtml(jTitle)}" alt="">`;
             });
             joiasHtml += `</div>`;
         }
         
         htmlEquips = `
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #333;">
-                <h4 style="color:#a78bfa; margin:0 0 10px 0; font-size:0.9em;">EQUIPAMENTOS ATUAIS</h4>
+            <div class="inspect-sheet__equips">
+                <h4 class="inspect-sheet__section-title">${escapeInspectHtml(inspectSocialT('inspectEquipment', 'Current equipment'))}</h4>
                 ${armaHtml}
                 ${armaduraHtml}
                 ${joiasHtml}
@@ -1527,37 +1573,40 @@ function abrirPerfilJogadorRanking(nome, isBot) {
     let modalPerfil = document.getElementById('modal-perfil-ranking');
     if (!modalPerfil) return;
 
+    const avatarClass = bot.isMage ? 'inspect-sheet__avatar--mage' : 'inspect-sheet__avatar--fighter';
+    const safeNome = escapeInspectHtml(bot.nome || nome);
+    const safeSub = escapeInspectHtml(inspectSubtitle);
+    const mmrLabel = `${bot.olympiadPoints} MMR · ${olympiadRankDisplay(rankData.nomeCompleto)}`;
+
     modalPerfil.innerHTML = `
-        <div class="l2-modal" style="width: 90%; max-width: 350px; padding: 20px; position: relative;">
-            <button onclick="fecharTopModal()" style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #aaa; font-size: 1.5em; cursor: pointer;">&times;</button>
-            
-            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                <div style="width: 60px; height: 60px; border-radius: 50%; background: #27272a; border: 2px solid ${bot.isMage ? '#3b82f6' : '#ef4444'}; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                    <img src="${imgBot}" style="width: 150%; object-fit: cover;">
+        <div class="inspect-sheet l2-modal" role="dialog" aria-modal="true" aria-label="${safeNome}">
+            <button type="button" class="inspect-sheet__close" onclick="fecharTopModal()" aria-label="${escapeInspectHtml(inspectSocialT('inspectClose', 'Close'))}">&times;</button>
+            <div class="inspect-sheet__hero">
+                <div class="inspect-sheet__avatar ${avatarClass}">
+                    <img src="${imgBot}" alt="">
                 </div>
-                <div>
-                    <h2 style="margin: 0; color: #22c55e; font-size: 1.2em;">${bot.nome}</h2>
-                    <div style="color: #a1a1aa; font-size: 0.85em;">${inspectSubtitle}</div>
-                    <div style="color: #c084fc; font-size: 0.8em; font-weight: bold; margin-top: 2px;">${bot.olympiadPoints} MMR (${olympiadRankDisplay(rankData.nomeCompleto)})</div>
+                <div class="inspect-sheet__identity">
+                    <h2 class="inspect-sheet__name">${safeNome}</h2>
+                    <div class="inspect-sheet__meta">${safeSub}</div>
+                    <div class="inspect-sheet__mmr">${escapeInspectHtml(mmrLabel)}</div>
                     ${ascHtml}
                 </div>
             </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85em; background: #111; padding: 10px; border-radius: 5px; border: 1px solid #333;">
-                <div style="color:#ef4444;">❤️ HP: <span style="color:#fff;">${bot.maxHp}</span></div>
-                <div style="color:#3b82f6;">💧 MP: <span style="color:#fff;">${bot.maxMp}</span></div>
-                <div style="color:#facc15;">⚔️ P.Atk: <span style="color:#fff;">${bot.pAtk}</span></div>
-                <div style="color:#c084fc;">🔮 M.Atk: <span style="color:#fff;">${bot.mAtk}</span></div>
-                <div style="color:#94a3b8;">🛡️ P.Def: <span style="color:#fff;">${bot.pDef}</span></div>
-                <div style="color:#818cf8;">✨ M.Def: <span style="color:#fff;">${bot.mDef}</span></div>
-                <div style="color:#4ade80;">⚡ Atk.Spd: <span style="color:#fff;">${bot.atkSpd}</span></div>
-                <div style="color:#fb923c;">🎯 Crit: <span style="color:#fff;">${bot.critRate}%</span></div>
+            <div class="inspect-sheet__body">
+                <div class="inspect-sheet__stats">
+                    <div class="inspect-stat inspect-stat--hp"><span class="inspect-stat__label">HP</span><span class="inspect-stat__value">${bot.maxHp}</span></div>
+                    <div class="inspect-stat inspect-stat--mp"><span class="inspect-stat__label">MP</span><span class="inspect-stat__value">${bot.maxMp}</span></div>
+                    <div class="inspect-stat inspect-stat--patk"><span class="inspect-stat__label">P.Atk</span><span class="inspect-stat__value">${bot.pAtk}</span></div>
+                    <div class="inspect-stat inspect-stat--matk"><span class="inspect-stat__label">M.Atk</span><span class="inspect-stat__value">${bot.mAtk}</span></div>
+                    <div class="inspect-stat inspect-stat--pdef"><span class="inspect-stat__label">P.Def</span><span class="inspect-stat__value">${bot.pDef}</span></div>
+                    <div class="inspect-stat inspect-stat--mdef"><span class="inspect-stat__label">M.Def</span><span class="inspect-stat__value">${bot.mDef}</span></div>
+                    <div class="inspect-stat inspect-stat--spd"><span class="inspect-stat__label">Atk.Spd</span><span class="inspect-stat__value">${bot.atkSpd}</span></div>
+                    <div class="inspect-stat inspect-stat--crit"><span class="inspect-stat__label">Crit</span><span class="inspect-stat__value">${bot.critRate}%</span></div>
+                </div>
+                ${htmlEquips}
             </div>
-            
-            ${htmlEquips}
-            
-            <div style="margin-top: 15px; text-align: center;">
-                <button class="btn-l2" style="width: 100%; background: #3b82f6; color: white;" onclick="fecharTopModal()">FECHAR</button>
+            <div class="inspect-sheet__footer">
+                <button type="button" class="btn-l2" onclick="fecharTopModal()">${escapeInspectHtml(inspectSocialT('inspectClose', 'CLOSE'))}</button>
             </div>
         </div>
     `;
@@ -1956,6 +2005,7 @@ window.zoneCanonicalName = zoneCanonicalName;
 window.refreshHuntZoneHud = refreshHuntZoneHud;
 window.recolherLootRaid = recolherLootRaid;
 window.abrirPerfilJogadorRanking = abrirPerfilJogadorRanking;
+window.mostrarLoadingInspecao = mostrarLoadingInspecao;
 window.renderizarSocial = renderizarSocial;
 window.mudarAbaSocial = mudarAbaSocial;
 window.renderizarRankingMundial = renderizarRankingMundial;

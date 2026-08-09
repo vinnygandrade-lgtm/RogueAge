@@ -123,7 +123,6 @@
     </div>
 
     <div id="modal-overlay" onclick="fecharTopModal()" aria-hidden="true"></div>
-    <div id="modal-perfil-ranking"></div>
 
     <!-- Quick Menu (barra inferior — destinos secundários; irmão do #modal-overlay, padrão §5) -->
     <div id="janela-nav-menu" class="nav-menu-sheet" role="dialog" aria-modal="true" data-i18n-aria-label="navMenu.title" aria-label="Quick menu">
@@ -1019,6 +1018,9 @@
             <button type="button" class="btn-l2 stat-ranking-footer-close" data-i18n="game.statRanking.close" onclick="fecharStatRanking()">CLOSE</button>
         </div>
     </div>
+
+    <!-- Inspect profile: after ranking so same-zIndex stacks above; runtime z-index 1750 -->
+    <div id="modal-perfil-ranking"></div>
 
     <div id="janela-spellbook" class="store-window spellbook-window">
         <div class="store-header"><span class="spellbook-header-title" data-i18n="game.spellbook.title">SPELLBOOK</span></div>

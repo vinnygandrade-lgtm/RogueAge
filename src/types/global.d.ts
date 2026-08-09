@@ -963,6 +963,7 @@ declare global {
   function teleportarParaZona(grade: string): void;
   function recolherLootRaid(): void;
   function abrirPerfilJogadorRanking(nome: string, isBot?: boolean): void;
+  function mostrarLoadingInspecao(nome: string): void;
   function renderizarSocial(): void;
   function mudarAbaSocial(aba: string): void;
   function renderizarPremiosRanking(): void;

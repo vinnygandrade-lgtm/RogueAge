@@ -999,6 +999,11 @@ const OlympiadEngine = {
             return;
         }
 
+        // Loading imediato (especialmente players cloud — fetch pode demorar)
+        if (!isBot && typeof window.mostrarLoadingInspecao === 'function') {
+            window.mostrarLoadingInspecao(String(nome));
+        }
+
         // 1. Busca os dados completos do oponente (Bot ou Player Real)
         let botData = null;
         let cloudRow = null;
@@ -1011,7 +1016,10 @@ const OlympiadEngine = {
         } else {
             if (window.SupabaseAPI && window.SUPABASE_CONFIG?.enabled) {
                 const { data, error } = await this.fetchOlympiadCharacterRow(nome);
-                if (error || !data) return;
+                if (error || !data) {
+                    if (typeof window.fecharModal === 'function') window.fecharModal('modal-perfil-ranking');
+                    return;
+                }
                 cloudRow = data;
                 botData = this.buildBotDataFromCharacterRow(data);
                 botData.isCloudPlayerInspection = true;
@@ -1027,7 +1035,10 @@ const OlympiadEngine = {
             }
         }
 
-        if (!botData) return;
+        if (!botData) {
+            if (typeof window.fecharModal === 'function') window.fecharModal('modal-perfil-ranking');
+            return;
+        }
 
         // 2. Gera a instância completa para cálculo de status
         const bot = window.OlympiadBots.gerarBotCompleto(botData) as OlympiadRival;

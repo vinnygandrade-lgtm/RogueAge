@@ -850,8 +850,12 @@ function abrirPerfilChat(nome: string, tipo?: string): void {
             return;
         }
 
-        // Se não tem cache, busca na nuvem
-        if (window.mostrarAviso) window.mostrarAviso(chatT('chat.inspecting', { name: String(nome).replace(/[<>&]/g, '') }));
+        // Se não tem cache, busca na nuvem — loading imediato para não parecer travado
+        if (typeof window.mostrarLoadingInspecao === 'function') {
+            window.mostrarLoadingInspecao(String(nome));
+        } else if (window.mostrarAviso) {
+            window.mostrarAviso(chatT('chat.inspecting', { name: String(nome).replace(/[<>&]/g, '') }));
+        }
 
         console.log('🔍 Buscando dados cloud autoritativos para inspeção:', nome);
 
@@ -879,6 +883,7 @@ function abrirPerfilChat(nome: string, tipo?: string): void {
             const { data, error } = res;
             if (error) {
                 console.error('Erro na busca de inspeção:', error);
+                if (typeof window.fecharModal === 'function') window.fecharModal('modal-perfil-ranking');
                 tentarAbrirPerfilLegado(nome);
                 return;
             }
@@ -997,6 +1002,7 @@ function abrirPerfilChat(nome: string, tipo?: string): void {
                     window.abrirPerfilJogadorRanking(row.char_name!, true);
                 }
             } else {
+                if (typeof window.fecharModal === 'function') window.fecharModal('modal-perfil-ranking');
                 window.l2Alert(chatT('chat.playerNotFoundCloud'));
                 tentarAbrirPerfilLegado(nome);
             }

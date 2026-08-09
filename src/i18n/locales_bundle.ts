@@ -3143,7 +3143,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     tierMax: 'MAX',
                     tierNone: 'None',
                     inspectDetailsUnavailable: 'Details unavailable.',
-                    roleClanHall: 'Clan hall'
+                    roleClanHall: 'Clan hall',
+                    inspectClose: 'CLOSE',
+                    inspectLoadingTitle: 'Inspecting',
+                    inspectLoadingHint: 'Fetching gear and combat stats…',
+                    inspectEquipment: 'Current equipment',
+                    inspectWeapon: 'Weapon',
+                    inspectArmor: 'Armor',
+                    inspectNoWeapon: 'No weapon',
+                    inspectNoArmor: 'No armor',
+                    inspectUnknownItem: 'Unknown item'
                 },
                 classes: {
                     title: 'CLASS TRANSFER',
@@ -6558,7 +6567,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     tierMax: 'MÁX',
                     tierNone: 'Nenhum',
                     inspectDetailsUnavailable: 'Detalhes indisponíveis.',
-                    roleClanHall: 'Salão do clã'
+                    roleClanHall: 'Salão do clã',
+                    inspectClose: 'FECHAR',
+                    inspectLoadingTitle: 'Inspecionando',
+                    inspectLoadingHint: 'Buscando equipamentos e status de combate…',
+                    inspectEquipment: 'Equipamentos atuais',
+                    inspectWeapon: 'Arma',
+                    inspectArmor: 'Armadura',
+                    inspectNoWeapon: 'Sem arma',
+                    inspectNoArmor: 'Sem armadura',
+                    inspectUnknownItem: 'Item desconhecido'
                 },
                 classes: {
                     title: 'TRANSFERÊNCIA DE CLASSE',
