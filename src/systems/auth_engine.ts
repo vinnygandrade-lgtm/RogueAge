@@ -659,6 +659,16 @@ const AuthEngine = {
         }
     },
 
+    togglePasswordVisibility(inputId: string, btnElement: HTMLElement) {
+        const input = document.getElementById(inputId) as HTMLInputElement | null;
+        if (!input) return;
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        btnElement.classList.toggle('is-visible', isPassword);
+        const ariaLabel = isPassword ? 'Hide password' : 'Show password';
+        btnElement.setAttribute('aria-label', ariaLabel);
+    },
+
     showRegister() {
         this._passwordRecoveryMode = false;
         this._offlinePasswordResetKey = null;
