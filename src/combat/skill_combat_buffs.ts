@@ -4,7 +4,7 @@
  */
 
 import {
-  EXPEDITION_ATK_SPEED_ABS_MIN_MS,
+  applyExpeditionAtkSpeedFloor,
   isExpeditionRunEffectsActive,
 } from './expedition_combat';
 import { MAX_CAST_SPEED_PCT } from './skill_cast';
@@ -142,7 +142,11 @@ export function applySkillCombatBuffsToPlayerStats(): void {
   if (spdM !== 1) {
     const nextMs = Math.floor(window.playerStats.atkSpeed * spdM);
     if (expedition) {
-      window.playerStats.atkSpeed = Math.max(EXPEDITION_ATK_SPEED_ABS_MIN_MS, nextMs);
+      // Soft-floor AA so Dash/Clarim stacks cannot replace the skill kit.
+      window.playerStats.atkSpeed =
+        typeof window.applyExpeditionAtkSpeedFloor === 'function'
+          ? window.applyExpeditionAtkSpeedFloor(nextMs)
+          : applyExpeditionAtkSpeedFloor(nextMs);
     } else {
       window.playerStats.atkSpeed = (typeof window.applyAtkSpeedFloor === 'function')
         ? window.applyAtkSpeedFloor(nextMs)

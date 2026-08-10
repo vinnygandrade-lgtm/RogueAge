@@ -2434,8 +2434,16 @@ export class ExpeditionEngine {
             pDef: 1 + this.getCombinedBuffPct('pDefPct') / 100,
             mDef: 1 + this.getCombinedBuffPct('mDefPct') / 100,
             crit: 1 + this.getCombinedBuffPct('critRatePct') / 100,
-            // No 0.5× floor — late-run speed upgrades keep scaling (timer sanity elsewhere).
-            atkSpeed: Math.max(0.05, 1 - this.getCombinedBuffPct('atkSpeedPct') / 100),
+            // Atk Spd % softens after ~40% so late Clarim/cards don't obsolete skills.
+            atkSpeed: (() => {
+                const win = window as any;
+                const raw = Math.max(0, this.getCombinedBuffPct('atkSpeedPct'));
+                const eff =
+                    typeof win.softenExpeditionAtkSpeedPct === 'function'
+                        ? win.softenExpeditionAtkSpeedPct(raw)
+                        : Math.min(65, raw);
+                return Math.max(0.35, 1 - eff / 100);
+            })(),
             maxHp: 1 + this.getCombinedBuffPct('maxHpPct') / 100,
             maxMp: 1 + this.getCombinedBuffPct('maxMpPct') / 100,
             castSpeedAdd: Math.max(0, this.getCombinedBuffPct('castSpeedPct')),
@@ -2505,11 +2513,12 @@ export class ExpeditionEngine {
         const win = window as any;
         const m = this.getRunBuffMults();
         const dodgeInvest = Math.max(0, Math.floor(Number(base.dodgeRaw) || 0) + m.dodgeAdd);
-        // Expedition snowball: no world atk-speed floor / cast-speed soft-cap on run buffs.
-        const absAtkMin =
-            typeof win.EXPEDITION_ATK_SPEED_ABS_MIN_MS === 'number' && win.EXPEDITION_ATK_SPEED_ABS_MIN_MS > 0
-                ? win.EXPEDITION_ATK_SPEED_ABS_MIN_MS
-                : 50;
+        // Cast Speed stays uncapped; Attack Speed uses expedition soft-floor (faster than world, not machine-gun).
+        const atkRawMs = Math.floor(base.atkSpeed * m.atkSpeed);
+        const atkSpeed =
+            typeof win.applyExpeditionAtkSpeedFloor === 'function'
+                ? win.applyExpeditionAtkSpeedFloor(atkRawMs)
+                : Math.max(120, atkRawMs);
         return {
             pAtk: Math.floor(base.pAtk * m.pAtk),
             mAtk: Math.floor(base.mAtk * m.mAtk),
@@ -2518,7 +2527,7 @@ export class ExpeditionEngine {
             critRate: typeof win.applyCritRateCap === 'function'
                 ? win.applyCritRateCap(Math.floor(base.critRate * m.crit))
                 : Math.min(90, Math.floor(base.critRate * m.crit)),
-            atkSpeed: Math.max(absAtkMin, Math.floor(base.atkSpeed * m.atkSpeed)),
+            atkSpeed,
             maxHp: Math.floor(base.maxHp * m.maxHp),
             maxMp: Math.floor(base.maxMp * m.maxMp),
             castSpeed: Math.max(0, Math.floor(Number(base.castSpeed) || 0) + m.castSpeedAdd),
