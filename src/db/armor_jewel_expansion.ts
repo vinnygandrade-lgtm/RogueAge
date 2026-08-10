@@ -101,34 +101,34 @@ type NewArmorDef = {
 
 const NEW_ARMOR_DEFS: NewArmorDef[] = [
     // NO-GRADE
-    { id: 'arm_ng_f_chain', nome: 'Bronze Chain Set', grade: 'No-Grade', preco: 800, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_bronze_chain_ng', desc: 'Bronze rings and leather backing. Balanced protection for frontline trainees.', pDef: 26, bonusHp: 35, bonusSpd: 4 },
-    { id: 'arm_ng_m_woven', nome: 'Spellweave Set', grade: 'No-Grade', preco: 800, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_spellweave_ng', desc: 'Light enchanted weave. Favors MP and casting tempo over plate.', pDef: 11, bonusMp: 65, bonusMDef: 12, bonusSpd: 6 },
-    { id: 'arm_ng_m_warden', nome: 'Runic Warden Set', grade: 'No-Grade', preco: 800, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_runic_warden_ng', desc: 'Runed bronze guards over spellcloth. Arcane bulwark for battle mages.', pDef: 22, bonusHp: 30, bonusMp: 35, bonusMDef: 18 },
+    { id: 'arm_ng_f_chain', nome: 'Bronze Chain Set', grade: 'No-Grade', preco: 800, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_bronze_chain_ng', desc: 'Bronze rings and leather backing. Balanced HP and tempo between plate and leather.', pDef: 26, bonusHp: 35, bonusSpd: 35, bonusCrit: 1 },
+    { id: 'arm_ng_m_woven', nome: 'Spellweave Set', grade: 'No-Grade', preco: 800, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_spellweave_ng', desc: 'Light enchanted weave. MP and tempo first for novice casters.', pDef: 11, bonusHp: 15, bonusMp: 65, bonusMDef: 12, bonusSpd: 20, bonusCrit: 1 },
+    { id: 'arm_ng_m_warden', nome: 'Runic Warden Set', grade: 'No-Grade', preco: 800, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_runic_warden_ng', desc: 'Runed bronze over spellcloth. Arcane bulwark with light tempo.', pDef: 22, bonusHp: 30, bonusMp: 35, bonusMDef: 18, bonusSpd: 10 },
 
     // D
-    { id: 'arm_d_f_chain', nome: 'Half-Plate Set', grade: 'D', preco: 25000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_half_plate_d', desc: 'Hybrid mail and plate. Reliable middle ground between brigandine and manticore leather.', pDef: 70, bonusHp: 110, bonusCrit: 1 },
-    { id: 'arm_d_m_woven', nome: 'Arcane Loom Set', grade: 'D', preco: 25000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_arcane_loom_d', desc: 'Woven sigils and silk lining. Swift focus for apprentice arcanists.', pDef: 32, bonusMp: 175, bonusMDef: 28, bonusSpd: 8 },
-    { id: 'arm_d_m_warden', nome: 'Sanctum Guard Set', grade: 'D', preco: 25000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_sanctum_guard_d', desc: 'Reinforced ward plates over ritual cloth. Higher M. Def for exposed casters.', pDef: 52, bonusHp: 80, bonusMp: 120, bonusMDef: 32 },
+    { id: 'arm_d_f_chain', nome: 'Half-Plate Set', grade: 'D', preco: 25000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_half_plate_d', desc: 'Hybrid mail and plate. Mid HP with supporting crit and tempo.', pDef: 70, bonusHp: 110, bonusSpd: 70, bonusCrit: 1 },
+    { id: 'arm_d_m_woven', nome: 'Arcane Loom Set', grade: 'D', preco: 25000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_arcane_loom_d', desc: 'Woven sigils and silk. MP first, with tempo and a light crit.', pDef: 32, bonusHp: 30, bonusMp: 175, bonusMDef: 28, bonusSpd: 30, bonusCrit: 1 },
+    { id: 'arm_d_m_warden', nome: 'Sanctum Guard Set', grade: 'D', preco: 25000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_sanctum_guard_d', desc: 'Ward plates over ritual cloth. M.Def/HP first, light tempo.', pDef: 52, bonusHp: 80, bonusMp: 120, bonusMDef: 32, bonusSpd: 18 },
 
     // C
-    { id: 'arm_c_f_chain', nome: 'Campaign Chain Set', grade: 'C', preco: 120000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_campaign_chain_c', desc: 'Layered chain for skirmish captains. Between composite plate and plated leather.', pDef: 130, bonusHp: 240, bonusSpd: 12 },
-    { id: 'arm_c_m_woven', nome: 'Mystic Thread Set', grade: 'C', preco: 120000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_mystic_thread_c', desc: 'Threaded crystals in light vestments. Strong MP flow with modest defense.', pDef: 58, bonusMp: 340, bonusMDef: 50, bonusSpd: 12 },
-    { id: 'arm_c_m_warden', nome: 'Aegis Rite Set', grade: 'C', preco: 120000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_aegis_rite_c', desc: 'Runic ward harness for siege casters. Heavy arcane plating without full plate weight.', pDef: 95, bonusHp: 180, bonusMp: 260, bonusMDef: 58 },
+    { id: 'arm_c_f_chain', nome: 'Campaign Chain Set', grade: 'C', preco: 120000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_campaign_chain_c', desc: 'Layered chain for skirmish captains. Mid path HP, crit, and tempo.', pDef: 130, bonusHp: 240, bonusSpd: 110, bonusCrit: 2 },
+    { id: 'arm_c_m_woven', nome: 'Mystic Thread Set', grade: 'C', preco: 120000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_mystic_thread_c', desc: 'Threaded crystals in light vestments. MP first; tempo and light crit.', pDef: 58, bonusHp: 55, bonusMp: 340, bonusMDef: 50, bonusSpd: 45, bonusCrit: 1 },
+    { id: 'arm_c_m_warden', nome: 'Aegis Rite Set', grade: 'C', preco: 120000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_aegis_rite_c', desc: 'Runic ward harness. Arcane plating first; supporting tempo.', pDef: 95, bonusHp: 180, bonusMp: 260, bonusMDef: 58, bonusSpd: 28 },
 
     // B
-    { id: 'arm_b_f_chain', nome: 'Doom Chain Set', grade: 'B', preco: 450000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_doom_chain_b', desc: 'Dark linked steel between doom plate and doom leather. Raid-ready versatility.', pDef: 210, bonusHp: 420, bonusCrit: 4 },
-    { id: 'arm_b_m_woven', nome: 'Shadow Loom Set', grade: 'B', preco: 450000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_shadow_loom_b', desc: 'Shadow-silk vestments for fast ritualists. High MP with agile casting profile.', pDef: 95, bonusMp: 560, bonusMDef: 78, bonusSpd: 18 },
-    { id: 'arm_b_m_warden', nome: 'Obsidian Ward Set', grade: 'B', preco: 450000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_obsidian_ward_b', desc: 'Obsidian ward plates fused to spellcloth. Elite M. Def for prolonged duels.', pDef: 155, bonusHp: 320, bonusMp: 420, bonusMDef: 88 },
+    { id: 'arm_b_f_chain', nome: 'Doom Chain Set', grade: 'B', preco: 450000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_doom_chain_b', desc: 'Dark linked steel between plate and leather. Balanced HP, crit, and tempo.', pDef: 210, bonusHp: 420, bonusSpd: 170, bonusCrit: 2 },
+    { id: 'arm_b_m_woven', nome: 'Shadow Loom Set', grade: 'B', preco: 450000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_shadow_loom_b', desc: 'Shadow-silk vestments. High MP with agile tempo and light crit.', pDef: 95, bonusHp: 90, bonusMp: 560, bonusMDef: 78, bonusSpd: 60, bonusCrit: 1 },
+    { id: 'arm_b_m_warden', nome: 'Obsidian Ward Set', grade: 'B', preco: 450000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_obsidian_ward_b', desc: 'Obsidian ward plates. Elite M.Def/HP first; measured tempo.', pDef: 155, bonusHp: 320, bonusMp: 420, bonusMDef: 88, bonusSpd: 40 },
 
     // A
-    { id: 'arm_a_f_chain', nome: 'Crystal Chain Set', grade: 'A', preco: 1500000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_crystal_chain_a', desc: 'Crystal-linked mail between dark crystal plate and majestic leather.', pDef: 305, bonusHp: 680, bonusSpd: 28 },
-    { id: 'arm_a_m_woven', nome: 'Starweave Set', grade: 'A', preco: 1500000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_starweave_a', desc: 'Starlit weave for high arcane throughput. Peak MP bias with light silhouette.', pDef: 140, bonusMp: 920, bonusMDef: 118, bonusSpd: 22 },
-    { id: 'arm_a_m_warden', nome: 'Titan Rite Set', grade: 'A', preco: 1500000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_titan_rite_a', desc: 'Titan ward harness for war arcanists. Heavy magical plating for frontline casters.', pDef: 220, bonusHp: 520, bonusMp: 680, bonusMDef: 128 },
+    { id: 'arm_a_f_chain', nome: 'Crystal Chain Set', grade: 'A', preco: 1500000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_crystal_chain_a', desc: 'Crystal-linked mail. Mid path between crystal plate and majestic leather.', pDef: 305, bonusHp: 680, bonusSpd: 250, bonusCrit: 3 },
+    { id: 'arm_a_m_woven', nome: 'Starweave Set', grade: 'A', preco: 1500000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_starweave_a', desc: 'Starlit weave. Peak MP bias with tempo and supporting crit.', pDef: 140, bonusHp: 140, bonusMp: 920, bonusMDef: 118, bonusSpd: 85, bonusCrit: 1 },
+    { id: 'arm_a_m_warden', nome: 'Titan Rite Set', grade: 'A', preco: 1500000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_titan_rite_a', desc: 'Titan ward harness. Frontline caster bulwark with secondary tempo.', pDef: 220, bonusHp: 520, bonusMp: 680, bonusMDef: 128, bonusSpd: 55 },
 
     // S
-    { id: 'arm_s_f_chain', nome: 'Sentinel Chain Set', grade: 'S', preco: 5000000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_sentinel_chain_s', desc: 'Legendary sentinel mail. Middle path between imperial crusader and draconic leather.', pDef: 440, bonusHp: 1200, bonusCrit: 4 },
-    { id: 'arm_s_m_woven', nome: 'Eclipse Weave Set', grade: 'S', preco: 5000000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_eclipse_weave_s', desc: 'Eclipse-thread vestments. Extreme MP and cast tempo for S-Grade arcanists.', pDef: 210, bonusMp: 1750, bonusMDef: 165, bonusSpd: 35 },
-    { id: 'arm_s_m_warden', nome: 'Void Warden Set', grade: 'S', preco: 5000000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_void_warden_s', desc: 'Void ward plates for battle-sage champions. Maximum arcane bulwark at S-Grade.', pDef: 340, bonusHp: 900, bonusMp: 1250, bonusMDef: 210 },
+    { id: 'arm_s_f_chain', nome: 'Sentinel Chain Set', grade: 'S', preco: 5000000, armorArchetype: 'fighter', armorWeight: 'medium', armorStyle: 'Chain', iconSlug: 'set_sentinel_chain_s', desc: 'Legendary sentinel mail. Mid path HP with strong secondary crit and tempo.', pDef: 440, bonusHp: 1200, bonusSpd: 320, bonusCrit: 3 },
+    { id: 'arm_s_m_woven', nome: 'Eclipse Weave Set', grade: 'S', preco: 5000000, armorArchetype: 'mage', armorWeight: 'light', armorStyle: 'Weave', iconSlug: 'set_eclipse_weave_s', desc: 'Eclipse-thread vestments. Extreme MP with tempo and light crit.', pDef: 210, bonusHp: 220, bonusMp: 1750, bonusMDef: 165, bonusSpd: 110, bonusCrit: 2 },
+    { id: 'arm_s_m_warden', nome: 'Void Warden Set', grade: 'S', preco: 5000000, armorArchetype: 'mage', armorWeight: 'heavy', armorStyle: 'Warden', iconSlug: 'set_void_warden_s', desc: 'Void ward plates. Maximum arcane bulwark with secondary tempo.', pDef: 340, bonusHp: 900, bonusMp: 1250, bonusMDef: 210, bonusSpd: 70 },
 ];
 
 export function buildExpansionArmors(iconPath: (id: string) => string): ItemCatalogBase[] {
@@ -301,8 +301,8 @@ function buildJewelSetEntries(set: JewelSetDef, iconPath: (id: string) => string
         const id = `j_${set.gradeKey}_${suffix}_${p.piece}`;
         const roleDesc =
             set.weight === 'light'
-                ? 'Precision jewelry: crit, attack speed, and light Evasion for agile fighters.'
-                : 'Vitality jewelry: HP, magical defense, and physical presence for frontliners.';
+                ? 'Precision jewelry: crit, attack speed, and Evasion first — with supporting HP and a touch of cast.'
+                : 'Vitality jewelry: HP, M.Def, and P.Atk first — with secondary crit, tempo, and Evasion (~25% of Precision).';
         return {
             id,
             nome: jewelPieceName(set.prefix, p.piece, set.weight),
