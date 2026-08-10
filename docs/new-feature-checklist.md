@@ -25,7 +25,9 @@ Use esta lista **antes de abrir PR** ou quando pedires ao agente uma feature nov
 
 ## 2. Itens, bolsa e economia
 
-- [ ] **Equipamento** → `ItemSecurity.createInstance()` + **`InventoryManager.adicionarEquipamento`** / equip / desequip. **Nunca** `JSON.parse(JSON.stringify(item))` para mover instância.
+- [ ] **Equipamento** → `ItemSecurity.createInstance()` + **`InventoryManager.adicionarEquipamento`** / equip / desequip. **Nunca** `JSON.parse(JSON.stringify(item))` para **mover** instância (cópia só em createInstance / enrich / mail).
+- [ ] **Stats de ficha** vêm do **catálogo vivo** por `id` — load usa `enrichEquipBaseFromCatalogIfNeeded` (rebind sempre). Não assumir que o snapshot antigo em `item.base` sobrevive a um patch de balance.
+- [ ] Retune Crit / Spd / Cast / Dodge / linhas Heavy·Light·Robe / joias → ler **`docs/stat-budget.md`** (tetos ~50 / ~40 / ~50 / ~250–350 ms AA); enchant **não** multiplica esses secundários; Harmony só HP/MP/Atk/Def.
 - [ ] **Stack** (materiais, scrolls, poções) → **`InventoryManager.adicionarStack(nomeOuId, qtd)`** — **não** `window.inventario[x] +=` directo em feature nova.
 - [ ] Chave de stack: catálogo resolve para **`nome`** canónico (`InventoryStackKeys` / `resolveInventarioStackKey`) — loot pode usar `id` (`sc_w_ng`), loja usa `nome`.
 - [ ] **Moedas** (Adena / Ancient Coin) → carteira + `syncMoedasInventarioComCarteira` quando aplicável; nuvem activa → **RPC** para alterar saldo (**§3 / §7**).
@@ -46,7 +48,7 @@ Use esta lista **antes de abrir PR** ou quando pedires ao agente uma feature nov
 
 ## 4. UI / UX
 
-- [ ] Texto visível → **`t('chave')`** + **`locales_bundle.js`** (**`en`** e **`pt-BR`** na mesma alteração).
+- [ ] Texto visível → **`t('chave')`** + **`src/i18n/locales_bundle.ts`** (**`en`** e **`pt-BR`** na mesma alteração).
 - [ ] Sem `alert()` / `confirm()` → **`l2Alert`** / **`l2Confirm`**.
 - [ ] Modal com véu → **`abrirModal` / `fecharModal`**; elemento **irmão** de `#modal-overlay` no **`body`** (**§5**).
 - [ ] Navegação (`irPara`, `mudarTela`) → **`fecharTodosModaisBackdropStack()`**.
@@ -57,8 +59,9 @@ Use esta lista **antes de abrir PR** ou quando pedires ao agente uma feature nov
 
 ## 5. Combate, PvP e motores especiais
 
-- [ ] Dano → fórmula asintótica em **`combat_math.js`**; PvP raid/olympiad/guerra com multiplicador do **motor respectivo**.
+- [ ] Dano → fórmula asintótica em **`src/combat/combat_math.ts`**; PvP raid/olympiad/guerra com multiplicador do **motor respectivo**.
 - [ ] Auto-ataque / barra → raid: `RaidEngine` + `atacar()`; floresta: `monstrosAtivos`; não assumir um só caminho.
+- [ ] Soft-caps de Crit / Evasion / Cast / AA no mundo permanente → **não**; orçamento em **`docs/stat-budget.md`**.
 - [ ] Realtime (chat, Olympiad, presença) → canal partilhado, **`tabSessionId`**, teardown ao trocar personagem (**§7 — Multiplayer Realtime**).
 
 ---
@@ -66,7 +69,7 @@ Use esta lista **antes de abrir PR** ou quando pedires ao agente uma feature nov
 ## 6. Nuvem (se Supabase activo)
 
 - [ ] Script SQL versionado na raiz (`supabase_*.sql`) + espelho no MASTER quando estável.
-- [ ] Método em **`js/systems/supabase_api.js`** (ou TS migrado equivalente).
+- [ ] Método em **`src/systems/supabase_api.ts`**.
 - [ ] RLS + `auth.uid()` / posse do recurso na RPC.
 - [ ] Cliente: estado `loading`, erro com código estável, **sem** creditar duas vezes (idempotência / retry).
 - [ ] Deploy manual no SQL Editor — remoto **não** segue Git (**§12.6**).
