@@ -68,9 +68,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-10',
+                        items: [
+                            'Attack Speed pass: peak Precision dagger builds (Adventurer / Ghost Hunter / Wind Rider + Light + Baium) now land near ~0.25–0.35s between auto-attacks with Haste — snappy permanent AA without soft-caps.',
+                            'Light armor, daggers, Radiant jewels, Ring of Baium, title Speed, and Speed augments were raised; dagger-class tempo multipliers were tightened so tanks/mages stay slower by design.'
+                        ]
+                    },
+                    {
                         date: '2026-08-09',
                         items: [
-                            'Crit, Evasion, Casting Speed, and Attack Speed no longer use soft-caps — power is budgeted in gear/class/blessings so a full permanent build lands near ~50 Crit / ~40 Evasion / ~50 Cast / ~0.22s AA.',
+                            'Crit, Evasion, Casting Speed, and Attack Speed no longer use soft-caps — power is budgeted in gear/class/blessings so a full permanent build lands near ~50 Crit / ~40 Evasion / ~50 Cast / ~0.30s AA.',
                             'Damaging skills now roll your Crit Rate in every mode (forest, expedition, raid, Olympiad) — Mortal Strike / Deadly Blow still get their +12 bonus; Backstab / Lethal Blow keep their specials.',
                             'Forest Expedition: no Attack Speed soft-cap — speed cards and Warhorn Tempo are weaker per pick so late-run AA stays strong without replacing skills.',
                             'Login & boot polish: gothic login card, ember atmosphere, password show/hide, Remember Account, Caps Lock warning, realm online badge, and a clearer loading screen with % progress and game tips.',
@@ -2184,7 +2191,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         lblSpdTitle: '· equipped title (faster)',
                         lblAtkFloor: 'Investment {rawMs}ms → effective {effectiveMs}ms (full speed down to {softMs}ms, then soft gains toward {hardMs}ms).',
                         lblAtkSoftHint: 'Attack interval is fully rewarded down to {softMs}ms. Faster than that softens toward {hardMs}ms — gear and speed buffs still help.',
-                        lblAtkBudgetHint: 'Attack Speed is class interval minus gear Speed — no soft floor. Best permanent AA builds aim near ~0.22s between hits; only a tiny timer floor remains.',
+                        lblAtkBudgetHint: 'Attack Speed is class interval minus gear Speed — no soft floor. Best permanent AA builds aim near ~0.25–0.35s between hits with Haste; only a tiny timer floor remains.',
                         lblCastSpdShown: 'Casting Speed (shortens skill cast time)',
                         lblCastSpdArmor: '· robe / armor',
                         lblCastSpdWeapon: '· staff / weapon',
@@ -3511,9 +3518,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: 'Novidades',
                 entries: [
                     {
+                        date: '2026-08-10',
+                        items: [
+                            'Pass de Attack Speed: builds Precision de dagger no pico (Adventurer / Ghost Hunter / Wind Rider + Light + Baium) ficam perto de ~0,25–0,35s entre auto-ataques com Haste — AA permanente rápido, sem soft-cap.',
+                            'Armadura Light, daggers, joias Radiant, Anel de Baium, Speed de título e augments de Speed subiram; multiplicadores de classes dagger foram apertados para tanks/magos continuarem mais lentos.'
+                        ]
+                    },
+                    {
                         date: '2026-08-09',
                         items: [
-                            'Crítico, Evasion, Vel. de Conjuração e Attack Speed já não usam soft-cap — o poder está orçado no gear/classe/bênçãos para um build permanente top ficar perto de ~50 Crit / ~40 Evasion / ~50 Cast / ~0,22s AA.',
+                            'Crítico, Evasion, Vel. de Conjuração e Attack Speed já não usam soft-cap — o poder está orçado no gear/classe/bênçãos para um build permanente top ficar perto de ~50 Crit / ~40 Evasion / ~50 Cast / ~0,30s AA.',
                             'Skills de dano agora usam a tua Taxa de Crítico em todos os modos (floresta, expedição, raid, Olimpíada) — Mortal Strike / Deadly Blow mantêm o +12; Backstab / Lethal Blow mantêm as especialidades.',
                             'Expedição da Floresta: sem soft-cap de Attack Speed — cartas de velocidade e Clarim Ritmo dão menos por escolha, para o AA late-run continuar forte sem substituir as skills.',
                             'Login e carregamento renovados: cartão gótico, brasas no fundo, mostrar/ocultar senha, Lembrar conta, aviso de Caps Lock, badge do reino online e ecrã de load com % e dicas do RogueAge.',
@@ -5627,7 +5641,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         lblSpdTitle: '· título equipado (mais rápido)',
                         lblAtkFloor: 'Investimento {rawMs}ms → efetivo {effectiveMs}ms (velocidade cheia até {softMs}ms, depois sobe suave até {hardMs}ms).',
                         lblAtkSoftHint: 'O intervalo de ataque vale 100% até {softMs}ms. Mais rápido que isso amolece até {hardMs}ms — gear e buffs de velocidade ainda ajudam.',
-                        lblAtkBudgetHint: 'Attack Speed é o intervalo da classe menos Speed do gear — sem soft-floor. Builds AA permanentes miram ~0,22s entre golpes; só há um piso mínimo de timer.',
+                        lblAtkBudgetHint: 'Attack Speed é o intervalo da classe menos Speed do gear — sem soft-floor. Builds AA permanentes miram ~0,25–0,35s entre golpes com Haste; só há um piso mínimo de timer.',
                         lblCastSpdShown: 'Velocidade de Conjuração (encurta o cast das skills)',
                         lblCastSpdArmor: '· robe / armadura',
                         lblCastSpdWeapon: '· cajado / arma',

@@ -7,7 +7,7 @@
 | Crit Rate | ~50% |
 | Evasion investment | ~40 |
 | Casting Speed % | ~50% |
-| Attack Speed interval | ~220 ms |
+| Attack Speed interval | ~250–350 ms (peak Precision + Haste) |
 
 **Out of budget:** temporary skill buffs (may exceed briefly); Expedition run cards (card values).
 
@@ -54,7 +54,14 @@
 | Blessing Acumen | ≤4 |
 | **Sum** | **~46–50** |
 
-## AtkSpeed ~220 ms
+## AtkSpeed ~250–350 ms
 
-Interval = `(raceBase × class.spd × blessingHaste) − ΣbonusSpd`.  
-Class `spd` no longer halves Adventurer (0.72). Full AA gear `bonusSpd` totals ~900–1100 so Elf/Adventurer lands near ~220–280 ms without a soft floor.
+Interval = `(raceBase × class.spd × blessingHaste) − ΣbonusSpd`.
+
+Lower `class.spd` = faster swings. Peak dagger path (e.g. Adventurer `spd: 0.50`, Ghost Hunter `0.54`, Wind Rider `0.52`) plus Light / dagger / Precision jewels / Baium / title / augment land near:
+
+- **Dark Elf Adventurer + Haste:** ~300–330 ms  
+- **Elf Adventurer + Haste:** ~230–250 ms  
+- **Same kit without Haste:** ~450–500 ms  
+
+Full AA gear `bonusSpd` totals roughly **~1300–1400** on the peak stack (Vesper Light ~760, Angel Slayer ~270, Radiant + Baium ~200, augment + title). Tank / Heavy / Arcane paths stay much slower by design.

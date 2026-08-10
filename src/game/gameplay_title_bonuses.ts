@@ -69,7 +69,7 @@ const STAT_PRIMARY_BASE: Record<TitleBonusStatKey, number> = {
   maxHp: 70,
   maxMp: 40,
   critRate: 0.32,
-  atkSpeedMs: 4,
+  atkSpeedMs: 7,
   castSpeedPct: 0.7,
 };
 

@@ -28,7 +28,7 @@ const classModifiers = {
     "Warlord": { hp: 1.6, mp: 1.0, atk: 1.5, def: 1.3, spd: 0.9, crit: 5 },
     "Paladin": { hp: 1.8, mp: 1.2, atk: 0.9, def: 2.2, spd: 0.9, crit: 2 },
     "Dark Avenger": { hp: 1.8, mp: 1.0, atk: 1.0, def: 2.0, spd: 1.0, crit: 2 }, 
-    "Treasure Hunter": { hp: 1.1, mp: 1.0, atk: 1.4, def: 0.9, spd: 0.7, crit: 9 }, 
+    "Treasure Hunter": { hp: 1.1, mp: 1.0, atk: 1.4, def: 0.9, spd: 0.58, crit: 9 }, 
     "Hawkeye": { hp: 1.1, mp: 1.0, atk: 1.8, def: 0.9, spd: 0.94, crit: 10 }, 
     "Necromancer": { hp: 0.8, mp: 2.0, atk: 2.5, def: 0.8, spd: 0.8, crit: 7 },
     "Sorcerer": { hp: 0.8, mp: 2.0, atk: 2.5, def: 0.8, spd: 0.8, crit: 7 }, // <-- Mago de Fogo Adicionado
@@ -41,7 +41,7 @@ const classModifiers = {
     "Dreadnought": { hp: 2.0, mp: 1.2, atk: 2.2, def: 1.5, spd: 0.95, crit: 7 },
     "Phoenix Knight": { hp: 2.6, mp: 1.5, atk: 1.2, def: 3.5, spd: 0.95, crit: 5 },
     "Hell Knight": { hp: 2.5, mp: 1.2, atk: 1.3, def: 3.2, spd: 0.95, crit: 5 }, 
-    "Adventurer": { hp: 1.3, mp: 1.2, atk: 2.0, def: 1.0, spd: 0.58, crit: 10 },
+    "Adventurer": { hp: 1.3, mp: 1.2, atk: 2.0, def: 1.0, spd: 0.50, crit: 10 },
     "Sagittarius": { hp: 1.3, mp: 1.2, atk: 3.0, def: 1.0, spd: 1.0, crit: 10 },
     // Human 3rd mages: Soultaker = necro (sustentação/vida); Archmage = burst elemental (mais dano, mais frágil).
     // Atk alinhado ao tier ~3.2–3.4 (Storm Screamer) — 4.0 + def alta gerava desequilíbrio com gear e PvP.
@@ -53,9 +53,9 @@ const classModifiers = {
     "Hierophant": { hp: 1.12, mp: 3.0, atk: 1.75, def: 1.05, spd: 0.9, crit: 5 },
 
     // === DARK ELVES (Fighters & Mages) ===
-    "Assassin": { hp: 0.90, mp: 1.0, atk: 1.6, def: 0.7, spd: 0.88, crit: 9 },
-    "Abyss Walker": { hp: 1.05, mp: 1.0, atk: 2.2, def: 0.75, spd: 0.80, crit: 9 },
-    "Ghost Hunter": { hp: 1.25, mp: 1.0, atk: 3.0, def: 0.8, spd: 0.72, crit: 11 },
+    "Assassin": { hp: 0.90, mp: 1.0, atk: 1.6, def: 0.7, spd: 0.80, crit: 9 },
+    "Abyss Walker": { hp: 1.05, mp: 1.0, atk: 2.2, def: 0.75, spd: 0.66, crit: 9 },
+    "Ghost Hunter": { hp: 1.25, mp: 1.0, atk: 3.0, def: 0.8, spd: 0.54, crit: 11 },
     // === DARK ELVES (Magos) ===
     "Dark Wizard": { hp: 0.75, mp: 1.25, atk: 1.8, def: 0.55, spd: 1.3, crit: 5 },
     "Spellhowler": { hp: 0.90, mp: 1.40, atk: 2.6, def: 0.60, spd: 1.5, crit: 6 },
@@ -96,8 +96,8 @@ const classModifiers = {
     "Swordsinger": { hp: 1.1, mp: 1.2, atk: 1.4, def: 1.3, spd: 1.06, crit: 8 },
     "Sword Muse": { hp: 1.4, mp: 1.4, atk: 1.8, def: 1.6, spd: 1.04, crit: 9 },
 
-    "Plains Walker": { hp: 0.9, mp: 1.0, atk: 1.5, def: 0.9, spd: 0.78, crit: 9 },
-    "Wind Rider": { hp: 1.1, mp: 1.1, atk: 2.2, def: 1.1, spd: 0.70, crit: 10 },
+    "Plains Walker": { hp: 0.9, mp: 1.0, atk: 1.5, def: 0.9, spd: 0.62, crit: 9 },
+    "Wind Rider": { hp: 1.1, mp: 1.1, atk: 2.2, def: 1.1, spd: 0.52, crit: 10 },
 
     "Silver Ranger": { hp: 0.8, mp: 1.1, atk: 1.6, def: 0.8, spd: 0.88, crit: 10 },
     "Moonlight Sentinel": { hp: 1.0, mp: 1.2, atk: 2.4, def: 1.0, spd: 0.80, crit: 12 },

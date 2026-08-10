@@ -109,32 +109,32 @@ if (typeof window !== 'undefined') {
 const catalogoArmadurasBase: ItemCatalogBase[] = [
     // NO-GRADE
     { id: 'a1', nome: 'Wooden Set', grade: 'No-Grade', pDef: 30, bonusHp: 50, tipo: 'Heavy', preco: 800, img: catalogArmorIconPath('a1'), desc: 'Simple reinforced wood armor. A first bulwark against chaos.' },
-    { id: 'a2', nome: 'Leather Set', grade: 'No-Grade', pDef: 22, bonusSpd: 40, bonusCrit: 1, bonusDodge: 1, tipo: 'Light', preco: 800, img: catalogArmorIconPath('a2'), desc: 'Light leather for nimble adventurers. Ideal for quick hunts.' },
+    { id: 'a2', nome: 'Leather Set', grade: 'No-Grade', pDef: 22, bonusSpd: 70, bonusCrit: 1, bonusDodge: 1, tipo: 'Light', preco: 800, img: catalogArmorIconPath('a2'), desc: 'Light leather for nimble adventurers. Ideal for quick hunts.' },
     { id: 'a3', nome: 'Devotion Vestments', grade: 'No-Grade', pDef: 15, bonusMp: 50, bonusMDef: 10, bonusCastSpeed: 3, tipo: 'Robe', preco: 800, img: catalogArmorIconPath('a3'), desc: 'Novice mage vestments (medium weave). Boosts basic arcane focus and casting speed.' },
 
     // D-GRADE
     { id: 'a4', nome: 'Brigandine Set', grade: 'D', pDef: 80, bonusHp: 150, tipo: 'Heavy', preco: 25000, img: catalogArmorIconPath('a4'), desc: 'Sturdy frontier plates. Built to endure brutal charges.' },
-    { id: 'a5', nome: 'Manticore Set', grade: 'D', pDef: 60, bonusSpd: 80, bonusCrit: 2, bonusDodge: 2, tipo: 'Light', preco: 25000, img: catalogArmorIconPath('a5'), desc: 'Treated Manticore leather. Mobility and precision in combat.' },
+    { id: 'a5', nome: 'Manticore Set', grade: 'D', pDef: 60, bonusSpd: 130, bonusCrit: 2, bonusDodge: 2, tipo: 'Light', preco: 25000, img: catalogArmorIconPath('a5'), desc: 'Treated Manticore leather. Mobility and precision in combat.' },
     { id: 'a6', nome: 'Knowledge Vestments', grade: 'D', pDef: 40, bonusMp: 150, bonusMDef: 25, bonusCastSpeed: 4, tipo: 'Robe', preco: 25000, img: catalogArmorIconPath('a6'), desc: 'Scholar vestments (medium weave). Great for mages on the rise. Improves casting speed.' },
 
     // C-GRADE
     { id: 'a7', nome: 'Composite Set', grade: 'C', pDef: 150, bonusHp: 300, tipo: 'Heavy', preco: 120000, img: catalogArmorIconPath('a7'), desc: 'Campaign armor for veterans. Solid endurance in long fights.' },
-    { id: 'a8', nome: 'Plated Leather', grade: 'C', pDef: 110, bonusSpd: 140, bonusCrit: 3, bonusDodge: 3, tipo: 'Light', preco: 120000, img: catalogArmorIconPath('a8'), desc: 'Plated leather for duelists. Fast strikes with calculated risk.' },
+    { id: 'a8', nome: 'Plated Leather', grade: 'C', pDef: 110, bonusSpd: 220, bonusCrit: 3, bonusDodge: 3, tipo: 'Light', preco: 120000, img: catalogArmorIconPath('a8'), desc: 'Plated leather for duelists. Fast strikes with calculated risk.' },
     { id: 'a9', nome: 'Karmian Vestments', grade: 'C', pDef: 75, bonusMp: 300, bonusMDef: 45, bonusCastSpeed: 6, tipo: 'Robe', preco: 120000, img: catalogArmorIconPath('a9'), desc: 'Field mage vestments (medium weave). Efficient MP channeling, defense, and casting speed.' },
 
     // B-GRADE
     { id: 'a10', nome: 'Doom Plate', grade: 'B', pDef: 240, bonusHp: 500, tipo: 'Heavy', preco: 450000, img: catalogArmorIconPath('a10'), desc: 'Elite dark steel. A bastion for heavy raids.' },
-    { id: 'a11', nome: 'Doom Leather', grade: 'B', pDef: 180, bonusSpd: 220, bonusCrit: 4, bonusDodge: 4, tipo: 'Light', preco: 450000, img: catalogArmorIconPath('a11'), desc: 'Elite hunter gear. Tempo and lethality above the norm.' },
+    { id: 'a11', nome: 'Doom Leather', grade: 'B', pDef: 180, bonusSpd: 340, bonusCrit: 4, bonusDodge: 4, tipo: 'Light', preco: 450000, img: catalogArmorIconPath('a11'), desc: 'Elite hunter gear. Tempo and lethality above the norm.' },
     { id: 'a12', nome: 'Avadon Vestments', grade: 'B', pDef: 125, bonusMp: 500, bonusMDef: 70, bonusCastSpeed: 7, tipo: 'Robe', preco: 450000, img: catalogArmorIconPath('a12'), desc: 'Ritual vestments (medium weave). Refined M. Def. and faster casting for long duels.' },
 
     // A-GRADE
     { id: 'a13', nome: 'Dark Crystal', grade: 'A', pDef: 350, bonusHp: 800, tipo: 'Heavy', preco: 1500000, img: catalogArmorIconPath('a13'), desc: 'Tempered black crystals. Frontline defense at its finest.' },
-    { id: 'a14', nome: 'Majestic Leather', grade: 'A', pDef: 260, bonusSpd: 320, bonusCrit: 5, bonusDodge: 5, tipo: 'Light', preco: 1500000, img: catalogArmorIconPath('a14'), desc: 'Majestic elite set. Top-tier speed and precision.' },
+    { id: 'a14', nome: 'Majestic Leather', grade: 'A', pDef: 260, bonusSpd: 500, bonusCrit: 5, bonusDodge: 5, tipo: 'Light', preco: 1500000, img: catalogArmorIconPath('a14'), desc: 'Majestic elite set. Top-tier speed and precision.' },
     { id: 'a15', nome: 'Tallum Vestments', grade: 'A', pDef: 180, bonusMp: 800, bonusMDef: 110, bonusCastSpeed: 9, tipo: 'Robe', preco: 1500000, img: catalogArmorIconPath('a15'), desc: 'War arcanist vestments (medium weave). Magical mastery and swift casting for large-scale war.' },
 
     // S-GRADE
     { id: 'a16', nome: 'Imperial Crusader', grade: 'S', pDef: 500, bonusHp: 1500, tipo: 'Heavy', preco: 5000000, img: catalogArmorIconPath('a16'), desc: 'Legendary imperial breastplate. Brutal resilience for S-Grade champions.' },
-    { id: 'a17', nome: 'Draconic Leather', grade: 'S', pDef: 380, bonusSpd: 420, bonusCrit: 6, bonusDodge: 6, tipo: 'Light', preco: 5000000, img: catalogArmorIconPath('a17'), desc: 'Rare draconic leather. Assassin mobility with high crit damage.' },
+    { id: 'a17', nome: 'Draconic Leather', grade: 'S', pDef: 380, bonusSpd: 640, bonusCrit: 6, bonusDodge: 6, tipo: 'Light', preco: 5000000, img: catalogArmorIconPath('a17'), desc: 'Rare draconic leather. Assassin mobility with high crit damage.' },
     { id: 'a18', nome: 'Major Arcana Vestments', grade: 'S', pDef: 260, bonusMp: 1500, bonusMDef: 180, bonusCastSpeed: 11, tipo: 'Robe', preco: 5000000, img: catalogArmorIconPath('a18'), desc: 'Supreme mage vestments (medium weave). Peak MP, magic defense, and casting speed for endgame.' },
      
     // --- ELITE S-GRADE (CRAFT EXCLUSIVO - SET VESPER) ---
@@ -146,7 +146,7 @@ const catalogoArmadurasBase: ItemCatalogBase[] = [
     },
     { 
         id: 'arm_s_vesper_light', nome: 'Vesper Noble Light', grade: 'S', tipo: 'Light', 
-        pDef: 480, bonusSpd: 520, bonusCrit: 6, bonusDodge: 8, pAtk: 100, bonusHp: 1000, preco: 0, moeda: 'Adena',
+        pDef: 480, bonusSpd: 760, bonusCrit: 6, bonusDodge: 8, pAtk: 100, bonusHp: 1000, preco: 0, moeda: 'Adena',
         desc: '[Elite Craft] Ancient dragon leather. Extreme mobility, strong crit, evasion, and P. Atk.', 
         img: catalogArmorIconPath('arm_s_vesper_light') 
     },
@@ -205,14 +205,14 @@ const catalogoJoiasBase: ItemCatalogBase[] = [
     { id: 'j_s_ring', nome: 'Tateossian Ring', tipoItem: 'ring', grade: 'S', preco: 125000, mDef: 70, bonusMp: 220, mAtk: 70, bonusCastSpeed: 2, desc: 'Tateossian Arcane ring for endgame casters.', img: catalogJewelIconPath('j_s_ring') },
 
     // --- ELITE S-GRADE (CRAFT) — hybrid apex, slight Arcane lean on cast/MP ---
-    { id: 'j_vesper_neck', nome: 'Vesper Necklace', tipoItem: 'neck', grade: 'S', preco: 0, mDef: 165, bonusHp: 400, bonusMp: 550, bonusCastSpeed: 4, bonusCrit: 2, bonusSpd: 12, pAtk: 80, mAtk: 140, desc: 'Forged by legends. Apex hybrid with strong Arcane casting power.', img: catalogJewelIconPath('j_vesper_neck') },
-    { id: 'j_vesper_ear', nome: 'Vesper Earring', tipoItem: 'ear', grade: 'S', preco: 0, mDef: 125, bonusHp: 280, bonusMp: 360, bonusCastSpeed: 3, bonusSpd: 8, pAtk: 55, mAtk: 95, desc: 'Vesper earrings. Amplifies class power with Arcane tempo.', img: catalogJewelIconPath('j_vesper_ear') },
+    { id: 'j_vesper_neck', nome: 'Vesper Necklace', tipoItem: 'neck', grade: 'S', preco: 0, mDef: 165, bonusHp: 400, bonusMp: 550, bonusCastSpeed: 4, bonusCrit: 2, bonusSpd: 20, pAtk: 80, mAtk: 140, desc: 'Forged by legends. Apex hybrid with strong Arcane casting power.', img: catalogJewelIconPath('j_vesper_neck') },
+    { id: 'j_vesper_ear', nome: 'Vesper Earring', tipoItem: 'ear', grade: 'S', preco: 0, mDef: 125, bonusHp: 280, bonusMp: 360, bonusCastSpeed: 3, bonusSpd: 12, pAtk: 55, mAtk: 95, desc: 'Vesper earrings. Amplifies class power with Arcane tempo.', img: catalogJewelIconPath('j_vesper_ear') },
     { id: 'j_vesper_ring', nome: 'Vesper Ring', tipoItem: 'ring', grade: 'S', preco: 0, mDef: 85, bonusHp: 180, bonusMp: 240, bonusCastSpeed: 2, bonusCrit: 2, pAtk: 40, mAtk: 80, desc: 'Vesper ring. Hybrid apex for any path.', img: catalogJewelIconPath('j_vesper_ring') },
 
     // --- EPIC (boss) — clear role bias ---
     { id: 'j_epic_valakas', nome: 'Necklace of Valakas', tipoItem: 'neck', grade: 'S', preco: 0, mDef: 200, bonusHp: 600, bonusMp: 700, bonusCastSpeed: 4, bonusCrit: 2, pAtk: 220, mAtk: 320, desc: 'Fire Dragon necklace. Peak hybrid offense with Arcane weight.', img: catalogJewelIconPath('j_epic_valakas') },
     { id: 'j_epic_antharas', nome: 'Earring of Antharas', tipoItem: 'ear', grade: 'S', preco: 0, mDef: 180, bonusHp: 1100, bonusMp: 200, pAtk: 180, mAtk: 80, desc: 'Earth Dragon earring. Colossal Vitality and resilience.', img: catalogJewelIconPath('j_epic_antharas') },
-    { id: 'j_epic_baium', nome: 'Ring of Baium', tipoItem: 'ring', grade: 'S', preco: 0, mDef: 100, bonusSpd: 22, bonusCrit: 3, bonusDodge: 2, pAtk: 220, mAtk: 100, desc: 'Emperor’s Precision ring. Extreme crit, speed, and a touch of Evasion.', img: catalogJewelIconPath('j_epic_baium') },
+    { id: 'j_epic_baium', nome: 'Ring of Baium', tipoItem: 'ring', grade: 'S', preco: 0, mDef: 100, bonusSpd: 50, bonusCrit: 3, bonusDodge: 2, pAtk: 220, mAtk: 100, desc: 'Emperor’s Precision ring. Extreme crit, speed, and a touch of Evasion.', img: catalogJewelIconPath('j_epic_baium') },
 ];
 
 const catalogoJoias: ItemCatalogBase[] = [
@@ -239,7 +239,7 @@ const catalogoArmasBase: ItemCatalogBase[] = [
     { id: 'wpn_ng_trainee_blade', nome: 'Wooden Sword', grade: 'No-Grade', tipo: 'Sword', preco: 50, atk: 12, bonusHp: 12, img: catalogWeaponIconPath('wpn_ng_trainee_blade'), desc: 'Basic wooden practice sword for every fighter. Free on your first day; cheap at the village shop if you break one.' },
     { id: 'wpn_ng_trainee_focus', nome: 'Basic Staff', grade: 'No-Grade', tipo: 'Magic Sword', preco: 50, atk: 6, matk: 28, bonusMp: 45, bonusCastSpeed: 2, img: catalogWeaponIconPath('wpn_ng_trainee_focus'), desc: 'Simple wooden staff for novice spellcasters. Free on your first day; cheap at the village shop if you lose yours.' },
     { id: 'wpn_ng_longsword', nome: 'Long Sword', grade: 'No-Grade', tipo: 'Sword', preco: 500, atk: 22, bonusHp: 25, img: catalogWeaponIconPath('wpn_ng_longsword'), desc: 'Reliable starter sword. Balanced for any physical class.' },
-    { id: 'wpn_ng_dagger', nome: 'Shining Knife', grade: 'No-Grade', tipo: 'Dagger', preco: 520, atk: 18, bonusCrit: 2, bonusSpd: 20, img: catalogWeaponIconPath('wpn_ng_dagger'), desc: 'Light dagger for fast strikes and frequent crits.' },
+    { id: 'wpn_ng_dagger', nome: 'Shining Knife', grade: 'No-Grade', tipo: 'Dagger', preco: 520, atk: 18, bonusCrit: 2, bonusSpd: 30, img: catalogWeaponIconPath('wpn_ng_dagger'), desc: 'Light dagger for fast strikes and frequent crits.' },
     { id: 'wpn_ng_bow', nome: 'Training Bow', grade: 'No-Grade', tipo: 'Bow', preco: 560, atk: 24, bonusCrit: 2, img: catalogWeaponIconPath('wpn_ng_bow'), desc: 'Training bow with solid accuracy for early farming.' },
     { id: 'wpn_ng_mace', nome: 'Apprentice Mace', grade: 'No-Grade', tipo: 'Mace', preco: 600, atk: 20, matk: 17, bonusMp: 40, img: catalogWeaponIconPath('wpn_ng_mace'), desc: 'Hybrid mace for physical classes with light magic support.' },
     { id: 'wpn_ng_magic', nome: 'Channel Staff', grade: 'No-Grade', tipo: 'Magic Sword', preco: 620, atk: 14, matk: 32, bonusMp: 80, bonusCastSpeed: 3, img: catalogWeaponIconPath('wpn_ng_magic'), desc: 'Balanced channel staff for novice mages. Reliable M. Atk, MP, and casting speed.' },
@@ -249,7 +249,7 @@ const catalogoArmasBase: ItemCatalogBase[] = [
     // ======================
     { id: 'wpn_d_elven_sword', nome: 'Elven Long Sword', grade: 'D', tipo: 'Sword', preco: 2000, atk: 55, bonusHp: 60, img: catalogWeaponIconPath('wpn_d_elven_sword'), desc: 'Refined elven blade with solid base power.' },
     { id: 'wpn_d_heavy_sword', nome: 'Heavy Sword', grade: 'D', tipo: 'Sword', preco: 2500, atk: 65, bonusHp: 90, img: catalogWeaponIconPath('wpn_d_heavy_sword'), desc: 'Heavy sword for steady physical burst.' },
-    { id: 'wpn_d_stiletto', nome: 'Stiletto', grade: 'D', tipo: 'Dagger', preco: 2200, atk: 49, bonusCrit: 3, bonusSpd: 35, img: catalogWeaponIconPath('wpn_d_stiletto'), desc: 'Deadly dagger focused on crit rate.' },
+    { id: 'wpn_d_stiletto', nome: 'Stiletto', grade: 'D', tipo: 'Dagger', preco: 2200, atk: 49, bonusCrit: 3, bonusSpd: 55, img: catalogWeaponIconPath('wpn_d_stiletto'), desc: 'Deadly dagger focused on crit rate.' },
     { id: 'wpn_d_hunters_bow', nome: 'Hunter Bow', grade: 'D', tipo: 'Bow', preco: 2600, atk: 70, bonusCrit: 3, img: catalogWeaponIconPath('wpn_d_hunters_bow'), desc: 'Long bow for ranged classes.' },
     { id: 'wpn_d_iron_knuckle', nome: 'Iron Knuckle', grade: 'D', tipo: 'Fist', preco: 2350, atk: 82, bonusSpd: 20, bonusHp: 50, img: catalogWeaponIconPath('wpn_d_iron_knuckle'), desc: 'Reinforced gauntlets for Orc brawlers before true war fists.' },
     { id: 'wpn_d_war_hammer', nome: 'War Hammer', grade: 'D', tipo: 'Mace', preco: 2700, atk: 58, matk: 42, bonusHp: 70, img: catalogWeaponIconPath('wpn_d_war_hammer'), desc: 'Sturdy war hammer with hybrid offense.' },
@@ -260,7 +260,7 @@ const catalogoArmasBase: ItemCatalogBase[] = [
     // ======================
     { id: 'wpn_c_stormbringer', nome: 'Stormbringer', grade: 'C', tipo: 'Sword', preco: 8000, atk: 120, bonusHp: 150, img: catalogWeaponIconPath('wpn_c_stormbringer'), desc: 'Classic C-grade sword with high physical impact.' },
     { id: 'wpn_c_sabre', nome: 'Tempered Sabre', grade: 'C', tipo: 'Sword', preco: 8600, atk: 128, bonusCrit: 3, img: catalogWeaponIconPath('wpn_c_sabre'), desc: 'Balanced saber with stable damage and good handling.' },
-    { id: 'wpn_c_dark_screamer', nome: 'Dark Screamer', grade: 'C', tipo: 'Dagger', preco: 8200, atk: 110, bonusCrit: 5, bonusSpd: 50, img: catalogWeaponIconPath('wpn_c_dark_screamer'), desc: 'Legendary assassin dagger of the C progression.' },
+    { id: 'wpn_c_dark_screamer', nome: 'Dark Screamer', grade: 'C', tipo: 'Dagger', preco: 8200, atk: 110, bonusCrit: 5, bonusSpd: 85, img: catalogWeaponIconPath('wpn_c_dark_screamer'), desc: 'Legendary assassin dagger of the C progression.' },
     { id: 'wpn_c_akat_bow', nome: 'Akat Long Bow', grade: 'C', tipo: 'Bow', preco: 9000, atk: 150, bonusCrit: 4, img: catalogWeaponIconPath('wpn_c_akat_bow'), desc: 'Powerful bow for ranged burst.' },
     { id: 'wpn_c_knuckle', nome: 'Battle Knuckle', grade: 'C', tipo: 'Fist', preco: 8700, atk: 118, bonusSpd: 35, bonusHp: 120, img: catalogWeaponIconPath('wpn_c_knuckle'), desc: 'Fist weapon for accelerated DPS.' },
     { id: 'wpn_c_sorcerer_staff', nome: 'Sorcerer Staff', grade: 'C', tipo: 'Magic Sword', preco: 9200, atk: 52, matk: 180, bonusMp: 320, bonusSpd: 20, bonusCastSpeed: 6, img: catalogWeaponIconPath('wpn_c_sorcerer_staff'), desc: 'High M. Atk staff for C-grade mages with solid casting speed.' },
@@ -270,7 +270,7 @@ const catalogoArmasBase: ItemCatalogBase[] = [
     // ======================
     { id: 'wpn_b_damascus', nome: 'Sword of Damascus', grade: 'B', tipo: 'Sword', preco: 25000, atk: 200, bonusHp: 260, img: 'assets/armas/damascus.png', desc: 'Classic B-grade sword of brutal damage.' },
     { id: 'wpn_b_samurai', nome: 'Samurai Longsword', grade: 'B', tipo: 'Sword', preco: 26500, atk: 210, bonusCrit: 4, img: 'assets/armas/claymore.png', desc: 'Elite blade with superior physical aggression.' },
-    { id: 'wpn_b_kris', nome: 'Kris', grade: 'B', tipo: 'Dagger', preco: 24000, atk: 184, bonusCrit: 6, bonusSpd: 70, img: 'assets/armas/elven_sword.png', desc: 'A precise dagger for devastating crits.' },
+    { id: 'wpn_b_kris', nome: 'Kris', grade: 'B', tipo: 'Dagger', preco: 24000, atk: 184, bonusCrit: 6, bonusSpd: 120, img: 'assets/armas/elven_sword.png', desc: 'A precise dagger for devastating crits.' },
     { id: 'wpn_b_hakens_bow', nome: 'Haken Bow', grade: 'B', tipo: 'Bow', preco: 28000, atk: 250, bonusCrit: 5, img: 'assets/armas/draconic.png', desc: 'B-grade bow for archer builds.' },
     { id: 'wpn_b_spiked_grapple', nome: 'Spiked Grapple', grade: 'B', tipo: 'Fist', preco: 27200, atk: 228, bonusSpd: 40, bonusHp: 195, img: 'assets/icons/icon_wpn_heavysword.png', desc: 'B-grade striking gloves. Bridges C knuckles to endgame fists.' },
     { id: 'wpn_b_demon_splinter', nome: 'Demon Splinter', grade: 'B', tipo: 'Mace', preco: 27500, atk: 196, matk: 120, bonusHp: 180, img: 'assets/icons/icon_wpn_heavysword.png', desc: 'Hybrid mace with solid sustain for heavy PvE.' },
@@ -281,7 +281,7 @@ const catalogoArmasBase: ItemCatalogBase[] = [
     // ======================
     { id: 'wpn_a_tallum', nome: 'Tallum Blade', grade: 'A', tipo: 'Sword', preco: 80000, atk: 350, bonusHp: 420, img: 'assets/armas/tallum.png', desc: 'A-grade blade for late-game physical builds.' },
     { id: 'wpn_a_dragon_slayer', nome: 'Dragon Slayer', grade: 'A', tipo: 'Sword', preco: 86000, atk: 370, bonusCrit: 5, img: 'assets/armas/damascus.png', desc: 'Execution greatsword with high damage.' },
-    { id: 'wpn_a_soul_separator', nome: 'Soul Separator', grade: 'A', tipo: 'Dagger', preco: 78000, atk: 320, bonusCrit: 8, bonusSpd: 90, img: 'assets/armas/elven_sword.png', desc: 'A-grade dagger for extreme assassins.' },
+    { id: 'wpn_a_soul_separator', nome: 'Soul Separator', grade: 'A', tipo: 'Dagger', preco: 78000, atk: 320, bonusCrit: 8, bonusSpd: 170, img: 'assets/armas/elven_sword.png', desc: 'A-grade dagger for extreme assassins.' },
     { id: 'wpn_a_carniage_bow', nome: 'Carnage Bow', grade: 'A', tipo: 'Bow', preco: 90000, atk: 430, bonusCrit: 7, img: 'assets/armas/draconic.png', desc: 'Heavy bow for maximum damage per shot.' },
     { id: 'wpn_a_steel_typhoon', nome: 'Steel Typhoon', grade: 'A', tipo: 'Fist', preco: 88500, atk: 405, bonusSpd: 58, bonusHp: 340, img: 'assets/icons/icon_wpn_heavysword.png', desc: 'A-grade war gauntlets for fist masters before Tyrant tier.' },
     { id: 'wpn_a_forgotten_blade', nome: 'Forgotten Blade', grade: 'A', tipo: 'Mace', preco: 87000, atk: 340, matk: 220, bonusHp: 320, img: 'assets/icons/icon_wpn_heavysword.png', desc: 'High-tier hybrid weapon for versatile classes.' },
@@ -292,10 +292,10 @@ const catalogoArmasBase: ItemCatalogBase[] = [
     // ======================
     { id: 'wpn_s_infinity_sword', nome: 'Infinity Sword', grade: 'S', tipo: 'Sword', preco: 250000, atk: 600, bonusHp: 850, bonusCrit: 5, img: 'assets/armas/damascus.png', desc: 'S-grade sword for extreme physical DPS.' },
     { id: 'wpn_s_draconic', nome: 'Draconic Bow', grade: 'S', tipo: 'Bow', preco: 250000, atk: 620, bonusCrit: 6, img: 'assets/armas/draconic.png', desc: 'Legendary bow with maximum long-range power.' },
-    { id: 'wpn_s_angelslayer', nome: 'Angel Slayer', grade: 'S', tipo: 'Dagger', preco: 245000, atk: 560, bonusCrit: 7, bonusSpd: 180, img: 'assets/armas/elven_sword.png', desc: 'Supreme dagger for brutal endgame crits.' },
+    { id: 'wpn_s_angelslayer', nome: 'Angel Slayer', grade: 'S', tipo: 'Dagger', preco: 245000, atk: 560, bonusCrit: 7, bonusSpd: 270, img: 'assets/armas/elven_sword.png', desc: 'Supreme dagger for brutal endgame crits.' },
     { id: 'wpn_s_dragon_hammer', nome: 'Dragon Hammer', grade: 'S', tipo: 'Mace', preco: 255000, atk: 590, matk: 280, bonusHp: 950, img: 'assets/icons/icon_wpn_heavysword.png', desc: 'Titanic mace for tanks and hybrid classes.' },
     { id: 'wpn_s_imperial_staff', nome: 'Imperial Staff', grade: 'S', tipo: 'Magic Sword', preco: 260000, atk: 220, matk: 700, bonusMp: 1600, bonusSpd: 70, bonusCastSpeed: 8, img: 'assets/armas/tallum.png', desc: 'Imperial staff for S-grade mages with huge burst and fast casting.' },
-    { id: 'wpn_s_tyrants_fist', nome: 'Tyrant Fist', grade: 'S', tipo: 'Fist', preco: 252000, atk: 575, bonusSpd: 85, bonusHp: 700, img: 'assets/icons/icon_wpn_heavysword.png', desc: 'Legendary fists focused on speed and relentless pressure.' },
+    { id: 'wpn_s_tyrants_fist', nome: 'Tyrant Fist', grade: 'S', tipo: 'Fist', preco: 252000, atk: 575, bonusSpd: 130, bonusHp: 700, img: 'assets/icons/icon_wpn_heavysword.png', desc: 'Legendary fists focused on speed and relentless pressure.' },
     // --- ELITE S-GRADE (CRAFT EXCLUSIVO - ARMAS VESPER) ---
     // --- ELITE S-GRADE (CRAFT EXCLUSIVO - ARMAS VESPER COM SA) ---
     { 
@@ -308,8 +308,8 @@ const catalogoArmasBase: ItemCatalogBase[] = [
     { 
         id: 'wpn_s_vesper_shaper', nome: 'Vesper Shaper', grade: 'S', tipo: 'Dagger', 
         atk: 520, matk: 250, preco: 0, moeda: 'Adena',
-        bonusCrit: 10, bonusSpd: 120, // SA: Focus & Haste
-        desc: '[SA: Focus & Haste] Abyssal dagger. +120ms faster swings and +10% Critical Rate.', 
+        bonusCrit: 10, bonusSpd: 240, // SA: Focus & Haste
+        desc: '[SA: Focus & Haste] Abyssal dagger. +240ms faster swings and +10% Critical Rate.', 
         img: 'assets/itens/vesper_shaper.png' 
     },
     { 
@@ -322,7 +322,7 @@ const catalogoArmasBase: ItemCatalogBase[] = [
     { 
         id: 'wpn_s_vesper_fighter', nome: 'Vesper Fighter', grade: 'S', tipo: 'Fist', 
         atk: 620, matk: 250, preco: 0, moeda: 'Adena',
-        bonusSpd: 100, bonusHp: 1000, // SA: Haste & Health
+        bonusSpd: 150, bonusHp: 1000, // SA: Haste & Health
         desc: '[SA: Haste & Health] Beast claws for Orcs. +1000 Max HP and lethal attack speed.', 
         img: 'assets/itens/vesper_fighter.png' 
     },

@@ -1325,7 +1325,7 @@ async function executarAugment(): Promise<void> {
             { prop: 'augMAtk', txt: 'M. Atk',   val: Math.floor(Math.random() * (15 * mult)) + (5 * mult) },
             { prop: 'augPDef', txt: 'P. Def',   val: Math.floor(Math.random() * (10 * mult)) + (5 * mult) },
             { prop: 'augMDef', txt: 'M. Def',   val: Math.floor(Math.random() * (10 * mult)) + (5 * mult) },
-            { prop: 'augSpd',  txt: 'Speed',    val: Math.floor(Math.random() * (6 * mult)) + (4 * mult) },
+            { prop: 'augSpd',  txt: 'Speed',    val: Math.floor(Math.random() * (10 * mult)) + (8 * mult) },
             { prop: 'augCrit', txt: 'Crit Rate',val: Math.max(1, Math.floor(Math.random() * mult) + 1) }
         ];
         pool.sort(() => Math.random() - 0.5);
