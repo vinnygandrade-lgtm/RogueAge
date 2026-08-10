@@ -118,20 +118,79 @@ const L2MINI_EQUIP_AUG_KEYS = [
     'augLevel', 'augPAtk', 'augMAtk', 'augPDef', 'augMDef', 'augSpd', 'augCrit', 'augHp',
 ] as const;
 
+function eachEquipCatalog(fn: (row: ItemCatalogBase) => void): void {
+    const cats: Array<ItemCatalogBase[] | undefined> = [
+        typeof catalogoArmaduras !== 'undefined' ? catalogoArmaduras : undefined,
+        typeof catalogoArmas !== 'undefined' ? catalogoArmas : undefined,
+        typeof catalogoJoias !== 'undefined' ? catalogoJoias : undefined,
+    ];
+    for (let c = 0; c < cats.length; c++) {
+        const cat = cats[c];
+        if (!Array.isArray(cat)) continue;
+        for (let i = 0; i < cat.length; i++) {
+            if (cat[i]) fn(cat[i]);
+        }
+    }
+}
+
 function lookupEquipCatalogById(id: string): ItemCatalogBase | null {
     if (!id) return null;
-    let full: ItemCatalogBase | undefined;
-    if (typeof catalogoArmaduras !== 'undefined') {
-        full = catalogoArmaduras.find(function (a) { return a && a.id === id; });
-    }
-    if (!full && typeof catalogoArmas !== 'undefined') {
-        full = catalogoArmas.find(function (a) { return a && a.id === id; });
-    }
-    if (!full && typeof catalogoJoias !== 'undefined') {
-        full = catalogoJoias.find(function (a) { return a && a.id === id; });
-    }
-    return full || null;
+    let found: ItemCatalogBase | null = null;
+    eachEquipCatalog(function (a) {
+        if (!found && a.id === id) found = a;
+    });
+    return found;
 }
+
+/** Resolve live catalog by id, then by exact nome (+ tipo/grade when ambiguous). */
+function lookupEquipCatalogByHint(hint: {
+    id?: unknown;
+    nome?: unknown;
+    tipo?: unknown;
+    tipoItem?: unknown;
+    grade?: unknown;
+}): ItemCatalogBase | null {
+    const id = String(hint.id || '').trim();
+    if (id) {
+        const byId = lookupEquipCatalogById(id);
+        if (byId) return byId;
+    }
+    const nome = String(hint.nome || '').trim().toLowerCase();
+    if (!nome) return null;
+    const matches: ItemCatalogBase[] = [];
+    eachEquipCatalog(function (a) {
+        if (String(a.nome || '').trim().toLowerCase() === nome) matches.push(a);
+    });
+    if (matches.length === 0) return null;
+    if (matches.length === 1) return matches[0];
+    const tipo = String(hint.tipo || hint.tipoItem || '').trim();
+    const grade = String(hint.grade || '').trim();
+    const scored = matches.find(function (m) {
+        const tipoOk = !tipo || m.tipo === tipo || m.tipoItem === tipo;
+        const gradeOk = !grade || m.grade === grade;
+        return tipoOk && gradeOk;
+    });
+    return scored || matches[0];
+}
+
+/**
+ * Public resolver for UI / combat: live catalog row for an instance or bare base.
+ * Prefer id; fall back to nome so legacy saves without `base.id` still get balance patches.
+ */
+window.resolveEquipCatalogBase = function resolveEquipCatalogBase(
+    itemOrBase: unknown,
+): ItemCatalogBase | null {
+    if (!itemOrBase || typeof itemOrBase !== 'object') return null;
+    const row = itemOrBase as LooseEquip;
+    const b = (row.base && typeof row.base === 'object') ? row.base : row;
+    return lookupEquipCatalogByHint({
+        id: b.id || row.id,
+        nome: b.nome || row.nome,
+        tipo: b.tipo || row.tipo,
+        tipoItem: b.tipoItem || row.tipoItem,
+        grade: b.grade || row.grade,
+    });
+};
 
 function cloneCatalogBase(full: ItemCatalogBase): ItemCatalogBase {
     try {
@@ -176,10 +235,13 @@ window.enrichEquipBaseFromCatalogIfNeeded = function enrichEquipBaseFromCatalogI
     if (!row.base) return item;
 
     const oldBase = row.base;
-    const id = String(oldBase.id || row.id || '').trim();
-    if (!id) return row;
-
-    const full = lookupEquipCatalogById(id);
+    const full = lookupEquipCatalogByHint({
+        id: oldBase.id || row.id,
+        nome: oldBase.nome || row.nome,
+        tipo: oldBase.tipo || row.tipo,
+        tipoItem: oldBase.tipoItem || row.tipoItem,
+        grade: oldBase.grade || row.grade,
+    });
     if (!full) return row;
 
     const nextBase = cloneCatalogBase(full);

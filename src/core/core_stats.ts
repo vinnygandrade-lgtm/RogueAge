@@ -21,8 +21,17 @@ function resolveEquippedTitleIdForStats(): string | null {
   return null;
 }
 
-/** Live catalog row by id — balance patches apply even if save still has an old `base` snapshot. */
-function lookupLiveCatalogBase(id: string): ItemCatalogBase | null {
+/** Live catalog row by id/nome — balance patches apply even if save still has an old `base` snapshot. */
+function lookupLiveCatalogBase(itemOrBase: StatItem | ItemCatalogBase | null | undefined): ItemCatalogBase | null {
+  if (!itemOrBase) return null;
+  if (typeof window.resolveEquipCatalogBase === 'function') {
+    return window.resolveEquipCatalogBase(itemOrBase);
+  }
+  const rec = itemOrBase as Record<string, unknown>;
+  const base = (rec.base && typeof rec.base === 'object')
+    ? (rec.base as ItemCatalogBase)
+    : (itemOrBase as ItemCatalogBase);
+  const id = String((base && base.id) || rec.id || '').trim();
   if (!id) return null;
   const cats: Array<ItemCatalogBase[] | undefined> = [
     window.catalogoArmaduras,
@@ -42,8 +51,7 @@ function getItemStat(item: StatItem, stat: string): number {
   if (!item) return 0;
   const rec = item as Record<string, unknown>;
   const base = rec.base as ItemCatalogBase | undefined;
-  const id = String((base && base.id) || rec.id || '').trim();
-  const live = id ? lookupLiveCatalogBase(id) : null;
+  const live = lookupLiveCatalogBase(item) || (base ? lookupLiveCatalogBase(base) : null);
   const src = (live || base || rec) as Record<string, unknown>;
   let val: unknown = src[stat];
   if (val === undefined && base && base !== live && base[stat] !== undefined) val = base[stat];
@@ -67,7 +75,33 @@ function expeditionRunEnchantBonus(slot: string): number {
   return 0;
 }
 
+function rebaseEquippedSlotsFromCatalog(): void {
+    if (typeof window.enrichEquipBaseFromCatalogIfNeeded !== 'function') return;
+    const slots: Array<keyof Window> = [
+        'armaEquipadaBase',
+        'armaduraEquipada',
+        'colarEquipado',
+        'brincoEquipado1',
+        'brincoEquipado2',
+        'anelEquipado1',
+        'anelEquipado2',
+    ];
+    for (let i = 0; i < slots.length; i++) {
+        const key = slots[i];
+        const cur = window[key];
+        if (!cur) continue;
+        try {
+            (window as unknown as Record<string, unknown>)[key] =
+                window.enrichEquipBaseFromCatalogIfNeeded(cur);
+        } catch {
+            /* ignore single-slot failure */
+        }
+    }
+}
+
 window.calcularStatusGlobais = function calcularStatusGlobais(): void {
+    rebaseEquippedSlotsFromCatalog();
+
     const race = window.charRace || "Human";
     const cl = window.charClass || "Fighter";
     

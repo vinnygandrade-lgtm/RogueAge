@@ -278,6 +278,8 @@ declare global {
     L2MINI_CURRENCY_BAG_KEYS: { adena: string; ancient: string };
     syncMoedasInventarioComCarteira: () => void;
     enrichEquipBaseFromCatalogIfNeeded: (item: unknown) => EquipInstance | unknown;
+    /** Live catalog row by id or exact nome (legacy saves without base.id). */
+    resolveEquipCatalogBase: (itemOrBase: unknown) => import('./game').ItemCatalogBase | null;
     formatClassDisplayName: (raw: unknown) => string;
     coerceInspectEquipItem: (item: unknown, tipoPadrao?: string) => EquipInstance | null;
     unwrapCloudCharacterJsonb: (raw: unknown) => CharacterSave;

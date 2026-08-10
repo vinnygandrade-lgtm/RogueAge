@@ -536,6 +536,11 @@ function formatarTooltipEquipamento(
     itemCompleto: InventoryBagEquip | null = null,
     opts?: { omitHeader?: boolean }
 ): string {
+    // Prefer live catalog (id or nome) so tooltips follow balance patches on owned gear.
+    if (typeof window.resolveEquipCatalogBase === 'function') {
+        const live = window.resolveEquipCatalogBase(itemCompleto || base);
+        if (live) base = live;
+    }
     const corGrade = (typeof window.getGradeColor === 'function') ? window.getGradeColor(base.grade) : '#b5b3ae';
     const omitHeader = !!(opts && opts.omitHeader);
     const nomeEsc = _escSheet(base.nome || '');
@@ -672,8 +677,12 @@ function formatarTooltipEquipamento(
 }
 
 function abrirAcaoInventario(index: number, slotPerfilPref?: string): void {
-    const equip = window.inventarioEquips[index] as InventoryBagEquip | undefined;
+    let equip = window.inventarioEquips[index] as InventoryBagEquip | undefined;
     if (!equip) return;
+    if (typeof window.enrichEquipBaseFromCatalogIfNeeded === 'function') {
+        equip = window.enrichEquipBaseFromCatalogIfNeeded(equip) as InventoryBagEquip;
+        window.inventarioEquips[index] = equip as EquipInstance;
+    }
     const itemBase = (equip.base ? equip.base : equip) as ItemCatalogBase;
     const tipoBruto = window.InventoryManager.resolveEquipSubTipo(equip)
         || String(equip.tipo || itemBase.tipoItem || itemBase.tipo || 'misc');
@@ -830,6 +839,17 @@ function abrirAcaoPerfil(tipo: string): void {
 
     if (!fullItem) return;
 
+    if (typeof window.enrichEquipBaseFromCatalogIfNeeded === 'function') {
+        fullItem = window.enrichEquipBaseFromCatalogIfNeeded(fullItem) as InventoryBagEquip;
+        if (tipo === 'weapon') window.armaEquipadaBase = fullItem as EquipInstance;
+        else if (tipo === 'armor') window.armaduraEquipada = fullItem as EquipInstance;
+        else if (tipo === 'neck') window.colarEquipado = fullItem as EquipInstance;
+        else if (tipo === 'ear1') window.brincoEquipado1 = fullItem as EquipInstance;
+        else if (tipo === 'ear2') window.brincoEquipado2 = fullItem as EquipInstance;
+        else if (tipo === 'ring1') window.anelEquipado1 = fullItem as EquipInstance;
+        else if (tipo === 'ring2') window.anelEquipado2 = fullItem as EquipInstance;
+    }
+
     const itemBase = (fullItem.base || fullItem) as ItemCatalogBase;
 
     window.abrirModal('janela-item-acao', 2100);
@@ -911,6 +931,10 @@ function _parseProfileEnchantBadge(val: unknown): number {
 
 function _equipCatalogBase(item: InventoryBagEquip | EquipInstance | null | undefined): ItemCatalogBase {
     if (!item) return {};
+    if (typeof window.resolveEquipCatalogBase === 'function') {
+        const live = window.resolveEquipCatalogBase(item);
+        if (live) return live;
+    }
     if ('base' in item && item.base) return item.base;
     return item as unknown as ItemCatalogBase;
 }
