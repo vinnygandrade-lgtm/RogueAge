@@ -21,13 +21,33 @@ function resolveEquippedTitleIdForStats(): string | null {
   return null;
 }
 
+/** Live catalog row by id — balance patches apply even if save still has an old `base` snapshot. */
+function lookupLiveCatalogBase(id: string): ItemCatalogBase | null {
+  if (!id) return null;
+  const cats: Array<ItemCatalogBase[] | undefined> = [
+    window.catalogoArmaduras,
+    window.catalogoArmas,
+    window.catalogoJoias,
+  ];
+  for (let i = 0; i < cats.length; i++) {
+    const cat = cats[i];
+    if (!Array.isArray(cat)) continue;
+    const hit = cat.find((a) => a && a.id === id);
+    if (hit) return hit;
+  }
+  return null;
+}
+
 function getItemStat(item: StatItem, stat: string): number {
   if (!item) return 0;
   const rec = item as Record<string, unknown>;
-  let val: unknown = 0;
   const base = rec.base as ItemCatalogBase | undefined;
-  if (base && base[stat] !== undefined) val = base[stat];
-  else if (rec[stat] !== undefined) val = rec[stat];
+  const id = String((base && base.id) || rec.id || '').trim();
+  const live = id ? lookupLiveCatalogBase(id) : null;
+  const src = (live || base || rec) as Record<string, unknown>;
+  let val: unknown = src[stat];
+  if (val === undefined && base && base !== live && base[stat] !== undefined) val = base[stat];
+  if (val === undefined && rec[stat] !== undefined) val = rec[stat];
   return typeof val === 'number' && !Number.isNaN(val) ? val : 0;
 }
 

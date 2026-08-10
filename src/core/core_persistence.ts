@@ -114,12 +114,43 @@ window.syncMoedasInventarioComCarteira = function () {
     else delete window.inventario[kC];
 };
 
-/** Hidrata `base` a partir dos catálogos quando a nuvem só guardou `{ id }` (ex.: craft RPC). */
+const L2MINI_EQUIP_AUG_KEYS = [
+    'augLevel', 'augPAtk', 'augMAtk', 'augPDef', 'augMDef', 'augSpd', 'augCrit', 'augHp',
+] as const;
+
+function lookupEquipCatalogById(id: string): ItemCatalogBase | null {
+    if (!id) return null;
+    let full: ItemCatalogBase | undefined;
+    if (typeof catalogoArmaduras !== 'undefined') {
+        full = catalogoArmaduras.find(function (a) { return a && a.id === id; });
+    }
+    if (!full && typeof catalogoArmas !== 'undefined') {
+        full = catalogoArmas.find(function (a) { return a && a.id === id; });
+    }
+    if (!full && typeof catalogoJoias !== 'undefined') {
+        full = catalogoJoias.find(function (a) { return a && a.id === id; });
+    }
+    return full || null;
+}
+
+function cloneCatalogBase(full: ItemCatalogBase): ItemCatalogBase {
+    try {
+        return JSON.parse(JSON.stringify(full)) as ItemCatalogBase;
+    } catch {
+        return { ...full };
+    }
+}
+
+/**
+ * Always rebinds `item.base` to the live catalog row for `base.id`.
+ * Keeps uid / enchant / augment / origin — so balance patches apply to owned gear on load.
+ * Legacy incomplete cloud rows (`{ id }` only) are hydrated the same way.
+ */
 window.enrichEquipBaseFromCatalogIfNeeded = function enrichEquipBaseFromCatalogIfNeeded(
     item: unknown,
 ): EquipInstance | unknown {
     if (!item || typeof item !== 'object') return item;
-    const row = item as LooseEquip;
+    let row = item as LooseEquip;
     if (row.base && typeof row.base === 'object') {
         var bk = Object.keys(row.base);
         if (bk.length === 0 && row.id) {
@@ -127,60 +158,59 @@ window.enrichEquipBaseFromCatalogIfNeeded = function enrichEquipBaseFromCatalogI
         }
     }
     if (!row.base && row.id) {
-        item = {
+        row = {
             uid: row.uid,
             tipo: row.tipo,
             base: { id: String(row.id) },
             enchant: row.enchant !== undefined ? row.enchant : (row.enchantArmor || row.enchantJewel || 0),
             augmented: row.augmented || false,
-            origin: row.origin
+            origin: row.origin,
         } as LooseEquip;
-    }
-    if (!(item as LooseEquip).base) return item;
-    var b = (item as LooseEquip).base!;
-    var looksArmor = b.tipo && ['Heavy', 'Light', 'Medium', 'Robe', 'Mage Light', 'Mage Heavy', 'armor'].indexOf(b.tipo) >= 0;
-    var looksJewel = b.tipoItem && ['neck', 'ear', 'ring'].indexOf(b.tipoItem) >= 0;
-    var hasStats =
-        b.atk != null || b.matk != null || b.mAtk != null ||
-        b.pDef != null || b.mDef != null || b.def != null ||
-        looksArmor || looksJewel;
-    if (b.nome && hasStats) {
-        var idEarly = b.id;
-        var fullEarly = null;
-        if (idEarly) {
-            if (typeof catalogoArmaduras !== 'undefined') fullEarly = catalogoArmaduras.find(function (a) { return a.id === idEarly; });
-            if (!fullEarly && typeof catalogoArmas !== 'undefined') fullEarly = catalogoArmas.find(function (a) { return a.id === idEarly; });
-            if (!fullEarly && typeof catalogoJoias !== 'undefined') fullEarly = catalogoJoias.find(function (a) { return a.id === idEarly; });
+        // Preserve augment rolls if they lived on the flat row.
+        for (const k of L2MINI_EQUIP_AUG_KEYS) {
+            if (row[k] === undefined && (item as LooseEquip)[k] !== undefined) {
+                row[k] = (item as LooseEquip)[k];
+            }
         }
-        if (fullEarly && fullEarly.img && b.img !== fullEarly.img) {
-            const src = item as LooseEquip;
-            return {
-                uid: src.uid,
-                tipo: src.tipo,
-                base: Object.assign({}, b, { img: fullEarly.img }),
-                enchant: src.enchant !== undefined ? src.enchant : 0,
-                augmented: src.augmented || false,
-                origin: src.origin
-            } as EquipInstance;
-        }
-        return item;
     }
-    var id = b.id;
-    if (!id) return item;
-    var full = null;
-    if (typeof catalogoArmaduras !== 'undefined') full = catalogoArmaduras.find(function (a) { return a.id === id; });
-    if (!full && typeof catalogoArmas !== 'undefined') full = catalogoArmas.find(function (a) { return a.id === id; });
-    if (!full && typeof catalogoJoias !== 'undefined') full = catalogoJoias.find(function (a) { return a.id === id; });
-    if (!full) return item;
-    const srcItem = item as LooseEquip;
-    return {
-        uid: srcItem.uid,
-        tipo: srcItem.tipo || full.tipoItem || full.tipo,
-        base: full,
-        enchant: srcItem.enchant !== undefined ? srcItem.enchant : 0,
-        augmented: srcItem.augmented || false,
-        origin: srcItem.origin || 'Cloud'
-    } as EquipInstance;
+    if (!row.base) return item;
+
+    const oldBase = row.base;
+    const id = String(oldBase.id || row.id || '').trim();
+    if (!id) return row;
+
+    const full = lookupEquipCatalogById(id);
+    if (!full) return row;
+
+    const nextBase = cloneCatalogBase(full);
+    const enchant =
+        row.enchant !== undefined && row.enchant !== null
+            ? Number(row.enchant) || 0
+            : (row.enchantArmor !== undefined
+                ? Number(row.enchantArmor) || 0
+                : (row.enchantJewel !== undefined ? Number(row.enchantJewel) || 0 : 0));
+
+    const out: LooseEquip = {
+        ...row,
+        uid: row.uid,
+        tipo: String(row.tipo || full.tipoItem || full.tipo || 'misc'),
+        base: nextBase,
+        enchant,
+        augmented: !!row.augmented,
+        origin: row.origin || 'Cloud',
+    };
+
+    // Lift augment rolls that were incorrectly snapshotted into `base` on older saves.
+    for (const k of L2MINI_EQUIP_AUG_KEYS) {
+        if (out[k] == null && oldBase[k] != null) {
+            out[k] = oldBase[k];
+        }
+        if (out[k] != null && typeof out[k] === 'number' && Number(out[k]) > 0) {
+            out.augmented = true;
+        }
+    }
+
+    return out as EquipInstance;
 };
 
 /**
@@ -305,6 +335,19 @@ window.pickInspectSaveEquip = function pickInspectSaveEquip(
     return null;
 };
 
+function copyEquipAugmentFields(from: LooseEquip, to: EquipInstance): EquipInstance {
+    const out = to as EquipInstance & LooseRecord;
+    for (const k of L2MINI_EQUIP_AUG_KEYS) {
+        if (from[k] != null) out[k] = from[k];
+    }
+    if (from.owner != null) out.owner = String(from.owner);
+    if (from.createdAt != null) out.createdAt = String(from.createdAt);
+    if (from.augmented || L2MINI_EQUIP_AUG_KEYS.some((k) => typeof from[k] === 'number' && Number(from[k]) > 0)) {
+        out.augmented = true;
+    }
+    return out;
+}
+
 window.normalizarInventarioEquipsParaInstancias = function normalizarInventarioEquipsParaInstancias(
     arr: unknown[],
 ): EquipInstance[] {
@@ -317,12 +360,13 @@ window.normalizarInventarioEquipsParaInstancias = function normalizarInventarioE
         if (typeof window.ItemSecurity !== 'undefined' && !window.ItemSecurity.isValidInstance(row)) {
             var itemBase = (row.base || row) as ItemCatalogBase;
             var orig = row.origin === 'Craft' ? 'Craft' : 'Cloud';
-            return window.ItemSecurity.createInstance(String(row.tipo || 'misc'), itemBase, {
+            const created = window.ItemSecurity.createInstance(String(row.tipo || 'misc'), itemBase, {
                 uid: row.uid,
                 enchant: row.enchant !== undefined ? row.enchant : (row.enchantArmor || row.enchantJewel || 0),
                 augmented: row.augmented || false,
                 origin: orig
-            })!;
+            });
+            return created ? copyEquipAugmentFields(row, created) : (row as EquipInstance);
         }
         return row as EquipInstance;
     });
@@ -924,12 +968,13 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             }
             if (typeof window.ItemSecurity !== 'undefined' && !window.ItemSecurity.isValidInstance(row)) {
                 const itemBase = (row.base || row) as ItemCatalogBase;
-                return window.ItemSecurity.createInstance(row.tipo || tipoPadrao, itemBase, {
+                const created = window.ItemSecurity.createInstance(row.tipo || tipoPadrao, itemBase, {
                     uid: row.uid,
                     enchant: row.enchant !== undefined ? row.enchant : (row.enchantArmor || row.enchantJewel || 0),
                     augmented: row.augmented || false,
                     origin: 'Cloud'
                 });
+                return created ? copyEquipAugmentFields(row, created) : null;
             }
             return row as EquipInstance;
         };

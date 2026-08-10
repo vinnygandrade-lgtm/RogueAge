@@ -79,3 +79,7 @@ Peak dagger path (Adventurer `spd: 0.50`, Ghost Hunter `0.54`, Wind Rider `0.52`
 - **Phoenix Knight + Vesper Heavy + Vitality (max):** still slow (~2.5–3.0s) by design — improved vs zero secondary Spd, never near Precision.
 
 Full AA gear `bonusSpd` on the Precision peak stack remains ~1300–1400 (do not inflate Light/Radiant/Baium Spd when buffing Heavy/Vitality).
+
+## Owned gear vs catalog patches
+
+Equipment instances keep a `base` snapshot for UID / identity, but **`enrichEquipBaseFromCatalogIfNeeded` always rebinds `base` from the live catalog by `id` on load** (uid, enchant, augment preserved). Combat `getItemStat` also prefers the live catalog row. Balance retunes therefore apply to gear already in bags and equipped slots — not only newly purchased items.

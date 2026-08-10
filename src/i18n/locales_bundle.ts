@@ -70,6 +70,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-10',
                         items: [
+                            'Owned gear now follows catalog balance patches on login — your bag and equipped items refresh from the live item database (enchant and augment kept).',
                             'Gear focus rework: Heavy, Light, and Robe (and Vitality / Precision / Arcane jewels) now share the full secondary palette — each line still leads with its role (~4× stronger on-focus than off-role).',
                             'Tanks and casters pick up meaningful Crit / tempo / Evasion / HP as they gear up, while Precision dagger peaks stay capped near ~50 Crit / ~40 Evasion / ~0.25–0.35s AA and Arcane cast near ~50%.',
                             'Attack Speed pass: peak Precision dagger builds (Adventurer / Ghost Hunter / Wind Rider + Light + Baium) land near ~0.25–0.35s between auto-attacks with Haste — snappy permanent AA without soft-caps.'
@@ -3521,6 +3522,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-10',
                         items: [
+                            'Equipamento já na bolsa/equipado passa a seguir o balance do catálogo ao entrar no jogo — stats atualizam pela base viva (enchant e augment mantêm-se).',
                             'Foco de gear: Heavy, Light e Robe (e joias Vitality / Precision / Arcane) partilham a paleta completa de secundários — cada linha continua a liderar no seu papel (~4× mais forte no foco do que fora dele).',
                             'Tanks e magos ganham Crit / tempo / Evasion / HP de verdade ao subir de grade, sem o pico Precision passar de ~50 Crit / ~40 Evasion / ~0,25–0,35s AA nem o Cast Arcane sair de ~50%.',
                             'Pass de Attack Speed: builds Precision de dagger no pico ficam perto de ~0,25–0,35s entre auto-ataques com Haste — AA permanente rápido, sem soft-cap.'
