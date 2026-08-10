@@ -97,7 +97,7 @@ export const BLESSING_CATALOG: BlessingDef[] = [
     descKey: 'game.blessingBuild.catalog.focus.desc',
     color: '#fb7185',
     glyph: '◎',
-    effects: { critAdd: 6 },
+    effects: { critAdd: 3 },
   },
   {
     id: 'shield',
@@ -124,7 +124,7 @@ export const BLESSING_CATALOG: BlessingDef[] = [
     descKey: 'game.blessingBuild.catalog.guidance.desc',
     color: '#6ee7b7',
     glyph: '↻',
-    effects: { dodgeAdd: 4 },
+    effects: { dodgeAdd: 3 },
   },
   {
     id: 'poison_ward',
@@ -151,7 +151,7 @@ export const BLESSING_CATALOG: BlessingDef[] = [
     descKey: 'game.blessingBuild.catalog.haste.desc',
     color: '#34d399',
     glyph: '»',
-    effects: { atkSpeedMult: 0.88 },
+    effects: { atkSpeedMult: 0.92 },
   },
   {
     id: 'acumen',
@@ -160,7 +160,7 @@ export const BLESSING_CATALOG: BlessingDef[] = [
     descKey: 'game.blessingBuild.catalog.acumen.desc',
     color: '#a78bfa',
     glyph: '☿',
-    effects: { castAdd: 8 },
+    effects: { castAdd: 4 },
   },
   {
     id: 'vitality',

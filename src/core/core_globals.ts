@@ -139,7 +139,8 @@ window.L2MINI_CRIT_SOFT_SCALE = 30;
 window.L2MINI_DODGE_SOFT_CAP = 30;
 window.L2MINI_DODGE_RATE_CAP = 55;
 window.L2MINI_DODGE_SOFT_SCALE = 28;
-window.L2MINI_DODGE_PER_LEVEL = 0.12;
+/** Evasion from levels — budgeted so ~85 ≈ +5 (docs/stat-budget.md). */
+window.L2MINI_DODGE_PER_LEVEL = 0.06;
 
 /**
  * Attack interval (ms) — LOWER is faster.
@@ -169,6 +170,7 @@ function applySoftPercentCap(
   return Math.max(0, Math.min(hard, Math.floor(soft + gained)));
 }
 
+/** @deprecated Prefer content budget (docs/stat-budget.md). Kept for legacy callers / expedition safety. */
 window.applyCritRateCap = function applyCritRateCap(value: number): number {
   const soft =
     typeof window.L2MINI_CRIT_SOFT_CAP === 'number' && window.L2MINI_CRIT_SOFT_CAP >= 0

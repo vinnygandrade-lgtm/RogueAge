@@ -1422,27 +1422,10 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.critParts.jewels) otherParts.push(rowKey('lblCritJewels', '  · jewelry', '+' + String(b.critParts.jewels)));
     if (b.critParts.blessing) otherParts.push(rowKey('lblCritBlessing', '  · Blessing Build', '+' + String(b.critParts.blessing)));
     if (b.critParts.title) otherParts.push(rowKey('lblCritTitle', '  · equipped title', '+' + String(b.critParts.title)));
-    if (typeof b.critParts.rawBeforeCap === 'number' && b.critParts.rawBeforeCap > b.critRate) {
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
-            'lblCritCapApplied',
-            'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
-            {
-                raw: String(b.critParts.rawBeforeCap),
-                effective: String(b.critRate),
-                soft: String(typeof b.critParts.softCap === 'number' ? b.critParts.softCap : 55),
-                hard: String(typeof b.critParts.cap === 'number' ? b.critParts.cap : 90),
-            }
-        )) + '</div>');
-    } else {
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
-            'lblCritSoftHint',
-            'Full Crit value up to {soft}%. Past that, gains soften toward {hard}% — gear and buffs still help.',
-            {
-                soft: String(typeof b.critParts.softCap === 'number' ? b.critParts.softCap : 55),
-                hard: String(typeof b.critParts.cap === 'number' ? b.critParts.cap : 90),
-            }
-        )) + '</div>');
-    }
+    otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+        'lblCritBudgetHint',
+        'Crit is a straight sum from race, class, gear, title, and blessings — best permanent builds land near ~50%. Temporary skills may go higher.',
+    )) + '</div>');
     var dodgeTotal = typeof b.dodgeRate === 'number' ? b.dodgeRate : 0;
     var dp = b.dodgeParts || {};
     otherParts.push(rowFb(L('lblDodgeTotal', 'Evasion chance'), dodgeTotal + '%'));
@@ -1451,55 +1434,18 @@ window.renderPainelStatsDetalhado = function (): void {
     if (dp.armor) otherParts.push(rowKey('lblDodgeArmor', '  · Light armor', '+' + String(dp.armor) + '%'));
     if (dp.jewels) otherParts.push(rowKey('lblDodgeJewels', '  · Precision jewels', '+' + String(dp.jewels) + '%'));
     if (dp.blessing) otherParts.push(rowKey('lblDodgeBlessing', '  · Blessing Build', '+' + String(dp.blessing) + '%'));
-    if (typeof dp.rawBeforeCap === 'number' && dp.rawBeforeCap > dodgeTotal) {
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
-            'lblDodgeCapApplied',
-            'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
-            {
-                raw: String(dp.rawBeforeCap),
-                effective: String(dodgeTotal),
-                soft: String(typeof dp.softCap === 'number' ? dp.softCap : 30),
-                hard: String(typeof dp.cap === 'number' ? dp.cap : 55),
-            }
-        )) + '</div>');
-    } else {
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
-            'lblDodgeHint',
-            'Full Evasion value up to {soft}%. Past that, gains soften toward {hard}% — Light armor, Precision jewels, and Ultimate Evasion still help.',
-            {
-                soft: String(typeof dp.softCap === 'number' ? dp.softCap : 30),
-                hard: String(typeof dp.cap === 'number' ? dp.cap : 55),
-            }
-        )) + '</div>');
-    }
+    otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+        'lblDodgeBudgetHint',
+        'Evasion is a straight sum from class, levels, Light armor, Precision jewels, and blessings — best permanent builds land near ~40%. Ultimate Evasion can push higher briefly.',
+    )) + '</div>');
     if (b.atkSpeed.reduceTitleMs) {
         otherParts.push(rowKey('lblSpdTitle', '  · equipped title (faster)', '−' + String(b.atkSpeed.reduceTitleMs) + ' ms'));
     }
     otherParts.push(rowFb(L('lblAtkSpdShown', 'Time between hits (lower = faster)'), (b.atkSpeed.totalMs / 1000).toFixed(2) + 's'));
-    if (b.atkSpeed.softFloored || b.atkSpeed.floored250) {
-        var rawMs = typeof b.atkSpeed.computedMsBeforeFloor === 'number'
-            ? Math.floor(b.atkSpeed.computedMsBeforeFloor)
-            : b.atkSpeed.totalMs;
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
-            'lblAtkFloor',
-            'Investment {rawMs}ms → effective {effectiveMs}ms (full speed down to {softMs}ms, then soft gains toward {hardMs}ms).',
-            {
-                rawMs: String(rawMs),
-                effectiveMs: String(b.atkSpeed.totalMs),
-                softMs: String(typeof b.atkSpeed.softMinMs === 'number' ? b.atkSpeed.softMinMs : 280),
-                hardMs: String(typeof b.atkSpeed.hardMinMs === 'number' ? b.atkSpeed.hardMinMs : 160),
-            }
-        )) + '</div>');
-    } else {
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
-            'lblAtkSoftHint',
-            'Attack interval is fully rewarded down to {softMs}ms. Faster than that softens toward {hardMs}ms — gear and speed buffs still help.',
-            {
-                softMs: String(typeof b.atkSpeed.softMinMs === 'number' ? b.atkSpeed.softMinMs : 280),
-                hardMs: String(typeof b.atkSpeed.hardMinMs === 'number' ? b.atkSpeed.hardMinMs : 160),
-            }
-        )) + '</div>');
-    }
+    otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+        'lblAtkBudgetHint',
+        'Attack Speed is class interval minus gear Speed — no soft floor. Best permanent AA builds aim near ~0.22s between hits; only a tiny timer floor remains.',
+    )) + '</div>');
     var castPct = (b.castSpeed && typeof b.castSpeed.totalPct === 'number') ? b.castSpeed.totalPct : 0;
     otherParts.push(rowFb(L('lblCastSpdShown', 'Casting Speed (shortens skill cast time)'), '+' + String(castPct) + '%'));
     if (b.castSpeed && b.castSpeed.fromArmor) {
@@ -1523,32 +1469,10 @@ window.renderPainelStatsDetalhado = function (): void {
     if (b.castSpeed && b.castSpeed.fromBuffs) {
         otherParts.push(rowKey('lblCastSpdBuffs', '  · skill buffs', '+' + String(b.castSpeed.fromBuffs) + '%'));
     }
-    if (
-        b.castSpeed
-        && typeof b.castSpeed.rawBeforeCap === 'number'
-        && typeof b.castSpeed.gearSoftPct === 'number'
-        && b.castSpeed.rawBeforeCap > b.castSpeed.gearSoftPct
-    ) {
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
-            'lblCastCapApplied',
-            'Investment {raw}% → effective {effective}% (full value to {soft}%, then soft gains toward {hard}% max). Effort still counts.',
-            {
-                raw: String(b.castSpeed.rawBeforeCap),
-                effective: String(b.castSpeed.gearSoftPct),
-                soft: String(typeof b.castSpeed.softCap === 'number' ? b.castSpeed.softCap : 35),
-                hard: String(typeof b.castSpeed.hardCap === 'number' ? b.castSpeed.hardCap : 55),
-            }
-        )) + '</div>');
-    } else {
-        otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
-            'lblCastSoftHint',
-            'Full Casting Speed value up to {soft}%. Past that, gains soften toward {hard}% — Robe, staff, Arcane jewels, and Concentration still help.',
-            {
-                soft: String(b.castSpeed && typeof b.castSpeed.softCap === 'number' ? b.castSpeed.softCap : 35),
-                hard: String(b.castSpeed && typeof b.castSpeed.hardCap === 'number' ? b.castSpeed.hardCap : 55),
-            }
-        )) + '</div>');
-    }
+    otherParts.push('<div class="status-detail__muted">' + escapeStatHtml(L(
+        'lblCastBudgetHint',
+        'Casting Speed is a straight sum from robe, staff, Arcane jewels, title, and blessings — best permanent builds land near ~50%. Concentration may go higher briefly.',
+    )) + '</div>');
     if (Array.isArray(b.joiasPorStat) && b.joiasPorStat.length > 0) {
         otherParts.push('<div class="status-detail__h-sm">' + L('secJewelry', 'Each jewelry piece') + '</div>');
         b.joiasPorStat.forEach(function (jn) {

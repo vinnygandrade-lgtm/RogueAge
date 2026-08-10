@@ -2515,16 +2515,12 @@ export class ExpeditionEngine {
             mAtk: Math.floor(base.mAtk * m.mAtk),
             pDef: Math.floor(base.pDef * m.pDef),
             mDef: Math.floor(base.mDef * m.mDef),
-            critRate: typeof win.applyCritRateCap === 'function'
-                ? win.applyCritRateCap(Math.floor(base.critRate * m.crit))
-                : Math.min(90, Math.floor(base.critRate * m.crit)),
+            critRate: Math.max(0, Math.floor(base.critRate * m.crit)),
             atkSpeed: Math.max(absAtkMin, Math.floor(base.atkSpeed * m.atkSpeed)),
             maxHp: Math.floor(base.maxHp * m.maxHp),
             maxMp: Math.floor(base.maxMp * m.maxMp),
             castSpeed: Math.max(0, Math.floor(Number(base.castSpeed) || 0) + m.castSpeedAdd),
-            dodgeRate: typeof win.applyDodgeRateCap === 'function'
-                ? win.applyDodgeRateCap(dodgeInvest)
-                : Math.min(55, dodgeInvest)
+            dodgeRate: Math.max(0, Math.min(95, dodgeInvest))
         };
     }
 

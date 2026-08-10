@@ -86,7 +86,7 @@ window.getPlayerDodgeChanceVsMob = function (
   mob?: { lvl?: number; nivel?: number } | null,
   ataqueMagicoDoMonstro = false,
 ): number {
-  // Soft-cap once on (gear raw + Ultimate Evasion + expedition run), never on an already-softened portrait total.
+  // Linear dodge (content-budgeted). Ultimate Evasion / expedition add on top of gear raw.
   const win = window as Window & {
     _l2DodgeRawGear?: number;
     ExpeditionEngine?: { getRunDodgeInvestment?: () => number };
@@ -112,10 +112,8 @@ window.getPlayerDodgeChanceVsMob = function (
   if (ataqueMagicoDoMonstro) {
     raw *= 0.85;
   }
-  raw = Math.max(0, raw);
-  return typeof window.applyDodgeRateCap === 'function'
-    ? window.applyDodgeRateCap(raw)
-    : Math.max(0, Math.min(55, Math.floor(raw)));
+  // Sanity: never above 95% dodge chance in a single roll.
+  return Math.max(0, Math.min(95, Math.floor(raw)));
 };
 
 window.tryPlayerDodgeIncoming = function (

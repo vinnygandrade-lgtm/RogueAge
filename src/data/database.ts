@@ -166,7 +166,7 @@ window.statusIniciais = {
     danoMage: 12,
     atkSpeedFighter: 3600,
     atkSpeedMage: 4700,
-    critico: 15,
+    critico: 10,
   },
   Orc: {
     hpFighter: 130,

@@ -55,18 +55,12 @@ export function getSkillBaseCastMs(
   return DEFAULT_CAST_MS;
 }
 
-/** Current player castSpeed % (soft-capped in world; uncapped in expedition). */
+/** Current player castSpeed % (budgeted in content; clamp only so cast never goes negative). */
 export function getPlayerCastSpeedPct(): number {
   const raw = Number(window.playerStats?.castSpeed);
   if (!Number.isFinite(raw) || raw <= 0) return 0;
-  if (isExpeditionRunEffectsActive()) {
-    // Cap only at 95% so castBase * (1 - pct/100) never goes negative.
-    return Math.min(95, Math.max(0, Math.floor(raw)));
-  }
-  if (typeof window.applyCastSpeedCap === 'function') {
-    return window.applyCastSpeedCap(raw);
-  }
-  return Math.min(MAX_CAST_SPEED_PCT, Math.max(0, Math.floor(raw)));
+  // Cap only at 95% so castBase * (1 - pct/100) never goes negative.
+  return Math.min(95, Math.max(0, Math.floor(raw)));
 }
 
 /**
@@ -87,11 +81,7 @@ export function resolveSkillCastMs(
     castSpeedPct != null && Number.isFinite(castSpeedPct)
       ? Math.max(0, Number(castSpeedPct))
       : getPlayerCastSpeedPct();
-  const pct = expedition
-    ? Math.min(95, Math.max(0, Math.floor(pctRaw)))
-    : typeof window.applyCastSpeedCap === 'function'
-      ? window.applyCastSpeedCap(pctRaw)
-      : Math.min(MAX_CAST_SPEED_PCT, Math.floor(pctRaw));
+  const pct = Math.min(95, Math.max(0, Math.floor(pctRaw)));
 
   const reduced = Math.floor(castBase * (1 - pct / 100));
   const minCast = expedition ? EXPEDITION_MIN_CAST_MS : MIN_CAST_MS;

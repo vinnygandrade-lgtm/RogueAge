@@ -17,10 +17,8 @@ export function resolveSkillCritChancePct(skillName: string, baseChance?: number
   if (skillName === 'Mortal Strike' || skillName === 'Deadly Blow') {
     chance += 12;
   }
-  if (typeof window.applyCritRateCap === 'function') {
-    return window.applyCritRateCap(chance);
-  }
-  return Math.min(90, Math.max(0, Math.floor(chance)));
+  // Content-budgeted crit — only a 95% sanity clamp (skills like Mortal Strike may exceed gear ~50).
+  return Math.min(95, Math.max(0, Math.floor(chance)));
 }
 
 /**

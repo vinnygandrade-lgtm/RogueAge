@@ -68,9 +68,9 @@ const STAT_PRIMARY_BASE: Record<TitleBonusStatKey, number> = {
   mDef: 6,
   maxHp: 70,
   maxMp: 40,
-  critRate: 0.9,
-  atkSpeedMs: 12,
-  castSpeedPct: 3,
+  critRate: 0.32,
+  atkSpeedMs: 4,
+  castSpeedPct: 0.7,
 };
 
 interface AchievementBonusProfile {

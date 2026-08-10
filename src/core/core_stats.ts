@@ -125,9 +125,10 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let multEnchant = 1 + (lvlArm * 0.10);
     let armaduraBonusHp = Math.floor(getStat(armor, 'bonusHp') * multEnchant);
     let armaduraBonusMp = Math.floor(getStat(armor, 'bonusMp') * multEnchant);
-    let armaduraBonusSpd = Math.floor(getStat(armor, 'bonusSpd') * multEnchant);
-    let armaduraBonusCrit = Math.floor(getStat(armor, 'bonusCrit') * multEnchant);
-    let armaduraBonusDodge = Math.floor(getStat(armor, 'bonusDodge') * multEnchant);
+    // Crit / Dodge / AtkSpd / Cast are budgeted flat (docs/stat-budget.md) — no enchant scale.
+    let armaduraBonusSpd = Math.floor(getStat(armor, 'bonusSpd'));
+    let armaduraBonusCrit = Math.floor(getStat(armor, 'bonusCrit'));
+    let armaduraBonusDodge = Math.floor(getStat(armor, 'bonusDodge'));
     let armaduraBonusMDef = Math.floor(getStat(armor, 'bonusMDef') * multEnchant);
     let armaduraFlatMDef = Math.floor(getStat(armor, 'mDef') * multEnchant);
     
@@ -162,10 +163,10 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let joiasMDef = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'mDef') * (1 + (getJewelEnchant(j) * 0.10))), 0));
     let joiasBonusHp = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusHp') * (1 + (getJewelEnchant(j) * 0.10))), 0)); 
     let joiasBonusMp = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusMp') * (1 + (getJewelEnchant(j) * 0.10))), 0));
-    let joiasBonusCrit = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusCrit') * (1 + (getJewelEnchant(j) * 0.10))), 0));
-    let joiasBonusSpd = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusSpd') * (1 + (getJewelEnchant(j) * 0.10))), 0));
-    let joiasBonusCast = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusCastSpeed') * (1 + (getJewelEnchant(j) * 0.10))), 0));
-    let joiasBonusDodge = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'bonusDodge') * (1 + (getJewelEnchant(j) * 0.10))), 0));
+    let joiasBonusCrit = Math.floor(joiasAtivas.reduce((soma, j) => soma + getStat(j, 'bonusCrit'), 0));
+    let joiasBonusSpd = Math.floor(joiasAtivas.reduce((soma, j) => soma + getStat(j, 'bonusSpd'), 0));
+    let joiasBonusCast = Math.floor(joiasAtivas.reduce((soma, j) => soma + getStat(j, 'bonusCastSpeed'), 0));
+    let joiasBonusDodge = Math.floor(joiasAtivas.reduce((soma, j) => soma + getStat(j, 'bonusDodge'), 0));
     let joiasPAtk = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'pAtk') * (1 + (getJewelEnchant(j) * 0.10))), 0));
     let joiasMAtk = Math.floor(joiasAtivas.reduce((soma, j) => soma + (getStat(j, 'mAtk') * (1 + (getJewelEnchant(j) * 0.10))), 0));
 
@@ -180,21 +181,22 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
     let joiasContribLinhas = [];
     joiasAtivas.forEach((j) => {
         const enl = getJewelEnchant(j);
-        const mk = (stat) => Math.floor(getStat(j, stat) * (1 + (enl * 0.10)));
+        const mkScaled = (stat) => Math.floor(getStat(j, stat) * (1 + (enl * 0.10)));
+        const mkFlat = (stat) => Math.floor(getStat(j, stat));
         const baseObj = j.base || j;
         const nm = (baseObj as ItemCatalogBase).nome || '?';
         const pushIf = (label, stat, raw) => {
             if (raw > 0) joiasContribLinhas.push({ slot: joiaSlotLabel(j), nome: nm, stat: label, value: raw });
         };
-        pushIf('mDef', 'mDef', mk('mDef'));
-        pushIf('pAtk', 'pAtk', mk('pAtk'));
-        pushIf('mAtk', 'mAtk', mk('mAtk'));
-        pushIf('bonusHp', 'bonusHp', mk('bonusHp'));
-        pushIf('bonusMp', 'bonusMp', mk('bonusMp'));
-        pushIf('bonusCrit', 'bonusCrit', mk('bonusCrit'));
-        pushIf('bonusSpd', 'bonusSpd', mk('bonusSpd'));
-        pushIf('bonusCastSpeed', 'bonusCastSpeed', mk('bonusCastSpeed'));
-        pushIf('bonusDodge', 'bonusDodge', mk('bonusDodge'));
+        pushIf('mDef', 'mDef', mkScaled('mDef'));
+        pushIf('pAtk', 'pAtk', mkScaled('pAtk'));
+        pushIf('mAtk', 'mAtk', mkScaled('mAtk'));
+        pushIf('bonusHp', 'bonusHp', mkScaled('bonusHp'));
+        pushIf('bonusMp', 'bonusMp', mkScaled('bonusMp'));
+        pushIf('bonusCrit', 'bonusCrit', mkFlat('bonusCrit'));
+        pushIf('bonusSpd', 'bonusSpd', mkFlat('bonusSpd'));
+        pushIf('bonusCastSpeed', 'bonusCastSpeed', mkFlat('bonusCastSpeed'));
+        pushIf('bonusDodge', 'bonusDodge', mkFlat('bonusDodge'));
     });
 
     let clanBonusPAtk = 1.0; let clanBonusPDef = 1.0; let clanBonusMAtk = 1.0; let clanBonusHp = 1.0;
@@ -297,23 +299,20 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             ? blessingFx.atkSpeedMult
             : 1;
 
+    // Budgeted linear sum — no soft-cap (docs/stat-budget.md).
     const critRawBeforeCap = Math.floor(
       base.critico + mod.crit + bonusAugCrit + armaduraBonusCrit + armaBonusCrit + joiasBonusCrit + titleBonus.critRate + blessingCritAdd,
     );
-    window.playerStats.critRate = (typeof window.applyCritRateCap === 'function')
-        ? window.applyCritRateCap(critRawBeforeCap)
-        : Math.min(Math.max(0, critRawBeforeCap), 90);
+    window.playerStats.critRate = Math.max(0, critRawBeforeCap);
 
     const dodgePerLvl =
         typeof window.L2MINI_DODGE_PER_LEVEL === 'number' && window.L2MINI_DODGE_PER_LEVEL >= 0
             ? window.L2MINI_DODGE_PER_LEVEL
-            : 0.12;
+            : 0.06;
     const classDodge = Math.max(0, Number((mod as { dodge?: number }).dodge) || 0);
     const dodgeFromLevel = Math.floor((safeNivel - 1) * dodgePerLvl);
     let dodgeInvestmentRaw = Math.floor(classDodge + dodgeFromLevel + armaduraBonusDodge + joiasBonusDodge + blessingDodgeAdd);
-    window.playerStats.dodgeRate = (typeof window.applyDodgeRateCap === 'function')
-        ? window.applyDodgeRateCap(dodgeInvestmentRaw)
-        : Math.min(Math.max(0, dodgeInvestmentRaw), 55);
+    window.playerStats.dodgeRate = Math.max(0, dodgeInvestmentRaw);
     
     let spdBase = isMage ? base.atkSpeedMage : base.atkSpeedFighter;
     let spdTotal = (spdBase - ((safeNivel - 1) * atkSpdMsMenosPorNivel)) * mod.spd;
@@ -364,32 +363,19 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
         window.playerStats.mAtk = Math.floor(window.playerStats.mAtk * hm);
         window.playerStats.pDef = Math.floor(window.playerStats.pDef * hm);
         window.playerStats.mDef = Math.floor(window.playerStats.mDef * hm);
-        // Re-apply soft curves on raw investment (class+gear), not on already-softened totals.
-        const critAfterH = Math.floor(critRawBeforeCap * hm);
-        window.playerStats.critRate = (typeof window.applyCritRateCap === 'function')
-            ? window.applyCritRateCap(critAfterH)
-            : Math.min(Math.max(0, critAfterH), 90);
-        dodgeInvestmentRaw = Math.floor(dodgeInvestmentRaw * hm);
-        window.playerStats.dodgeRate = (typeof window.applyDodgeRateCap === 'function')
-            ? window.applyDodgeRateCap(dodgeInvestmentRaw)
-            : Math.min(Math.max(0, dodgeInvestmentRaw), 55);
-        atkSpeedRawMs = Math.floor(atkSpeedRawMs * (1 - harmony.pct / 100));
-        castSpeedRawPct += harmony.pct;
+        // Crit / Dodge / Cast / AtkSpeed intentionally excluded (content budget).
     }
 
-    // Raw gear+harmony investment — combat buffs (Ultimate Evasion / Concentration) soft-cap once on raw+buff.
+    // Raw gear investment — skill combat buffs (Ultimate Evasion / Concentration) may add on top.
     (window as Window & { _l2DodgeRawGear?: number })._l2DodgeRawGear = dodgeInvestmentRaw;
     (window as Window & { _l2CastSpeedRawGear?: number })._l2CastSpeedRawGear = castSpeedRawPct;
-    const castBeforeBuffs = (typeof window.applyCastSpeedCap === 'function')
-        ? window.applyCastSpeedCap(castSpeedRawPct)
-        : Math.min(55, castSpeedRawPct);
+    const castBeforeBuffs = Math.max(0, Math.floor(castSpeedRawPct));
     window.playerStats.castSpeed = castBeforeBuffs;
 
-    window.playerStats.atkSpeed = (typeof window.applyAtkSpeedFloor === 'function')
-        ? window.applyAtkSpeedFloor(atkSpeedRawMs)
-        : Math.max(160, Math.floor(atkSpeedRawMs));
-    const atkSpdSoftApplied = atkSpeedRawMs < window.playerStats.atkSpeed
-        || atkSpeedRawMs !== window.playerStats.atkSpeed;
+    // Absolute timer floor only (no world soft-floor).
+    const ATK_SPEED_ABS_MIN_MS = 50;
+    window.playerStats.atkSpeed = Math.max(ATK_SPEED_ABS_MIN_MS, Math.floor(atkSpeedRawMs));
+    const atkSpdSoftApplied = false;
 
         if (
         !olyClean
@@ -558,9 +544,7 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             jewels: joiasBonusCrit,
             blessing: blessingCritAdd,
             title: titleBonus.critRate,
-            rawBeforeCap: harmonyAppliedPct > 0
-                ? Math.floor(critRawBeforeCap * (1 + harmonyAppliedPct / 100))
-                : critRawBeforeCap,
+            rawBeforeCap: critRawBeforeCap,
             softCap: (typeof window.L2MINI_CRIT_SOFT_CAP === 'number' ? window.L2MINI_CRIT_SOFT_CAP : 55),
             cap: (typeof window.L2MINI_CRIT_RATE_CAP === 'number' ? window.L2MINI_CRIT_RATE_CAP : 90),
         },
@@ -600,17 +584,17 @@ window.calcularStatusGlobais = function calcularStatusGlobais(): void {
             fromTitle: castFromTitle,
             fromJewels: joiasBonusCast,
             fromBlessing: blessingCastAdd,
-            fromHarmony: harmonyAppliedPct,
+            fromHarmony: 0,
             rawBeforeCap: castSpeedRawPct,
             gearSoftPct: castBeforeBuffs,
-            softCap: (typeof window.L2MINI_CAST_SOFT_CAP === 'number' ? window.L2MINI_CAST_SOFT_CAP : 35),
-            hardCap: (typeof window.L2MINI_CAST_RATE_CAP === 'number' ? window.L2MINI_CAST_RATE_CAP : 55),
+            softCap: 0,
+            hardCap: 0,
             fromBuffs: Math.max(
                 0,
                 (window.playerStats.castSpeed || 0) - castBeforeBuffs,
             ),
             totalPct: window.playerStats.castSpeed || 0,
-            capped: castBeforeBuffs < castSpeedRawPct,
+            capped: false,
         },
         harmony: {
             complete: harmony.complete,

@@ -14,103 +14,103 @@ const classModifiers = {
     "Fighter": { hp: 0.85, mp: 0.8, atk: 1.0, def: 0.85, spd: 1.0, crit: 5 },
     "Mage": { hp: 0.7, mp: 1.0, atk: 1.0, def: 0.6, spd: 1.0, crit: 2 },
     // === CLASSE BASE (Nível 1) ===
-    "Dark_Fighter": { hp: 0.75, mp: 0.9, atk: 1.2, def: 0.65, spd: 0.98, crit: 10 },
+    "Dark_Fighter": { hp: 0.75, mp: 0.9, atk: 1.2, def: 0.65, spd: 0.98, crit: 7 },
     "Dark_Mage": { hp: 0.6, mp: 1.1, atk: 1.2, def: 0.5, spd: 1.1, crit: 5 },
     // === PRIMEIRA TRANSFERÊNCIA (NÍVEL 20) ===
     "Warrior": { hp: 1.2, mp: 1.0, atk: 1.3, def: 1.1, spd: 1.05, crit: 5 },
     "Human Knight": { hp: 1.4, mp: 1.0, atk: 0.9, def: 1.5, spd: 1.0, crit: 0 },
-    "Rogue": { hp: 1.0, mp: 1.0, atk: 1.2, def: 0.9, spd: 0.85, crit: 10 }, 
+    "Rogue": { hp: 1.0, mp: 1.0, atk: 1.2, def: 0.9, spd: 0.85, crit: 7 }, 
     "Human Wizard": { hp: 0.8, mp: 1.5, atk: 1.6, def: 0.8, spd: 0.9, crit: 5 },
     "Cleric": { hp: 1.0, mp: 1.5, atk: 1.2, def: 1.0, spd: 0.9, crit: 5 },
 
     // === SEGUNDA TRANSFERÊNCIA (NÍVEL 40) ===
-    "Gladiator": { hp: 1.4, mp: 1.1, atk: 1.7, def: 1.2, spd: 0.96, crit: 10 },
+    "Gladiator": { hp: 1.4, mp: 1.1, atk: 1.7, def: 1.2, spd: 0.96, crit: 7 },
     "Warlord": { hp: 1.6, mp: 1.0, atk: 1.5, def: 1.3, spd: 0.9, crit: 5 },
     "Paladin": { hp: 1.8, mp: 1.2, atk: 0.9, def: 2.2, spd: 0.9, crit: 2 },
     "Dark Avenger": { hp: 1.8, mp: 1.0, atk: 1.0, def: 2.0, spd: 1.0, crit: 2 }, 
-    "Treasure Hunter": { hp: 1.1, mp: 1.0, atk: 1.4, def: 0.9, spd: 0.7, crit: 17 }, 
-    "Hawkeye": { hp: 1.1, mp: 1.0, atk: 1.8, def: 0.9, spd: 0.94, crit: 20 }, 
-    "Necromancer": { hp: 0.8, mp: 2.0, atk: 2.5, def: 0.8, spd: 0.8, crit: 10 },
-    "Sorcerer": { hp: 0.8, mp: 2.0, atk: 2.5, def: 0.8, spd: 0.8, crit: 10 }, // <-- Mago de Fogo Adicionado
+    "Treasure Hunter": { hp: 1.1, mp: 1.0, atk: 1.4, def: 0.9, spd: 0.7, crit: 9 }, 
+    "Hawkeye": { hp: 1.1, mp: 1.0, atk: 1.8, def: 0.9, spd: 0.94, crit: 10 }, 
+    "Necromancer": { hp: 0.8, mp: 2.0, atk: 2.5, def: 0.8, spd: 0.8, crit: 7 },
+    "Sorcerer": { hp: 0.8, mp: 2.0, atk: 2.5, def: 0.8, spd: 0.8, crit: 7 }, // <-- Mago de Fogo Adicionado
     "Bishop": { hp: 1.1, mp: 2.2, atk: 1.5, def: 1.1, spd: 0.9, crit: 5 },
     // Prophet = buffer path (less tanky than Bishop, strong MP pool for hymns)
     "Prophet": { hp: 1.0, mp: 2.1, atk: 1.35, def: 0.95, spd: 0.9, crit: 5 },
 
     // === TERCEIRA TRANSFERÊNCIA (NÍVEL 76 - ENDGAME) ===
-    "Duelist": { hp: 1.6, mp: 1.2, atk: 2.5, def: 1.3, spd: 0.88, crit: 15 },
-    "Dreadnought": { hp: 2.0, mp: 1.2, atk: 2.2, def: 1.5, spd: 0.95, crit: 10 },
+    "Duelist": { hp: 1.6, mp: 1.2, atk: 2.5, def: 1.3, spd: 0.88, crit: 8 },
+    "Dreadnought": { hp: 2.0, mp: 1.2, atk: 2.2, def: 1.5, spd: 0.95, crit: 7 },
     "Phoenix Knight": { hp: 2.6, mp: 1.5, atk: 1.2, def: 3.5, spd: 0.95, crit: 5 },
     "Hell Knight": { hp: 2.5, mp: 1.2, atk: 1.3, def: 3.2, spd: 0.95, crit: 5 }, 
-    "Adventurer": { hp: 1.3, mp: 1.2, atk: 2.0, def: 1.0, spd: 0.5, crit: 26 },
-    "Sagittarius": { hp: 1.3, mp: 1.2, atk: 3.0, def: 1.0, spd: 1.0, crit: 22 },
+    "Adventurer": { hp: 1.3, mp: 1.2, atk: 2.0, def: 1.0, spd: 0.58, crit: 10 },
+    "Sagittarius": { hp: 1.3, mp: 1.2, atk: 3.0, def: 1.0, spd: 1.0, crit: 10 },
     // Human 3rd mages: Soultaker = necro (sustentação/vida); Archmage = burst elemental (mais dano, mais frágil).
     // Atk alinhado ao tier ~3.2–3.4 (Storm Screamer) — 4.0 + def alta gerava desequilíbrio com gear e PvP.
-    "Soultaker": { hp: 0.92, mp: 2.85, atk: 3.22, def: 0.88, spd: 0.76, crit: 16 },
-    "Archmage": { hp: 0.84, mp: 2.92, atk: 3.38, def: 0.76, spd: 0.74, crit: 12 },
+    "Soultaker": { hp: 0.92, mp: 2.85, atk: 3.22, def: 0.88, spd: 0.76, crit: 9 },
+    "Archmage": { hp: 0.84, mp: 2.92, atk: 3.38, def: 0.76, spd: 0.74, crit: 7 },
     "Warlock": { hp: 1.2, mp: 2.0, atk: 2.0, def: 1.1, spd: 0.9, crit: 5 },
-    "Arcane Lord": { hp: 1.45, mp: 3.0, atk: 3.2, def: 1.2, spd: 0.9, crit: 8 },
+    "Arcane Lord": { hp: 1.45, mp: 3.0, atk: 3.2, def: 1.2, spd: 0.9, crit: 6 },
     "Cardinal": { hp: 1.22, mp: 3.5, atk: 2.0, def: 1.22, spd: 0.9, crit: 5 },
     "Hierophant": { hp: 1.12, mp: 3.0, atk: 1.75, def: 1.05, spd: 0.9, crit: 5 },
 
     // === DARK ELVES (Fighters & Mages) ===
-    "Assassin": { hp: 0.90, mp: 1.0, atk: 1.6, def: 0.7, spd: 0.88, crit: 18 },
-    "Abyss Walker": { hp: 1.05, mp: 1.0, atk: 2.2, def: 0.75, spd: 0.80, crit: 18 },
-    "Ghost Hunter": { hp: 1.25, mp: 1.0, atk: 3.0, def: 0.8, spd: 0.72, crit: 24 },
+    "Assassin": { hp: 0.90, mp: 1.0, atk: 1.6, def: 0.7, spd: 0.88, crit: 9 },
+    "Abyss Walker": { hp: 1.05, mp: 1.0, atk: 2.2, def: 0.75, spd: 0.80, crit: 9 },
+    "Ghost Hunter": { hp: 1.25, mp: 1.0, atk: 3.0, def: 0.8, spd: 0.72, crit: 11 },
     // === DARK ELVES (Magos) ===
-    "Dark Wizard": { hp: 0.75, mp: 1.25, atk: 1.8, def: 0.55, spd: 1.3, crit: 6 },
-    "Spellhowler": { hp: 0.90, mp: 1.40, atk: 2.6, def: 0.60, spd: 1.5, crit: 7 },
+    "Dark Wizard": { hp: 0.75, mp: 1.25, atk: 1.8, def: 0.55, spd: 1.3, crit: 5 },
+    "Spellhowler": { hp: 0.90, mp: 1.40, atk: 2.6, def: 0.60, spd: 1.5, crit: 6 },
     // Topo de atk puro entre magos 3rd; paga com def mais baixa que humanos (jogo justo entre raças).
-    "Storm Screamer": { hp: 1.08, mp: 1.65, atk: 3.42, def: 0.62, spd: 1.62, crit: 9 },
+    "Storm Screamer": { hp: 1.08, mp: 1.65, atk: 3.42, def: 0.62, spd: 1.62, crit: 6 },
     // === DARK ELVES (Arqueiros) ===
-    "Palus Ranger": { hp: 0.90, mp: 1.0, atk: 1.7, def: 0.7, spd: 0.90, crit: 20 },
-    "Phantom Ranger": { hp: 1.05, mp: 1.1, atk: 2.5, def: 0.7, spd: 0.84, crit: 20 },
-    "Ghost Sentinel": { hp: 1.25, mp: 1.2, atk: 3.5, def: 0.8, spd: 0.78, crit: 26 },
+    "Palus Ranger": { hp: 0.90, mp: 1.0, atk: 1.7, def: 0.7, spd: 0.90, crit: 10 },
+    "Phantom Ranger": { hp: 1.05, mp: 1.1, atk: 2.5, def: 0.7, spd: 0.84, crit: 10 },
+    "Ghost Sentinel": { hp: 1.25, mp: 1.2, atk: 3.5, def: 0.8, spd: 0.78, crit: 10 },
     // === DARK ELVES (Espadas Duplas / Dançarinos) ===
-    "Palus Knight": { hp: 0.95, mp: 1.0, atk: 1.5, def: 0.80, spd: 1.0, crit: 12 },
-    "Bladedancer": { hp: 1.15, mp: 1.2, atk: 2.1, def: 0.85, spd: 0.92, crit: 15 },
-    "Spectral Dancer": { hp: 1.40, mp: 1.4, atk: 3.2, def: 0.95, spd: 0.86, crit: 20 },
+    "Palus Knight": { hp: 0.95, mp: 1.0, atk: 1.5, def: 0.80, spd: 1.0, crit: 7 },
+    "Bladedancer": { hp: 1.15, mp: 1.2, atk: 2.1, def: 0.85, spd: 0.92, crit: 8 },
+    "Spectral Dancer": { hp: 1.40, mp: 1.4, atk: 3.2, def: 0.95, spd: 0.86, crit: 10 },
     // === DARK ELVES (Tanque Sombrio / Escudo) ===
     // (O Palus Knight Lvl 20 já existe no seu código, não precisa duplicar)
-    "Shillien Knight": { hp: 1.25, mp: 1.1, atk: 1.8, def: 1.25, spd: 1.08, crit: 15 },
-    "Shillien Templar": { hp: 1.55, mp: 1.2, atk: 2.5, def: 1.65, spd: 1.12, crit: 18 },
+    "Shillien Knight": { hp: 1.25, mp: 1.1, atk: 1.8, def: 1.25, spd: 1.08, crit: 8 },
+    "Shillien Templar": { hp: 1.55, mp: 1.2, atk: 2.5, def: 1.65, spd: 1.12, crit: 9 },
 
     // === DARK ELVES (Invocador de Sombras) ===
     // (O Dark Wizard Lvl 20 já existe no seu código)
-    "Phantom Summoner": { hp: 0.90, mp: 1.40, atk: 2.2, def: 0.70, spd: 1.08, crit: 7 },
-    "Spectral Master": { hp: 1.18, mp: 1.60, atk: 3.0, def: 0.88, spd: 1.06, crit: 8 },
+    "Phantom Summoner": { hp: 0.90, mp: 1.40, atk: 2.2, def: 0.70, spd: 1.08, crit: 6 },
+    "Spectral Master": { hp: 1.18, mp: 1.60, atk: 3.0, def: 0.88, spd: 1.06, crit: 6 },
 
     // === DARK ELVES (Curandeiro / Suporte) ===
     "Shillien Oracle": { hp: 0.70, mp: 1.30, atk: 1.3, def: 0.55, spd: 1.05, crit: 5 },
-    "Shillien Elder": { hp: 0.85, mp: 1.50, atk: 1.6, def: 0.65, spd: 1.04, crit: 6 },
-    "Shillien Saint": { hp: 1.08, mp: 1.80, atk: 2.2, def: 0.78, spd: 1.03, crit: 7 },
+    "Shillien Elder": { hp: 0.85, mp: 1.50, atk: 1.6, def: 0.65, spd: 1.04, crit: 5 },
+    "Shillien Saint": { hp: 1.08, mp: 1.80, atk: 2.2, def: 0.78, spd: 1.03, crit: 6 },
     // === ELFOS DA LUZ (Base Lvl 20) ===
-    "Elven Knight": { hp: 1.1, mp: 1.1, atk: 1.2, def: 1.3, spd: 1.08, crit: 10 },
-    "Elven Scout": { hp: 0.8, mp: 1.0, atk: 1.3, def: 0.8, spd: 0.86, crit: 20 },
+    "Elven Knight": { hp: 1.1, mp: 1.1, atk: 1.2, def: 1.3, spd: 1.08, crit: 7 },
+    "Elven Scout": { hp: 0.8, mp: 1.0, atk: 1.3, def: 0.8, spd: 0.86, crit: 10 },
     "Elven Wizard": { hp: 0.6, mp: 1.4, atk: 1.4, def: 0.6, spd: 1.12, crit: 5 },
     "Elven Oracle": { hp: 0.7, mp: 1.4, atk: 1.0, def: 0.6, spd: 1.06, crit: 4 },
 
     // === ELFOS DA LUZ (Guerreiros Nível 40 e 76) ===
-    "Temple Knight": { hp: 1.3, mp: 1.2, atk: 1.4, def: 1.6, spd: 1.14, crit: 12 },
-    "Eva's Templar": { hp: 1.6, mp: 1.3, atk: 1.9, def: 2.1, spd: 1.12, crit: 15 },
+    "Temple Knight": { hp: 1.3, mp: 1.2, atk: 1.4, def: 1.6, spd: 1.14, crit: 7 },
+    "Eva's Templar": { hp: 1.6, mp: 1.3, atk: 1.9, def: 2.1, spd: 1.12, crit: 8 },
     
-    "Swordsinger": { hp: 1.1, mp: 1.2, atk: 1.4, def: 1.3, spd: 1.06, crit: 15 },
-    "Sword Muse": { hp: 1.4, mp: 1.4, atk: 1.8, def: 1.6, spd: 1.04, crit: 18 },
+    "Swordsinger": { hp: 1.1, mp: 1.2, atk: 1.4, def: 1.3, spd: 1.06, crit: 8 },
+    "Sword Muse": { hp: 1.4, mp: 1.4, atk: 1.8, def: 1.6, spd: 1.04, crit: 9 },
 
-    "Plains Walker": { hp: 0.9, mp: 1.0, atk: 1.5, def: 0.9, spd: 0.78, crit: 18 },
-    "Wind Rider": { hp: 1.1, mp: 1.1, atk: 2.2, def: 1.1, spd: 0.70, crit: 20 },
+    "Plains Walker": { hp: 0.9, mp: 1.0, atk: 1.5, def: 0.9, spd: 0.78, crit: 9 },
+    "Wind Rider": { hp: 1.1, mp: 1.1, atk: 2.2, def: 1.1, spd: 0.70, crit: 10 },
 
-    "Silver Ranger": { hp: 0.8, mp: 1.1, atk: 1.6, def: 0.8, spd: 0.88, crit: 20 },
-    "Moonlight Sentinel": { hp: 1.0, mp: 1.2, atk: 2.4, def: 1.0, spd: 0.80, crit: 25 },
+    "Silver Ranger": { hp: 0.8, mp: 1.1, atk: 1.6, def: 0.8, spd: 0.88, crit: 10 },
+    "Moonlight Sentinel": { hp: 1.0, mp: 1.2, atk: 2.4, def: 1.0, spd: 0.80, crit: 12 },
 
     // === ELFOS DA LUZ (Magos Nível 40 e 76) ===
-    "Spellsinger": { hp: 0.7, mp: 1.6, atk: 1.8, def: 0.7, spd: 1.10, crit: 6 },
-    "Mystic Muse": { hp: 0.92, mp: 2.15, atk: 2.88, def: 0.90, spd: 1.06, crit: 9 },
+    "Spellsinger": { hp: 0.7, mp: 1.6, atk: 1.8, def: 0.7, spd: 1.10, crit: 5 },
+    "Mystic Muse": { hp: 0.92, mp: 2.15, atk: 2.88, def: 0.90, spd: 1.06, crit: 6 },
 
-    "Elemental Summoner": { hp: 0.9, mp: 1.5, atk: 1.6, def: 0.8, spd: 1.12, crit: 6 },
-    "Elemental Master": { hp: 1.1, mp: 1.9, atk: 2.58, def: 1.02, spd: 1.08, crit: 8 },
+    "Elemental Summoner": { hp: 0.9, mp: 1.5, atk: 1.6, def: 0.8, spd: 1.12, crit: 5 },
+    "Elemental Master": { hp: 1.1, mp: 1.9, atk: 2.58, def: 1.02, spd: 1.08, crit: 6 },
 
     "Elven Elder": { hp: 0.8, mp: 1.7, atk: 1.2, def: 0.7, spd: 1.05, crit: 5 },
-    "Eva's Saint": { hp: 1.0, mp: 2.1, atk: 1.8, def: 0.9, spd: 1.04, crit: 6 },
+    "Eva's Saint": { hp: 1.0, mp: 2.1, atk: 1.8, def: 0.9, spd: 1.04, crit: 5 },
 
     // === ORCS (Classes Base - Lvl 1) ===
     "Orc_Fighter": { hp: 1.2, mp: 0.6, atk: 1.3, def: 1.1, spd: 0.8, crit: 4 },
@@ -118,66 +118,66 @@ const classModifiers = {
 
     // === ORCS (Primeira Transferência - Lvl 20) ===
     "Orc Raider": { hp: 1.5, mp: 0.7, atk: 1.6, def: 1.2, spd: 0.8, crit: 5 }, // Espadão de 2 mãos
-    "Monk": { hp: 1.3, mp: 0.8, atk: 1.4, def: 1.0, spd: 0.90, crit: 10 }, // Garras e Socos
+    "Monk": { hp: 1.3, mp: 0.8, atk: 1.4, def: 1.0, spd: 0.90, crit: 7 }, // Garras e Socos
     "Orc Shaman": { hp: 1.2, mp: 1.1, atk: 1.4, def: 1.1, spd: 1.0, crit: 4 }, // Mago de Batalha
 
     // === ORCS (Segunda Transferência - Lvl 40) ===
-    "Destroyer": { hp: 2.0, mp: 0.8, atk: 2.2, def: 1.4, spd: 0.8, crit: 8 },
-    "Tyrant": { hp: 1.6, mp: 1.0, atk: 1.8, def: 1.1, spd: 0.82, crit: 15 },
+    "Destroyer": { hp: 2.0, mp: 0.8, atk: 2.2, def: 1.4, spd: 0.8, crit: 6 },
+    "Tyrant": { hp: 1.6, mp: 1.0, atk: 1.8, def: 1.1, spd: 0.82, crit: 8 },
     "Overlord": { hp: 1.6, mp: 1.4, atk: 1.8, def: 1.4, spd: 1.0, crit: 5 }, // Foco em Debuff e absorção
     "Warcryer": { hp: 1.5, mp: 1.5, atk: 1.7, def: 1.3, spd: 1.1, crit: 5 }, // Foco em Buffs para o grupo
 
     // === ORCS (Terceira Transferência - Lvl 76) ===
-    "Titan": { hp: 2.8, mp: 1.0, atk: 3.5, def: 1.8, spd: 0.85, crit: 12 }, // O monstro do Frenzy
-    "Grand Khavatari": { hp: 2.0, mp: 1.2, atk: 2.8, def: 1.3, spd: 0.74, crit: 18 }, // Metralhadora de socos
-    "Dominator": { hp: 2.2, mp: 1.8, atk: 2.5, def: 1.8, spd: 1.0, crit: 8 },
-    "Doomcryer": { hp: 2.0, mp: 2.0, atk: 2.4, def: 1.6, spd: 1.2, crit: 8 },
+    "Titan": { hp: 2.8, mp: 1.0, atk: 3.5, def: 1.8, spd: 0.85, crit: 7 }, // O monstro do Frenzy
+    "Grand Khavatari": { hp: 2.0, mp: 1.2, atk: 2.8, def: 1.3, spd: 0.74, crit: 9 }, // Metralhadora de socos
+    "Dominator": { hp: 2.2, mp: 1.8, atk: 2.5, def: 1.8, spd: 1.0, crit: 6 },
+    "Doomcryer": { hp: 2.0, mp: 2.0, atk: 2.4, def: 1.6, spd: 1.2, crit: 6 },
 
     // === ANÕES (Classe Base - Lvl 1) ===
     "Dwarven Fighter": { hp: 1.2, mp: 0.8, atk: 1.1, def: 1.2, spd: 0.9, crit: 4 },
 
     // === ANÕES (SCAVENGER / BOUNTY HUNTER / FORTUNE SEEKER) - Foco em Spoil e Adagas ===
-    "Scavenger": { hp: 1.3, mp: 0.9, atk: 1.2, def: 1.2, spd: 1.1, crit: 8 },
-    "Bounty Hunter": { hp: 1.5, mp: 1.0, atk: 1.4, def: 1.3, spd: 1.2, crit: 12 },
-    "Fortune Seeker": { hp: 1.8, mp: 1.1, atk: 1.7, def: 1.5, spd: 1.3, crit: 15 },
+    "Scavenger": { hp: 1.3, mp: 0.9, atk: 1.2, def: 1.2, spd: 1.1, crit: 6 },
+    "Bounty Hunter": { hp: 1.5, mp: 1.0, atk: 1.4, def: 1.3, spd: 1.2, crit: 7 },
+    "Fortune Seeker": { hp: 1.8, mp: 1.1, atk: 1.7, def: 1.5, spd: 1.3, crit: 8 },
 
     // === ANÕES (ARTISAN / WARSMITH / MAESTRO) - Foco em Força, Golems e Machados ===
     "Artisan": { hp: 1.4, mp: 1.1, atk: 1.3, def: 1.3, spd: 0.9, crit: 5 },
-    "Warsmith": { hp: 1.7, mp: 1.2, atk: 1.6, def: 1.5, spd: 0.9, crit: 6 },
-    "Maestro": { hp: 2.1, mp: 1.4, atk: 2.0, def: 1.8, spd: 1.0, crit: 8 },
+    "Warsmith": { hp: 1.7, mp: 1.2, atk: 1.6, def: 1.5, spd: 0.9, crit: 5 },
+    "Maestro": { hp: 2.1, mp: 1.4, atk: 2.0, def: 1.8, spd: 1.0, crit: 6 },
 };
 
 /** Class factory Dodge % (before level / Light armor). Light & dagger paths lead; tanks near 0. */
 const CLASS_DODGE_BASE: Record<string, number> = {
-    Fighter: 3, Mage: 1, Dark_Fighter: 5, Dark_Mage: 2,
-    Warrior: 2, 'Human Knight': 0, Rogue: 8, 'Human Wizard': 2, Cleric: 2,
-    Gladiator: 3, Warlord: 1, Paladin: 0, 'Dark Avenger': 0,
-    'Treasure Hunter': 12, Hawkeye: 10,
-    Necromancer: 3, Sorcerer: 2, Bishop: 2, Prophet: 2,
-    Duelist: 4, Dreadnought: 1, 'Phoenix Knight': 0, 'Hell Knight': 0,
-    Adventurer: 16, Sagittarius: 12,
-    Soultaker: 3, Archmage: 2, Warlock: 2, 'Arcane Lord': 2, Cardinal: 2, Hierophant: 2,
-    Assassin: 10, 'Abyss Walker': 14, 'Ghost Hunter': 18,
-    'Dark Wizard': 2, Spellhowler: 3, 'Storm Screamer': 3,
-    'Palus Ranger': 10, 'Phantom Ranger': 12, 'Ghost Sentinel': 14,
-    'Palus Knight': 4, Bladedancer: 8, 'Spectral Dancer': 10,
+    Fighter: 2, Mage: 1, Dark_Fighter: 3, Dark_Mage: 2,
+    Warrior: 2, 'Human Knight': 0, Rogue: 4, 'Human Wizard': 2, Cleric: 2,
+    Gladiator: 2, Warlord: 1, Paladin: 0, 'Dark Avenger': 0,
+    'Treasure Hunter': 7, Hawkeye: 6,
+    Necromancer: 2, Sorcerer: 2, Bishop: 2, Prophet: 2,
+    Duelist: 2, Dreadnought: 1, 'Phoenix Knight': 0, 'Hell Knight': 0,
+    Adventurer: 9, Sagittarius: 7,
+    Soultaker: 2, Archmage: 2, Warlock: 2, 'Arcane Lord': 2, Cardinal: 2, Hierophant: 2,
+    Assassin: 6, 'Abyss Walker': 8, 'Ghost Hunter': 10,
+    'Dark Wizard': 2, Spellhowler: 2, 'Storm Screamer': 2,
+    'Palus Ranger': 6, 'Phantom Ranger': 7, 'Ghost Sentinel': 8,
+    'Palus Knight': 2, Bladedancer: 4, 'Spectral Dancer': 6,
     'Shillien Knight': 2, 'Shillien Templar': 2,
     'Phantom Summoner': 2, 'Spectral Master': 2,
     'Shillien Oracle': 2, 'Shillien Elder': 2, 'Shillien Saint': 2,
-    'Elven Knight': 3, 'Elven Scout': 10, 'Elven Wizard': 2, 'Elven Oracle': 2,
+    'Elven Knight': 2, 'Elven Scout': 6, 'Elven Wizard': 2, 'Elven Oracle': 2,
     'Temple Knight': 2, "Eva's Templar": 2,
-    Swordsinger: 5, 'Sword Muse': 6,
-    'Plains Walker': 12, 'Wind Rider': 16,
-    'Silver Ranger': 12, 'Moonlight Sentinel': 14,
-    Spellsinger: 3, 'Mystic Muse': 3,
+    Swordsinger: 3, 'Sword Muse': 3,
+    'Plains Walker': 7, 'Wind Rider': 9,
+    'Silver Ranger': 7, 'Moonlight Sentinel': 8,
+    Spellsinger: 2, 'Mystic Muse': 2,
     'Elemental Summoner': 2, 'Elemental Master': 2,
     'Elven Elder': 2, "Eva's Saint": 2,
     Orc_Fighter: 1, Orc_Mage: 1,
-    'Orc Raider': 1, Monk: 6, 'Orc Shaman': 1,
-    Destroyer: 1, Tyrant: 8, Overlord: 1, Warcryer: 1,
-    Titan: 0, 'Grand Khavatari': 10, Dominator: 1, Doomcryer: 1,
+    'Orc Raider': 1, Monk: 3, 'Orc Shaman': 1,
+    Destroyer: 1, Tyrant: 4, Overlord: 1, Warcryer: 1,
+    Titan: 0, 'Grand Khavatari': 6, Dominator: 1, Doomcryer: 1,
     'Dwarven Fighter': 1,
-    Scavenger: 4, 'Bounty Hunter': 5, 'Fortune Seeker': 6,
+    Scavenger: 2, 'Bounty Hunter': 3, 'Fortune Seeker': 3,
     Artisan: 1, Warsmith: 1, Maestro: 1,
 };
 
