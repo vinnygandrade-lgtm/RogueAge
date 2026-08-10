@@ -736,10 +736,7 @@ declare global {
     }) => { isCrit: boolean; damageMult: number; chancePct: number };
     resolveSkillCritChancePct?: (skillName: string, baseChance?: number) => number;
     isExpeditionRunEffectsActive?: () => boolean;
-    applyExpeditionAtkSpeedFloor?: (valueMs: number) => number;
-    softenExpeditionAtkSpeedPct?: (rawPct: number) => number;
     EXPEDITION_ATK_SPEED_ABS_MIN_MS?: number;
-    EXPEDITION_ATK_SPEED_HARD_MS?: number;
     EXPEDITION_MIN_CAST_MS?: number;
 
     I18N_LOCALES?: Record<import('./game').UiLocale, Record<string, unknown>>;

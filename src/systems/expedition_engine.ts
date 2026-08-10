@@ -296,7 +296,7 @@ const BUILD_MASTERY_TIERS: {
             maxHpPct: 6,
             pAtkPct: 4,
             mAtkPct: 4,
-            atkSpeedPct: 5,
+            atkSpeedPct: 3,
             castSpeedPct: 4,
             maxMpPct: 4,
             dodgeRatePct: 4
@@ -336,9 +336,9 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         titleFallback: 'Blade Dancer',
         bonusKey: 'game.hunt.expedition.buildBladeDancerBonus',
         bonusFallback: '+5% P.Atk · +4% Crit',
-        // Speed ×3 (+10) + Crit ×3 (+5) ≈ 6 picks
+        // Speed ×3 (+5) + Crit ×3 (+5) ≈ 6 picks
         requirements: [
-            { kind: 'stat', stat: 'atkSpeedPct', minPct: 30 },
+            { kind: 'stat', stat: 'atkSpeedPct', minPct: 15 },
             { kind: 'stat', stat: 'critRatePct', minPct: 15 }
         ],
         bonuses: { pAtkPct: 5, critRatePct: 4 }
@@ -416,13 +416,13 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         titleKey: 'game.hunt.expedition.buildPhantomStep',
         titleFallback: 'Phantom Step',
         bonusKey: 'game.hunt.expedition.buildPhantomStepBonus',
-        bonusFallback: '+6 Evasion · +5% Attack Speed',
-        // Evasion ×3 (+5) + Atk Spd ×2 (+10) ≈ 5 picks — shares speed with Blade Dancer
+        bonusFallback: '+6 Evasion · +3% Attack Speed',
+        // Evasion ×3 (+5) + Atk Spd ×2 (+5) ≈ 5 picks — shares speed with Blade Dancer
         requirements: [
             { kind: 'stat', stat: 'dodgeRatePct', minPct: 15 },
-            { kind: 'stat', stat: 'atkSpeedPct', minPct: 20 }
+            { kind: 'stat', stat: 'atkSpeedPct', minPct: 10 }
         ],
-        bonuses: { dodgeRatePct: 6, atkSpeedPct: 5 }
+        bonuses: { dodgeRatePct: 6, atkSpeedPct: 3 }
     },
     {
         id: 'mana_well',
@@ -520,11 +520,11 @@ const UPGRADE_POOL_RAW: UpgradeDef[] = [
         id: 'speed',
         icon: '💨',
         stat: 'atkSpeedPct',
-        value: 10,
+        value: 5,
         titleKey: 'game.hunt.expedition.upgradeSpeedTitle',
         titleFallback: 'Faster Auto-Attacks',
         descKey: 'game.hunt.expedition.upgradeSpeedDesc',
-        descFallback: '+10% Attack Speed — Attack swings more often. Not skill cast or cooldown.'
+        descFallback: '+5% Attack Speed — Attack swings more often. Not skill cast or cooldown.'
     },
     {
         id: 'pdef',
@@ -2434,16 +2434,8 @@ export class ExpeditionEngine {
             pDef: 1 + this.getCombinedBuffPct('pDefPct') / 100,
             mDef: 1 + this.getCombinedBuffPct('mDefPct') / 100,
             crit: 1 + this.getCombinedBuffPct('critRatePct') / 100,
-            // Atk Spd % softens after ~40% so late Clarim/cards don't obsolete skills.
-            atkSpeed: (() => {
-                const win = window as any;
-                const raw = Math.max(0, this.getCombinedBuffPct('atkSpeedPct'));
-                const eff =
-                    typeof win.softenExpeditionAtkSpeedPct === 'function'
-                        ? win.softenExpeditionAtkSpeedPct(raw)
-                        : Math.min(65, raw);
-                return Math.max(0.35, 1 - eff / 100);
-            })(),
+            // Linear from cards — balance via card values, not a soft-cap.
+            atkSpeed: Math.max(0.05, 1 - this.getCombinedBuffPct('atkSpeedPct') / 100),
             maxHp: 1 + this.getCombinedBuffPct('maxHpPct') / 100,
             maxMp: 1 + this.getCombinedBuffPct('maxMpPct') / 100,
             castSpeedAdd: Math.max(0, this.getCombinedBuffPct('castSpeedPct')),
@@ -2513,12 +2505,11 @@ export class ExpeditionEngine {
         const win = window as any;
         const m = this.getRunBuffMults();
         const dodgeInvest = Math.max(0, Math.floor(Number(base.dodgeRaw) || 0) + m.dodgeAdd);
-        // Cast Speed stays uncapped; Attack Speed uses expedition soft-floor (faster than world, not machine-gun).
-        const atkRawMs = Math.floor(base.atkSpeed * m.atkSpeed);
-        const atkSpeed =
-            typeof win.applyExpeditionAtkSpeedFloor === 'function'
-                ? win.applyExpeditionAtkSpeedFloor(atkRawMs)
-                : Math.max(120, atkRawMs);
+        // No world soft-caps — timer sanity floor only (card values carry the balance).
+        const absAtkMin =
+            typeof win.EXPEDITION_ATK_SPEED_ABS_MIN_MS === 'number' && win.EXPEDITION_ATK_SPEED_ABS_MIN_MS > 0
+                ? win.EXPEDITION_ATK_SPEED_ABS_MIN_MS
+                : 50;
         return {
             pAtk: Math.floor(base.pAtk * m.pAtk),
             mAtk: Math.floor(base.mAtk * m.mAtk),
@@ -2527,7 +2518,7 @@ export class ExpeditionEngine {
             critRate: typeof win.applyCritRateCap === 'function'
                 ? win.applyCritRateCap(Math.floor(base.critRate * m.crit))
                 : Math.min(90, Math.floor(base.critRate * m.crit)),
-            atkSpeed,
+            atkSpeed: Math.max(absAtkMin, Math.floor(base.atkSpeed * m.atkSpeed)),
             maxHp: Math.floor(base.maxHp * m.maxHp),
             maxMp: Math.floor(base.maxMp * m.maxMp),
             castSpeed: Math.max(0, Math.floor(Number(base.castSpeed) || 0) + m.castSpeedAdd),
@@ -5558,7 +5549,7 @@ export class ExpeditionEngine {
                     titleKey: 'game.hunt.expedition.offerWarhornTempoTitle',
                     titleFallback: 'Tempo',
                     descKey: 'game.hunt.expedition.offerWarhornTempoDesc',
-                    descFallback: '+8% Atk Spd · +8% Casting Speed · −12% skill CD.'
+                    descFallback: '+4% Atk Spd · +6% Casting Speed · −10% skill CD.'
                 },
                 {
                     id: 'iron',
@@ -5582,10 +5573,10 @@ export class ExpeditionEngine {
         let summaryFallback = 'Assault cry — your weapon arm surges.';
 
         if (id === 'tempo') {
-            this.state.runBuffs.atkSpeedPct += 8;
-            this.state.runBuffs.castSpeedPct += 8;
-            this.state.runBuffs.skillCdReductionPct += 12;
-            buffText = `+8% ${this.runStatLabel('atkSpeedPct')} · +8% ${this.runStatLabel('castSpeedPct')} · −12% ${this.runStatLabel('skillCdReductionPct')}`;
+            this.state.runBuffs.atkSpeedPct += 4;
+            this.state.runBuffs.castSpeedPct += 6;
+            this.state.runBuffs.skillCdReductionPct += 10;
+            buffText = `+4% ${this.runStatLabel('atkSpeedPct')} · +6% ${this.runStatLabel('castSpeedPct')} · −10% ${this.runStatLabel('skillCdReductionPct')}`;
             summaryKey = 'game.hunt.expedition.resultWarhornTempoDesc';
             summaryFallback = 'Tempo cry — cast and swing faster.';
         } else if (id === 'iron') {
