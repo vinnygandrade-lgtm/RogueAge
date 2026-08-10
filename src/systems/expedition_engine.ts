@@ -43,8 +43,8 @@ export interface ExpeditionRunBuffs {
     /** Shortens skill cast time during the run (+8% per card; combined with gear, hard-capped at 40%). */
     castSpeedPct: number;
     /**
-     * Additive Evasion investment during the run (+5 per card).
-     * Soft-caps once with gear / Ultimate Evasion (same curve as town Evasion).
+     * Additive Evasion investment during the run (+3 per card / +6 legendary).
+     * Linear with gear; combat hard-caps dodge chance at 95%.
      */
     dodgeRatePct: number;
     maxHpPct: number;
@@ -416,13 +416,13 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         titleKey: 'game.hunt.expedition.buildPhantomStep',
         titleFallback: 'Phantom Step',
         bonusKey: 'game.hunt.expedition.buildPhantomStepBonus',
-        bonusFallback: '+6 Evasion · +3% Attack Speed',
-        // Evasion ×3 (+5) + Atk Spd ×2 (+5) ≈ 5 picks — shares speed with Blade Dancer
+        bonusFallback: '+4 Evasion · +3% Attack Speed',
+        // Evasion ×3 (+3) + Atk Spd ×2 (+5) ≈ 5 picks — shares speed with Blade Dancer
         requirements: [
-            { kind: 'stat', stat: 'dodgeRatePct', minPct: 15 },
+            { kind: 'stat', stat: 'dodgeRatePct', minPct: 9 },
             { kind: 'stat', stat: 'atkSpeedPct', minPct: 10 }
         ],
-        bonuses: { dodgeRatePct: 6, atkSpeedPct: 3 }
+        bonuses: { dodgeRatePct: 4, atkSpeedPct: 3 }
     },
     {
         id: 'mana_well',
@@ -510,11 +510,11 @@ const UPGRADE_POOL_RAW: UpgradeDef[] = [
         id: 'evasion',
         icon: '🍃',
         stat: 'dodgeRatePct',
-        value: 5,
+        value: 3,
         titleKey: 'game.hunt.expedition.upgradeEvasionTitle',
         titleFallback: 'Light Footwork',
         descKey: 'game.hunt.expedition.upgradeEvasionDesc',
-        descFallback: '+5 Evasion investment — dodge more hits this run (soft-caps with your gear).'
+        descFallback: '+3 Evasion investment — dodge more hits this run (stacks with gear; hard cap 95%).'
     },
     {
         id: 'speed',
@@ -678,12 +678,12 @@ const LEGENDARY_UPGRADE_POOL_RAW: UpgradeDef[] = [
         id: 'evasion',
         icon: '🍃',
         stat: 'dodgeRatePct',
-        value: 10,
+        value: 6,
         legendary: true,
         titleKey: 'game.hunt.expedition.upgradeLegendEvasionTitle',
         titleFallback: 'Ghost Step',
         descKey: 'game.hunt.expedition.upgradeLegendEvasionDesc',
-        descFallback: '+10 Evasion investment — far more dodges this run (soft-caps with your gear).'
+        descFallback: '+6 Evasion investment — more dodges this run (stacks with gear; hard cap 95%).'
     },
     {
         id: 'vitality',
