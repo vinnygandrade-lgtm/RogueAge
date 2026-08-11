@@ -3,7 +3,7 @@
  * Discord: Server Settings → Invites → Create Invite → copy link.
  */
 export const COMMUNITY_LINKS = {
-  discordInviteUrl: 'https://discord.gg/PYyb7f8vE',
+  discordInviteUrl: 'https://discord.gg/8yNR23GcVX',
 } as const;
 
 export function isDiscordInviteConfigured(): boolean {
