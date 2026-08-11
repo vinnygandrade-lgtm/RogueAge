@@ -147,6 +147,7 @@ Ao adaptar para **outro preset** (elf, orc, …): mesmos IDs e mesma progressão
 | S | `arm_s_f_chain` Sentinel Chain | `arm_s_m_woven` Eclipse Weave | `arm_s_m_warden` Void Warden |
 
 **Ícones de bolsa:** `assets/itens/set_<slug>.png` (ver `EXPANSION_ARMOR_ICON_SLUGS` em `armor_jewel_expansion.ts`).  
+Só mostra ícone próprio se o id estiver em **`EXPANSION_ARMOR_OWN_ICON_READY`** (ou legacy `a1`–`a9` com PNG no disco). **Proibido** emprestar ícone de outro set — sem arte → `assets/itens/item_generic.png`.  
 **Paperdoll:** `assets/paperdolls/<preset>/equips/<id>.png` + `equips/<id>_hands.png` — **18 presets**, mesmo ID em cada pasta.
 
 **Prompts longos (IA):** `docs/paperdoll-armor-image-prompts.md` § Expansão 6×6.

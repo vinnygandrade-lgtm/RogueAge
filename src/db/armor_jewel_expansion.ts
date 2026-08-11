@@ -163,7 +163,8 @@ export const EXPANSION_ARMOR_ICON_SLUGS: Record<string, string> = Object.fromEnt
 
 /**
  * Expansion armors whose dedicated PNG already ships in `assets/itens/<iconSlug>.png`.
- * Add the armor id here when you drop the file — otherwise the shop/bag uses FALLBACK.
+ * Add the armor id here when you drop the file — otherwise the shop/bag uses `item_generic.png`.
+ * Never borrow another set's icon (avoids “two items, one art” confusion).
  */
 export const EXPANSION_ARMOR_OWN_ICON_READY = new Set<string>([
     'arm_ng_f_chain', // set_bronze_chain_ng.png
@@ -172,38 +173,23 @@ export const EXPANSION_ARMOR_OWN_ICON_READY = new Set<string>([
 ]);
 
 /**
- * Mage NG–C: generic shop icon until dedicated PNG ships (do not borrow legacy set icons).
- * D Knowledge (a6) · C Warden / Weave — NG Runic Warden already READY.
+ * @deprecated Kept empty on purpose — do not reintroduce cross-set icon borrowing.
+ * Missing art → `item_generic.png` via `catalogArmorIconPath`.
  */
-export const MAGE_ARMOR_AWAITING_SHOP_ICON = new Set([
-    'arm_d_m_woven',
-    'arm_d_m_warden',
-    'a9',
-    'arm_c_m_woven',
-]);
+export const MAGE_ARMOR_AWAITING_SHOP_ICON = new Set<string>([]);
 
-/** Temporary borrow of an existing set icon until own art is READY. */
-export const EXPANSION_ARMOR_ICON_FALLBACK: Record<string, string> = {
-    arm_d_f_chain: 'set_brigandine_d',
-    arm_c_f_chain: 'set_composite_c',
-    arm_c_m_warden: 'set_karmian_c',
-    arm_b_f_chain: 'set_composite_c',
-    arm_b_m_woven: 'set_karmian_c',
-    arm_b_m_warden: 'set_karmian_c',
-    arm_a_f_chain: 'set_composite_c',
-    arm_a_m_woven: 'set_karmian_c',
-    arm_a_m_warden: 'set_karmian_c',
-    arm_s_f_chain: 'set_composite_c',
-    arm_s_m_woven: 'set_karmian_c',
-    arm_s_m_warden: 'set_karmian_c',
-};
+/**
+ * @deprecated Empty — borrowing other sets' icons is forbidden.
+ * Was temporary until dedicated PNGs shipped; caused shop/bag confusion.
+ */
+export const EXPANSION_ARMOR_ICON_FALLBACK: Record<string, string> = {};
 
+/** Returns own expansion icon slug only when the PNG is marked READY; else null (generic). */
 export function resolveExpansionArmorIconSlug(armorId: string): string | null {
     const id = String(armorId || '');
-    if (MAGE_ARMOR_AWAITING_SHOP_ICON.has(id)) return null;
     const own = EXPANSION_ARMOR_ICON_SLUGS[id];
     if (own && EXPANSION_ARMOR_OWN_ICON_READY.has(id)) return own;
-    return EXPANSION_ARMOR_ICON_FALLBACK[id] ?? null;
+    return null;
 }
 
 type JewelPiece = 'neck' | 'ear' | 'ring';
