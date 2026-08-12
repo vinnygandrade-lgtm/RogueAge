@@ -112,10 +112,45 @@ function getEquipEnchantLevel(equip: EnchantTargetEquip | EquipInstance | null |
 }
 
 async function ensureEnchantCloudSaveReady(): Promise<void> {
+  // Local write only, then one awaited upsert — avoids a fire-and-forget stale upload
+  // racing past `enchant_item_secure` and wiping +N back to +0.
   if (typeof window.salvarJogo === 'function') {
-    window.salvarJogo({ silent: true, forceCloud: true });
+    window.salvarJogo({ silent: true, skipCloud: true });
   }
   await sincronizarSaveComNuvem(true);
+}
+
+async function persistEnchantLocalAndCloud(): Promise<void> {
+  if (typeof window.salvarJogo === 'function') {
+    window.salvarJogo({ silent: true, skipCloud: true });
+  }
+  await sincronizarSaveComNuvem(true);
+}
+
+/** Live equip instance by UID (bag + paperdoll) — never trust a possibly orphaned refOriginal. */
+function findLiveEquipInstanceByUid(uid: string | null | undefined): EquipInstance | null {
+  if (!uid) return null;
+  const slots: Array<EquipInstance | null | undefined> = [
+    window.armaEquipadaBase,
+    window.armaduraEquipada,
+    window.colarEquipado,
+    window.brincoEquipado1,
+    window.brincoEquipado2,
+    window.anelEquipado1,
+    window.anelEquipado2,
+  ];
+  for (let i = 0; i < slots.length; i++) {
+    const slot = slots[i];
+    if (slot && slot.uid === uid) return slot;
+  }
+  const bag = window.inventarioEquips;
+  if (Array.isArray(bag)) {
+    for (let i = 0; i < bag.length; i++) {
+      const row = bag[i];
+      if (row && row.uid === uid) return row;
+    }
+  }
+  return null;
 }
 
 function enchantCloudErrorMessage(code: unknown): string {
@@ -158,23 +193,53 @@ interface AugmentRollStat {
   val: number;
 }
 
-/** Nível real do equipamento (refOriginal manda; targetEquipObj.lvl pode ficar stale). */
+/** Nível real do equipamento (instância viva por UID; targetEquipObj.lvl pode ficar stale). */
 function getEnchantLevelForTarget(equipObj: EnchantTargetEquip | null | undefined): number {
-    return getEquipEnchantLevel(equipObj);
+    if (!equipObj) return 0;
+    const live = findLiveEquipInstanceByUid(equipObj.uid) || equipObj.refOriginal || null;
+    return getEquipEnchantLevel(live || equipObj);
+}
+
+function applyEnchantLevelToInstance(inst: EquipInstance | null | undefined, lvl: number): void {
+    if (!inst) return;
+    inst.enchant = lvl;
+    const tipo = resolveEnchantEquipTipo(inst);
+    if (isJewelEnchantTipo(tipo) || isJewelEnchantTipo(inst.tipo) || isJewelEnchantTipo(inst.base?.tipoItem)) {
+        inst.enchantJewel = lvl;
+    }
+    if (tipo === 'armor' || inst.tipo === 'armor') {
+        inst.enchantArmor = lvl;
+    }
+    if (inst.base) {
+        inst.base.enchant = lvl;
+    }
 }
 
 function syncTargetEquipEnchantLevel(novoLvl: number | string): void {
     if (!targetEquipObj) return;
     var lvl = Math.max(0, parseInt(String(novoLvl), 10) || 0);
     targetEquipObj.lvl = lvl;
-    if (targetEquipObj.refOriginal) {
-        targetEquipObj.refOriginal.enchant = lvl;
-        if (isJewelEnchantTipo(targetEquipObj.refOriginal.tipo || targetEquipObj.refOriginal.base?.tipoItem)) {
-            targetEquipObj.refOriginal.enchantJewel = lvl;
-        }
-        if (targetEquipObj.refOriginal.base) {
-            targetEquipObj.refOriginal.base.enchant = lvl;
-        }
+
+    const live = findLiveEquipInstanceByUid(targetEquipObj.uid);
+    const targets: EquipInstance[] = [];
+    if (live) targets.push(live);
+    if (targetEquipObj.refOriginal && targetEquipObj.refOriginal !== live) {
+        targets.push(targetEquipObj.refOriginal);
+    }
+    for (let i = 0; i < targets.length; i++) {
+        applyEnchantLevelToInstance(targets[i], lvl);
+    }
+    if (live) {
+        targetEquipObj.refOriginal = live;
+        targetEquipObj.base = live.base || targetEquipObj.base;
+    }
+
+    // Keep legacy globals aligned when the enchanted piece is currently equipped.
+    if (live && window.armaEquipadaBase && live.uid === window.armaEquipadaBase.uid) {
+        window.enchant = lvl;
+    }
+    if (live && window.armaduraEquipada && live.uid === window.armaduraEquipada.uid) {
+        window.enchantArmor = lvl;
     }
 }
 
@@ -665,7 +730,10 @@ async function executarEnchant(): Promise<void> {
                 btnAcaoEnchant.style.background = "#15803d";
                 btnAcaoEnchant.disabled = false;
                 _enchantInProgress = false;
-                if (typeof window.InventoryManager !== 'undefined' && window.InventoryManager.sincronizarStatus) window.InventoryManager.sincronizarStatus();
+                if (typeof window.InventoryManager !== 'undefined' && window.InventoryManager.sincronizarStatus) {
+                    window.InventoryManager.sincronizarStatus({ skipSave: true });
+                }
+                await persistEnchantLocalAndCloud();
                 atualizarInterfaceEnchant();
             } else {
                 const msg = (rpcData && rpcData.error) ? String(rpcData.error) : '';

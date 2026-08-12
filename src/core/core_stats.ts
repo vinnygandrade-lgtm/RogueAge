@@ -75,6 +75,15 @@ function expeditionRunEnchantBonus(slot: string): number {
   return 0;
 }
 
+const EQUIP_AUG_REBASE_KEYS = [
+    'augLevel', 'augPAtk', 'augMAtk', 'augPDef', 'augMDef', 'augSpd', 'augCrit', 'augHp',
+] as const;
+
+/**
+ * Rebind equipped slots to the live catalog **without replacing object identity**.
+ * Replacing `window.armaduraEquipada` (etc.) orphaned `refOriginal` in enchant/augment UI —
+ * success popup showed +N while the live slot stayed +0 and the scroll was still consumed.
+ */
 function rebaseEquippedSlotsFromCatalog(): void {
     if (typeof window.enrichEquipBaseFromCatalogIfNeeded !== 'function') return;
     const slots: Array<keyof Window> = [
@@ -88,11 +97,26 @@ function rebaseEquippedSlotsFromCatalog(): void {
     ];
     for (let i = 0; i < slots.length; i++) {
         const key = slots[i];
-        const cur = window[key];
-        if (!cur) continue;
+        const cur = window[key] as EquipInstance | null | undefined;
+        if (!cur || typeof cur !== 'object') continue;
         try {
-            (window as unknown as Record<string, unknown>)[key] =
-                window.enrichEquipBaseFromCatalogIfNeeded(cur);
+            const enriched = window.enrichEquipBaseFromCatalogIfNeeded(cur) as EquipInstance | unknown;
+            if (!enriched || typeof enriched !== 'object') continue;
+            const next = enriched as EquipInstance;
+            if (next === cur) continue;
+            cur.tipo = next.tipo || cur.tipo;
+            cur.base = next.base || cur.base;
+            if (next.enchant != null) cur.enchant = next.enchant;
+            if (next.enchantArmor != null) cur.enchantArmor = next.enchantArmor;
+            if (next.enchantJewel != null) cur.enchantJewel = next.enchantJewel;
+            cur.augmented = !!next.augmented;
+            if (next.origin != null) cur.origin = next.origin;
+            const curRec = cur as EquipInstance & Record<string, unknown>;
+            const nextRec = next as EquipInstance & Record<string, unknown>;
+            for (let k = 0; k < EQUIP_AUG_REBASE_KEYS.length; k++) {
+                const augKey = EQUIP_AUG_REBASE_KEYS[k];
+                if (nextRec[augKey] != null) curRec[augKey] = nextRec[augKey];
+            }
         } catch {
             /* ignore single-slot failure */
         }

@@ -303,7 +303,7 @@ window.InventoryManager = {
   },
 
   /** Sincroniza interfaces e globais legados. */
-  sincronizarStatus(): void {
+  sincronizarStatus(opts?: { skipSave?: boolean }): void {
     window.enchant = window.armaEquipadaBase?.enchant || 0;
     window.enchantArmor = window.armaduraEquipada?.enchant || 0;
     const arma = window.armaEquipadaBase;
@@ -319,7 +319,7 @@ window.InventoryManager = {
     if (typeof window.atualizar === 'function') window.atualizar();
     if (typeof window.renderizarPerfil === 'function') window.renderizarPerfil();
     if (typeof window.renderizarInventario === 'function') window.renderizarInventario();
-    if (typeof window.salvarJogo === 'function') window.salvarJogo();
+    if (!opts?.skipSave && typeof window.salvarJogo === 'function') window.salvarJogo();
   },
 };
 

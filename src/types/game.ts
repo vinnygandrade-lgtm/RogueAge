@@ -966,6 +966,11 @@ export interface SalvarJogoOptions {
   silent?: boolean;
   /** Ignora throttle de 2s em `SupabaseAPI.savePlayer` (ex.: resgate de encomenda). */
   forceCloud?: boolean;
+  /**
+   * Grava só localStorage — sem `dispararSincronizacaoCloud`.
+   * Usar quando o caller vai `await sincronizarSaveComNuvem` a seguir (evita upsert stale em paralelo).
+   */
+  skipCloud?: boolean;
 }
 
 export interface CarregarJogoOptions {
@@ -1126,7 +1131,7 @@ export interface InventoryManagerApi {
   removerEquipamentoPorUid: (uid: string | null | undefined) => boolean;
   equiparGarantido: (indexBolsa: number, slotAlvoExplicito?: string) => boolean;
   desequiparGarantido: (slot: EquipBodySlot | string) => boolean;
-  sincronizarStatus: () => void;
+  sincronizarStatus: (opts?: { skipSave?: boolean }) => void;
 }
 
 export interface AuthEngineApi {

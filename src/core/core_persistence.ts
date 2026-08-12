@@ -805,7 +805,7 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
         escreverLog(`<span style="color:#22c55e; font-weight:bold;">${savedMsg}</span>`);
     }
     
-    if (typeof window.dispararSincronizacaoCloud === 'function') {
+    if (!opts.skipCloud && typeof window.dispararSincronizacaoCloud === 'function') {
         window.dispararSincronizacaoCloud(!!opts.forceCloud);
     }
 }
