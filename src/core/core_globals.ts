@@ -252,11 +252,17 @@ window.L2MINI_ZONAL_MOB_TUNING = {
     championOnePerPull: true,
     packAtkMult: 0.82,
   },
-  D: { hp: 0.88, atk: 0.82, def: 0.9 },
-  C: { hp: 0.83, atk: 0.76, def: 0.86 },
-  B: { hp: 0.78, atk: 0.72, def: 0.83 },
-  A: { hp: 0.74, atk: 0.68, def: 0.8 },
-  S: { hp: 0.7, atk: 0.64, def: 0.78 },
+  D: {
+    hp: 0.88,
+    atk: 0.82,
+    def: 0.9,
+    championOnePerPull: true,
+    packAtkMult: 0.88,
+  },
+  C: { hp: 0.83, atk: 0.76, def: 0.86, championOnePerPull: true, packAtkMult: 0.9 },
+  B: { hp: 0.78, atk: 0.72, def: 0.83, championOnePerPull: true },
+  A: { hp: 0.74, atk: 0.68, def: 0.8, championOnePerPull: true },
+  S: { hp: 0.7, atk: 0.64, def: 0.78, championOnePerPull: true },
 } satisfies Record<string, ZonalMobTuneEntry>;
 
 window.buffsAtivos = {

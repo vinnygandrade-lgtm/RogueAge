@@ -5015,17 +5015,36 @@ export class ExpeditionEngine {
         let mobAtkSpdMult = 1;
         let championChance = base.championChance;
 
+        let packSizeMax: number | undefined;
+        let championOnePerPull = base.championOnePerPull === true;
+
         if (pathType === 'elite') {
-            hp *= 2.2;
-            atk *= 1.45;
-            championChance = 0.85;
+            // Elite = tough pull, not a full pack of champions (wipes glass classes on D).
+            hp *= 2.05;
+            atk *= 1.32;
+            championChance = 0.72;
+            championOnePerPull = true;
+            packSizeMax = 2;
+            if (zoneId === 'No-Grade' || zoneId === 'D') {
+                hp *= 0.92;
+                atk *= 0.88;
+            }
         } else if (pathType === 'boss') {
-            hp *= 4.5;
-            atk *= 1.85;
+            // Boss path must be ONE threat — championChance=1 + zone pack (up to 4) was a wipe.
+            hp *= 4.2;
+            atk *= 1.72;
             championChance = 1;
+            championOnePerPull = true;
+            packSizeMax = 1;
+            if (zoneId === 'No-Grade' || zoneId === 'D') {
+                hp *= 0.9;
+                atk *= 0.84;
+            } else if (zoneId === 'C') {
+                atk *= 0.92;
+            }
             if (this.isMilestoneBossJourney(this.state.journey)) {
-                hp *= 1.4;
-                atk *= 1.22;
+                hp *= 1.35;
+                atk *= 1.18;
             }
         }
 
@@ -5050,7 +5069,9 @@ export class ExpeditionEngine {
             championChance,
             championHpMult,
             championAtkMult,
+            championOnePerPull,
             mobAtkSpdMult,
+            ...(packSizeMax != null ? { packSizeMax } : {}),
         };
     }
 

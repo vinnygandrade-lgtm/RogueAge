@@ -60,6 +60,7 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - Upgrade cards reuse **Blessing Build** art when mapped (`assets/blessings/<id>.png` via `UPGRADE_BLESSING_ICON`) with emoji fallback until the PNG exists.
 - Path / journey route cards load `assets/expedition/paths/<type>.png` (`combat`, `boss`, `elite`, `warhorn`, …) with emoji fallback — see `assets/expedition/paths/README.md`.
 - **Legendary upgrade chance** after a win scales by path: combat **15%**, elite **30%**, boss **50%** (fallback 18%). Storm `luckLegendaryNext` still forces one legendary on the next win.
+- **Boss / elite pack rules:** boss path forces **`packSizeMax: 1`** (one champion threat). Elite caps at **2** with `championOnePerPull`. NG/D get a mild ATK/HP ease so light classes (Rogue) are challenged, not one-shot by multi-champ packs.
 - Thresholds tuned for **~4–7 dedicated card picks** per build (not 1–2); mastery at **3 / 5 / 7** is a mid/late-run goal
 - Mastery tiers at **3 / 5 / 7** unlocked builds (extra stacked % via `BUILD_MASTERY_TIERS`)
 - Bonus % live in `buildBonusBuffs` (rebuilt from catalog on load) — separate from card picks; combat uses `getCombinedBuffPct` (cards + builds)
