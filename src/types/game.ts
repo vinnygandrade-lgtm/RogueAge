@@ -1079,8 +1079,6 @@ export interface ZonalMobTuneEntry {
   championAtkMult?: number;
   championOnePerPull?: boolean;
   packAtkMult?: number;
-  /** Cap pack size for this pull (expedition boss/elite paths). */
-  packSizeMax?: number;
   mobAtkSpdMult?: number;
 }
 

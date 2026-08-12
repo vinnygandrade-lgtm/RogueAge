@@ -284,6 +284,10 @@ function spawnMonstros() {
         case 'S': maxMobs = 10; break;
     }
 
+    let qtd = Math.floor(Math.random() * maxMobs) + 1;
+    window.monstrosAtivos.length = 0; // Limpa o array mantendo a referência global
+    let nomesSorteados = [];
+
     const zonaKey = (window.zonaAtual && window.zonaAtual.id) ? window.zonaAtual.id : 'No-Grade';
     const playerLv = Number(window.nivel) || 1;
     const tuneDefault: ZonalMobTuneEntry = { hp: 1, atk: 1, def: 1 };
@@ -293,15 +297,6 @@ function spawnMonstros() {
     if (typeof window.EconomyBalance?.resolveNoviceMobTune === 'function') {
         tune = window.EconomyBalance.resolveNoviceMobTune(tune, playerLv, zonaKey);
     }
-    // Expedition boss/elite: packSizeMax keeps "boss" = one threat, not a champion pack wipe.
-    if (typeof tune.packSizeMax === 'number' && Number.isFinite(tune.packSizeMax) && tune.packSizeMax >= 1) {
-        maxMobs = Math.max(1, Math.min(maxMobs, Math.floor(tune.packSizeMax)));
-    }
-
-    let qtd = Math.floor(Math.random() * maxMobs) + 1;
-    window.monstrosAtivos.length = 0; // Limpa o array mantendo a referência global
-    let nomesSorteados = [];
-
     const thp = (typeof tune.hp === 'number' && tune.hp > 0) ? tune.hp : 1;
     let tatk = (typeof tune.atk === 'number' && tune.atk > 0) ? tune.atk : 1;
     const tdef = (typeof tune.def === 'number' && tune.def > 0) ? tune.def : 1;
@@ -310,8 +305,8 @@ function spawnMonstros() {
         : 1;
     const expeditionActive = !!(window as any).ExpeditionEngine?.state?.active;
     if (packMult !== 1) {
-        // Expedition: ease packs a bit (glass builds); forest keeps full packAtkMult.
-        const applied = expeditionActive ? Math.max(packMult, 0.86) : packMult;
+        // Expedition: keep pack damage meaningful (legacy forest still eases large pulls).
+        const applied = expeditionActive ? Math.max(packMult, 0.94) : packMult;
         tatk *= applied;
     }
 
