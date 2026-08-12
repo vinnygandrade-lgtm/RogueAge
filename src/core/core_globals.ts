@@ -252,8 +252,8 @@ window.L2MINI_ZONAL_MOB_TUNING = {
     championOnePerPull: true,
     packAtkMult: 0.82,
   },
-  // D eased vs NG jump (~15% more after prior soft nerf); NG untouched.
-  D: { hp: 0.68, atk: 0.63, def: 0.72 },
+  // D: ATK eased hard after playtest (hits still sting, less one-shot packs); NG untouched.
+  D: { hp: 0.62, atk: 0.48, def: 0.70, packAtkMult: 0.84, championOnePerPull: true },
   C: { hp: 0.83, atk: 0.76, def: 0.86 },
   B: { hp: 0.78, atk: 0.72, def: 0.83 },
   A: { hp: 0.74, atk: 0.68, def: 0.8 },
