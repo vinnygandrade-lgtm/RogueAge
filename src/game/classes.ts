@@ -452,6 +452,29 @@ function paintNpcReadyNotif(
     host.classList.add('npc-ready--has-notif');
 }
 
+function paintTownTabClassTransferNotif(show: boolean, count: number, ariaLabel: string): void {
+    const townBtn = document.getElementById('btn-tab-cidade');
+    const pill = document.getElementById('nav-notif-cidade-class');
+    if (townBtn) {
+        townBtn.classList.toggle('btn-travel--has-notif', show);
+        townBtn.classList.toggle('btn-travel--has-class-transfer', show);
+    }
+    if (!pill) return;
+    if (!show) {
+        pill.hidden = true;
+        pill.textContent = '';
+        pill.setAttribute('aria-hidden', 'true');
+        pill.removeAttribute('aria-label');
+        pill.classList.remove('nav-notif--active');
+        return;
+    }
+    pill.hidden = false;
+    pill.removeAttribute('aria-hidden');
+    pill.textContent = count > 1 ? String(Math.min(count, 9)) : '!';
+    pill.setAttribute('aria-label', ariaLabel);
+    pill.classList.add('nav-notif--active');
+}
+
 function refreshClassTransferNotifs(): void {
     const avail = getClassTransferAvailability();
     const tFn = typeof window.t === 'function' ? window.t : null;
@@ -477,6 +500,9 @@ function refreshClassTransferNotifs(): void {
         }
         classBtn.classList.toggle('npc-action--class-ready', avail.hasAvailable);
     }
+
+    // Bottom TOWN tab — points players into the plaza / Grand Master NPC.
+    paintTownTabClassTransferNotif(avail.hasAvailable, avail.count, aria);
 }
 
 function abrirMenuClasses() {

@@ -325,21 +325,23 @@ function buildDetailHtml(opcao: ClassOption, opts: TransferRenderOpts): string {
 
   return `
     <article class="class-path-card class-path-card--detail${can ? '' : ' class-path-card--locked'}" style="--class-accent:${esc(accent)}" data-class-option="${safeId}">
-      <header class="class-path-card__head">
-        <div class="class-path-card__portrait class-path-card__portrait--lg">${paperdollSlotHtml(opcao.nome, 'lg')}</div>
-        <div class="class-path-card__titles">
-          <div class="class-path-card__title-row">
-            <h3 class="class-path-card__name">${esc(name)}</h3>
-            <span class="class-path-card__role">${esc(roleLabel(mod))}</span>
+      <div class="class-path-card__scroll">
+        <header class="class-path-card__head">
+          <div class="class-path-card__portrait class-path-card__portrait--lg">${paperdollSlotHtml(opcao.nome, 'lg')}</div>
+          <div class="class-path-card__titles">
+            <div class="class-path-card__title-row">
+              <h3 class="class-path-card__name">${esc(name)}</h3>
+              <span class="class-path-card__role">${esc(roleLabel(mod))}</span>
+            </div>
+            <p class="class-path-card__desc">${esc(desc)}</p>
+            <div class="class-path-card__meta">${status}</div>
           </div>
-          <p class="class-path-card__desc">${esc(desc)}</p>
-          <div class="class-path-card__meta">${status}</div>
+        </header>
+        <div class="class-path-card__body">
+          ${statsCompareHtml(opts.currentClass, opcao.nome)}
+          ${skillIconsHtml(opcao.nome)}
+          ${futurePathHtml(opcao.nome, accent)}
         </div>
-      </header>
-      <div class="class-path-card__body">
-        ${statsCompareHtml(opts.currentClass, opcao.nome)}
-        ${skillIconsHtml(opcao.nome)}
-        ${futurePathHtml(opcao.nome, accent)}
       </div>
       <footer class="class-path-card__foot class-path-card__foot--detail">
         <button type="button" class="btn-l2 class-path-card__btn class-path-card__btn--back" data-class-back>
