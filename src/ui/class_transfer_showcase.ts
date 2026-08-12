@@ -116,13 +116,27 @@ export function resolveClassShowcaseGear(className: string, reqLvl: number): Cla
   return { armorId: row.armorId, weaponId: row.weaponId };
 }
 
-function catalogStub(id: string | null, tipo: 'armor' | 'weapon'): { uid: string; tipo: string; base: { id: string; nome: string }; enchant: number } | null {
+/** Valid 4-segment UID so ItemSecurity.isValidInstance accepts inspect stubs. */
+function showcaseUid(tipo: 'armor' | 'weapon', id: string): string {
+  const prefix = tipo === 'weapon' ? 'WPN' : 'ARM';
+  const safe = String(id || 'x')
+    .replace(/[^a-zA-Z0-9]+/g, '')
+    .slice(0, 10)
+    .toUpperCase() || 'X';
+  return `${prefix}-SHOW-${safe}-0`;
+}
+
+function catalogStub(
+  id: string | null,
+  tipo: 'armor' | 'weapon',
+): { uid: string; tipo: string; base: { id: string; nome: string }; enchant: number; origin: string } | null {
   if (!id) return null;
   return {
-    uid: `showcase-${tipo}-${id}`,
+    uid: showcaseUid(tipo, id),
     tipo,
     base: { id, nome: id },
     enchant: 0,
+    origin: 'Showcase',
   };
 }
 
@@ -137,9 +151,11 @@ export function buildClassTransferShowcaseCharData(
   armaEquipadaBase: ReturnType<typeof catalogStub>;
 } {
   const gear = resolveClassShowcaseGear(className, reqLvl);
+  // Body/preset = player's race + gender + current archetype (not the target class),
+  // so Human Fighter Male always sees human_fighter — even when previewing a mage path.
   return {
     charRace: String(window.charRace || 'Human'),
-    charClass: className,
+    charClass: String(window.charClass || className || 'Fighter'),
     charGender: window.charGender === 'Female' ? 'Female' : 'Male',
     armaduraEquipada: catalogStub(gear.armorId, 'armor'),
     armaEquipadaBase: catalogStub(gear.weaponId, 'weapon'),
@@ -195,6 +211,10 @@ export function paintClassTransferPaperdolls(
     const charData = buildClassTransferShowcaseCharData(className, reqLvl);
     try {
       window.atualizarPaperdollInspect(root, charData as never);
+      // applyPaperdollConfig sets inline --pd-stack-bottom for the profile stage;
+      // mini slots need the figure flush to the bottom of the black frame.
+      root.style.setProperty('--pd-stack-bottom', '0%');
+      root.style.setProperty('--pd-figure-w', '100%');
     } catch {
       /* ignore single paint failure */
     }

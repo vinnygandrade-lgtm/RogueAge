@@ -1131,6 +1131,9 @@ window.syncPaperdollFootShadow = function (): void {
   for (let s = 0; s < stacks.length; s++) {
     const stack = stacks[s] as PaperdollStackEl | null;
     if (!stack) continue;
+    const host = stack.closest('.l2-paperdoll');
+    // Mini class-transfer slots use fixed CSS layout — skip foot-scan reflow.
+    if (host && host.classList.contains('l2-paperdoll--class-transfer')) continue;
     if (!_hasVisiblePaperdollFeetSource(stack)) {
       _resetPaperdollFootShadow(stack);
       continue;
