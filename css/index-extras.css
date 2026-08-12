@@ -7612,19 +7612,20 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .l2-paperdoll--class-transfer .paperdoll-col {
     display: none !important;
 }
+/* Center the 1080×984 figure in the mini frame (was bottom-anchored → looked too low). */
 .l2-paperdoll--class-transfer .paperdoll-character-stack {
     position: absolute !important;
     left: 50% !important;
+    top: 50% !important;
     right: auto !important;
-    top: auto !important;
-    bottom: 0 !important;
-    width: 108% !important;
+    bottom: auto !important;
+    width: 100% !important;
     max-width: none !important;
     height: auto !important;
-    max-height: 100% !important;
+    max-height: 92% !important;
     aspect-ratio: 1080 / 984;
-    transform: translateX(-50%) !important;
-    transform-origin: 50% 100%;
+    transform: translate(-50%, -50%) !important;
+    transform-origin: 50% 50%;
     z-index: 3;
     pointer-events: none;
     background: transparent !important;
@@ -7638,11 +7639,12 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     height: 100% !important;
     max-width: none !important;
     object-fit: fill !important;
-    object-position: bottom center !important;
+    object-position: center center !important;
+    transform: none !important;
     pointer-events: none;
 }
 .l2-paperdoll--class-transfer .paperdoll-foot-shadow {
-    opacity: 0.45;
+    display: none !important;
 }
 .class-path-card__portrait .l2-paperdoll--class-transfer,
 .class-path-pick__portrait .l2-paperdoll--class-transfer {
