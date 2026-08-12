@@ -8,6 +8,7 @@ import type {
   ItemCatalogBase,
   ShopCatalogItem,
 } from '../types/game';
+import { CATALOGO_RECEITAS_CONSUMIVEIS } from './db_craft_consumables';
 import {
   applyArmorCatalogMeta,
   armorMatchesClass,
@@ -443,6 +444,7 @@ const catalogoReceitas: CraftRecipeCatalog = {
             ]
         }
     ],
+    consumables: CATALOGO_RECEITAS_CONSUMIVEIS.map((r) => ({ ...r, clientAuthority: true })),
     special: [
         {
             idReceita: 'rec_vesper_heavy',

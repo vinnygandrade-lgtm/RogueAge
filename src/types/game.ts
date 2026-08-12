@@ -414,7 +414,7 @@ export interface NpcShopBuyStackableResult {
   qty_after?: number | string;
 }
 
-export type CraftCategory = 'special' | 'mats';
+export type CraftCategory = 'special' | 'mats' | 'consumables';
 
 export interface CraftIngredient {
   id: string;
@@ -442,6 +442,11 @@ export interface CraftRecipe {
   itemResultado?: CraftResultItem;
   ingredientes: CraftIngredient[];
   escolhasResultado?: CraftResultChoice[];
+  /**
+   * When true (consumable packs), craft runs client-side even with Supabase session.
+   * Debt: move to RPC when shop-parity authority is ready (§12.7).
+   */
+  clientAuthority?: boolean;
 }
 
 export interface CraftItemRpcResult {

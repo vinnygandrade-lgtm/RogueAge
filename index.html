@@ -702,8 +702,9 @@
     <div id="janela-craft" class="store-window">
         <div class="store-header"><span data-i18n="game.craft.windowTitle">DWARVEN CRAFTING</span></div>
         <div id="craft-tabs">
-            <button type="button" class="btn-l2" id="tab-craft-special" data-i18n="game.craft.tabSpecial" onclick="mudarAbaCraft('special')">🌟 SPECIAL</button>
+            <button type="button" class="btn-l2" id="tab-craft-consumables" data-i18n="game.craft.tabConsumables" onclick="mudarAbaCraft('consumables')">🧪 CONSUMABLES</button>
             <button type="button" class="btn-l2" id="tab-craft-mats" data-i18n="game.craft.tabMats" onclick="mudarAbaCraft('mats')">📦 MATERIALS</button>
+            <button type="button" class="btn-l2" id="tab-craft-special" data-i18n="game.craft.tabSpecial" onclick="mudarAbaCraft('special')">🌟 SPECIAL</button>
         </div>
         <div class="store-body store-body--craft">
             <div id="craft-receitas-grid" class="store-items-grid"></div>
@@ -1959,9 +1960,17 @@
                 </div>
                 <div class="npc-dialog" data-i18n="game.town.craftDialog">"I can process ore and forge rare materials. What shall we craft today?"</div>
                 <div class="npc-hub__actions">
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--craft" onclick="abrirJanelaCraft('consumables')">
+                        <span class="npc-action__label" data-i18n="game.town.consumableCraft">Consumable Craft</span>
+                        <span class="npc-action__hint" data-i18n="game.town.consumableCraftHint">Potions &amp; shots from expedition mats</span>
+                    </button>
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--craft" onclick="abrirJanelaCraft('mats')">
                         <span class="npc-action__label" data-i18n="game.town.materialProcessing">Material Processing</span>
                         <span class="npc-action__hint" data-i18n="game.town.materialProcessingHint">Refine ores into craft mats</span>
+                    </button>
+                    <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--craft" onclick="abrirJanelaCraft('special')">
+                        <span class="npc-action__label" data-i18n="game.town.specialForge">Special Forge</span>
+                        <span class="npc-action__hint" data-i18n="game.town.specialForgeHint">Vesper &amp; epic recipes</span>
                     </button>
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
                 </div>

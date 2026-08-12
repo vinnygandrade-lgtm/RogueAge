@@ -716,6 +716,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     windowTitle: 'DWARVEN CRAFTING',
                     tabSpecial: '🌟 SPECIAL',
                     tabMats: '📦 MATERIALS',
+                    tabConsumables: '🧪 CONSUMABLES',
                     recipeRequirements: 'Recipe Requirements',
                     selectRecipeBlank: 'Select a recipe.',
                     craftItemBtn: 'CRAFT ITEM',
@@ -2384,7 +2385,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     classReadyBadgeAria: 'Class transfer ready ({count})',
                     craftDialog: '"I can process ore and forge rare materials. What shall we craft today?"',
                     materialProcessing: 'Material Processing',
-                    materialProcessingHint: 'Refine ores into craft mats'
+                    materialProcessingHint: 'Refine ores into craft mats',
+                    consumableCraft: 'Consumable Craft',
+                    consumableCraftHint: 'Potions & shots from expedition mats',
+                    specialForge: 'Special Forge',
+                    specialForgeHint: 'Vesper & epic recipes'
                 },
                 world: {
                     sectionTitle: 'WORLD & ADVENTURE',
@@ -4176,6 +4181,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     windowTitle: 'CRAFT ANÃO',
                     tabSpecial: '🌟 ESPECIAL',
                     tabMats: '📦 MATERIAIS',
+                    tabConsumables: '🧪 CONSUMÍVEIS',
                     recipeRequirements: 'Requisitos da receita',
                     selectRecipeBlank: 'Selecione uma receita.',
                     craftItemBtn: 'CRAFTAR ITEM',
@@ -5844,7 +5850,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     classReadyBadgeAria: 'Transferência de classe disponível ({count})',
                     craftDialog: '"Posso processar minério e forjar materiais raros. O que vamos craftar hoje?"',
                     materialProcessing: 'Processar materiais',
-                    materialProcessingHint: 'Refine minérios em materiais'
+                    materialProcessingHint: 'Refine minérios em materiais',
+                    consumableCraft: 'Craft de consumíveis',
+                    consumableCraftHint: 'Poções e shots com mats da Expedição',
+                    specialForge: 'Forja especial',
+                    specialForgeHint: 'Receitas Vesper e épicas'
                 },
                 world: {
                     sectionTitle: 'MUNDO E AVENTURA',

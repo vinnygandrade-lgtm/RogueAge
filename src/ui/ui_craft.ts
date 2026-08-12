@@ -26,7 +26,7 @@ function receitasDaCategoria(categoria: string): CraftRecipe[] {
   return window.catalogoReceitas[categoria] || [];
 }
 
-function abrirJanelaCraft(categoria: CraftCategory = 'special'): void {
+function abrirJanelaCraft(categoria: CraftCategory = 'consumables'): void {
   window.abrirModal('janela-craft', 1500);
   mudarAbaCraft(categoria);
 }
@@ -43,16 +43,12 @@ function mudarAbaCraft(categoria: CraftCategory): void {
 
   const tabSpecial = document.getElementById('tab-craft-special');
   const tabMats = document.getElementById('tab-craft-mats');
-  if (tabSpecial) {
-    tabSpecial.style.background = (categoria === 'special')
-      ? 'linear-gradient(180deg, #ca8a04 0%, #854d0e 100%)'
-      : '#222';
-  }
-  if (tabMats) {
-    tabMats.style.background = (categoria === 'mats')
-      ? 'linear-gradient(180deg, #ca8a04 0%, #854d0e 100%)'
-      : '#222';
-  }
+  const tabCons = document.getElementById('tab-craft-consumables');
+  const activeBg = 'linear-gradient(180deg, #ca8a04 0%, #854d0e 100%)';
+  const idleBg = '#222';
+  if (tabSpecial) tabSpecial.style.background = categoria === 'special' ? activeBg : idleBg;
+  if (tabMats) tabMats.style.background = categoria === 'mats' ? activeBg : idleBg;
+  if (tabCons) tabCons.style.background = categoria === 'consumables' ? activeBg : idleBg;
 
   const grid = document.getElementById('craft-receitas-grid');
   if (!grid) return;
@@ -227,7 +223,10 @@ function creditarResultadoCraftLocal(tipoGerado: string, idBaseGerado: string, q
       } else {
         window.inventario[idBaseGerado] = (window.inventario[idBaseGerado] || 0) + qtdGerada;
       }
-      nomeGerado = idBaseGerado;
+      nomeGerado =
+        typeof window.consumableDisplayName === 'function'
+          ? window.consumableDisplayName(idBaseGerado)
+          : idBaseGerado;
     }
   } else {
     const baseEquip = buscarBaseDoEquipamento(idBaseGerado);
@@ -337,8 +336,16 @@ async function executarCraft(): Promise<void> {
 
   const taxaSucesso = receitaSelecionada.taxaSucesso != null ? Number(receitaSelecionada.taxaSucesso) : 100;
   const recipe = receitaSelecionada;
+  // Consumable packs: clientAuthority (not in craft_item_secure yet). Debt: RPC §12.7.
+  const useCloudRpc = !!(
+    window.SupabaseAPI
+    && window.SupabaseAPI.getUser()
+    && window.charName
+    && typeof window.SupabaseAPI.craftItem === 'function'
+    && recipe.clientAuthority !== true
+  );
 
-  if (window.SupabaseAPI && window.SupabaseAPI.getUser() && window.charName && typeof window.SupabaseAPI.craftItem === 'function') {
+  if (useCloudRpc) {
     try {
       const { data, error } = await window.SupabaseAPI.craftItem(
         window.charName,
