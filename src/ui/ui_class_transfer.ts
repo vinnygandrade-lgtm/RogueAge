@@ -3,6 +3,10 @@
  */
 
 import { classEvolutionDisplayDesc, classEvolutionDisplayName } from '../i18n/polish12_display';
+import {
+  buildClassTransferPaperdollHtml,
+  paintClassTransferPaperdolls,
+} from './class_transfer_showcase';
 
 type ClassMod = {
   hp?: number;
@@ -241,18 +245,28 @@ function statsCompareHtml(currentClass: string, targetClass: string): string {
     <div class="class-path-stats">${chips}</div>`;
 }
 
-function portraitHtml(targetClass: string): string {
-  const race = String(window.charRace || 'Human');
-  const gender = window.charGender;
-  if (typeof window.portraitImgHtml === 'function') {
-    return window.portraitImgHtml(
-      race,
-      gender,
-      targetClass,
-      'width:100%;height:100%;object-fit:cover;object-position:center top;',
-    );
+function paperdollSlotHtml(className: string, size: 'sm' | 'lg'): string {
+  return buildClassTransferPaperdollHtml(className, size);
+}
+
+function optionsReqMap(): Map<string, { reqLvl: number }> {
+  const map = new Map<string, { reqLvl: number }>();
+  for (let i = 0; i < _transferOpts.length; i++) {
+    const op = _transferOpts[i];
+    map.set(op.nome, { reqLvl: Number(op.reqLvl) || 20 });
   }
-  return '';
+  return map;
+}
+
+function schedulePaintTransferPaperdolls(): void {
+  const container = _transferContainer;
+  if (!container) return;
+  const map = optionsReqMap();
+  requestAnimationFrame(() => {
+    paintClassTransferPaperdolls(container, map);
+    // Second pass after layout (foot shadow / layer chains).
+    requestAnimationFrame(() => paintClassTransferPaperdolls(container, map));
+  });
 }
 
 function findOption(nome: string | null | undefined): ClassOption | null {
@@ -284,7 +298,7 @@ function buildPickerCardHtml(opcao: ClassOption, opts: TransferRenderOpts): stri
       style="--class-accent:${esc(accent)}"
       data-class-open="${safeId}"
       aria-label="${esc(aria)}">
-      <div class="class-path-pick__portrait">${portraitHtml(opcao.nome)}</div>
+      <div class="class-path-pick__portrait">${paperdollSlotHtml(opcao.nome, 'sm')}</div>
       <div class="class-path-pick__body">
         <div class="class-path-pick__title-row">
           <span class="class-path-pick__name">${esc(name)}</span>
@@ -312,7 +326,7 @@ function buildDetailHtml(opcao: ClassOption, opts: TransferRenderOpts): string {
   return `
     <article class="class-path-card class-path-card--detail${can ? '' : ' class-path-card--locked'}" style="--class-accent:${esc(accent)}" data-class-option="${safeId}">
       <header class="class-path-card__head">
-        <div class="class-path-card__portrait class-path-card__portrait--lg">${portraitHtml(opcao.nome)}</div>
+        <div class="class-path-card__portrait class-path-card__portrait--lg">${paperdollSlotHtml(opcao.nome, 'lg')}</div>
         <div class="class-path-card__titles">
           <div class="class-path-card__title-row">
             <h3 class="class-path-card__name">${esc(name)}</h3>
@@ -353,6 +367,7 @@ function paintTransferView(): void {
       container.className = 'classes-opcoes classes-opcoes--detail';
       container.innerHTML = buildDetailHtml(opcao, _transferRenderOpts);
       wireTransferEvents(container);
+      schedulePaintTransferPaperdolls();
       return;
     }
   }
@@ -364,6 +379,7 @@ function paintTransferView(): void {
       ${_transferOpts.map((op) => buildPickerCardHtml(op, _transferRenderOpts)).join('')}
     </div>`;
   wireTransferEvents(container);
+  schedulePaintTransferPaperdolls();
 }
 
 function wireTransferEvents(container: HTMLElement): void {

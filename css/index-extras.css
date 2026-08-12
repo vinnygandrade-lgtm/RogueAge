@@ -7570,14 +7570,15 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     filter: saturate(0.72);
 }
 .class-path-pick__portrait {
-    width: 64px;
-    height: 72px;
+    width: 72px;
+    height: 84px;
     flex-shrink: 0;
     border-radius: 9px;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--class-accent) 55%, #5a4634);
-    background: radial-gradient(circle at 50% 20%, #2a2218 0%, #0a0806 75%);
+    background: #000;
     box-shadow: 0 0 10px color-mix(in srgb, var(--class-accent) 22%, transparent);
+    position: relative;
 }
 .class-path-pick__portrait img {
     display: block;
@@ -7585,6 +7586,58 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     height: 100%;
     object-fit: cover;
     object-position: center top;
+}
+
+/* Class-transfer mini paperdoll — black stage, no scenery */
+.l2-paperdoll--class-transfer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #000 !important;
+    border: none;
+    border-radius: inherit;
+    overflow: hidden;
+    --pd-char-scale: 1;
+    --pd-figure-w: 100%;
+}
+.l2-paperdoll--class-transfer .paperdoll-scenery,
+.l2-paperdoll--class-transfer .paperdoll-frame-vignette,
+.l2-paperdoll--class-transfer .paperdoll-stage {
+    display: none !important;
+}
+.l2-paperdoll--class-transfer .paperdoll-character-stack {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000;
+}
+.l2-paperdoll--class-transfer .char-layer {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center bottom;
+    pointer-events: none;
+}
+.l2-paperdoll--class-transfer .paperdoll-foot-shadow {
+    opacity: 0.55;
+}
+.class-path-card__portrait .l2-paperdoll--class-transfer,
+.class-path-pick__portrait .l2-paperdoll--class-transfer {
+    border-radius: inherit;
+}
+.class-path-card__portrait--lg {
+    width: 96px;
+    height: 112px;
 }
 .class-path-pick__body {
     min-width: 0;
@@ -7660,10 +7713,6 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     max-height: min(88dvh, 720px);
 }
 
-.class-path-card__portrait--lg {
-    width: 78px;
-    height: 92px;
-}
 .class-path-card__foot--detail {
     display: grid;
     grid-template-columns: 1fr 1.35fr;
@@ -7752,8 +7801,9 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     border-radius: 9px;
     overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--class-accent) 55%, #5a4634);
-    background: radial-gradient(circle at 50% 20%, #2a2218 0%, #0a0806 75%);
+    background: #000;
     box-shadow: 0 0 12px color-mix(in srgb, var(--class-accent) 25%, transparent);
+    position: relative;
 }
 .class-path-card__portrait img {
     display: block;
