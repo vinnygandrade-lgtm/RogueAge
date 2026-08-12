@@ -359,7 +359,7 @@ const catalogoArmas: ItemCatalogBase[] = [
 const precosVenda: Record<string, number> = { "Animal Skin": 13, "Animal Bone": 18, "Coal": 24, "Charcoal": 30, "Iron Ore": 38 };
 
 // --- CONSUMÍVEIS E SCROLLS ---
-// Shot unit prices (Adena): NG 6 → D 20 → C 60 → B 180 → A 500 → S 1500 (SS = BSS).
+// Catalog `preco` is legacy base; shop pay = base × EconomyBalance inflation (shots ×80, pots ×55, scrolls by grade).
 const catalogoConsumiveis: ShopCatalogItem[] = [
     { id: 'pot_hp', nome: 'HP Potion', preco: 58, img: 'assets/itens/pot_hp.png', desc: 'Instantly restores 50 HP.' },
     { id: 'pot_mp', nome: 'Mana Potion', preco: 58, img: 'assets/itens/pot_mp.png', desc: 'Instantly restores 40 MP.' },

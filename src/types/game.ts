@@ -1022,8 +1022,17 @@ export interface ItemSecurityApi {
 export interface EconomyBalanceApi {
   NOVICE_LEVEL_CAP: number;
   shopLevelPriceMult: (level: number) => number;
-  shopCatalogInflationMult: (basePrice: number, currency?: string | null) => number;
-  effectiveShopUnitPrice: (basePrice: number, level: number, currency?: string | null) => number;
+  shopCatalogInflationMult: (
+    basePrice: number,
+    currency?: string | null,
+    opts?: { itemId?: string | null; grade?: string | null } | null,
+  ) => number;
+  effectiveShopUnitPrice: (
+    basePrice: number,
+    level: number,
+    currency?: string | null,
+    opts?: { itemId?: string | null; grade?: string | null } | string | null,
+  ) => number;
   adenaLootMult: (level: number, zonaId?: string | null) => number;
   noviceXpGainMult: (level: number) => number;
   noviceXpRequiredMult: (level: number) => number;

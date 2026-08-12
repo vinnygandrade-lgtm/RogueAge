@@ -1,10 +1,8 @@
 /**
- * Curvas Adena / Ancient — loja NPC e loot (paridade js/economy_balance.js).
- * Novice progression (retention até ~lvl 20): ganho XP, barra por nível, loot Adena, mobs mais justos.
- *
- * Shop inflation (2026): legacy catalog `preco` stays as the base band key; buy price multiplies
- * by shopCatalogInflationMult so NG gear is a real early-game goal (~100k full kit) instead of
- * one login reward. Keep SQL npc_shop_buy_stackable in lockstep.
+ * Curvas Adena / Ancient — loja NPC e loot.
+ * Shop inflation (2026): legacy catalog `preco` × shopCatalogInflationMult.
+ * Meta: set de armadura NG ≈ 500k Adena; grades superiores sobem em escada.
+ * Keep SQL npc_shop_buy_stackable in lockstep (CASE por item_id + bandas).
  */
 import type { ZonalMobTuneEntry } from '../types/game';
 const SHOP_LEVEL_COEFF = 0.018;
@@ -41,37 +39,80 @@ function shopLevelPriceMult(level: number): number {
   return Math.min(SHOP_LEVEL_CAP, 1 + Math.max(0, lv - 1) * SHOP_LEVEL_COEFF);
 }
 
+/** Shop inflation helpers — keep in sync with npc_shop_buy_stackable SQL. */
+type ShopInflationOpts = {
+  itemId?: string | null;
+  grade?: string | null;
+};
+
 /**
- * Inflate legacy catalog Adena prices by band (mirrors Postgres npc_shop_buy_stackable).
- * Ancient Coin SKUs keep catalog face value (do not inflate).
- * Targets (approx at level 1, Adena):
- * - NG armor 800 → 36k; NG weapon ~500 → ~22k; full NG kit ≈ 90–110k
- * - D armor 25k → 175k; C armor 120k → 600k
- * - Consumables / shots / low mats ×10
+ * Inflate legacy catalog Adena prices.
+ * Ancient Coin SKUs keep face value.
+ *
+ * Targets @ level 1 (approx):
+ * - NG armor set 800 → 500,000
+ * - D armor 25k → 2,500,000 · C 120k → 6,600,000 · B 450k → 18M · A 1.5M → 45M · S 5M → 110M
+ * - Soulshot NG 6 → 480 · D 20 → 1,600 · C 60 → 4,800 · B 180 → 14,400 · A 500 → 40k · S 1.5k → 120k
+ * - Enchant Weapon NG 1120 → ~106k · Armor NG 335 → ~32k (then grade ladder)
+ * - HP/MP potion 58 → ~3.2k
  */
-function shopCatalogInflationMult(basePrice: number, currency?: string | null): number {
+function shopCatalogInflationMult(
+  basePrice: number,
+  currency?: string | null,
+  opts?: ShopInflationOpts | null,
+): number {
   const cur = String(currency || 'adena').toLowerCase();
   if (cur === 'ancient' || cur === 'ac') return 1;
+
+  const id = String(opts?.itemId || '').trim().toLowerCase();
   const b = Math.max(0, Number(basePrice) || 0);
   if (b <= 0) return 1;
-  if (b <= 100) return 10; // potions, shots, raw mats
-  if (b <= 1000) return 45; // NG gear / starter jewels / cheap weapons
-  if (b <= 5000) return 18; // D weapons & D jewels
-  if (b <= 30000) return 7; // D armor sets, mid jewels
-  if (b <= 150000) return 5; // C gear
-  if (b <= 500000) return 4; // B gear
-  if (b <= 2000000) return 3.5; // A gear
-  return 2.5; // S / recipes
+
+  // Soulshots / Blessed Spiritshots — sink by grade (id-based so they never use gear bands)
+  if (id.startsWith('shot_') || id.startsWith('bshot_')) return 80;
+
+  // Potions
+  if (id.startsWith('pot_')) return 55;
+
+  // Adena enchant scrolls (blessed stay Ancient / face value)
+  if (/^sc_[wa]_/.test(id)) {
+    if (id.endsWith('_ng')) return 95;
+    if (id.endsWith('_d')) return 75;
+    if (id.endsWith('_c')) return 55;
+    if (id.endsWith('_b')) return 40;
+    if (id.endsWith('_a')) return 30;
+    if (id.endsWith('_s')) return 22;
+    return 50;
+  }
+
+  // Equipment + materials by legacy catalog band
+  if (b <= 100) return 55; // leftover cheap mats
+  if (b <= 1000) return 625; // NG gear (armor 800 → 500k)
+  if (b <= 5000) return 200; // D weapons / D jewels
+  if (b <= 30000) return 100; // D armor sets
+  if (b <= 150000) return 55; // C gear
+  if (b <= 500000) return 40; // B gear
+  if (b <= 2000000) return 30; // A gear
+  return 22; // S / recipes
 }
 
 function effectiveShopUnitPrice(
   basePrice: number,
   level: number,
   currency?: string | null,
+  opts?: ShopInflationOpts | string | null,
 ): number {
   const b = Math.max(0, Number(basePrice) || 0);
   if (b <= 0) return 0;
-  const inflated = b * shopCatalogInflationMult(b, currency);
+  // Back-compat: 4th arg used to be currency-only string in some call sites
+  let inflationOpts: ShopInflationOpts | null = null;
+  let cur = currency;
+  if (opts != null && typeof opts === 'string') {
+    // legacy mistaken signature — ignore
+  } else if (opts && typeof opts === 'object') {
+    inflationOpts = opts;
+  }
+  const inflated = b * shopCatalogInflationMult(b, cur, inflationOpts);
   return Math.max(1, Math.ceil(inflated * shopLevelPriceMult(level)));
 }
 
@@ -184,17 +225,17 @@ function adenaLootMult(level: number, zonaId?: string | null): number {
 
 function grandMasterBuffPrice(level: number): number {
   const lv = clampLevel(level);
-  const base = 2500;
-  const extra = Math.floor((lv - 1) * 55);
-  return Math.min(32000, base + extra);
+  const base = 28000;
+  const extra = Math.floor((lv - 1) * 420);
+  return Math.min(220000, base + extra);
 }
 
-/** Blessing Build (3 slots, 2h) — slightly above the old single pack. */
+/** Blessing Build (3 slots, 2h) — priced as a serious town spend vs 500k NG set. */
 function grandMasterBlessingBuildPrice(level: number): number {
   const lv = clampLevel(level);
-  const base = 3800;
-  const extra = Math.floor((lv - 1) * 70);
-  return Math.min(42000, base + extra);
+  const base = 48000;
+  const extra = Math.floor((lv - 1) * 620);
+  return Math.min(320000, base + extra);
 }
 
 const MINT_ANCIENT_ADENA_COST = 5_000_000;

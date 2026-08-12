@@ -77,7 +77,10 @@ function effectiveShopUnitForCatalogItem(item: ShopCatalogItem | null | undefine
     const currency = item.moeda === 'Ancient' ? 'ancient' : 'adena';
     const EB = window.EconomyBalance;
     if (EB && typeof EB.effectiveShopUnitPrice === 'function') {
-        return EB.effectiveShopUnitPrice(base, shopPlayerLevel(), currency);
+        return EB.effectiveShopUnitPrice(base, shopPlayerLevel(), currency, {
+            itemId: item.id != null ? String(item.id) : '',
+            grade: item.grade != null ? String(item.grade) : '',
+        });
     }
     return base;
 }
