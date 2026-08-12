@@ -3056,7 +3056,25 @@ BEGIN
 
     v_level := GREATEST(1, LEAST(85, COALESCE(v_level, 1)));
     v_mult := LEAST(2.35::NUMERIC, 1::NUMERIC + GREATEST(0, v_level - 1) * 0.018);
-    v_unit := GREATEST(1, ceil(v_base * v_mult)::BIGINT);
+    -- Adena SKUs: shop catalog inflation (sync src/economy/economy_balance.ts). Ancient Coin SKUs: face value only.
+    IF v_currency = 'ancient' THEN
+        v_unit := GREATEST(1, ceil(v_base * v_mult)::BIGINT);
+    ELSE
+        v_unit := GREATEST(1, ceil(
+            v_base * (
+                CASE
+                    WHEN v_base <= 100 THEN 10::NUMERIC
+                    WHEN v_base <= 1000 THEN 45::NUMERIC
+                    WHEN v_base <= 5000 THEN 18::NUMERIC
+                    WHEN v_base <= 30000 THEN 7::NUMERIC
+                    WHEN v_base <= 150000 THEN 5::NUMERIC
+                    WHEN v_base <= 500000 THEN 4::NUMERIC
+                    WHEN v_base <= 2000000 THEN 3.5::NUMERIC
+                    ELSE 2.5::NUMERIC
+                END
+            ) * v_mult
+        )::BIGINT);
+    END IF;
     v_total := v_unit * p_qty;
 
     v_adena := COALESCE((v_data->>'adenas')::BIGINT, 0);

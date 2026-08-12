@@ -1,6 +1,6 @@
 -- NPC Grocer / Scrolls — compra de stackables (autoridade servidor)
--- Preços base e nomes de inventário devem manter-se alinhados a js/db_items.js e js/economy_balance.js
--- (coef. nível 0.018, cap 2.35; preço unitário = ceil(base * mult), mínimo 1)
+-- Preços base e nomes de inventário devem manter-se alinhados a src/db/db_items.ts e src/economy/economy_balance.ts
+-- (coef. nível 0.018, cap 2.35; Adena: ceil(base * inflation(base) * mult); Ancient: ceil(base * mult))
 
 CREATE OR REPLACE FUNCTION public.npc_shop_buy_stackable(
     p_char_name TEXT,
@@ -100,7 +100,25 @@ BEGIN
 
     v_level := GREATEST(1, LEAST(85, COALESCE(v_level, 1)));
     v_mult := LEAST(2.35::NUMERIC, 1::NUMERIC + GREATEST(0, v_level - 1) * 0.018);
-    v_unit := GREATEST(1, ceil(v_base * v_mult)::BIGINT);
+    -- Adena SKUs: shop catalog inflation (sync src/economy/economy_balance.ts). Ancient Coin SKUs: face value only.
+    IF v_currency = 'ancient' THEN
+        v_unit := GREATEST(1, ceil(v_base * v_mult)::BIGINT);
+    ELSE
+        v_unit := GREATEST(1, ceil(
+            v_base * (
+                CASE
+                    WHEN v_base <= 100 THEN 10::NUMERIC
+                    WHEN v_base <= 1000 THEN 45::NUMERIC
+                    WHEN v_base <= 5000 THEN 18::NUMERIC
+                    WHEN v_base <= 30000 THEN 7::NUMERIC
+                    WHEN v_base <= 150000 THEN 5::NUMERIC
+                    WHEN v_base <= 500000 THEN 4::NUMERIC
+                    WHEN v_base <= 2000000 THEN 3.5::NUMERIC
+                    ELSE 2.5::NUMERIC
+                END
+            ) * v_mult
+        )::BIGINT);
+    END IF;
     v_total := v_unit * p_qty;
 
     v_adena := COALESCE((v_data->>'adenas')::BIGINT, 0);
