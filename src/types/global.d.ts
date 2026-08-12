@@ -272,6 +272,13 @@ declare global {
       ataqueMagicoDoMonstro?: boolean,
     ) => boolean;
     classEvolutions?: Record<string, Array<{ nome: string; reqLvl: number; desc: string; cor: string }>>;
+    getClassTransferAvailability?: () => {
+      hasAvailable: boolean;
+      count: number;
+      nextReqLvl: number | null;
+      optionsTotal: number;
+    };
+    refreshClassTransferNotifs?: () => void;
     bancoDeSkills?: Record<string, import('./game').SkillCatalogEntry>;
     arvoreDeSkills?: Record<string, import('./game').SkillTreeEntry[]>;
     linhagemClasses?: Record<string, string[]>;
@@ -923,7 +930,16 @@ declare global {
   function fecharLobbyRaid(): void;
   function fecharMenuClasses(): void;
   function abrirMenuClasses(): void;
+  function fecharMenuClasses(): void;
   function confirmarTrocaClasse(novaClasse: string): void;
+  function executarTrocaClasse(novaClasse: string): void;
+  function getClassTransferAvailability(): {
+    hasAvailable: boolean;
+    count: number;
+    nextReqLvl: number | null;
+    optionsTotal: number;
+  };
+  function refreshClassTransferNotifs(): void;
   function executarTrocaClasse(novaClasse: string): void;
   function fecharJanelaBloqueioGrade(): void;
   function fecharSpellbook(forceClose?: boolean): void;

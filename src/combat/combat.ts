@@ -247,6 +247,9 @@ function aplicarXpGanhoFloresta(quantia) {
                 window.escreverLog(`<span style="color:#a855f7; font-weight:bold; text-shadow: 1px 1px 0 #000;">${hint}</span>`);
             }
         }
+        if (typeof window.refreshClassTransferNotifs === 'function') {
+            try { window.refreshClassTransferNotifs(); } catch (eCt) { /* ignore */ }
+        }
         if (nl === (window.EconomyBalance?.NOVICE_LEVEL_CAP ?? 20) + 1) {
             if (typeof window.escreverLog === 'function') {
                 const msg = (typeof window.t === 'function')

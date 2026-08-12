@@ -384,22 +384,115 @@ const classEvolutions = {
     ],
 };
 
+function resolveClassEvolutionKey(): string {
+    let chaveEvolucao = String(window.charClass || 'Fighter');
+    if (chaveEvolucao === 'Fighter' || chaveEvolucao === 'Mage') {
+        chaveEvolucao = `${window.charRace || 'Human'}_${chaveEvolucao}`;
+    }
+    return chaveEvolucao;
+}
+
+export type ClassTransferAvailability = {
+    hasAvailable: boolean;
+    count: number;
+    nextReqLvl: number | null;
+    optionsTotal: number;
+};
+
+function getClassTransferAvailability(): ClassTransferAvailability {
+    const chave = resolveClassEvolutionKey();
+    const opcoes = (classEvolutions as Record<string, Array<{ nome: string; reqLvl: number }>>)[chave];
+    if (!Array.isArray(opcoes) || opcoes.length === 0) {
+        return { hasAvailable: false, count: 0, nextReqLvl: null, optionsTotal: 0 };
+    }
+    const lvl = Number(window.nivel) || 1;
+    let count = 0;
+    let nextReqLvl: number | null = null;
+    for (let i = 0; i < opcoes.length; i++) {
+        const req = Number(opcoes[i].reqLvl) || 1;
+        if (lvl >= req) {
+            count++;
+        } else if (nextReqLvl == null || req < nextReqLvl) {
+            nextReqLvl = req;
+        }
+    }
+    return {
+        hasAvailable: count > 0,
+        count,
+        nextReqLvl,
+        optionsTotal: opcoes.length,
+    };
+}
+
+function paintNpcReadyNotif(
+    host: HTMLElement | null,
+    show: boolean,
+    ariaLabel: string,
+): void {
+    if (!host) return;
+    let pill = host.querySelector('.npc-ready-notif') as HTMLElement | null;
+    if (!show) {
+        if (pill) {
+            pill.hidden = true;
+            pill.textContent = '';
+            pill.removeAttribute('aria-label');
+        }
+        host.classList.remove('npc-ready--has-notif');
+        return;
+    }
+    if (!pill) {
+        pill = document.createElement('span');
+        pill.className = 'npc-ready-notif';
+        pill.setAttribute('aria-hidden', 'false');
+        host.appendChild(pill);
+    }
+    pill.hidden = false;
+    pill.textContent = '!';
+    pill.setAttribute('aria-label', ariaLabel);
+    host.classList.add('npc-ready--has-notif');
+}
+
+function refreshClassTransferNotifs(): void {
+    const avail = getClassTransferAvailability();
+    const tFn = typeof window.t === 'function' ? window.t : null;
+    const aria = tFn
+        ? tFn('game.town.classReadyBadgeAria', { count: avail.count })
+        : `Class transfer ready (${avail.count})`;
+    const readyHint = tFn ? tFn('game.town.changeClassHintReady') : 'Ready to ascend!';
+    const idleHint = tFn ? tFn('game.town.changeClassHint') : 'Ascend when ready';
+
+    paintNpcReadyNotif(
+        document.querySelector('.npc-card--classmaster') as HTMLElement | null,
+        avail.hasAvailable,
+        aria,
+    );
+
+    const classBtn = document.querySelector('.npc-action--class') as HTMLElement | null;
+    paintNpcReadyNotif(classBtn, avail.hasAvailable, aria);
+    if (classBtn) {
+        const hint = classBtn.querySelector('.npc-action__hint') as HTMLElement | null;
+        if (hint) {
+            hint.textContent = avail.hasAvailable ? readyHint : idleHint;
+            hint.removeAttribute('data-i18n');
+        }
+        classBtn.classList.toggle('npc-action--class-ready', avail.hasAvailable);
+    }
+}
+
 function abrirMenuClasses() {
     window.fecharNpc?.(); // Esconde o menu do Grand Master
     
     let aviso = document.getElementById('classes-aviso');
     let container = document.getElementById('classes-opcoes-container');
+    if (!aviso || !container) return;
     container.innerHTML = '';
 
     let tFn = (typeof window.t === 'function') ? window.t : null;
 
     // === LÓGICA DE BUSCA DA CLASSE ===
-    let chaveEvolucao = charClass;
-    if (charClass === "Fighter" || charClass === "Mage") {
-        chaveEvolucao = `${charRace}_${charClass}`; 
-    }
+    let chaveEvolucao = resolveClassEvolutionKey();
 
-    let opcoes = classEvolutions[chaveEvolucao];
+    let opcoes = (classEvolutions as Record<string, Array<{ nome: string; reqLvl: number; desc?: string; cor?: string }>>)[chaveEvolucao];
     
     // Se a classe atual não tem mais pra onde evoluir (já é Level 76)
     if (!opcoes || opcoes.length === 0) {
@@ -414,14 +507,14 @@ function abrirMenuClasses() {
     let precisaUpar = false;
     let temOpcaoDisponivel = false;
     opcoes.forEach((opcao) => {
-        const pode = nivel >= opcao.reqLvl;
+        const pode = (Number(window.nivel) || 1) >= opcao.reqLvl;
         if (!pode) precisaUpar = true;
         else temOpcaoDisponivel = true;
     });
 
     renderClassTransferOptions(container, opcoes, {
-        currentClass: String(charClass || 'Fighter'),
-        playerLevel: Number(nivel) || 1,
+        currentClass: String(window.charClass || 'Fighter'),
+        playerLevel: Number(window.nivel) || 1,
     });
     
     if (precisaUpar && !temOpcaoDisponivel) { 
@@ -432,7 +525,7 @@ function abrirMenuClasses() {
         aviso.style.color = "#ccc"; 
         aviso.style.display = "block"; 
     } else {
-        const tip = tFn ? tFn('game.classes.decisionTip') : 'Compare roles, stats, skills, and the path ahead — this choice is permanent.';
+        const tip = tFn ? tFn('game.classes.pickAPath') : 'Pick a path below — tap a card to compare stats, skills, and the road ahead.';
         aviso.innerHTML = tip;
         aviso.style.color = "#94a3b8";
         aviso.style.display = "block";
@@ -486,6 +579,9 @@ function executarTrocaClasse(novaClasse) {
     playerHP = playerStats.maxHp; playerMP = playerStats.maxMp; // Enche a vida de brinde
     
     atualizar(); renderizarPerfil(); salvarJogo();
+    if (typeof window.refreshClassTransferNotifs === 'function') {
+        try { window.refreshClassTransferNotifs(); } catch (eNotif) { /* ignore */ }
+    }
     
     let stitle = tFn ? tFn('game.classes.successTitle') : 'CLASS TRANSFER SUCCESS';
     document.getElementById('acao-titulo').innerHTML = `<span style="color:#10b981; text-shadow: 1px 1px 0 #000;">${stitle}</span>`;
@@ -507,5 +603,7 @@ window.abrirMenuClasses = abrirMenuClasses;
 window.fecharMenuClasses = fecharMenuClasses;
 window.confirmarTrocaClasse = confirmarTrocaClasse;
 window.executarTrocaClasse = executarTrocaClasse;
+window.getClassTransferAvailability = getClassTransferAvailability;
+window.refreshClassTransferNotifs = refreshClassTransferNotifs;
 
 export {};

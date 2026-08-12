@@ -1,5 +1,5 @@
 /**
- * Rich class-transfer decision UI — stats, skills, and future path previews.
+ * Class-transfer decision UI — compact picker (all paths visible), then detail on tap.
  */
 
 import { classEvolutionDisplayDesc, classEvolutionDisplayName } from '../i18n/polish12_display';
@@ -22,6 +22,16 @@ type ClassOption = {
 };
 
 type SkillTreeRow = { lvl?: number; nome: string };
+
+type TransferRenderOpts = { currentClass: string; playerLevel: number };
+
+type TransferViewMode = 'picker' | 'detail';
+
+let _transferOpts: ClassOption[] = [];
+let _transferRenderOpts: TransferRenderOpts = { currentClass: 'Fighter', playerLevel: 1 };
+let _transferView: TransferViewMode = 'picker';
+let _selectedClassName: string | null = null;
+let _transferContainer: HTMLElement | null = null;
 
 function t(key: string, params?: Record<string, string | number>): string {
   if (typeof window.t === 'function') {
@@ -195,7 +205,6 @@ function statsCompareHtml(currentClass: string, targetClass: string): string {
       label: t('game.classes.stat.spd'),
       cur: fmtSpdLabel(cur.spd),
       next: fmtSpdLabel(nxt.spd),
-      // lower interval = better → invert
       trend: deltaClass(Number(cur.spd) || 1, Number(nxt.spd) || 1, true),
     },
     {
@@ -246,10 +255,50 @@ function portraitHtml(targetClass: string): string {
   return '';
 }
 
-export function buildClassPathCardHtml(
-  opcao: ClassOption,
-  opts: { currentClass: string; playerLevel: number },
-): string {
+function findOption(nome: string | null | undefined): ClassOption | null {
+  if (!nome) return null;
+  return _transferOpts.find((o) => o.nome === nome) || null;
+}
+
+function syncJanelaModeClass(): void {
+  const win = document.getElementById('janela-classes');
+  if (!win) return;
+  win.classList.toggle('store-window--class-path-detail', _transferView === 'detail');
+  win.classList.toggle('store-window--class-path-picker', _transferView === 'picker');
+}
+
+function buildPickerCardHtml(opcao: ClassOption, opts: TransferRenderOpts): string {
+  const accent = opcao.cor || '#10b981';
+  const can = opts.playerLevel >= opcao.reqLvl;
+  const mod = getMod(opcao.nome);
+  const name = classEvolutionDisplayName(opcao.nome);
+  const status = can
+    ? `<span class="class-path-pick__status class-path-pick__status--ok">${esc(t('game.classes.available'))}</span>`
+    : `<span class="class-path-pick__status class-path-pick__status--lock">${esc(t('game.classes.requiresLevel', { level: opcao.reqLvl }))}</span>`;
+  const safeId = esc(opcao.nome);
+  const aria = t('game.classes.viewDetailsAria', { name });
+
+  return `
+    <button type="button"
+      class="class-path-pick${can ? '' : ' class-path-pick--locked'}"
+      style="--class-accent:${esc(accent)}"
+      data-class-open="${safeId}"
+      aria-label="${esc(aria)}">
+      <div class="class-path-pick__portrait">${portraitHtml(opcao.nome)}</div>
+      <div class="class-path-pick__body">
+        <div class="class-path-pick__title-row">
+          <span class="class-path-pick__name">${esc(name)}</span>
+          <span class="class-path-pick__role">${esc(roleLabel(mod))}</span>
+        </div>
+        <div class="class-path-pick__meta">
+          ${status}
+          <span class="class-path-pick__cta">${esc(t('game.classes.viewDetails'))}</span>
+        </div>
+      </div>
+    </button>`;
+}
+
+function buildDetailHtml(opcao: ClassOption, opts: TransferRenderOpts): string {
   const accent = opcao.cor || '#10b981';
   const can = opts.playerLevel >= opcao.reqLvl;
   const mod = getMod(opcao.nome);
@@ -258,13 +307,12 @@ export function buildClassPathCardHtml(
   const status = can
     ? `<span class="class-path-card__status class-path-card__status--ok">${esc(t('game.classes.available'))}</span>`
     : `<span class="class-path-card__status class-path-card__status--lock">${esc(t('game.classes.requiresLevel', { level: opcao.reqLvl }))}</span>`;
-
   const safeId = esc(opcao.nome);
 
   return `
-    <article class="class-path-card${can ? '' : ' class-path-card--locked'}" style="--class-accent:${esc(accent)}" data-class-option="${safeId}">
+    <article class="class-path-card class-path-card--detail${can ? '' : ' class-path-card--locked'}" style="--class-accent:${esc(accent)}" data-class-option="${safeId}">
       <header class="class-path-card__head">
-        <div class="class-path-card__portrait">${portraitHtml(opcao.nome)}</div>
+        <div class="class-path-card__portrait class-path-card__portrait--lg">${portraitHtml(opcao.nome)}</div>
         <div class="class-path-card__titles">
           <div class="class-path-card__title-row">
             <h3 class="class-path-card__name">${esc(name)}</h3>
@@ -279,7 +327,10 @@ export function buildClassPathCardHtml(
         ${skillIconsHtml(opcao.nome)}
         ${futurePathHtml(opcao.nome, accent)}
       </div>
-      <footer class="class-path-card__foot">
+      <footer class="class-path-card__foot class-path-card__foot--detail">
+        <button type="button" class="btn-l2 class-path-card__btn class-path-card__btn--back" data-class-back>
+          ${esc(t('game.classes.backToPaths'))}
+        </button>
         <button type="button" class="btn-l2 class-path-card__btn" data-class-pick="${safeId}" ${can ? '' : 'disabled'}>
           ${esc(t('game.classes.changeBtn'))}
         </button>
@@ -287,14 +338,56 @@ export function buildClassPathCardHtml(
     </article>`;
 }
 
-export function renderClassTransferOptions(
-  container: HTMLElement,
-  opcoes: ClassOption[],
-  opts: { currentClass: string; playerLevel: number },
-): void {
-  container.innerHTML = opcoes
-    .map((op) => buildClassPathCardHtml(op, opts))
-    .join('');
+function paintTransferView(): void {
+  const container = _transferContainer;
+  if (!container) return;
+  syncJanelaModeClass();
+
+  if (_transferView === 'detail') {
+    const opcao = findOption(_selectedClassName);
+    if (!opcao) {
+      _transferView = 'picker';
+      _selectedClassName = null;
+      syncJanelaModeClass();
+    } else {
+      container.className = 'classes-opcoes classes-opcoes--detail';
+      container.innerHTML = buildDetailHtml(opcao, _transferRenderOpts);
+      wireTransferEvents(container);
+      return;
+    }
+  }
+
+  const n = Math.max(1, Math.min(3, _transferOpts.length || 1));
+  container.className = `classes-opcoes classes-opcoes--picker classes-opcoes--count-${n}`;
+  container.innerHTML = `
+    <div class="class-path-picker" data-count="${n}">
+      ${_transferOpts.map((op) => buildPickerCardHtml(op, _transferRenderOpts)).join('')}
+    </div>`;
+  wireTransferEvents(container);
+}
+
+function wireTransferEvents(container: HTMLElement): void {
+  container.querySelectorAll<HTMLElement>('[data-class-open]').forEach((btn) => {
+    btn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const nome = btn.getAttribute('data-class-open');
+      if (!nome) return;
+      _selectedClassName = nome;
+      _transferView = 'detail';
+      paintTransferView();
+    });
+  });
+
+  container.querySelectorAll<HTMLElement>('[data-class-back]').forEach((btn) => {
+    btn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      _selectedClassName = null;
+      _transferView = 'picker';
+      paintTransferView();
+    });
+  });
 
   container.querySelectorAll<HTMLButtonElement>('[data-class-pick]').forEach((btn) => {
     btn.addEventListener('click', (ev) => {
@@ -307,6 +400,30 @@ export function renderClassTransferOptions(
       }
     });
   });
+}
+
+/** @deprecated Prefer picker+detail flow; kept for any external callers. */
+export function buildClassPathCardHtml(
+  opcao: ClassOption,
+  opts: TransferRenderOpts,
+): string {
+  return buildDetailHtml(opcao, opts);
+}
+
+export function renderClassTransferOptions(
+  container: HTMLElement,
+  opcoes: ClassOption[],
+  opts: TransferRenderOpts,
+): void {
+  _transferContainer = container;
+  _transferOpts = Array.isArray(opcoes) ? opcoes.slice() : [];
+  _transferRenderOpts = {
+    currentClass: String(opts.currentClass || 'Fighter'),
+    playerLevel: Math.max(1, Number(opts.playerLevel) || 1),
+  };
+  _transferView = 'picker';
+  _selectedClassName = null;
+  paintTransferView();
 }
 
 export {};

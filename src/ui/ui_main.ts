@@ -737,6 +737,9 @@ function abrirNpc(npcId: string) {
     if (npcId === 'classmaster' && typeof window.refreshBlessingBuildTownCta === 'function') {
         try { window.refreshBlessingBuildTownCta(); } catch (eBb) { /* ignore */ }
     }
+    if (typeof window.refreshClassTransferNotifs === 'function') {
+        try { window.refreshClassTransferNotifs(); } catch (eCt) { /* ignore */ }
+    }
     if (npcId === 'clans' && typeof window.renderizarClans === 'function') {
         if (typeof window.iniciarSistemaClans === 'function') {
             void Promise.resolve(window.iniciarSistemaClans()).then(() => window.renderizarClans()).catch(e => { console.error(e); window.renderizarClans(); });
@@ -933,6 +936,9 @@ function executarTrocaSubScreen(lugar) {
             window.SupabaseAPI.updatePresence(window.charName, {});
         }
         window.maybeShowMenuTownCoach?.();
+        if (typeof window.refreshClassTransferNotifs === 'function') {
+            try { window.refreshClassTransferNotifs(); } catch (eCt) { /* ignore */ }
+        }
     }
     
     if (lugar === 'world') { 

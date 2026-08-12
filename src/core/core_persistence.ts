@@ -1197,6 +1197,10 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             } catch (eAuto) { /* ignore */ }
         }
 
+        if (typeof window.refreshClassTransferNotifs === 'function') {
+            try { window.refreshClassTransferNotifs(); } catch (eCt) { /* ignore */ }
+        }
+
         return true;
     } catch (e) { 
         console.error("Erro ao carregar:", e); 

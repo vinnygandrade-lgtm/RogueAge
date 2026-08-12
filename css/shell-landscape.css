@@ -158,7 +158,7 @@ html[data-l2-layout="landscape"] #janela-craft-resultado.store-window {
     max-width: min(400px, 90vw);
 }
 
-/* —— Item detail sheet (PC desk) — wide 2-column inspection —— */
+/* ââ Item detail sheet (PC desk) â wide 2-column inspection ââ */
 html[data-l2-layout="landscape"] #janela-item-acao.store-window--item-acao {
     width: min(780px, 72vw);
     max-width: min(820px, 88vw);
@@ -369,7 +369,7 @@ html[data-l2-layout="landscape"] #janela-item-acao .acao-btns:has(.btn-acao-extr
     flex: none;
 }
 
-/* Seletor de joia / sem hero: painel único largo */
+/* Seletor de joia / sem hero: painel Ãºnico largo */
 html[data-l2-layout="landscape"] #janela-item-acao .store-body--acao:not(:has(.acao-hero.is-filled)) {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
@@ -454,7 +454,7 @@ html[data-l2-layout="landscape"] #janela-augment .store-body--aug {
     min-height: min(62vh, 520px);
 }
 
-/* Mobile-only chrome — keep PC desk */
+/* Mobile-only chrome â keep PC desk */
 html[data-l2-layout="landscape"] #janela-enchant .enchant-step-hint,
 html[data-l2-layout="landscape"] #janela-augment .enchant-step-hint,
 html[data-l2-layout="landscape"] #janela-enchant .enchant-tabs,
@@ -866,7 +866,7 @@ html[data-l2-layout="landscape"] #screen-login .login-box {
         inset 0 0 40px rgba(0, 0, 0, 0.55) !important;
 }
 
-/* Patch notes — wider card on PC, still centered over login */
+/* Patch notes â wider card on PC, still centered over login */
 html[data-l2-layout="landscape"] #screen-login .patch-notes-overlay {
     padding: 40px clamp(28px, 4vw, 64px);
     background:
@@ -982,7 +982,7 @@ html[data-l2-layout="landscape"] .game-container.game-ingame #screen-game > .tra
 }
 
 /*
- * Floating messenger (FAB + panel) — bottom-left above travel menu.
+ * Floating messenger (FAB + panel) â bottom-left above travel menu.
  */
 html[data-l2-layout="landscape"] .game-container.game-ingame .floating-chat {
     z-index: 140;
@@ -1659,7 +1659,7 @@ html[data-l2-layout="landscape"] .game-container.game-ingame:has(#tela-cidade[st
     border-top-color: rgba(90, 70, 52, 0.28);
 }
 
-/* NPC talk menus — hub desk (portrait + actions) */
+/* NPC talk menus â hub desk (portrait + actions) */
 html[data-l2-layout="landscape"] #tela-cidade .npc-menu {
     width: 100%;
     max-width: min(860px, 92%);
@@ -2893,7 +2893,7 @@ html[data-l2-layout="landscape"] #global-ranking-list {
     max-height: min(52vh, 480px);
 }
 
-/* Forest / expedition battle — PC scenery (path bias set with combat stage below) */
+/* Forest / expedition battle â PC scenery (path bias set with combat stage below) */
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #forest-battle-bg[data-battle-bg-aspect="wide"] {
     background-size: cover;
     background-position: center 58%;
@@ -2935,9 +2935,9 @@ html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #forest-
 }
 
 /* =========================================================
- * Forest Expedition — PC desk (v2)
+ * Forest Expedition â PC desk (v2)
  * Beat portrait-fit shrinks; bag NEVER under Pause/Extract.
- * Layout: bag card full-width → buttons row → drops
+ * Layout: bag card full-width â buttons row â drops
  * ========================================================= */
 html[data-l2-layout="landscape"] #tela-floresta.screen-content {
     padding: 14px 24px 12px;
@@ -2957,7 +2957,7 @@ html[data-l2-layout="landscape"] #tela-floresta #botoes-combate {
     width: 100%;
 }
 
-/* —— Hub (trailhead — desk briefing + CTA rail) —— */
+/* ââ Hub (trailhead â desk briefing + CTA rail) ââ */
 html[data-l2-layout="landscape"] #tela-floresta.expedition-hub-open #hud-zona-nome {
     display: none;
 }
@@ -3118,7 +3118,7 @@ html[data-l2-layout="landscape"] #tela-floresta #expedition-hub.expedition-hub--
     font-size: 15px !important;
 }
 
-/* —— Active run board — fill height, don’t crush map into a stub scroll —— */
+/* ââ Active run board â fill height, donât crush map into a stub scroll ââ */
 html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta.expedition-run-active.screen-content {
     padding: 8px 16px 6px;
     max-width: none;
@@ -3162,7 +3162,7 @@ html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expediti
     min-height: 180px !important;
 }
 
-/* Vitals — ONE row on PC (was stacking and stealing the map) */
+/* Vitals â ONE row on PC (was stacking and stealing the map) */
 html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta.expedition-run-active #expedition-run-vitals {
     max-width: min(1200px, 100%);
     margin-inline: auto;
@@ -3335,7 +3335,7 @@ html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expediti
     overflow: visible !important;
 }
 
-/* Stats / gear tabs — readable desk panels */
+/* Stats / gear tabs â readable desk panels */
 html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-stats-panel,
 html[data-l2-layout="landscape"] .game-container.expedition-run-locked .exp-run-gear-panel {
     padding: 18px 20px !important;
@@ -3481,7 +3481,7 @@ html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expediti
     flex-shrink: 0;
 }
 
-/* —— Footer desk: bag HUD | Pause + Extract (same language as mobile) —— */
+/* ââ Footer desk: bag HUD | Pause + Extract (same language as mobile) ââ */
 html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-panel__footer,
 html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expedition-panel__footer--compact {
     padding: 12px 20px 14px !important;
@@ -3560,7 +3560,7 @@ html[data-l2-layout="landscape"] .game-container.expedition-run-locked .expediti
     font-family: 'Cinzel', serif;
 }
 
-/* —— Extract confirm (PC): wider results desk, same 100% | 50% —— */
+/* ââ Extract confirm (PC): wider results desk, same 100% | 50% ââ */
 html[data-l2-layout="landscape"] .l2-modal-overlay:has(.l2-modal--rich) {
     padding: 24px;
 }
@@ -3645,16 +3645,16 @@ html[data-l2-layout="landscape"] .exp-summary__note {
     font-size: 12px;
 }
 
-/* —— Combat stage (PC) — feet on the wide BG path / lower third ——
- * Art: battle_*_wide.webp 1920×1080 — ground plane + dirt path sit
- * roughly in the lower 35–45% of the frame; keep sprites large and
+/* ââ Combat stage (PC) â feet on the wide BG path / lower third ââ
+ * Art: battle_*_wide.webp 1920Ã1080 â ground plane + dirt path sit
+ * roughly in the lower 35â45% of the frame; keep sprites large and
  * bottom-aligned so they read as standing on that plane.
  */
 html[data-l2-layout="landscape"] .game-container.expedition-run-locked #tela-floresta.expedition-combat-open .tela-floresta-inner {
     max-width: min(1200px, 100%);
 }
 
-/* Only when combat is live (JS sets display:flex) — do not force visibility */
+/* Only when combat is live (JS sets display:flex) â do not force visibility */
 html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container,
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container {
     flex: 1 1 0;
@@ -3666,7 +3666,7 @@ html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-co
     justify-content: center !important;
     flex-wrap: nowrap;
     gap: 28px !important;
-    /* Stage ends above fixed fight HUD — modest bottom padding for feet on the path */
+    /* Stage ends above fixed fight HUD â modest bottom padding for feet on the path */
     padding: 12px 24px clamp(16px, 3vh, 32px) !important;
     box-sizing: border-box;
     overflow-x: auto !important;
@@ -3695,7 +3695,7 @@ html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hun
 
 html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-sprite-wrap,
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-sprite-wrap {
-    /* Don’t reserve 28vh when empty — that crushed the combat flex column */
+    /* Donât reserve 28vh when empty â that crushed the combat flex column */
     min-height: 0;
     align-items: flex-end;
 }
@@ -3719,7 +3719,7 @@ html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-con
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .hp-bar,
 html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container .mob-hunt-card__hpbar,
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container .mob-hunt-card__hpbar {
-    /* Tall enough for the HP number (was 12px bar + 12px type → clipped) */
+    /* Tall enough for the HP number (was 12px bar + 12px type â clipped) */
     height: 18px !important;
     min-height: 18px !important;
     margin-top: 8px !important;
@@ -3773,7 +3773,7 @@ html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mob-type
     }
 }
 
-/* —— Upgrade modal — bronze desk, 3 vertical choice cards —— */
+/* ââ Upgrade modal â bronze desk, 3 vertical choice cards ââ */
 html[data-l2-layout="landscape"] #janela-expedition-upgrade.store-window,
 html[data-l2-layout="landscape"] .expedition-upgrade-window {
     width: min(920px, 94vw);
@@ -3896,7 +3896,7 @@ html[data-l2-layout="landscape"] #janela-expedition-result .store-body {
     line-height: 1.5;
 }
 
-/* Victory / extract results — desk panel */
+/* Victory / extract results â desk panel */
 html[data-l2-layout="landscape"] #janela-vitoria.vitoria-window {
     width: min(520px, 92vw);
     max-width: min(520px, 92vw);
@@ -3971,7 +3971,7 @@ html[data-l2-layout="landscape"] #janela-vitoria .btn-vitoria-town {
     border-radius: 10px;
 }
 
-/* Rules modal — desk briefing panel */
+/* Rules modal â desk briefing panel */
 html[data-l2-layout="landscape"] #janela-expedition-rules.store-window {
     width: min(780px, 92vw);
     max-width: min(780px, 92vw);
@@ -4788,4 +4788,37 @@ html[data-l2-layout="landscape"] .player-titles-row {
 html[data-l2-layout="landscape"] .player-titles-row__equip {
     min-width: 108px;
     min-height: 42px;
+}
+
+/* Class transfer modal — landscape */
+html[data-l2-layout="landscape"] #janela-classes.store-window--class-path {
+    width: min(520px, 48vw);
+    max-width: min(520px, 48vw);
+}
+html[data-l2-layout="landscape"] #janela-classes.store-window--class-path-picker {
+    height: min(72vh, 560px);
+    max-height: min(72vh, 560px);
+}
+html[data-l2-layout="landscape"] .classes-opcoes--count-3 .class-path-picker {
+    flex-direction: row;
+    align-items: stretch;
+}
+html[data-l2-layout="landscape"] .classes-opcoes--count-3 .class-path-pick {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 0;
+    padding: 12px 10px;
+}
+html[data-l2-layout="landscape"] .classes-opcoes--count-3 .class-path-pick__portrait {
+    width: 72px;
+    height: 84px;
+}
+html[data-l2-layout="landscape"] .classes-opcoes--count-3 .class-path-pick__title-row {
+    flex-direction: column;
+    align-items: center;
+}
+html[data-l2-layout="landscape"] .classes-opcoes--count-3 .class-path-pick__meta {
+    flex-direction: column;
+    align-items: center;
 }
