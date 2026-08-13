@@ -40,13 +40,10 @@ function iniciarJogo(): void {
         window.TutorialEngine.bootstrapNewCharacter();
     }
 
-    let initialSkill = window.isClasseMagica(window.charClass) ? 'Wind Strike' : 'Power Strike';
-    // Se o tutorial estiver ativo, começamos com a barra MAIS LIMPA ainda (só Attack e Potion, slot 2 vazio para o tutorial)
+    // Main hotbar: Attack only. Skills are equipped in the tutorial; pots/shots live on the consumables bar.
+    window.barraAtalhos = ['Attack', null, null, null, null, null, null, null, null, null, null, null];
     if (window.tutorialProgress && window.tutorialProgress.active) {
-        console.log("🎓 [Tutorial] Iniciando com barra limpa para aprendizado.");
-        window.barraAtalhos = ['Attack', null, 'HP Potion', null, null, null, null, null, null, null, null, null];
-    } else {
-        window.barraAtalhos = ['Attack', initialSkill, 'HP Potion', 'Mana Potion', null, null, null, null, null, null, null, null];
+        console.log('🎓 [Tutorial] Starting with Attack-only hotbar.');
     }
     window.tempoFimBuffGuerreiro = 0;
     window.tempoFimBuffMistico = 0;

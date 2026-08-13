@@ -280,9 +280,9 @@ window.olympiadLosses = 0;
 
 window.barraAtalhos = [
   'Attack',
-  'Power Strike',
-  'HP Potion',
-  'Mana Potion',
+  null,
+  null,
+  null,
   null,
   null,
   null,

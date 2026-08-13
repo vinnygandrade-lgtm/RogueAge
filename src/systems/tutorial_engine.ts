@@ -46,7 +46,7 @@ function tn(key: string, params?: Record<string, string | number>): string {
                 el.classList.remove('tutorial-lock');
             });
             // Reset da barra de atalhos se foi forçada
-            if (!isRunning() || ![1, 4, 8, 9].includes(getProg().step)) {
+            if (!isRunning() || ![1, 4, 8, 9, 10].includes(getProg().step)) {
                 var bar = document.getElementById('barra-de-atalhos-dinamica');
                 if (bar) {
                     var lastLoc = localStorage.getItem('l2mini_last_location') || 'cidade';
@@ -276,14 +276,21 @@ function tn(key: string, params?: Record<string, string | number>): string {
                 if (slots && slots.length > 0) target = slots[0]; // O slot 1 é o Attack
             } else if (step === 10) {
                 forceScreen = 'floresta';
-                // Destacar a poção de HP
+                // HP potion lives on the consumables bar (above skills), not the main hotbar
                 var bar = document.getElementById('barra-de-atalhos-dinamica');
                 if (bar) {
                     bar.style.setProperty('display', 'grid', 'important');
                     bar.style.zIndex = '2001';
                 }
-                var slots = document.querySelectorAll('.shortcut-slot');
-                if (slots && slots.length > 2) target = slots[2]; // O slot 3 é a HP Potion
+                if (typeof window.renderizarBarraConsumiveis === 'function') {
+                    window.renderizarBarraConsumiveis();
+                }
+                var consBar = document.getElementById('consumables-bar');
+                if (consBar) {
+                    consBar.hidden = false;
+                    consBar.style.zIndex = '2002';
+                }
+                target = document.getElementById('consumable-slot-hp');
             }
 
             // Auto-navegação defensiva
@@ -583,12 +590,23 @@ function tn(key: string, params?: Record<string, string | number>): string {
                 hidePanel();
                 return;
             }
-            // Se o tutorial estiver no início (passo < 5) e a barra tiver a skill inicial, limpa para o tutorial
-            if (getProg().step < 5 && window.barraAtalhos) {
-                var initialSkill = window.isClasseMagica(window.charClass) ? 'Wind Strike' : 'Power Strike';
-                if (window.barraAtalhos[1] === initialSkill) {
-                    console.log("🎓 [Tutorial] Limpando slot 2 para o passo de equipar skill.");
-                    window.barraAtalhos[1] = null;
+            // Early tutorial: keep Attack only so the equip-skill step has an empty slot
+            // and pots/shots stay on the consumables bar (not the skill hotbar).
+            if (getProg().step < 5 && Array.isArray(window.barraAtalhos)) {
+                var dirty = false;
+                for (var bi = 1; bi < window.barraAtalhos.length; bi++) {
+                    if (window.barraAtalhos[bi] != null) {
+                        window.barraAtalhos[bi] = null;
+                        dirty = true;
+                    }
+                }
+                if (window.barraAtalhos[0] !== 'Attack') {
+                    window.barraAtalhos[0] = 'Attack';
+                    dirty = true;
+                }
+                if (dirty) {
+                    console.log('🎓 [Tutorial] Reset hotbar to Attack-only for onboarding.');
+                    if (typeof window.renderizarBarraAtalhos === 'function') window.renderizarBarraAtalhos();
                 }
             }
             try {

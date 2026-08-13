@@ -911,9 +911,7 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
         }
 
         window.barraAtalhos = normalizeBarraAtalhosArray(
-            data.barraAtalhos || (window.tutorialProgress && window.tutorialProgress.active
-                ? ['Attack', null, 'HP Potion', null, null, null, null, null, null, null, null, null]
-                : ['Attack', 'HP Potion', 'Mana Potion', null, null, null, null, null, null, null, null, null])
+            data.barraAtalhos || ['Attack', null, null, null, null, null, null, null, null, null, null, null]
         );
         
         window.tempoFimBuffGuerreiro = 0;
