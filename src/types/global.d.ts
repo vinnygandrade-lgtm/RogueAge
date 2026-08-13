@@ -555,11 +555,17 @@ declare global {
     }) => void;
     syncNavMenuActiveItem?: () => void;
     pingNavMailNotif?: () => void;
-    uiCoachFlags?: { menuTownSeen?: boolean; mailboxTipSeen?: boolean; missionsTipSeen?: boolean };
+    uiCoachFlags?: import('./game').UiCoachSave;
     maybeShowMenuTownCoach?: () => void;
     dismissNavMenuTownCoach?: () => void;
     maybeShowNavCoachToasts?: (mailUnread: number, missionsPending: number) => void;
     dismissNavCoachToast?: () => void;
+    scheduleBeginnerTip?: (
+      key: 'hotbar' | 'expedition' | 'consumables' | 'menu' | 'mailbox' | 'missions',
+      delayMs?: number
+    ) => void;
+    dismissBeginnerTip?: () => void;
+    hideBeginnerTip?: () => void;
     toggleChatCollapse?: () => void;
     toggleFloatingChat?: () => void;
     setFloatingChatOpen?: (open: boolean) => void;

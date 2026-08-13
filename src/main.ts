@@ -63,6 +63,7 @@ async function bootGame(): Promise<void> {
   await import('./game/blessing_catalog');
   await import('./systems/blessing_engine');
   await import('./core/core_stats');
+  await import('./ui/ui_nav_coach');
   await import('./systems/tutorial_engine');
   await import('./core/core_persistence');
   tickBoot(65, bootMsg('loading.phaseSave', 'Loading save engine...'));
@@ -112,7 +113,6 @@ async function bootGame(): Promise<void> {
   await import('./ui/pwa_install');
   await import('./ui/ui_settings');
   await import('./ui/ui_nav_notifications');
-  await import('./ui/ui_nav_coach');
   await import('./ui/ui_nav_menu');
   await import('./ui/ui_stat_ranking');
   await import('./ui/ui_inventory');

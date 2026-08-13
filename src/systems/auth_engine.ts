@@ -1277,7 +1277,15 @@ const AuthEngine = {
                         nivel: 1,
                         playerStats: window.playerStats || {},
                         barraAtalhos: ['Attack', null, null, null, null, null, null, null, null, null, null, null],
-                        tutorial: { v: 2, active: true, step: 0, completed: false, skipped: false }
+                        tutorial: { v: 3, active: false, step: 99, completed: true, skipped: false },
+                        uiCoach: {
+                            menuTownSeen: false,
+                            mailboxTipSeen: false,
+                            missionsTipSeen: false,
+                            hotbarTipSeen: false,
+                            expeditionTipSeen: false,
+                            consumablesTipSeen: false
+                        }
                     };
 
                     // Usa UPSERT com onConflict para nunca duplicar o mesmo nome

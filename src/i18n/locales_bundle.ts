@@ -250,13 +250,20 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
             },
             navCoach: {
                 badge: 'TIP',
+                gotIt: 'Got it',
+                closeAria: 'Close tip',
+                hotbarTitle: 'Your action bar',
+                hotbarBody: 'Attack is already in slot 1. Skills go on the empty slots — grab them from the Spellbook in Profile.',
+                expeditionTitle: 'Time to hunt',
+                expeditionBody: 'Tap Start Expedition to jump into the forest and pick your path.',
+                consumablesTitle: 'Potions & shots',
+                consumablesBody: 'That little bar above your skills is HP, MP, and shots. Hit AUTO on the shot so it fires every attack.',
                 menuTownTitle: 'Quick Menu',
-                menuTownBody: 'Tap MENU for mailbox, missions, marketplace, Olympiad, and more.',
-                gotIt: 'GOT IT',
-                mailboxTitle: 'Mailbox waiting',
-                mailboxBody: 'Tap MENU → Mailbox to claim mail and rewards.',
+                menuTownBody: 'MENU is your shortcut for mail, daily missions, market, and the rest. Peek when you can.',
+                mailboxTitle: 'Mail waiting',
+                mailboxBody: 'You have mail! Open MENU → Mailbox and claim your stuff.',
                 missionsTitle: 'Missions ready',
-                missionsBody: 'Tap MENU → Daily Missions to claim your progress.'
+                missionsBody: 'Daily missions are waiting. MENU → Daily Missions to check them out.'
             },
             hud: {
                 mailboxTitle: 'Mailbox',
@@ -3725,14 +3732,21 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 groupAccount: 'CONTA'
             },
             navCoach: {
-                badge: 'DICA',
-                menuTownTitle: 'Menu Rápido',
-                menuTownBody: 'Toque em MENU para correio, missões, mercado, Olimpíada e mais.',
-                gotIt: 'ENTENDI',
-                mailboxTitle: 'Correio à espera',
-                mailboxBody: 'Toque em MENU → Correio para resgatar cartas e recompensas.',
-                missionsTitle: 'Missões prontas',
-                missionsBody: 'Toque em MENU → Missões Diárias para resgatar o progresso.'
+                badge: 'Dica',
+                gotIt: 'Beleza',
+                closeAria: 'Fechar dica',
+                hotbarTitle: 'Sua barra de combate',
+                hotbarBody: 'O Attack já tá no 1º slot. Skills você joga nos vazios pelo Spellbook no Perfil — bem fácil.',
+                expeditionTitle: 'Bora caçar?',
+                expeditionBody: 'Toca em Iniciar Expedição pra entrar na floresta e escolher o caminho.',
+                consumablesTitle: 'Poções e shots',
+                consumablesBody: 'Aquela barrinha em cima das skills é HP, MP e shot. Liga o AUTO no shot que ele dispara sozinho.',
+                menuTownTitle: 'Menu rápido',
+                menuTownBody: 'O MENU é teu atalho pro correio, missões, mercado e o resto. Dá uma olhada quando puder.',
+                mailboxTitle: 'Tem correio!',
+                mailboxBody: 'Chegou carta pra você. Abre MENU → Correio e resgata logo.',
+                missionsTitle: 'Missões te esperando',
+                missionsBody: 'Tem missão diária rolando. MENU → Missões Diárias pra conferir.'
             },
             hud: {
                 mailboxTitle: 'Correio',

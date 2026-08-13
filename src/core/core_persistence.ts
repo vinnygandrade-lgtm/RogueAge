@@ -526,7 +526,7 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
             var _legacyFull = _hadOldVer || _hasBarra || _hasInv || _hasAdena || _hasWpn;
             data.tutorial = _legacyFull
                 ? { v: 1, active: false, step: 99, completed: true, skipped: false }
-                : { v: 2, active: true, step: 0, completed: false, skipped: false };
+                : { v: 3, active: false, step: 99, completed: true, skipped: false };
         } else {
             data.tutorial.v = typeof data.tutorial.v === 'number' ? data.tutorial.v : 1;
             if (typeof data.tutorial.completed !== 'boolean') data.tutorial.completed = !!data.tutorial.completed;
@@ -774,6 +774,9 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
                 menuTownSeen: !!window.uiCoachFlags.menuTownSeen,
                 mailboxTipSeen: !!window.uiCoachFlags.mailboxTipSeen,
                 missionsTipSeen: !!window.uiCoachFlags.missionsTipSeen,
+                hotbarTipSeen: !!window.uiCoachFlags.hotbarTipSeen,
+                expeditionTipSeen: !!window.uiCoachFlags.expeditionTipSeen,
+                consumablesTipSeen: !!window.uiCoachFlags.consumablesTipSeen,
             }
             : undefined,
         levelRewards: typeof window.getLevelRewardsSavePayload === 'function'
@@ -950,7 +953,7 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
         (function applyTutorialFromSave(data) {
             var raw = data.tutorial;
             var defLegacy = { v: 1, active: false, step: 99, completed: true, skipped: false };
-            var defFresh = { v: 2, active: true, step: 0, completed: false, skipped: false };
+            var defFresh = { v: 3, active: false, step: 99, completed: true, skipped: false };
 
             function inferWhenMissing(d) {
                 var hasBarra = Array.isArray(d.barraAtalhos) && d.barraAtalhos.some(function (s) { return s != null; });
@@ -982,14 +985,19 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
             }
         })(data);
 
-        if (data.uiCoach && typeof data.uiCoach === 'object') {
+        {
+            var tutDone = !!(data.tutorial && (data.tutorial.completed || data.tutorial.skipped));
+            var uc = data.uiCoach && typeof data.uiCoach === 'object' ? data.uiCoach : {};
+            // Veterans without the new tip flags: don't resurface beginner tips.
+            var veteranDefault = tutDone;
             window.uiCoachFlags = {
-                menuTownSeen: !!data.uiCoach.menuTownSeen,
-                mailboxTipSeen: !!data.uiCoach.mailboxTipSeen,
-                missionsTipSeen: !!data.uiCoach.missionsTipSeen,
+                menuTownSeen: !!uc.menuTownSeen,
+                mailboxTipSeen: !!uc.mailboxTipSeen,
+                missionsTipSeen: !!uc.missionsTipSeen,
+                hotbarTipSeen: typeof uc.hotbarTipSeen === 'boolean' ? uc.hotbarTipSeen : veteranDefault,
+                expeditionTipSeen: typeof uc.expeditionTipSeen === 'boolean' ? uc.expeditionTipSeen : veteranDefault,
+                consumablesTipSeen: typeof uc.consumablesTipSeen === 'boolean' ? uc.consumablesTipSeen : veteranDefault,
             };
-        } else {
-            window.uiCoachFlags = { menuTownSeen: false, mailboxTipSeen: false, missionsTipSeen: false };
         }
         
         if (typeof window.EndgamePursuits !== 'undefined' && typeof window.EndgamePursuits.normalizeAfterLoad === 'function') {

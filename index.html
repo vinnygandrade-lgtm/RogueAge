@@ -1779,23 +1779,9 @@
             </button>
         </div>
 
-        <div id="nav-menu-town-coach" class="nav-menu-town-coach nav-menu-town-coach--hidden" role="dialog" aria-labelledby="nav-menu-town-coach-title" aria-hidden="true">
-            <div class="nav-menu-town-coach__card">
-                <div class="nav-menu-town-coach__badge" data-i18n="navCoach.badge">TIP</div>
-                <h3 id="nav-menu-town-coach-title" class="nav-menu-town-coach__title" data-i18n="navCoach.menuTownTitle">Quick Menu</h3>
-                <p class="nav-menu-town-coach__body" data-i18n="navCoach.menuTownBody">Tap MENU for mailbox, missions, marketplace, Olympiad, and more.</p>
-                <button type="button" class="btn-l2 nav-menu-town-coach__btn" data-i18n="navCoach.gotIt" onclick="dismissNavMenuTownCoach()">GOT IT</button>
-            </div>
-        </div>
-
-        <div id="nav-coach-toast" class="nav-menu-town-coach nav-menu-town-coach--hidden" role="dialog" aria-labelledby="nav-coach-toast-title" aria-hidden="true" hidden>
-            <div class="nav-menu-town-coach__card">
-                <div class="nav-menu-town-coach__badge" data-i18n="navCoach.badge">TIP</div>
-                <h3 id="nav-coach-toast-title" class="nav-menu-town-coach__title"></h3>
-                <p id="nav-coach-toast-body" class="nav-menu-town-coach__body"></p>
-                <button type="button" class="btn-l2 nav-menu-town-coach__btn" data-i18n="navCoach.gotIt" onclick="dismissNavCoachToast()">GOT IT</button>
-            </div>
-        </div>
+        <!-- Legacy coach shells kept hidden; tips use #l2-tip-toast -->
+        <div id="nav-menu-town-coach" class="nav-menu-town-coach nav-menu-town-coach--hidden" hidden aria-hidden="true"></div>
+        <div id="nav-coach-toast" class="nav-menu-town-coach nav-menu-town-coach--hidden" hidden aria-hidden="true"></div>
 
         <div class="game-viewport" id="game-viewport">
         
@@ -2882,26 +2868,15 @@
             </div>
         </div>
 
-        <div id="tutorial-coach-panel" class="tutorial-coach tutorial-coach--hidden" role="region" aria-label="Tutorial" aria-hidden="true">
-            <div id="tutorial-arrow" class="tutorial-arrow tutorial-arrow--hidden" aria-hidden="true"></div>
-            <div class="tutorial-coach__card">
-                <div class="tutorial-coach__header">
-                    <div class="tutorial-coach__badge" data-i18n="game.tutorial.badge">GUIDE</div>
-                    <div class="tutorial-coach__progress" aria-hidden="true">
-                        <div id="tutorial-coach-progress-bar" class="tutorial-coach__progress-fill"></div>
-                    </div>
+        <div id="l2-tip-toast" class="l2-tip l2-tip--hidden" role="dialog" aria-labelledby="l2-tip-title" aria-hidden="true" hidden>
+            <div class="l2-tip__card">
+                <div class="l2-tip__top">
+                    <span id="l2-tip-badge" class="l2-tip__badge" data-i18n="navCoach.badge">Dica</span>
+                    <button type="button" id="l2-tip-close" class="l2-tip__close" data-i18n-aria-label="navCoach.closeAria" aria-label="Fechar">×</button>
                 </div>
-                <div class="tutorial-coach__content">
-                    <div class="tutorial-coach__text">
-                        <h3 id="tutorial-coach-title" class="tutorial-coach__title"></h3>
-                        <p id="tutorial-coach-body" class="tutorial-coach__body"></p>
-                    </div>
-                </div>
-                <div class="tutorial-coach__actions">
-                    <button type="button" id="tutorial-coach-back" class="btn-l2 tutorial-coach__btn-back" style="display:none;">Back</button>
-                    <button type="button" id="tutorial-coach-next" class="btn-l2 tutorial-coach__btn-main"></button>
-                    <button type="button" id="tutorial-coach-skip" class="btn-l2 tutorial-coach__btn-skip" data-i18n="game.tutorial.skip">Skip</button>
-                </div>
+                <h3 id="l2-tip-title" class="l2-tip__title"></h3>
+                <p id="l2-tip-body" class="l2-tip__body"></p>
+                <button type="button" id="l2-tip-ok" class="btn-l2 l2-tip__btn" data-i18n="navCoach.gotIt">Beleza</button>
             </div>
         </div>
 

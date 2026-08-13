@@ -743,6 +743,9 @@ export interface UiCoachSave {
   menuTownSeen?: boolean;
   mailboxTipSeen?: boolean;
   missionsTipSeen?: boolean;
+  hotbarTipSeen?: boolean;
+  expeditionTipSeen?: boolean;
+  consumablesTipSeen?: boolean;
 }
 
 /** Claimed level milestone rewards (Achievements hub). */
