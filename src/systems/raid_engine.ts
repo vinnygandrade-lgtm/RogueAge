@@ -800,12 +800,14 @@ const RaidEngine = {
         document.getElementById('tela-raid-arena').style.display = 'none';
 
         const barra = document.getElementById('barra-de-atalhos-dinamica');
+        const bundle = document.getElementById('hotbar-combat-bundle');
         if (barra) {
             barra.style.setProperty('display', 'none', 'important');
-            const hotbarHome = document.getElementById('hotbar-home-anchor');
-            if (hotbarHome && barra.parentElement !== hotbarHome) {
-                hotbarHome.appendChild(barra);
-            }
+        }
+        const hotbarHome = document.getElementById('hotbar-home-anchor');
+        const dockEl = bundle || barra;
+        if (hotbarHome && dockEl && dockEl.parentElement !== hotbarHome) {
+            hotbarHome.appendChild(dockEl);
         }
         if (typeof window.renderizarBarraAtalhos === 'function') {
             window.renderizarBarraAtalhos();

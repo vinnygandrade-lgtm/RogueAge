@@ -903,19 +903,28 @@ function executarTrocaSubScreen(lugar) {
         OlympiadEngine.softNavAway();
     }
     
-    // Controle de Visibilidade da Barra de Atalhos Global
+    // Controle de Visibilidade da Barra de Atalhos Global + consumables rail
     const barraGlobal = document.getElementById('barra-de-atalhos-dinamica');
+    const consumablesBar = document.getElementById('consumables-bar');
     if (barraGlobal) {
         // Inventory uses the Hotbar editor tab — keep the live combat bar off this screen.
         const telasComAtalho = ['floresta', 'clanwar', 'raid-arena', 'olympiad-arena'];
         if (telasComAtalho.includes(lugar)) {
             if (lugar === 'olympiad-arena') {
                 barraGlobal.style.setProperty('display', 'none', 'important');
+                if (consumablesBar) consumablesBar.hidden = true;
             } else {
                 barraGlobal.style.setProperty('display', 'grid', 'important');
+                if (consumablesBar) {
+                    consumablesBar.hidden = false;
+                    if (typeof window.renderizarBarraConsumiveis === 'function') {
+                        window.renderizarBarraConsumiveis();
+                    }
+                }
             }
         } else {
             barraGlobal.style.setProperty('display', 'none', 'important');
+            if (consumablesBar) consumablesBar.hidden = true;
         }
     }
     

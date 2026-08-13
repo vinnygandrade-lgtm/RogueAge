@@ -13,6 +13,118 @@
     z-index: auto;
 }
 
+.hotbar-combat-bundle {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* Fixed HP / MP / Shot rail above skill hotbar */
+.consumables-bar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px 4px;
+    background:
+        linear-gradient(180deg, rgba(96, 165, 250, 0.08) 0%, transparent 55%),
+        linear-gradient(180deg, #161210 0%, #100c09 100%);
+    border-top: 1px solid rgba(115, 89, 57, 0.55);
+    overflow: visible;
+}
+
+.consumables-bar[hidden] {
+    display: none !important;
+}
+
+.consumable-slot-stack--shot {
+    width: 100%;
+    min-width: 0;
+}
+
+.consumable-slot {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    min-height: 48px;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        linear-gradient(160deg, rgba(70, 52, 36, 0.4) 0%, transparent 42%),
+        linear-gradient(145deg, #1a1410 0%, #0a0806 100%);
+    border: 1px solid #5a4634;
+    border-radius: 4px;
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 236, 190, 0.1),
+        0 2px 5px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.consumable-slot:active {
+    transform: scale(0.96);
+}
+
+.consumable-slot.is-empty {
+    opacity: 0.55;
+    filter: grayscale(0.35);
+}
+
+.consumable-slot.is-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.consumable-slot.auto-shot-active {
+    border-color: #60a5fa;
+    box-shadow:
+        0 0 10px rgba(96, 165, 250, 0.65),
+        inset 0 0 12px rgba(59, 130, 246, 0.28);
+}
+
+.consumable-slot__tag {
+    position: absolute;
+    left: 3px;
+    bottom: 2px;
+    z-index: 6;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    color: #f5e6c8;
+    text-shadow: 0 1px 2px #000, 0 0 4px #000;
+    pointer-events: none;
+    line-height: 1;
+}
+
+#consumable-slot-hp {
+    border-color: #7f1d1d;
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+        inset 0 0 10px rgba(239, 68, 68, 0.12),
+        0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+#consumable-slot-mp {
+    border-color: #1e3a5f;
+    box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+        inset 0 0 10px rgba(59, 130, 246, 0.14),
+        0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
 #barra-de-atalhos-dinamica,
 #raid-atalhos-hook #barra-de-atalhos-dinamica,
 #olympiad-atalhos-hook #barra-de-atalhos-dinamica {
@@ -50,6 +162,23 @@
 #hotbar-home-anchor #barra-de-atalhos-dinamica {
     width: 100% !important;
     max-width: none !important;
+}
+
+/* When docked in raid/oly, keep consumables + skills as one column */
+#raid-atalhos-hook .hotbar-combat-bundle,
+#olympiad-atalhos-hook .hotbar-combat-bundle {
+    width: 100%;
+    margin-bottom: 6px;
+}
+
+#raid-atalhos-hook .consumables-bar,
+#olympiad-atalhos-hook .consumables-bar {
+    border-radius: 2px 2px 0 0;
+}
+
+#raid-atalhos-hook #barra-de-atalhos-dinamica,
+#olympiad-atalhos-hook #barra-de-atalhos-dinamica {
+    padding-top: 18px !important;
 }
 
 #raid-atalhos-hook #barra-de-atalhos-dinamica {

@@ -26,6 +26,7 @@ window.toggleAutoShot = function () {
     }
     window.autoShotAtivo = false;
     renderizarBarraAtalhos();
+    if (typeof window.renderizarBarraConsumiveis === 'function') window.renderizarBarraConsumiveis();
     return;
   }
 
@@ -39,6 +40,7 @@ window.toggleAutoShot = function () {
     }
   }
   renderizarBarraAtalhos();
+  if (typeof window.renderizarBarraConsumiveis === 'function') window.renderizarBarraConsumiveis();
 };
 
 function smartbarT(key: string, params?: Record<string, string | number>): string {
@@ -432,9 +434,14 @@ function syncHotbarCastRails(): void {
   });
 }
 
+function hotbarCombatBundle(): HTMLElement | null {
+  return document.getElementById('hotbar-combat-bundle');
+}
+
 function renderizarBarraAtalhos(): void {
   try {
     const container = document.getElementById('barra-de-atalhos-dinamica');
+    const bundle = hotbarCombatBundle();
     const raidHook = document.getElementById('raid-atalhos-hook');
     const olyHook = document.getElementById('olympiad-atalhos-hook');
     const hotbarHome = document.getElementById('hotbar-home-anchor');
@@ -459,19 +466,21 @@ function renderizarBarraAtalhos(): void {
       expEng.isExpeditionCombatUiActive()
     );
 
-    if (container) {
+    // Dock consumables + skill bar together (bundle). Expedition still moves #hotbar-home-anchor.
+    const dockTarget = bundle || container;
+    if (dockTarget) {
       if (estaNaRaid && raidHook) {
-        if (container.parentElement !== raidHook) raidHook.appendChild(container);
-        applyHotbarCombatDockStyles(container);
+        if (dockTarget.parentElement !== raidHook) raidHook.appendChild(dockTarget);
+        if (container) applyHotbarCombatDockStyles(container);
       } else if (estaNaOlympiad && olyHook) {
-        if (container.parentElement !== olyHook) olyHook.appendChild(container);
-        applyHotbarCombatDockStyles(container);
+        if (dockTarget.parentElement !== olyHook) olyHook.appendChild(dockTarget);
+        if (container) applyHotbarCombatDockStyles(container);
       } else if (expeditionLive && typeof expEng?.syncExpeditionHotbar === 'function') {
         expEng.syncExpeditionHotbar(expeditionCombat ? 'combat' : 'map');
-        applyHotbarCombatDockStyles(container);
+        if (container) applyHotbarCombatDockStyles(container);
       } else if (hotbarHome) {
-        if (container.parentElement !== hotbarHome) hotbarHome.appendChild(container);
-        resetHotbarDockStyles(container);
+        if (dockTarget.parentElement !== hotbarHome) hotbarHome.appendChild(dockTarget);
+        if (container) resetHotbarDockStyles(container);
       }
     }
 
@@ -623,6 +632,9 @@ function renderizarBarraAtalhos(): void {
     invalidateHotbarCdOverlayCache();
     syncHotbarCastRails();
     kickHotbarCdLoop();
+    if (typeof window.renderizarBarraConsumiveis === 'function') {
+      window.renderizarBarraConsumiveis();
+    }
 
     if (!estaNaRaid && !estaNaOlympiad) {
       syncExpeditionHotbarDockIfNeeded();

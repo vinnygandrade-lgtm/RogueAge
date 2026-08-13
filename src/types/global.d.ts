@@ -778,6 +778,7 @@ declare global {
   function confirmForestDeathReturnToTown(): void;
   function renderizarMonstros(opts?: { animateLayout?: boolean }): void;
   function renderizarBarraAtalhos(): void;
+  function renderizarBarraConsumiveis(): void;
   function dispararAnimacaoGCD(ms: number, skillName: string): void;
   function tocarSom(nome: import('./game').GameSoundKey): void;
   function tocarSomCritico(): void;

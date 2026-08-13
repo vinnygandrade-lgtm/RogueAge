@@ -1853,6 +1853,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         }
                     }
                 },
+                consumablesBar: {
+                    tagHp: 'HP',
+                    tagMp: 'MP',
+                    tagSoul: 'SHOT',
+                    tagSpirit: 'B.SHOT',
+                },
                 smartbar: {
                     itemOptions: 'ITEM OPTIONS',
                     pinToShortcut: 'ASSIGN TO SHORTCUT',
@@ -5320,6 +5326,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                             }
                         }
                     }
+                },
+                consumablesBar: {
+                    tagHp: 'HP',
+                    tagMp: 'MP',
+                    tagSoul: 'SHOT',
+                    tagSpirit: 'B.SHOT',
                 },
                 smartbar: {
                     itemOptions: 'OPÇÕES DO ITEM',

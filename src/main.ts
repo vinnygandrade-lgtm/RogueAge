@@ -136,6 +136,7 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_enchant');
   tickBoot(97, bootMsg('loading.phaseUi', 'Preparing interface...'));
   await import('./ui/ui_smartbar');
+  await import('./ui/ui_consumables_bar');
   await import('./ui/ui_hotbar_editor');
   await import('./paperdoll/paperdoll_config');
   await import('./paperdoll/ui_paperdoll');
