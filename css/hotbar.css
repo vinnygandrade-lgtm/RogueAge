@@ -16,23 +16,30 @@
 .hotbar-combat-bundle {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     width: 100%;
     box-sizing: border-box;
     flex-shrink: 0;
+    position: relative;
 }
 
-/* Fixed HP / MP / Shot rail above skill hotbar */
+/*
+ * Compact HP / MP / Shot cluster — same cell size as skill hotbar (1/6 width),
+ * tucked in the left corner above the action bar (not a full-width strip).
+ */
 .consumables-bar {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    width: 100%;
+    gap: 7px;
+    /* 3 of 6 hotbar columns + 2 gaps, aligned with bar padding */
+    width: calc((100% - 16px - 35px) / 6 * 3 + 14px);
+    max-width: calc(50% - 4px);
     box-sizing: border-box;
-    padding: 8px 10px 4px;
-    background:
-        linear-gradient(180deg, rgba(96, 165, 250, 0.08) 0%, transparent 55%),
-        linear-gradient(180deg, #161210 0%, #100c09 100%);
-    border-top: 1px solid rgba(115, 89, 57, 0.55);
+    margin: 0;
+    padding: 16px 0 0 8px; /* room for AUTO chip on shot */
+    align-self: flex-start;
+    background: transparent;
+    border: none;
     overflow: visible;
 }
 
@@ -48,9 +55,9 @@
 .consumable-slot {
     appearance: none;
     -webkit-appearance: none;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    min-height: 48px;
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    min-height: 44px !important;
     margin: 0;
     padding: 0;
     font: inherit;
@@ -61,13 +68,14 @@
     align-items: center;
     justify-content: center;
     background:
-        linear-gradient(160deg, rgba(70, 52, 36, 0.4) 0%, transparent 42%),
+        linear-gradient(160deg, rgba(70, 52, 36, 0.35) 0%, transparent 42%),
         linear-gradient(145deg, #1a1410 0%, #0a0806 100%);
     border: 1px solid #5a4634;
-    border-radius: 4px;
+    border-radius: 2px;
     box-shadow:
         inset 0 0 0 1px rgba(0, 0, 0, 0.55),
         inset 0 1px 0 rgba(255, 236, 190, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.5),
         0 2px 5px rgba(0, 0, 0, 0.4);
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
@@ -89,40 +97,32 @@
 }
 
 .consumable-slot.auto-shot-active {
-    border-color: #60a5fa;
+    border-color: #60a5fa !important;
     box-shadow:
-        0 0 10px rgba(96, 165, 250, 0.65),
-        inset 0 0 12px rgba(59, 130, 246, 0.28);
+        0 0 8px rgba(96, 165, 250, 0.7),
+        inset 0 0 10px rgba(59, 130, 246, 0.3);
 }
 
 .consumable-slot__tag {
     position: absolute;
-    left: 3px;
-    bottom: 2px;
+    left: 2px;
+    bottom: 1px;
     z-index: 6;
-    font-size: 8px;
+    font-size: 7px;
     font-weight: 800;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     color: #f5e6c8;
-    text-shadow: 0 1px 2px #000, 0 0 4px #000;
+    text-shadow: 0 1px 2px #000;
     pointer-events: none;
     line-height: 1;
 }
 
 #consumable-slot-hp {
     border-color: #7f1d1d;
-    box-shadow:
-        inset 0 0 0 1px rgba(0, 0, 0, 0.55),
-        inset 0 0 10px rgba(239, 68, 68, 0.12),
-        0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 #consumable-slot-mp {
     border-color: #1e3a5f;
-    box-shadow:
-        inset 0 0 0 1px rgba(0, 0, 0, 0.55),
-        inset 0 0 10px rgba(59, 130, 246, 0.14),
-        0 2px 5px rgba(0, 0, 0, 0.4);
 }
 
 #barra-de-atalhos-dinamica,
@@ -173,12 +173,7 @@
 
 #raid-atalhos-hook .consumables-bar,
 #olympiad-atalhos-hook .consumables-bar {
-    border-radius: 2px 2px 0 0;
-}
-
-#raid-atalhos-hook #barra-de-atalhos-dinamica,
-#olympiad-atalhos-hook #barra-de-atalhos-dinamica {
-    padding-top: 18px !important;
+    padding-left: 8px;
 }
 
 #raid-atalhos-hook #barra-de-atalhos-dinamica {

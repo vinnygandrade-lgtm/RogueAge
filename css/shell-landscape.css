@@ -1253,8 +1253,8 @@ html[data-l2-layout="landscape"] #hotbar-home-anchor {
 html[data-l2-layout="landscape"] #hotbar-home-anchor .hotbar-combat-bundle {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 6px;
+    align-items: flex-start;
+    gap: 4px;
     width: auto;
 }
 
@@ -1263,16 +1263,19 @@ html[data-l2-layout="landscape"] #hotbar-home-anchor .consumables-bar {
     grid-template-columns: repeat(3, 52px);
     gap: 6px;
     width: auto;
-    padding: 2px 12px 0;
+    max-width: none;
+    padding: 14px 0 0;
+    margin: 0;
     background: transparent;
     border: none;
+    align-self: flex-start;
 }
 
 html[data-l2-layout="landscape"] #hotbar-home-anchor .consumable-slot {
-    width: 52px;
-    height: 52px;
-    min-height: 52px;
-    aspect-ratio: 1 / 1;
+    width: 52px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    aspect-ratio: 1 / 1 !important;
 }
 
 html[data-l2-layout="landscape"] #hotbar-home-anchor #barra-de-atalhos-dinamica,
