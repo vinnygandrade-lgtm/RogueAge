@@ -526,7 +526,7 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
             var _legacyFull = _hadOldVer || _hasBarra || _hasInv || _hasAdena || _hasWpn;
             data.tutorial = _legacyFull
                 ? { v: 1, active: false, step: 99, completed: true, skipped: false }
-                : { v: 1, active: true, step: 0, completed: false, skipped: false };
+                : { v: 2, active: true, step: 0, completed: false, skipped: false };
         } else {
             data.tutorial.v = typeof data.tutorial.v === 'number' ? data.tutorial.v : 1;
             if (typeof data.tutorial.completed !== 'boolean') data.tutorial.completed = !!data.tutorial.completed;
@@ -950,7 +950,7 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
         (function applyTutorialFromSave(data) {
             var raw = data.tutorial;
             var defLegacy = { v: 1, active: false, step: 99, completed: true, skipped: false };
-            var defFresh = { v: 1, active: true, step: 0, completed: false, skipped: false };
+            var defFresh = { v: 2, active: true, step: 0, completed: false, skipped: false };
 
             function inferWhenMissing(d) {
                 var hasBarra = Array.isArray(d.barraAtalhos) && d.barraAtalhos.some(function (s) { return s != null; });

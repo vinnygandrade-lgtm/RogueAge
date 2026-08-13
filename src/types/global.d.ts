@@ -662,6 +662,7 @@ declare global {
       notifySkillAssignedFromSpellbook?: () => void;
       notifyHuntSearch?: () => void;
       notifyExpeditionNodeConfirmed?: () => void;
+      notifyMenuOpened?: () => void;
       skipTutorial?: () => void;
       render?: () => void;
     };

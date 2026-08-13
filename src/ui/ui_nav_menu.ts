@@ -371,6 +371,12 @@ function abrirNavMenu(): void {
 
     requestAnimationFrame(() => focusNavMenuSheet());
 
+    try {
+        if (typeof window.TutorialEngine !== 'undefined' && typeof window.TutorialEngine.notifyMenuOpened === 'function') {
+            window.TutorialEngine.notifyMenuOpened();
+        }
+    } catch (eTut) { /* ignore */ }
+
 }
 
 

@@ -13,24 +13,39 @@
 /* Onboarding coach — floating panel that follows the target */
 .tutorial-coach {
     position: fixed;
-    width: 280px; /* Reduced width for floating style */
-    z-index: 2200; /* Above highlights and arrows */
+    width: min(320px, calc(100vw - 20px));
+    z-index: 2200;
     pointer-events: none;
-    animation: tutorial-fade-in 0.4s ease-out;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: tutorial-fade-in 0.35s ease-out;
+    transition: left 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        top 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes tutorial-fade-in {
+    from { opacity: 0; transform: translate(-50%, -6px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.tutorial-coach__glow {
+    display: none;
 }
 
 .tutorial-coach__card {
     position: relative;
-    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px 12px;
     border-radius: 12px;
     background: linear-gradient(165deg, rgba(42, 34, 26, 0.98) 0%, rgba(18, 14, 12, 0.99) 100%);
-    border: 2px solid #facc15; /* Stronger border for floating card */
-    box-shadow: 
+    border: 2px solid #facc15;
+    box-shadow:
         0 0 20px rgba(0, 0, 0, 0.8),
         0 0 15px rgba(250, 204, 21, 0.2);
     pointer-events: auto;
-    overflow: visible; /* Allow pointer to show */
+    overflow: visible;
+    text-align: left;
+    box-sizing: border-box;
 }
 
 /* Speech bubble pointer */
@@ -53,66 +68,134 @@
     border-bottom: 10px solid #facc15;
 }
 
-.tutorial-coach__content {
+.tutorial-coach__header {
     display: flex;
     flex-direction: row;
-    gap: 12px;
     align-items: center;
-    margin-bottom: 12px;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    min-height: 18px;
+}
+
+.tutorial-coach__badge {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(250, 204, 21, 0.16);
+    border: 1px solid rgba(250, 204, 21, 0.55);
+    color: #facc15;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.tutorial-coach__progress {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.tutorial-coach__progress-fill {
+    height: 100%;
+    width: 6%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #ca8a04, #facc15);
+    transition: width 0.35s ease;
+}
+
+.tutorial-coach__content {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
     text-align: left;
 }
 
 .tutorial-coach__text {
-    flex: 1;
-    position: relative;
+    display: block;
+    width: 100%;
+    margin: 0;
     padding: 0;
+    text-align: left;
     background: transparent;
     border: none;
 }
 
 .tutorial-coach__title {
-    margin: 0 0 4px;
-    font-size: 1rem;
+    display: block;
+    margin: 0 0 6px;
+    padding: 0;
+    font-size: 0.95rem;
     font-weight: 800;
+    line-height: 1.25;
     color: #facc15;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.04em;
+    text-align: left;
+    word-break: break-word;
 }
 
 .tutorial-coach__body {
+    display: block;
     margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.4;
+    padding: 0;
+    font-size: 0.84rem;
+    line-height: 1.45;
     color: #f5f0e6;
+    text-align: left;
+    word-break: break-word;
+    white-space: normal;
 }
 
 .tutorial-coach__actions {
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 6px;
     width: 100%;
+    margin: 0;
+    padding-top: 2px;
 }
 
 .tutorial-coach__btn-main {
-    min-height: 34px;
-    padding: 0 15px;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 36px;
+    padding: 0 12px;
     font-size: 0.8rem;
+    justify-content: center;
 }
 
-.tutorial-coach__btn-back, .tutorial-coach__btn-skip {
-    min-height: 34px;
-    padding: 0 8px;
+.tutorial-coach__btn-back,
+.tutorial-coach__btn-skip {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding: 0 10px;
     font-size: 0.75rem;
+}
+
+.tutorial-coach__btn-skip {
+    margin-left: auto;
+    opacity: 0.85;
 }
 
 /* Highlights */
 @keyframes tutorial-highlight-pulse {
-    0%, 100% { 
+    0%, 100% {
         box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.8), 0 0 20px rgba(250, 204, 21, 0.4);
         border-color: rgba(250, 204, 21, 1);
     }
-    50% { 
+    50% {
         box-shadow: 0 0 0 10px rgba(250, 204, 21, 0.3), 0 0 40px rgba(250, 204, 21, 0.6);
         border-color: rgba(250, 204, 21, 1);
     }
@@ -127,7 +210,6 @@
     border: 2px solid #facc15 !important;
 }
 
-/* Seta Indicadora */
 .tutorial-arrow {
     position: fixed;
     width: 40px;
@@ -137,8 +219,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.8));
+    transition: left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        top 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .tutorial-arrow::after {
@@ -174,7 +257,15 @@
     100% { opacity: 0; transform: scale(1.2); }
 }
 
-/* Lock effect for buttons during tutorial */
+.tutorial-celebrate-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(250, 204, 21, 0.2) 0%, transparent 70%);
+    animation: tutorial-celebrate 1.5s ease-out forwards;
+}
+
 .tutorial-lock {
     filter: grayscale(0.8) brightness(0.4) !important;
     pointer-events: none !important;
@@ -183,28 +274,38 @@
     transition: all 0.3s ease !important;
 }
 
-/* Specific highlights for better visibility */
 #barra-de-atalhos-dinamica.tutorial-highlight {
     outline: 4px solid rgba(250, 204, 21, 0.8);
     outline-offset: 6px;
     background: rgba(250, 204, 21, 0.1) !important;
 }
 
-/* Mobile adjustments */
+#consumable-slot-hp.tutorial-highlight,
+#consumables-bar .consumable-slot.tutorial-highlight {
+    outline: 3px solid rgba(250, 204, 21, 0.95);
+    outline-offset: 3px;
+}
+
 @media (max-width: 600px) {
     .tutorial-coach {
-        padding: 6px 8px;
+        width: min(300px, calc(100vw - 16px));
     }
+
     .tutorial-coach__card {
-        padding: 12px;
+        padding: 11px 12px;
+        gap: 9px;
     }
-    .tutorial-coach__content {
-        gap: 12px;
-    }
+
     .tutorial-coach__title {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
+
     .tutorial-coach__body {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        line-height: 1.42;
+    }
+
+    .tutorial-coach__actions {
+        gap: 5px;
     }
 }
