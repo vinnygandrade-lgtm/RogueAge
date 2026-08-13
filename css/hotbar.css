@@ -25,7 +25,7 @@
 
 /*
  * Compact HP / MP / Shot cluster — same cell size as skill hotbar (1/6 width),
- * tucked in the left corner above the action bar (not a full-width strip).
+ * tucked in the right corner above the action bar (not a full-width strip).
  */
 .consumables-bar {
     display: grid;
@@ -36,8 +36,8 @@
     max-width: calc(50% - 4px);
     box-sizing: border-box;
     margin: 0;
-    padding: 16px 0 0 8px; /* room for AUTO chip on shot */
-    align-self: flex-start;
+    padding: 16px 8px 0 0; /* room for AUTO chip on shot */
+    align-self: flex-end;
     background: transparent;
     border: none;
     overflow: visible;
@@ -173,7 +173,8 @@
 
 #raid-atalhos-hook .consumables-bar,
 #olympiad-atalhos-hook .consumables-bar {
-    padding-left: 8px;
+    padding-right: 8px;
+    align-self: flex-end;
 }
 
 #raid-atalhos-hook #barra-de-atalhos-dinamica {

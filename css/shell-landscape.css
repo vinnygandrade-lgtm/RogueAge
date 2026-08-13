@@ -1253,7 +1253,7 @@ html[data-l2-layout="landscape"] #hotbar-home-anchor {
 html[data-l2-layout="landscape"] #hotbar-home-anchor .hotbar-combat-bundle {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
     gap: 4px;
     width: auto;
 }
@@ -1268,7 +1268,7 @@ html[data-l2-layout="landscape"] #hotbar-home-anchor .consumables-bar {
     margin: 0;
     background: transparent;
     border: none;
-    align-self: flex-start;
+    align-self: flex-end;
 }
 
 html[data-l2-layout="landscape"] #hotbar-home-anchor .consumable-slot {
