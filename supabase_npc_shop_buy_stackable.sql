@@ -108,22 +108,22 @@ BEGIN
         v_unit := GREATEST(1, ceil(
             v_base * (
                 CASE
-                    WHEN trim(p_item_id) LIKE 'shot_%' OR trim(p_item_id) LIKE 'bshot_%' THEN 80::NUMERIC
-                    WHEN trim(p_item_id) LIKE 'pot_%' THEN 55::NUMERIC
-                    WHEN trim(p_item_id) IN ('sc_w_ng', 'sc_a_ng') THEN 95::NUMERIC
-                    WHEN trim(p_item_id) IN ('sc_w_d', 'sc_a_d') THEN 75::NUMERIC
-                    WHEN trim(p_item_id) IN ('sc_w_c', 'sc_a_c') THEN 55::NUMERIC
-                    WHEN trim(p_item_id) IN ('sc_w_b', 'sc_a_b') THEN 40::NUMERIC
-                    WHEN trim(p_item_id) IN ('sc_w_a', 'sc_a_a') THEN 30::NUMERIC
-                    WHEN trim(p_item_id) IN ('sc_w_s', 'sc_a_s') THEN 22::NUMERIC
-                    WHEN v_base <= 100 THEN 55::NUMERIC
-                    WHEN v_base <= 1000 THEN 625::NUMERIC
-                    WHEN v_base <= 5000 THEN 200::NUMERIC
-                    WHEN v_base <= 30000 THEN 100::NUMERIC
-                    WHEN v_base <= 150000 THEN 55::NUMERIC
-                    WHEN v_base <= 500000 THEN 40::NUMERIC
-                    WHEN v_base <= 2000000 THEN 30::NUMERIC
-                    ELSE 22::NUMERIC
+                    WHEN trim(p_item_id) LIKE 'shot_%' OR trim(p_item_id) LIKE 'bshot_%' THEN 48::NUMERIC
+                    WHEN trim(p_item_id) LIKE 'pot_%' THEN 32::NUMERIC
+                    WHEN trim(p_item_id) IN ('sc_w_ng', 'sc_a_ng') THEN 58::NUMERIC
+                    WHEN trim(p_item_id) IN ('sc_w_d', 'sc_a_d') THEN 48::NUMERIC
+                    WHEN trim(p_item_id) IN ('sc_w_c', 'sc_a_c') THEN 36::NUMERIC
+                    WHEN trim(p_item_id) IN ('sc_w_b', 'sc_a_b') THEN 28::NUMERIC
+                    WHEN trim(p_item_id) IN ('sc_w_a', 'sc_a_a') THEN 20::NUMERIC
+                    WHEN trim(p_item_id) IN ('sc_w_s', 'sc_a_s') THEN 16::NUMERIC
+                    WHEN v_base <= 100 THEN 40::NUMERIC
+                    WHEN v_base <= 1000 THEN 375::NUMERIC
+                    WHEN v_base <= 5000 THEN 160::NUMERIC
+                    WHEN v_base <= 30000 THEN 85::NUMERIC
+                    WHEN v_base <= 150000 THEN 48::NUMERIC
+                    WHEN v_base <= 500000 THEN 36::NUMERIC
+                    WHEN v_base <= 2000000 THEN 27::NUMERIC
+                    ELSE 20::NUMERIC
                 END
             ) * v_mult
         )::BIGINT);

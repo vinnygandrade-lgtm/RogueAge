@@ -18,7 +18,7 @@ Com a loja cara, o jogador **converte mats da Expedição** (e um fee de Adena) 
 Equipamentos e mint de Ancient Coin **não** mudam (`special` / `mats`).
 
 ## Economia
-Fee de Adena ~25–40% do lote na Grocer (pós-inflação), para o craft brilhar sem zerar a loja.
+Fee de Adena alinhado à loja aliviada (~25–35% do lote Grocer). Mats da Expedição continuam o sink principal.
 
 ## Autoridade / dívida (§12.7)
 `craft_item_secure` ainda só cobre Vesper / épico / mint. Consumíveis correm **no cliente** + `salvarJogo` / sync JSONB. Evolução alvo: RPC idempotente alinhada à loja stackable.

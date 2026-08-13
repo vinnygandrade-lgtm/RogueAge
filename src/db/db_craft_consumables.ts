@@ -40,7 +40,7 @@ function shot(
 
 /**
  * Costs scale with zone grade; mats are expedition drops (Skin/Bone/Coal/Charcoal/Iron Ore).
- * Adena fee ≈ 25–40% of inflated shop batch so craft stays cheaper than Grocer.
+ * Adena fee eased with shop relief (~25–35% of shop batch); mats still the main sink.
  */
 export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
   // —— Potions ——
@@ -54,7 +54,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     [
       { id: 'Animal Skin', qtd: 14 },
       { id: 'Animal Bone', qtd: 8 },
-      { id: 'Adena', qtd: 900 },
+      { id: 'Adena', qtd: 600 },
     ],
   ),
   pot(
@@ -67,7 +67,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     [
       { id: 'Animal Skin', qtd: 60 },
       { id: 'Animal Bone', qtd: 35 },
-      { id: 'Adena', qtd: 4000 },
+      { id: 'Adena', qtd: 2600 },
     ],
   ),
   pot(
@@ -80,7 +80,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     [
       { id: 'Coal', qtd: 12 },
       { id: 'Charcoal', qtd: 8 },
-      { id: 'Adena', qtd: 900 },
+      { id: 'Adena', qtd: 600 },
     ],
   ),
   pot(
@@ -93,7 +93,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     [
       { id: 'Coal', qtd: 52 },
       { id: 'Charcoal', qtd: 35 },
-      { id: 'Adena', qtd: 4000 },
+      { id: 'Adena', qtd: 2600 },
     ],
   ),
 
@@ -108,7 +108,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     [
       { id: 'Coal', qtd: 18 },
       { id: 'Iron Ore', qtd: 10 },
-      { id: 'Adena', qtd: 12000 },
+      { id: 'Adena', qtd: 8000 },
     ],
   ),
   shot(
@@ -122,7 +122,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Coal', qtd: 28 },
       { id: 'Iron Ore', qtd: 18 },
       { id: 'Animal Bone', qtd: 14 },
-      { id: 'Adena', qtd: 42000 },
+      { id: 'Adena', qtd: 28000 },
     ],
   ),
   shot(
@@ -136,7 +136,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Coal', qtd: 42 },
       { id: 'Iron Ore', qtd: 30 },
       { id: 'Charcoal', qtd: 22 },
-      { id: 'Adena', qtd: 130000 },
+      { id: 'Adena', qtd: 85000 },
     ],
   ),
   shot(
@@ -151,7 +151,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Iron Ore', qtd: 42 },
       { id: 'Charcoal', qtd: 36 },
       { id: 'Animal Skin', qtd: 28 },
-      { id: 'Adena', qtd: 380000 },
+      { id: 'Adena', qtd: 250000 },
     ],
   ),
   shot(
@@ -166,7 +166,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Iron Ore', qtd: 58 },
       { id: 'Charcoal', qtd: 52 },
       { id: 'Animal Bone', qtd: 40 },
-      { id: 'Adena', qtd: 1100000 },
+      { id: 'Adena', qtd: 720000 },
     ],
   ),
   shot(
@@ -182,7 +182,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Charcoal', qtd: 75 },
       { id: 'Animal Bone', qtd: 55 },
       { id: 'Animal Skin', qtd: 40 },
-      { id: 'Adena', qtd: 3200000 },
+      { id: 'Adena', qtd: 2100000 },
     ],
   ),
 
@@ -197,7 +197,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     [
       { id: 'Charcoal', qtd: 18 },
       { id: 'Iron Ore', qtd: 10 },
-      { id: 'Adena', qtd: 12000 },
+      { id: 'Adena', qtd: 8000 },
     ],
   ),
   shot(
@@ -211,7 +211,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Charcoal', qtd: 28 },
       { id: 'Iron Ore', qtd: 18 },
       { id: 'Animal Skin', qtd: 14 },
-      { id: 'Adena', qtd: 42000 },
+      { id: 'Adena', qtd: 28000 },
     ],
   ),
   shot(
@@ -225,7 +225,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Charcoal', qtd: 42 },
       { id: 'Iron Ore', qtd: 30 },
       { id: 'Coal', qtd: 22 },
-      { id: 'Adena', qtd: 130000 },
+      { id: 'Adena', qtd: 85000 },
     ],
   ),
   shot(
@@ -240,7 +240,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Iron Ore', qtd: 42 },
       { id: 'Coal', qtd: 36 },
       { id: 'Animal Bone', qtd: 28 },
-      { id: 'Adena', qtd: 380000 },
+      { id: 'Adena', qtd: 250000 },
     ],
   ),
   shot(
@@ -255,7 +255,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Iron Ore', qtd: 58 },
       { id: 'Coal', qtd: 52 },
       { id: 'Animal Skin', qtd: 40 },
-      { id: 'Adena', qtd: 1100000 },
+      { id: 'Adena', qtd: 720000 },
     ],
   ),
   shot(
@@ -271,7 +271,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
       { id: 'Coal', qtd: 75 },
       { id: 'Animal Skin', qtd: 55 },
       { id: 'Animal Bone', qtd: 40 },
-      { id: 'Adena', qtd: 3200000 },
+      { id: 'Adena', qtd: 2100000 },
     ],
   ),
 ];

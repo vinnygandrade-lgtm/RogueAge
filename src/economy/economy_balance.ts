@@ -1,8 +1,8 @@
 /**
  * Curvas Adena / Ancient — loja NPC e loot.
  * Shop inflation (2026): legacy catalog `preco` × shopCatalogInflationMult.
- * Meta: set de armadura NG ≈ 500k Adena; grades superiores sobem em escada.
- * Keep SQL npc_shop_buy_stackable in lockstep (CASE por item_id + bandas).
+ * Meta NG: armadura + joias (neck+2ear+2ring) ≈ 500k Adena juntos — não só o set de armor.
+ * Keep SQL npc_shop_buy_stackable in lockstep (CASE por item_id / bandas de stackables).
  */
 import type { ZonalMobTuneEntry } from '../types/game';
 const SHOP_LEVEL_COEFF = 0.018;
@@ -50,11 +50,11 @@ type ShopInflationOpts = {
  * Ancient Coin SKUs keep face value.
  *
  * Targets @ level 1 (approx):
- * - NG armor set 800 → 500,000
- * - D armor 25k → 2,500,000 · C 120k → 6,600,000 · B 450k → 18M · A 1.5M → 45M · S 5M → 110M
- * - Soulshot NG 6 → 480 · D 20 → 1,600 · C 60 → 4,800 · B 180 → 14,400 · A 500 → 40k · S 1.5k → 120k
- * - Enchant Weapon NG 1120 → ~106k · Armor NG 335 → ~32k (then grade ladder)
- * - HP/MP potion 58 → ~3.2k
+ * - NG armor 800 → ~300k + full NG jewels → ~200k = ~500k kit
+ * - D armor 25k → ~2.1M · C 120k → ~5.8M · B 450k → ~16M · A 1.5M → ~40M · S 5M → ~100M
+ * - Soulshot NG 6 → ~288 · D 20 → ~960 (eased vs prior ×80)
+ * - Enchant Weapon NG 1120 → ~65k · Armor NG 335 → ~19k
+ * - HP/MP potion 58 → ~1.9k
  */
 function shopCatalogInflationMult(
   basePrice: number,
@@ -68,32 +68,40 @@ function shopCatalogInflationMult(
   const b = Math.max(0, Number(basePrice) || 0);
   if (b <= 0) return 1;
 
-  // Soulshots / Blessed Spiritshots — sink by grade (id-based so they never use gear bands)
-  if (id.startsWith('shot_') || id.startsWith('bshot_')) return 80;
+  // Soulshots / Blessed Spiritshots — eased sink (still meaningful)
+  if (id.startsWith('shot_') || id.startsWith('bshot_')) return 48;
 
   // Potions
-  if (id.startsWith('pot_')) return 55;
+  if (id.startsWith('pot_')) return 32;
 
   // Adena enchant scrolls (blessed stay Ancient / face value)
   if (/^sc_[wa]_/.test(id)) {
-    if (id.endsWith('_ng')) return 95;
-    if (id.endsWith('_d')) return 75;
-    if (id.endsWith('_c')) return 55;
-    if (id.endsWith('_b')) return 40;
-    if (id.endsWith('_a')) return 30;
-    if (id.endsWith('_s')) return 22;
-    return 50;
+    if (id.endsWith('_ng')) return 58;
+    if (id.endsWith('_d')) return 48;
+    if (id.endsWith('_c')) return 36;
+    if (id.endsWith('_b')) return 28;
+    if (id.endsWith('_a')) return 20;
+    if (id.endsWith('_s')) return 16;
+    return 36;
   }
 
+  // Jewels priced so NG full set (neck+2ear+2ring) ≈ 200k with armor ≈ 300k → ~500k kit
+  if (id.startsWith('j_ng_')) return 200;
+  if (id.startsWith('j_d_')) return 120;
+  if (id.startsWith('j_c_')) return 70;
+  if (id.startsWith('j_b_')) return 48;
+  if (id.startsWith('j_a_')) return 32;
+  if (id.startsWith('j_s_') || id.startsWith('j_epic_') || id.startsWith('j_vesper_')) return 22;
+
   // Equipment + materials by legacy catalog band
-  if (b <= 100) return 55; // leftover cheap mats
-  if (b <= 1000) return 625; // NG gear (armor 800 → 500k)
-  if (b <= 5000) return 200; // D weapons / D jewels
-  if (b <= 30000) return 100; // D armor sets
-  if (b <= 150000) return 55; // C gear
-  if (b <= 500000) return 40; // B gear
-  if (b <= 2000000) return 30; // A gear
-  return 22; // S / recipes
+  if (b <= 100) return 40; // cheap mats / trainee weapons
+  if (b <= 1000) return 375; // NG armor 800 → 300k; NG weapons ~187–232k
+  if (b <= 5000) return 160; // D weapons
+  if (b <= 30000) return 85; // D armor sets → ~2.1M
+  if (b <= 150000) return 48; // C gear
+  if (b <= 500000) return 36; // B gear
+  if (b <= 2000000) return 27; // A gear
+  return 20; // S / recipes
 }
 
 function effectiveShopUnitPrice(
