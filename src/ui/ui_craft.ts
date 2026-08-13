@@ -37,18 +37,39 @@ function fecharJanelaCraft(): void {
   craftVesperEscolhaIdBase = null;
 }
 
+function syncCraftTabUi(categoria: CraftCategory): void {
+  const tabs: { id: string; cat: CraftCategory }[] = [
+    { id: 'tab-craft-consumables', cat: 'consumables' },
+    { id: 'tab-craft-mats', cat: 'mats' },
+    { id: 'tab-craft-special', cat: 'special' },
+  ];
+  for (const row of tabs) {
+    const el = document.getElementById(row.id);
+    if (!el) continue;
+    const on = row.cat === categoria;
+    el.classList.toggle('is-active', on);
+    el.setAttribute('aria-selected', on ? 'true' : 'false');
+    // Clear legacy inline styles from older builds
+    el.style.background = '';
+    el.style.borderColor = '';
+    el.style.color = '';
+  }
+  const hint = document.getElementById('craft-tab-hint');
+  if (hint) {
+    const hintKey =
+      categoria === 'consumables'
+        ? 'game.craft.hintConsumables'
+        : categoria === 'mats'
+          ? 'game.craft.hintMats'
+          : 'game.craft.hintSpecial';
+    hint.textContent = craftT(hintKey);
+  }
+}
+
 function mudarAbaCraft(categoria: CraftCategory): void {
   categoriaSelecionada = categoria;
   craftVesperEscolhaIdBase = null;
-
-  const tabSpecial = document.getElementById('tab-craft-special');
-  const tabMats = document.getElementById('tab-craft-mats');
-  const tabCons = document.getElementById('tab-craft-consumables');
-  const activeBg = 'linear-gradient(180deg, #ca8a04 0%, #854d0e 100%)';
-  const idleBg = '#222';
-  if (tabSpecial) tabSpecial.style.background = categoria === 'special' ? activeBg : idleBg;
-  if (tabMats) tabMats.style.background = categoria === 'mats' ? activeBg : idleBg;
-  if (tabCons) tabCons.style.background = categoria === 'consumables' ? activeBg : idleBg;
+  syncCraftTabUi(categoria);
 
   const grid = document.getElementById('craft-receitas-grid');
   if (!grid) return;
@@ -57,11 +78,11 @@ function mudarAbaCraft(categoria: CraftCategory): void {
   const filtradas = receitasDaCategoria(categoria);
 
   if (!filtradas.length) {
-    grid.innerHTML = '<span style="color:#aaa; font-size:0.8em; grid-column: span 4; text-align:center; padding-top: 10px;">'
-      + craftT('game.craft.emptyCategory', {}) + '</span>';
+    grid.innerHTML = `<div class="craft-empty">${craftT('game.craft.emptyCategory')}</div>`;
   } else {
-    filtradas.forEach(rec => {
-      grid.innerHTML += `<div class="store-item-slot" onclick="selecionarReceita('${rec.idReceita}')"><img src="${rec.img || ''}" title="${rec.nome}" onerror="this.src='assets/itens/item_generic.png'"></div>`;
+    filtradas.forEach((rec) => {
+      const safeId = String(rec.idReceita || '').replace(/'/g, '');
+      grid.innerHTML += `<button type="button" class="store-item-slot" data-recipe-id="${safeId}" title="${rec.nome}" onclick="selecionarReceita('${safeId}')"><img src="${rec.img || ''}" alt="" onerror="this.src='assets/itens/item_generic.png'"></button>`;
     });
   }
 
@@ -70,7 +91,10 @@ function mudarAbaCraft(categoria: CraftCategory): void {
   const ingHost = document.getElementById('craft-ingredientes');
   if (ingHost) ingHost.innerHTML = '';
   const btnExec = document.getElementById('btn-executar-craft');
-  if (btnExec) btnExec.style.display = 'none';
+  if (btnExec) {
+    btnExec.style.display = 'none';
+    btnExec.classList.remove('is-ready');
+  }
   receitaSelecionada = null;
   const wrapEsc = document.getElementById('craft-escolha-vesper');
   if (wrapEsc) {
@@ -130,17 +154,17 @@ function atualizarListaIngredientesCraft(): void {
   let htmlIngredientes = '';
   let podeCraftar = true;
 
-  receitaSelecionada.ingredientes.forEach(ing => {
+  receitaSelecionada.ingredientes.forEach((ing) => {
     const qtdPossui = obterQtdIngrediente(ing.id);
-    const corQtd = qtdPossui >= ing.qtd ? '#10b981' : '#ef4444';
-    if (qtdPossui < ing.qtd) podeCraftar = false;
+    const ok = qtdPossui >= ing.qtd;
+    if (!ok) podeCraftar = false;
 
     const icone = ing.id === 'Ancient Coin' ? '🪙 ' : (ing.id === 'Adena' ? '💰 ' : '');
 
     htmlIngredientes += `
-            <div style="display:flex; justify-content:space-between; font-size:0.85em; background:#1a1410; padding:4px 6px; border-radius:2px; border: 1px solid #3d2b1f;">
-                <span style="color:#d4c4a8;">${icone}${ing.id}</span>
-                <span style="color:${corQtd}; font-weight:bold; text-shadow:1px 1px 0 #000;">${qtdPossui.toLocaleString()} / ${ing.qtd.toLocaleString()}</span>
+            <div class="craft-ing-row">
+                <span class="craft-ing-row__name">${icone}${ing.id}</span>
+                <span class="craft-ing-row__qty ${ok ? 'is-ok' : 'is-short'}">${qtdPossui.toLocaleString()} / ${ing.qtd.toLocaleString()}</span>
             </div>
         `;
   });
@@ -151,18 +175,16 @@ function atualizarListaIngredientesCraft(): void {
   const btnExecutar = document.getElementById('btn-executar-craft') as HTMLButtonElement | null;
   if (!btnExecutar) return;
   btnExecutar.style.display = 'block';
+  btnExecutar.classList.add('is-ready');
+  btnExecutar.style.background = '';
+  btnExecutar.style.borderColor = '';
+  btnExecutar.style.color = '';
 
   if (podeCraftar) {
     btnExecutar.disabled = false;
-    btnExecutar.style.background = 'linear-gradient(180deg, #ca8a04 0%, #854d0e 100%)';
-    btnExecutar.style.borderColor = '#eab308';
-    btnExecutar.style.color = '#fff';
     btnExecutar.innerText = craftT('game.craft.forgeItem');
   } else {
     btnExecutar.disabled = true;
-    btnExecutar.style.background = '#3d2b1f';
-    btnExecutar.style.borderColor = '#241710';
-    btnExecutar.style.color = '#88745c';
     btnExecutar.innerText = craftT('game.craft.needMaterials');
   }
 }
@@ -182,6 +204,14 @@ function selecionarReceita(id: string): void {
 
   craftVesperEscolhaIdBase = null;
 
+  const grid = document.getElementById('craft-receitas-grid');
+  if (grid) {
+    grid.querySelectorAll('.store-item-slot').forEach((slot) => {
+      const el = slot as HTMLElement;
+      el.classList.toggle('is-selected', el.getAttribute('data-recipe-id') === id);
+    });
+  }
+
   const taxa = receitaSelecionada.taxaSucesso != null ? Number(receitaSelecionada.taxaSucesso) : 100;
   const rateLine = taxa >= 100
     ? craftT('game.craft.successRate')
@@ -190,10 +220,10 @@ function selecionarReceita(id: string): void {
   const detalhe = document.getElementById('craft-detalhe-texto');
   if (detalhe) {
     detalhe.innerHTML = `
-        <b style="color:#ffcc00; font-size:1.1em; font-family: 'Cinzel', serif;">${receitaSelecionada.nome}</b><br>
-        <span style="color:#ccc; font-size:0.85em;">${receitaSelecionada.desc || ''}</span><br>
-        <span style="color:${taxa < 100 ? '#fbbf24' : '#10b981'}; font-weight:bold; font-size:0.9em;">${rateLine}</span>
-        ${warnFail ? `<br><span style="color:#a8a29e; font-size:0.78em;">${warnFail}</span>` : ''}
+        <span class="craft-recipe-name">${receitaSelecionada.nome}</span>
+        <span class="craft-recipe-desc">${receitaSelecionada.desc || ''}</span>
+        <span class="craft-recipe-rate ${taxa < 100 ? 'is-risk' : 'is-safe'}">${rateLine}</span>
+        ${warnFail ? `<span class="craft-recipe-warn">${warnFail}</span>` : ''}
     `;
   }
 
