@@ -2126,19 +2126,29 @@
 
                 <div id="expedition-hub" class="expedition-hub">
                     <div class="expedition-hub__panel">
-                        <div class="expedition-hub__brief">
-                            <div class="expedition-hub__zone-card">
-                                <div class="expedition-hub__zone-grade" id="expedition-hub-grade">NG</div>
-                                <div class="expedition-hub__zone-meta">
-                                    <span class="expedition-hub__zone-kicker" data-i18n="game.hunt.expedition.hubZoneLabel">Trailhead</span>
-                                    <h3 class="expedition-hub__zone-name" id="expedition-hub-zone-name">Talking Island</h3>
-                                    <p class="expedition-hub__zone-level" id="expedition-hub-zone-level"></p>
-                                </div>
+                        <header class="expedition-hub__banner">
+                            <div class="expedition-hub__zone-grade" id="expedition-hub-grade">NG</div>
+                            <div class="expedition-hub__zone-meta">
+                                <span class="expedition-hub__zone-kicker" data-i18n="game.hunt.expedition.hubZoneLabel">Trailhead</span>
+                                <h3 class="expedition-hub__zone-name" id="expedition-hub-zone-name">Talking Island</h3>
+                                <p class="expedition-hub__zone-level" id="expedition-hub-zone-level"></p>
                             </div>
+                        </header>
+                        <div class="expedition-hub__body">
                             <p class="expedition-hub__desc" data-i18n="game.hunt.expedition.hubDesc">Pick a path each journey, grow stronger as you go, and extract when the bag is worth the risk.</p>
-                            <div class="expedition-hub__actions">
-                                <button id="btn-iniciar-caca" type="button" class="btn-l2 expedition-hub__begin" data-i18n="game.hunt.expedition.startBtn">Begin Expedition</button>
-                                <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">How it works</button>
+                            <div class="expedition-hub__steps" role="list">
+                                <div class="expedition-hub__step" role="listitem">
+                                    <span class="expedition-hub__step-num" aria-hidden="true">1</span>
+                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep1">Choose a path</span>
+                                </div>
+                                <div class="expedition-hub__step" role="listitem">
+                                    <span class="expedition-hub__step-num" aria-hidden="true">2</span>
+                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep2">Fight for upgrades</span>
+                                </div>
+                                <div class="expedition-hub__step" role="listitem">
+                                    <span class="expedition-hub__step-num" aria-hidden="true">3</span>
+                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep3">Extract to keep the bag</span>
+                                </div>
                             </div>
                             <div id="expedition-hub-ledger" class="expedition-hub-ledger" hidden aria-hidden="true">
                                 <div class="expedition-hub-ledger__head">
@@ -2166,20 +2176,10 @@
                                 <p id="expedition-ledger-last" class="expedition-hub-ledger__last"></p>
                                 <p id="expedition-ledger-life" class="expedition-hub-ledger__life"></p>
                             </div>
-                            <div class="expedition-hub__steps" role="list">
-                                <div class="expedition-hub__step" role="listitem">
-                                    <span class="expedition-hub__step-num" aria-hidden="true">1</span>
-                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep1">Choose a path</span>
-                                </div>
-                                <div class="expedition-hub__step" role="listitem">
-                                    <span class="expedition-hub__step-num" aria-hidden="true">2</span>
-                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep2">Fight for upgrades</span>
-                                </div>
-                                <div class="expedition-hub__step" role="listitem">
-                                    <span class="expedition-hub__step-num" aria-hidden="true">3</span>
-                                    <span class="expedition-hub__step-text" data-i18n="game.hunt.expedition.hubStep3">Extract to keep the bag</span>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="expedition-hub__actions">
+                            <button id="btn-iniciar-caca" type="button" class="btn-l2 expedition-hub__begin" data-i18n="game.hunt.expedition.startBtn">Begin Expedition</button>
+                            <button type="button" class="expedition-hub__rules-link" onclick="ExpeditionEngine.openRulesModal()" data-i18n="game.hunt.expedition.rulesReviewBtn">How it works</button>
                         </div>
                     </div>
                 </div>

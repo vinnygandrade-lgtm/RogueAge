@@ -28,6 +28,10 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - Run % buffs and temporary forge enchants **do not** apply in town
 - Resume reapplies them on the expedition map
 
+## Trailhead hub (pre-run)
+
+`#expedition-hub` is a **full-height briefing board**: zone banner, scrollable body (how-to + ledger), sticky Begin CTA. Skill hotbar + consumables stay **hidden** on this screen so the board can use the viewport. Combat/map still dock the bars as before.
+
 ## Combat HUD (fight UI)
 
 - During an active expedition run the global `.log-container` (chat + SYSTEM) stays **hidden** (portrait + landscape).

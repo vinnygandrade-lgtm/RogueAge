@@ -339,13 +339,13 @@ html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #ex
     font-size: 8px;
 }
 
-/* —— Hub (pre-run) — compact, full-width scroll —— */
+/* —— Hub (pre-run) — full-height briefing, no hotbar squeeze —— */
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open.screen-content {
     padding: 6px var(--l2-screen-padding-x) 4px;
 }
 
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub {
-    padding: 2px 0 6px;
+    padding: 0;
     margin: 0;
     align-self: stretch;
 }
@@ -354,46 +354,52 @@ html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .exped
     max-width: 100%;
 }
 
-html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__brief {
-    padding: 12px 12px 2px;
-    gap: 10px;
-}
-
-html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__zone-card {
-    padding: 10px;
+html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__banner {
+    padding: 12px 12px 10px;
     gap: 10px;
 }
 
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__zone-grade {
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
     font-size: 0.88em;
 }
 
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__zone-name {
-    font-size: 1.05em;
+    font-size: 1.08em;
+}
+
+html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__body {
+    padding: 10px 12px;
+    gap: 10px;
 }
 
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__desc {
-    font-size: 11.5px;
-    line-height: 1.45;
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__step {
-    padding: 8px 9px;
+    padding: 8px 7px 9px;
+    gap: 6px;
 }
 
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__step-text {
-    font-size: 11.5px;
+    font-size: 11px;
 }
 
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub__actions {
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
 }
 
 html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open #hud-zona-nome {
-    margin-bottom: 2px;
-    font-size: 0.68em;
+    display: none;
+}
+
+@media (max-width: 360px) {
+    html:not([data-l2-layout="landscape"]) #tela-floresta.expedition-hub-open .expedition-hub-ledger__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 /* —— Map panel — visible on journey map only, hidden during combat —— */

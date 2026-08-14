@@ -913,6 +913,9 @@ function executarTrocaSubScreen(lugar) {
             if (lugar === 'olympiad-arena') {
                 barraGlobal.style.setProperty('display', 'none', 'important');
                 if (consumablesBar) consumablesBar.hidden = true;
+            } else if (lugar === 'floresta') {
+                // Trailhead hub hides skills+consumables; map/combat docks them via ExpeditionEngine.
+                if (consumablesBar) consumablesBar.hidden = true;
             } else {
                 barraGlobal.style.setProperty('display', 'grid', 'important');
                 if (consumablesBar) {
@@ -975,7 +978,12 @@ function executarTrocaSubScreen(lugar) {
         if (window.ExpeditionEngine?.syncForestEntryUi) {
             window.ExpeditionEngine.syncForestEntryUi();
         }
-        if(typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos(); 
+        if(typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos();
+        const florestaEl = document.getElementById('tela-floresta');
+        if (florestaEl?.classList.contains('expedition-hub-open')
+            && typeof window.ExpeditionEngine?.syncExpeditionHotbar === 'function') {
+            window.ExpeditionEngine.syncExpeditionHotbar('hub');
+        }
     }
     
     if (lugar === 'inventario') {
