@@ -36,7 +36,7 @@
     display: none !important;
 }
 
-/* Fixed fight chrome: log (left) | vitals (right) — never resizes the stage */
+/* Fixed fight chrome: vitals (left) | log (right) — never resizes the stage */
 .expedition-combat-hud {
     --exp-combat-hud-h: 96px;
     position: relative;
@@ -94,14 +94,13 @@
 }
 .expedition-combat-hud__log {
     position: relative;
-    flex: 1 1 56%;
+    flex: 1 1 50%;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgba(179, 138, 77, 0.22);
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 28%),
-        linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.08) 100%);
+        linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.28) 100%);
 }
 .expedition-combat-hud__log-head {
     flex: 0 0 auto;
@@ -155,16 +154,17 @@
 }
 .expedition-combat-hud__vitals {
     position: relative;
-    flex: 0 0 44%;
-    width: 44%;
+    flex: 1 1 50%;
+    width: 50%;
     min-width: 0;
     display: flex;
     align-items: stretch;
     padding: 8px 10px 7px;
     box-sizing: border-box;
+    border-right: 1px solid rgba(179, 138, 77, 0.22);
     background:
-        radial-gradient(ellipse at 78% 18%, rgba(248, 113, 113, 0.12), transparent 52%),
-        radial-gradient(ellipse at 70% 85%, rgba(96, 165, 250, 0.08), transparent 50%),
+        radial-gradient(ellipse at 22% 18%, rgba(248, 113, 113, 0.12), transparent 52%),
+        radial-gradient(ellipse at 30% 85%, rgba(96, 165, 250, 0.08), transparent 50%),
         linear-gradient(180deg, rgba(22, 18, 16, 0.55), rgba(8, 7, 10, 0.35));
 }
 .expedition-combat-hud__vitals::before {
