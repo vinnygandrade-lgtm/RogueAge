@@ -223,15 +223,10 @@ function atualizar(): void {
             : (curStr + ' / ' + needStr + ' XP');
     }
     
-    let exibicaoCp = Math.max(0, Math.floor(window.playerCP || 0));
     let exibicaoHp = Math.max(0, Math.floor(window.playerHP || 0));
     let exibicaoMp = Math.max(0, Math.floor(window.playerMP || 0));
     const maxHp = (window.playerStats && window.playerStats.maxHp > 0) ? window.playerStats.maxHp : 100;
     const maxMp = (window.playerStats && window.playerStats.maxMp > 0) ? window.playerStats.maxMp : 50;
-    const maxCp = (window.playerStats && window.playerStats.maxCp > 0) ? window.playerStats.maxCp : 60;
-
-    const cpFill = document.getElementById('player-cp-fill'); if (cpFill) cpFill.style.width = Math.min(100, (exibicaoCp / maxCp * 100)) + "%";
-    const cpText = document.getElementById('player-cp-text'); if (cpText) cpText.innerText = `${exibicaoCp}/${maxCp}`;
 
     const hpFill = document.getElementById('player-hp-fill'); if (hpFill) hpFill.style.width = Math.min(100, (exibicaoHp / maxHp * 100)) + "%"; 
     const hpText = document.getElementById('player-hp-text'); if (hpText) hpText.innerText = `${exibicaoHp}/${maxHp}`; 
@@ -244,7 +239,6 @@ function atualizar(): void {
         if (fill) fill.style.width = Math.min(100, (cur / max * 100)) + '%';
         if (text) text.textContent = `${cur}/${max}`;
     };
-    syncExpeditionVital('expedition-cp-fill', 'expedition-cp-text', exibicaoCp, maxCp);
     syncExpeditionVital('expedition-hp-fill', 'expedition-hp-text', exibicaoHp, maxHp);
     syncExpeditionVital('expedition-mp-fill', 'expedition-mp-text', exibicaoMp, maxMp);
 
@@ -432,16 +426,16 @@ setInterval(() => {
         ? expEng.getMpRegenMult()
         : 1;
 
-    if (window.playerHP < maxHp || window.playerMP < maxMp || window.playerCP < maxCp) {
+    if (window.playerHP < maxHp || window.playerMP < maxMp) {
         if (window.playerHP < maxHp) {
             window.playerHP = Math.min(maxHp, window.playerHP + Math.max(1, Math.floor(maxHp * 0.05 * hpRegenMult)));
         }
         if (window.playerMP < maxMp) {
             window.playerMP = Math.min(maxMp, window.playerMP + Math.max(1, Math.floor(maxMp * 0.05 * mpRegenMult)));
         }
-        window.playerCP = Math.min(maxCp, window.playerCP + Math.max(1, Math.floor(maxCp * 0.03)));
         atualizar();
     }
+    window.playerCP = maxCp;
 }, 10000);
 
 let pocaoHpInterval: ReturnType<typeof setInterval> | null = null;

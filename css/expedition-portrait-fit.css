@@ -217,9 +217,6 @@
     height: 14px;
     border-color: rgba(248, 113, 113, 0.42);
 }
-.expedition-combat-hud .exp-run-vital--cp .exp-run-vital__track {
-    border-color: rgba(251, 191, 36, 0.38);
-}
 .expedition-combat-hud .exp-run-vital--mp .exp-run-vital__track {
     border-color: rgba(96, 165, 250, 0.38);
 }

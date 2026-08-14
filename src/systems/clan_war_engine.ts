@@ -440,10 +440,7 @@ const ClanWarEngine = {
         let danoBase = (atk * 1100) / (350 + def);
         let danoFinal = danoBase * this.pvpMultiplier * (0.9 + Math.random() * 0.2);
 
-        if (defensor.cp > 0) {
-            if (defensor.cp >= danoFinal) defensor.cp -= danoFinal;
-            else { let sobra = danoFinal - defensor.cp; defensor.cp = 0; defensor.hp -= sobra; }
-        } else defensor.hp -= danoFinal;
+        defensor.hp -= danoFinal;
 
         if (defensor.hp < 0) defensor.hp = 0;
         

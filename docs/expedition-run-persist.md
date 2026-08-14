@@ -35,7 +35,7 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 ## Combat HUD (fight UI)
 
 - During an active expedition run the global `.log-container` (chat + SYSTEM) stays **hidden** (portrait + landscape).
-- Fight layout (top → bottom): **`#expedition-combat-stage`** (battle BG + mobs) → **`#expedition-combat-hud`** (fixed height: log left · vitals right) → hotbar.
+- Fight layout (top → bottom): **`#expedition-combat-stage`** (battle BG + mobs) → **`#expedition-combat-hud`** (fixed height: log left · HP/MP right) → hotbar.
 - Battle BG (`#forest-battle-bg`) lives **inside the stage** — not behind the HUD/hotbar.
 - Vitals move from `#expedition-vitals-home` (map/hub) into the HUD slot on fight enter (`ExpeditionEngine.syncCombatHud`).
 - Combat log lines mirror `escreverLog` / `writeGameLog` while `#tela-floresta.expedition-combat-open`; cleared on fight enter. No chat input here.

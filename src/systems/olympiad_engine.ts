@@ -172,7 +172,7 @@ const OlympiadEngine = {
     },
 
     /**
-     * Product contract: Olympiad = clean combat (gear + skills + HP/MP/CP).
+     * Product contract: Olympiad = clean combat (gear + skills + HP/MP).
      * Suppresses Grand Master blessings and expedition run % buffs in stats calc.
      * Soulshots/Spiritshots stay blocked via arena DOM checks in combat math/skills.
      */
@@ -1714,16 +1714,7 @@ const OlympiadEngine = {
         dano = Math.max(Math.floor(refStat * floorR), Math.floor(dano));
         dano = Math.floor(dano * this.multDanoRival);
 
-        if (window.playerCP > 0) {
-            if (window.playerCP >= dano) window.playerCP -= dano;
-            else {
-                const sobra = dano - window.playerCP;
-                window.playerCP = 0;
-                window.playerHP -= sobra;
-            }
-        } else {
-            window.playerHP -= dano;
-        }
+        window.playerHP -= dano;
 
         this.danoRecebido += dano;
         let msg;
@@ -1775,16 +1766,7 @@ const OlympiadEngine = {
             dano = Math.max(Math.floor(atk * floorA), dano);
             dano = Math.floor(dano * this.multDanoPlayer);
 
-            if (this.inimigo.cp > 0) {
-                if (this.inimigo.cp >= dano) this.inimigo.cp -= dano;
-                else {
-                    const sobra = dano - this.inimigo.cp;
-                    this.inimigo.cp = 0;
-                    this.inimigo.hp -= sobra;
-                }
-            } else {
-                this.inimigo.hp -= dano;
-            }
+            this.inimigo.hp -= dano;
 
             this.danoCausado += dano;
             this.escreverLog(`You dealt <span style="color:#fff;">${dano}</span> damage.`);
@@ -1868,16 +1850,7 @@ const OlympiadEngine = {
                     }
                 }
 
-                if (this.inimigo.cp > 0) {
-                    if (this.inimigo.cp >= dano) this.inimigo.cp -= dano;
-                    else {
-                        const sobra = dano - this.inimigo.cp;
-                        this.inimigo.cp = 0;
-                        this.inimigo.hp -= sobra;
-                    }
-                } else {
-                    this.inimigo.hp -= dano;
-                }
+                this.inimigo.hp -= dano;
 
                 this.danoCausado += dano;
                 this.escreverLog(
@@ -2278,37 +2251,25 @@ const OlympiadEngine = {
 
     renderizarUI() {
         const hpFill = document.getElementById('oly-inimigo-hp-fill');
-        const cpFill = document.getElementById('oly-inimigo-cp-fill');
         const enemyName = document.getElementById('oly-inimigo-nome');
         const enemyLvl = document.getElementById('oly-inimigo-lvl');
-        
         const hpText = document.getElementById('oly-inimigo-hp-text');
-        const cpText = document.getElementById('oly-inimigo-cp-text');
 
         if (this.inimigo) {
             if (hpFill) hpFill.style.width = (this.inimigo.hp / this.inimigo.maxHp * 100) + '%';
-            if (cpFill) cpFill.style.width = (this.inimigo.cp / this.inimigo.maxCp * 100) + '%';
             if (enemyName) enemyName.innerText = this.inimigo.nome;
             if (enemyLvl) enemyLvl.innerText = this.inimigo.nivel;
-            
             if (hpText) hpText.innerText = Math.floor(this.inimigo.hp) + " / " + this.inimigo.maxHp;
-            if (cpText) cpText.innerText = Math.floor(this.inimigo.cp) + " / " + this.inimigo.maxCp;
         }
 
         const pHpFill = document.getElementById('oly-player-hp-fill');
-        const pCpFill = document.getElementById('oly-player-cp-fill');
         const pMpFill = document.getElementById('oly-player-mp-fill');
-        
         const pHpText = document.getElementById('oly-player-hp-text');
-        const pCpText = document.getElementById('oly-player-cp-text');
         const pMpText = document.getElementById('oly-player-mp-text');
-        
-        if (pHpFill) pHpFill.style.width = (window.playerHP / window.playerStats.maxHp * 100) + '%';
-        if (pCpFill) pCpFill.style.width = (window.playerCP / window.playerStats.maxCp * 100) + '%';
-        if (pMpFill) pMpFill.style.width = (window.playerMP / window.playerStats.maxMp * 100) + '%';
 
+        if (pHpFill) pHpFill.style.width = (window.playerHP / window.playerStats.maxHp * 100) + '%';
+        if (pMpFill) pMpFill.style.width = (window.playerMP / window.playerStats.maxMp * 100) + '%';
         if (pHpText) pHpText.innerText = Math.floor(window.playerHP) + " / " + window.playerStats.maxHp;
-        if (pCpText) pCpText.innerText = Math.floor(window.playerCP) + " / " + window.playerStats.maxCp;
         if (pMpText) pMpText.innerText = Math.floor(window.playerMP) + " / " + window.playerStats.maxMp;
     },
 

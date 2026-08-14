@@ -1126,8 +1126,8 @@ html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper {
 }
 
 html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.hp { height: 16px; }
-html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.mp,
-html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.cp { height: 11px; }
+html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.mp { height: 12px; }
+html[data-l2-layout="landscape"] #hud-top-bar .hud-bar-wrapper.cp { display: none !important; }
 
 /* XP fills the middle ? no dead space between clusters */
 html[data-l2-layout="landscape"] #hud-top-bar .hud-exp-container,

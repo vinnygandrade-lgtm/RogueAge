@@ -6,9 +6,9 @@ Product contract for competitive arena vs PvE power fantasy.
 
 | Mode | Grand Master blessings | Soulshot / Spiritshot | Vitals |
 |------|--------------------------|------------------------|--------|
-| Forest / farm | Yes | Yes | HP / MP (+ CP when fully wired) |
-| Expedition / world bosses | Yes | Yes | HP / MP / CP |
-| **Olympiad** | **No** | **No** | HP / MP / CP |
+| Forest / farm | Yes | Yes | HP / MP |
+| Expedition / world bosses | Yes | Yes | HP / MP |
+| **Olympiad** | **No** | **No** | HP / MP |
 
 Skills and equipment still apply in Olympiad. Temporary skill combat buffs cast *during* the duel (e.g. Frenzy) remain allowed — “no buff” means town/long buffs (Blessing Build) and ammo shots, not class skills.
 

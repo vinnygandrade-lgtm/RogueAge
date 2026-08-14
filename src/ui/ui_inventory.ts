@@ -1098,7 +1098,6 @@ window.buildCombatStatsHeroBlockHtml = function (placement) {
     var tiles = [
         { sub: 'hp', val: String(ps.maxHp), mod: 'combat-stats-hero__cell--hp' },
         { sub: 'mp', val: String(ps.maxMp), mod: 'combat-stats-hero__cell--mp' },
-        { sub: 'cp', val: String(ps.maxCp), mod: 'combat-stats-hero__cell--cp' },
         { sub: 'pAtk', val: String(ps.pAtk), mod: 'combat-stats-hero__cell--patk' },
         { sub: 'mAtk', val: String(ps.mAtk), mod: 'combat-stats-hero__cell--matk' },
         { sub: 'pDef', val: String(ps.pDef), mod: 'combat-stats-hero__cell--pdef' },
@@ -1367,7 +1366,6 @@ window.renderPainelStatsDetalhado = function (): void {
     vitParts.push(rowKey('lblMpJewels', '+ Jewelry MP', '+' + String(b.mp.jewels)));
     if (b.mp.title) vitParts.push(rowKey('lblMpTitle', '+ Equipped title', '+' + String(b.mp.title)));
     vitParts.push(rowKey('lblMpTotal', '= Max MP', String(b.mp.total)));
-    vitParts.push(rowKey('lblCp', '= Max CP', '(' + window.playerStats.maxHp + ' × ' + b.cpMult.toFixed(2) + ') → ' + b.cpTotal));
     h.push(wrapDetails(false,
         '<span class="status-detail-acc__ttl">' + L('secDeepVitality', 'Life & mana — detailed') + '</span><span class="status-detail-acc__chev" aria-hidden="true"></span>',
         vitParts));
@@ -1613,7 +1611,7 @@ function renderHarmonyInfoModal(): void {
         + '<div class="harmony-info__card"><p class="harmony-info__card-title">' + escapeStatHtml(L('cardFloorTitle', 'Lowest enchant wins')) + '</p>'
         + '<p class="harmony-info__card-text">' + escapeStatHtml(L('cardFloorDesc', 'If your gear is +8 but one jewel is +5, Harmony is +5 — and the bonus is +5%.')) + '</p></div>'
         + '<div class="harmony-info__card"><p class="harmony-info__card-title">' + escapeStatHtml(L('cardBonusTitle', 'What you gain')) + '</p>'
-        + '<p class="harmony-info__card-text">' + escapeStatHtml(L('cardBonusDesc', 'HP, MP, CP, P.Atk, M.Atk, P.Def, M.Def, Crit, faster attack interval, and Casting Speed all benefit.')) + '</p></div>'
+        + '<p class="harmony-info__card-text">' + escapeStatHtml(L('cardBonusDesc', 'HP, MP, P.Atk, M.Atk, P.Def, M.Def, Crit, faster attack interval, and Casting Speed all benefit.')) + '</p></div>'
         + '</div>'
         + '<div class="harmony-info__tip"><p class="harmony-info__tip-title">' + escapeStatHtml(L('tipTitle', 'Tip')) + '</p>'
         + '<p class="harmony-info__tip-text">' + escapeStatHtml(L('tipText', 'Raising your weakest piece raises Harmony for the whole set. Balance beats one oversized enchant.')) + '</p></div>'

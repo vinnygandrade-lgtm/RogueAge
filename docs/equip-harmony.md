@@ -12,7 +12,7 @@ Client-side combat bonus from a **complete enchanted set**.
 
 ## Affected stats
 
-- Multiplied by `(1 + N/100)`: Max HP, Max MP, Max CP (from new HP), P.Atk, M.Atk, P.Def, M.Def, Crit Rate (then global crit cap).
+- Multiplied by `(1 + N/100)`: Max HP, Max MP, P.Atk, M.Atk, P.Def, M.Def, Crit Rate (then global crit cap). CP is retired from HUD and combat.
 - Attack interval: `× (1 − N/100)` (faster), floor 250 ms.
 - Casting Speed: `+N` percentage points (global cast cap 40%).
 
