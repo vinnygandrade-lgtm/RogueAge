@@ -170,6 +170,9 @@ export const EXPANSION_ARMOR_OWN_ICON_READY = new Set<string>([
     'arm_ng_f_chain', // set_bronze_chain_ng.png
     'arm_ng_m_woven', // set_spellweave_ng.png
     'arm_ng_m_warden', // set_runic_warden_ng.png
+    'arm_d_f_chain', // set_half_plate_d.png
+    'arm_d_m_woven', // set_arcane_loom_d.png
+    'arm_d_m_warden', // set_sanctum_guard_d.png
 ]);
 
 /**
