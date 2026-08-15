@@ -68,6 +68,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-15',
+                        items: [
+                            'Human Fighter paperdoll: D-grade expansion armor art is live — Half-Plate, Arcane Loom, and Sanctum Guard (body + hands) with matching bag icons.',
+                            'Shop and bag no longer reuse another set’s icon when art is missing — unfinished gear shows a clear generic placeholder instead.'
+                        ]
+                    },
+                    {
                         date: '2026-08-10',
                         items: [
                             'Forest Expedition: Evasion cards are milder (+3 / legendary +6; Phantom Step +4) so dodge no longer spikes after a few picks.',
@@ -3550,6 +3557,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-15',
+                        items: [
+                            'Paperdoll Human Fighter: arte D-grade da expansão no jogo — Half-Plate, Arcane Loom e Sanctum Guard (corpo + mãos) com ícones de bolsa.',
+                            'Loja e bolsa já não reutilizam o ícone de outro set quando falta arte — equipamento sem PNG mostra um placeholder genérico claro.'
+                        ]
+                    },
                     {
                         date: '2026-08-10',
                         items: [
