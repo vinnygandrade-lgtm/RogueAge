@@ -68,6 +68,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-19',
+                        items: [
+                            'Forest Expedition bag materials now have real icons — Animal Skin, Animal Bone, Coal, Charcoal, and Iron Ore show correctly in the bag and loot UI.'
+                        ]
+                    },
+                    {
                         date: '2026-08-15',
                         items: [
                             'Human Fighter paperdoll: D-grade expansion armor art is live — Half-Plate, Arcane Loom, and Sanctum Guard (body + hands) with matching bag icons.',
@@ -3557,6 +3563,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-19',
+                        items: [
+                            'Materiais da Expedição da Floresta com ícones reais — Animal Skin, Animal Bone, Coal, Charcoal e Iron Ore aparecem corretamente na bolsa e no loot.'
+                        ]
+                    },
                     {
                         date: '2026-08-15',
                         items: [
