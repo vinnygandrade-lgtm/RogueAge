@@ -728,6 +728,7 @@ function fecharTodosModaisBackdropStack() {
 window.fecharTodosModaisBackdropStack = fecharTodosModaisBackdropStack;
 
 function abrirNpc(npcId: string) { 
+    if (typeof window.limparSelecaoTownPlaza === 'function') window.limparSelecaoTownPlaza(); 
     localStorage.setItem('l2mini_last_npc', npcId);
     const praca = document.getElementById('praca-cidade');
     if (praca) praca.style.display = 'none'; 
@@ -752,7 +753,9 @@ function fecharNpc() {
     localStorage.removeItem('l2mini_last_npc');
     document.querySelectorAll('.npc-menu').forEach((menu) => { (menu as HTMLElement).style.display = 'none'; }); 
     const praca = document.getElementById('praca-cidade');
-    if (praca) praca.style.display = 'block'; 
+    if (praca) praca.style.display = 'flex';
+    if (typeof window.limparSelecaoTownPlaza === 'function') window.limparSelecaoTownPlaza();
+    window.maybeShowPlazaNpcCoach?.();
 }
 
 function abrirMenuSocial(menuId: string) {
@@ -948,6 +951,7 @@ function executarTrocaSubScreen(lugar) {
             window.SupabaseAPI.updatePresence(window.charName, {});
         }
         window.maybeShowMenuTownCoach?.();
+        window.maybeShowPlazaNpcCoach?.();
         if (typeof window.refreshClassTransferNotifs === 'function') {
             try { window.refreshClassTransferNotifs(); } catch (eCt) { /* ignore */ }
         }

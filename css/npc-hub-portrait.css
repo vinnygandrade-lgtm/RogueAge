@@ -1,0 +1,229 @@
+/* Conversation portrait hubs — Vex / Soren (same camera, themed chrome).
+   Drop bust art at assets/npcs/hub/<id>.jpg (768×960, 4∶5). */
+
+.npc-hub--portrait {
+    --hub-portrait-accent: #c084fc;
+    --hub-portrait-ink: #f3e8ff;
+    --hub-portrait-wash: rgba(88, 28, 135, 0.45);
+    --hub-portrait-deep: #1c1030;
+    --hub-portrait-veil: rgba(88, 28, 135, 0.28);
+    gap: 12px;
+}
+
+.npc-hub--enchanter.npc-hub--portrait {
+    --hub-glow: rgba(168, 85, 247, 0.16);
+    --hub-portrait-accent: #c084fc;
+    --hub-portrait-ink: #f3e8ff;
+    --hub-portrait-wash: rgba(88, 28, 135, 0.45);
+    --hub-portrait-deep: #1c1030;
+    --hub-portrait-veil: rgba(88, 28, 135, 0.28);
+    background:
+        radial-gradient(120% 48% at 50% 0%, rgba(147, 51, 234, 0.2), transparent 58%),
+        rgba(6, 4, 12, 0.28);
+}
+
+.npc-hub--craft.npc-hub--portrait {
+    --hub-glow: rgba(245, 158, 11, 0.16);
+    --hub-portrait-accent: #fbbf24;
+    --hub-portrait-ink: #fffbeb;
+    --hub-portrait-wash: rgba(217, 119, 6, 0.42);
+    --hub-portrait-deep: #2a1606;
+    --hub-portrait-veil: rgba(217, 119, 6, 0.24);
+    background:
+        radial-gradient(120% 48% at 50% 0%, rgba(217, 119, 6, 0.18), transparent 58%),
+        rgba(10, 6, 3, 0.28);
+}
+
+.npc-hub--grocer.npc-hub--portrait {
+    --hub-glow: rgba(52, 211, 153, 0.14);
+    --hub-portrait-accent: #34d399;
+    --hub-portrait-ink: #ecfdf5;
+    --hub-portrait-wash: rgba(16, 185, 129, 0.38);
+    --hub-portrait-deep: #062016;
+    --hub-portrait-veil: rgba(16, 185, 129, 0.22);
+    background:
+        radial-gradient(120% 48% at 50% 0%, rgba(16, 185, 129, 0.16), transparent 58%),
+        rgba(4, 10, 8, 0.28);
+}
+
+.npc-hub--equipment.npc-hub--portrait,
+.npc-hub--grades.npc-hub--portrait {
+    --hub-glow: rgba(96, 165, 250, 0.14);
+    --hub-portrait-accent: #60a5fa;
+    --hub-portrait-ink: #eff6ff;
+    --hub-portrait-wash: rgba(37, 99, 235, 0.38);
+    --hub-portrait-deep: #0b1528;
+    --hub-portrait-veil: rgba(37, 99, 235, 0.22);
+    background:
+        radial-gradient(120% 48% at 50% 0%, rgba(37, 99, 235, 0.18), transparent 58%),
+        rgba(6, 8, 14, 0.28);
+}
+
+.npc-hub--classmaster.npc-hub--portrait {
+    --hub-glow: rgba(250, 204, 21, 0.14);
+    --hub-portrait-accent: #facc15;
+    --hub-portrait-ink: #fffbeb;
+    --hub-portrait-wash: rgba(202, 138, 4, 0.38);
+    --hub-portrait-deep: #2a1f0a;
+    --hub-portrait-veil: rgba(202, 138, 4, 0.22);
+    background:
+        radial-gradient(120% 48% at 50% 0%, rgba(202, 138, 4, 0.18), transparent 58%),
+        rgba(10, 8, 4, 0.28);
+}
+
+.npc-hub-portrait {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    max-height: min(280px, 40vh);
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--hub-portrait-accent) 42%, #3b2a18);
+    background:
+        radial-gradient(ellipse 70% 80% at 50% 35%, var(--hub-portrait-wash), transparent 62%),
+        linear-gradient(180deg, var(--hub-portrait-deep) 0%, #0a0712 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 248, 220, 0.08),
+        0 10px 22px rgba(0, 0, 0, 0.4);
+}
+
+.npc-hub-portrait__art {
+    position: absolute;
+    inset: 0;
+}
+
+.npc-hub-portrait__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 28%;
+    display: block;
+}
+
+.npc-hub--classmaster .npc-hub-portrait__img {
+    object-position: 50% 24%;
+}
+
+.npc-hub--equipment .npc-hub-portrait__img {
+    object-position: 50% 26%;
+}
+
+.npc-hub--grocer .npc-hub-portrait__img {
+    object-position: 50% 22%;
+}
+
+.npc-hub--craft .npc-hub-portrait__img {
+    object-position: 50% 20%;
+}
+
+.npc-hub-portrait__img.is-missing {
+    display: none;
+}
+
+.npc-hub-portrait__veil {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(8, 6, 16, 0.08) 0%, transparent 32%, rgba(6, 4, 12, 0.22) 58%, rgba(6, 4, 12, 0.82) 100%),
+        radial-gradient(ellipse 90% 70% at 50% 100%, var(--hub-portrait-veil), transparent 70%);
+}
+
+.npc-hub-portrait__id {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 12px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    pointer-events: none;
+}
+
+.npc-hub--portrait .npc-hub__role {
+    margin: 0;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--hub-portrait-accent) 72%, #e7e5e4);
+    text-shadow:
+        0 0 1px #000,
+        0 1px 0 #000,
+        1px 0 0 #000,
+        -1px 0 0 #000,
+        0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.npc-hub--portrait .npc-hub__name {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-size: 1.18rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fde68a;
+    line-height: 1.15;
+    text-shadow:
+        0 0 1px #000,
+        0 1px 0 #000,
+        1px 0 0 #000,
+        -1px 0 0 #000,
+        0 -1px 0 #000,
+        0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+.npc-hub-portrait__line {
+    border: 1px solid color-mix(in srgb, var(--hub-portrait-accent) 22%, rgba(90, 70, 52, 0.5));
+    border-left: 3px solid var(--hub-portrait-accent);
+    background: rgba(10, 8, 12, 0.58);
+    color: #e7e5e4;
+    font-style: normal;
+    line-height: 1.45;
+}
+
+.npc-hub--portrait .btn-l2--npc.npc-action:not(.npc-action--back):not(.npc-action--sell) {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--hub-portrait-accent) 38%, #16120c) 0%,
+        color-mix(in srgb, var(--hub-portrait-accent) 14%, #0a0806) 100%
+    );
+    border-color: color-mix(in srgb, var(--hub-portrait-accent) 52%, transparent);
+    color: #fff8ee;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--hub-portrait-accent) 16%, transparent);
+}
+
+.npc-hub--portrait .btn-l2--npc.npc-action:not(.npc-action--back):not(.npc-action--sell) .npc-action__hint {
+    color: color-mix(in srgb, var(--hub-portrait-accent) 40%, #e7e5e4);
+    opacity: 0.92;
+}
+
+.npc-hub--portrait .btn-l2--npc.npc-action:not(.npc-action--back):not(.npc-action--sell):hover,
+.npc-hub--portrait .btn-l2--npc.npc-action:not(.npc-action--back):not(.npc-action--sell):focus-visible {
+    border-color: color-mix(in srgb, var(--hub-portrait-accent) 78%, #fff);
+}
+
+.npc-hub--portrait .npc-action--sell {
+    background: linear-gradient(180deg, #2a2724 0%, #161412 100%);
+    border-color: color-mix(in srgb, var(--hub-portrait-accent) 24%, #52525b);
+    color: #e7e5e4;
+    box-shadow: none;
+}
+
+.npc-hub--portrait .npc-action--sell .npc-action__hint {
+    color: #a8a29e;
+}
+
+.npc-hub--portrait .npc-grade-grid .btn-grade-pick {
+    border-color: color-mix(in srgb, var(--hub-portrait-accent) 28%, #3d2b1f);
+}
+
+#menu-equipment-grades.npc-hub--portrait .npc-hub-portrait {
+    max-height: min(200px, 28vh);
+}
+
+html[data-l2-layout="landscape"] .npc-hub--portrait .npc-hub-portrait {
+    max-height: min(300px, 46vh);
+    aspect-ratio: 16 / 10;
+}

@@ -777,6 +777,7 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
                 hotbarTipSeen: !!window.uiCoachFlags.hotbarTipSeen,
                 expeditionTipSeen: !!window.uiCoachFlags.expeditionTipSeen,
                 consumablesTipSeen: !!window.uiCoachFlags.consumablesTipSeen,
+                plazaNpcTipSeen: !!window.uiCoachFlags.plazaNpcTipSeen,
             }
             : undefined,
         levelRewards: typeof window.getLevelRewardsSavePayload === 'function'
@@ -997,6 +998,7 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
                 hotbarTipSeen: typeof uc.hotbarTipSeen === 'boolean' ? uc.hotbarTipSeen : veteranDefault,
                 expeditionTipSeen: typeof uc.expeditionTipSeen === 'boolean' ? uc.expeditionTipSeen : veteranDefault,
                 consumablesTipSeen: typeof uc.consumablesTipSeen === 'boolean' ? uc.consumablesTipSeen : veteranDefault,
+                plazaNpcTipSeen: typeof uc.plazaNpcTipSeen === 'boolean' ? uc.plazaNpcTipSeen : false,
             };
         }
         

@@ -48,6 +48,8 @@
     <link rel="stylesheet" href="css/floating-chat.css">
     <!-- Landscape PC: DEVE ficar por último para vencer auth-flow / screens -->
     <link rel="stylesheet" href="css/shell-landscape.css">
+    <link rel="stylesheet" href="css/town-plaza.css">
+    <link rel="stylesheet" href="css/npc-hub-portrait.css">
     <script>
       /* Early layout hint — portrait-only product focus (PC landscape frozen). */
       (function () {
@@ -1783,63 +1785,92 @@
         
         <div id="tela-cidade" class="screen-content">
             <div id="praca-cidade" class="town-plaza">
-                <header class="town-plaza__header">
-                    <h4 class="town-square-title" data-i18n="game.town.squareTitle">TOWN SQUARE</h4>
-                    <p class="town-plaza__subtitle" data-i18n="game.town.squareHint">Talk to a merchant to buy, sell, craft, or enchant.</p>
-                </header>
-               <div class="npc-grid">
-                    <div class="npc-card npc-card--equipment" onclick="abrirNpc('equipment')">
-                        <div class="npc-card__portrait"><img src="assets/npcs/blacksmith.png" alt=""></div>
-                        <div class="npc-card__info">
-                            <div class="npc-title" data-i18n="game.town.roleEquipment">Equipment</div>
-                            <div class="npc-name">Pushkin</div>
-                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                <div id="town-plaza-presence" hidden></div>
+                <div class="town-plaza-frame">
+                    <div class="town-plaza-stack" id="town-plaza-stack" onclick="limparSelecaoTownPlaza(event)">
+                        <img class="town-plaza-bg" src="assets/town/plaza_bg.jpg" alt="" draggable="false" loading="lazy" decoding="async">
+                        <img class="town-plaza-npc" data-town-npc="enchanter" src="assets/town/enchanter.png" alt="" draggable="false" loading="lazy" decoding="async">
+                        <img class="town-plaza-npc" data-town-npc="classmaster" src="assets/town/classmaster.png" alt="" draggable="false" loading="lazy" decoding="async">
+                        <img class="town-plaza-npc" data-town-npc="equipment" src="assets/town/equipment.png" alt="" draggable="false" loading="lazy" decoding="async">
+                        <img class="town-plaza-npc" data-town-npc="grocer" src="assets/town/grocer.png" alt="" draggable="false" loading="lazy" decoding="async">
+                        <img class="town-plaza-npc" data-town-npc="crafting" src="assets/town/crafting.png" alt="" draggable="false" loading="lazy" decoding="async">
+                        <div class="town-plaza-vignette" aria-hidden="true"></div>
+                        <h4 class="town-plaza-title" data-i18n="game.town.squareTitle">TOWN SQUARE</h4>
+                        <p id="town-plaza-coach" class="town-plaza-coach town-plaza-coach--hidden" hidden aria-hidden="true" onclick="dismissTownPlazaCoach(event)">
+                            <span class="town-plaza-coach__card" data-i18n="game.town.plazaSelectHint">Select a merchant to speak</span>
+                            <span class="town-plaza-coach__arrow" aria-hidden="true"></span>
+                        </p>
+                        <div class="town-plaza-actor town-plaza-actor--crafting">
+                            <button type="button" class="town-plaza-hotspot" data-town-npc="crafting" onclick="selecionarNpcTown('crafting', event)" aria-pressed="false" aria-labelledby="town-npc-kael-name town-npc-kael-role">
+                                <span class="town-plaza-plate">
+                                    <span id="town-npc-kael-name" class="town-plaza-plate__name" data-i18n="game.town.npcKael">Kael Dravik</span>
+                                    <span id="town-npc-kael-role" class="town-plaza-plate__role" data-i18n="game.town.npcKaelTitle">Craft</span>
+                                </span>
+                            </button>
+                            <button type="button" class="town-plaza-speak" data-town-npc="crafting" hidden aria-hidden="true" onclick="falarNpcTown('crafting', event)">
+                                <span data-i18n="game.town.speak">Speak</span>
+                            </button>
                         </div>
-                    </div>
-                    <div class="npc-card npc-card--grocer" onclick="abrirNpc('grocer')">
-                        <div class="npc-card__portrait"><img src="assets/npcs/grocer.png" alt=""></div>
-                        <div class="npc-card__info">
-                            <div class="npc-title" data-i18n="game.town.roleConsumables">Consumables</div>
-                            <div class="npc-name">Saria</div>
-                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        <div class="town-plaza-actor town-plaza-actor--equipment">
+                            <button type="button" class="town-plaza-hotspot" data-town-npc="equipment" onclick="selecionarNpcTown('equipment', event)" aria-pressed="false" aria-labelledby="town-npc-brann-name town-npc-brann-role">
+                                <span class="town-plaza-plate">
+                                    <span id="town-npc-brann-name" class="town-plaza-plate__name" data-i18n="game.town.npcBrann">Brann Coalforge</span>
+                                    <span id="town-npc-brann-role" class="town-plaza-plate__role" data-i18n="game.town.npcBrannTitle">Equipment</span>
+                                </span>
+                            </button>
+                            <button type="button" class="town-plaza-speak" data-town-npc="equipment" hidden aria-hidden="true" onclick="falarNpcTown('equipment', event)">
+                                <span data-i18n="game.town.speak">Speak</span>
+                            </button>
                         </div>
-                    </div>
-                    <div class="npc-card npc-card--enchanter" onclick="abrirNpc('enchanter')">
-                        <div class="npc-card__portrait"><img src="assets/npcs/magister.png" alt=""></div>
-                        <div class="npc-card__info">
-                            <div class="npc-title" data-i18n="game.town.roleEnchanter">Enchanter</div>
-                            <div class="npc-name">Ferris</div>
-                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        <div class="town-plaza-actor town-plaza-actor--enchanter">
+                            <button type="button" class="town-plaza-hotspot" data-town-npc="enchanter" onclick="selecionarNpcTown('enchanter', event)" aria-pressed="false" aria-labelledby="town-npc-vex-name town-npc-vex-role">
+                                <span class="town-plaza-plate">
+                                    <span id="town-npc-vex-name" class="town-plaza-plate__name" data-i18n="game.town.npcVex">Vex Mir</span>
+                                    <span id="town-npc-vex-role" class="town-plaza-plate__role" data-i18n="game.town.npcVexTitle">Enchant</span>
+                                </span>
+                            </button>
+                            <button type="button" class="town-plaza-speak" data-town-npc="enchanter" hidden aria-hidden="true" onclick="falarNpcTown('enchanter', event)">
+                                <span data-i18n="game.town.speak">Speak</span>
+                            </button>
                         </div>
-                    </div>
-                    <div class="npc-card npc-card--classmaster" onclick="abrirNpc('classmaster')">
-                        <div class="npc-card__portrait"><img src="assets/npcs/magister.png" alt=""></div>
-                        <div class="npc-card__info">
-                            <div class="npc-title" data-i18n="game.town.roleGrandMaster">Buffs & Class</div>
-                            <div class="npc-name">Master</div>
-                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        <div class="town-plaza-actor town-plaza-actor--classmaster">
+                            <button type="button" class="town-plaza-hotspot npc-card--classmaster" data-town-npc="classmaster" onclick="selecionarNpcTown('classmaster', event)" aria-pressed="false" aria-labelledby="town-npc-soren-name town-npc-soren-role">
+                                <span class="town-plaza-plate">
+                                    <span id="town-npc-soren-name" class="town-plaza-plate__name" data-i18n="game.town.npcSoren">Soren</span>
+                                    <span id="town-npc-soren-role" class="town-plaza-plate__role" data-i18n="game.town.npcSorenTitle">Class & Buffs</span>
+                                </span>
+                            </button>
+                            <button type="button" class="town-plaza-speak" data-town-npc="classmaster" hidden aria-hidden="true" onclick="falarNpcTown('classmaster', event)">
+                                <span data-i18n="game.town.speak">Speak</span>
+                            </button>
                         </div>
-                    </div>
-                    <div class="npc-card npc-card--craft-wide" onclick="abrirNpc('crafting')">
-                        <div class="npc-card__portrait"><img src="assets/npcs/blacksmith.png" alt=""></div>
-                        <div class="npc-card__info">
-                            <div class="npc-title" data-i18n="game.town.roleCraft">Master Smith (Craft)</div>
-                            <div class="npc-name">Reorin</div>
-                            <div class="npc-card__cta" data-i18n="game.town.tapToTalk">Talk</div>
+                        <div class="town-plaza-actor town-plaza-actor--grocer">
+                            <button type="button" class="town-plaza-hotspot" data-town-npc="grocer" onclick="selecionarNpcTown('grocer', event)" aria-pressed="false" aria-labelledby="town-npc-lirien-name town-npc-lirien-role">
+                                <span class="town-plaza-plate">
+                                    <span id="town-npc-lirien-name" class="town-plaza-plate__name" data-i18n="game.town.npcLirien">Lirien Valebrook</span>
+                                    <span id="town-npc-lirien-role" class="town-plaza-plate__role" data-i18n="game.town.npcLirienTitle">Potions</span>
+                                </span>
+                            </button>
+                            <button type="button" class="town-plaza-speak" data-town-npc="grocer" hidden aria-hidden="true" onclick="falarNpcTown('grocer', event)">
+                                <span data-i18n="game.town.speak">Speak</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div id="menu-equipment" class="npc-menu npc-hub npc-hub--equipment">
-                <div class="npc-hub__hero">
-                    <img src="assets/npcs/blacksmith.png" class="npc-menu-img" alt="">
-                    <div class="npc-hub__identity">
-                        <span class="npc-hub__role" data-i18n="game.town.roleEquipment">Equipment</span>
-                        <h3 class="npc-hub__name">Pushkin</h3>
+            <div id="menu-equipment" class="npc-menu npc-hub npc-hub--equipment npc-hub--portrait">
+                <div class="npc-hub-portrait">
+                    <div class="npc-hub-portrait__art">
+                        <img class="npc-hub-portrait__img" src="assets/npcs/hub/equipment.jpg" alt="" onerror="this.classList.add('is-missing')">
+                    </div>
+                    <div class="npc-hub-portrait__veil" aria-hidden="true"></div>
+                    <div class="npc-hub-portrait__id">
+                        <span class="npc-hub__role" data-i18n="game.town.npcBrannTitle">Equipment</span>
+                        <h3 class="npc-hub__name" data-i18n="game.town.npcBrann">Brann Coalforge</h3>
                     </div>
                 </div>
-                <div class="npc-dialog" data-i18n="game.town.equipmentDialog">"Looking to upgrade? I carry the finest weapons, armors, and jewelry in the Rogue Realms."</div>
+                <p class="npc-dialog npc-hub-portrait__line" data-i18n="game.town.equipmentDialog">"Weapons, armor, or jewels. If it's weak, it stays here."</p>
                 <div class="npc-hub__actions">
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--buy" onclick="mostrarGradesEquipment()">
                         <span class="npc-action__label" data-i18n="game.town.equipmentBuy">Buy Equipment</span>
@@ -1853,15 +1884,18 @@
                 </div>
             </div>
             
-            <div id="menu-equipment-grades" class="npc-menu npc-hub npc-hub--grades">
-                <div class="npc-hub__hero">
-                    <img src="assets/npcs/blacksmith.png" class="npc-menu-img" alt="">
-                    <div class="npc-hub__identity">
+            <div id="menu-equipment-grades" class="npc-menu npc-hub npc-hub--grades npc-hub--equipment npc-hub--portrait">
+                <div class="npc-hub-portrait">
+                    <div class="npc-hub-portrait__art">
+                        <img class="npc-hub-portrait__img" src="assets/npcs/hub/equipment.jpg" alt="" onerror="this.classList.add('is-missing')">
+                    </div>
+                    <div class="npc-hub-portrait__veil" aria-hidden="true"></div>
+                    <div class="npc-hub-portrait__id">
                         <span class="npc-hub__role" data-i18n="game.town.gradesRole">Browse by grade</span>
-                        <h3 class="npc-hub__name">Pushkin</h3>
+                        <h3 class="npc-hub__name" data-i18n="game.town.npcBrann">Brann Coalforge</h3>
                     </div>
                 </div>
-                <div class="npc-dialog" data-i18n="game.town.gradesDialog">"Select the grade of the equipment you wish to browse."</div>
+                <p class="npc-dialog npc-hub-portrait__line" data-i18n="game.town.gradesDialog">"Pick the grade. I'll keep the rest in the back."</p>
                 <div class="npc-grade-grid" role="group" aria-label="Equipment grades">
                     <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--ng" onclick="abrirMegaLoja('No-Grade')" data-i18n="game.town.gradeNg">No-Grade</button>
                     <button type="button" class="btn-l2 btn-l2--npc btn-grade-pick btn-grade-pick--d" onclick="abrirMegaLoja('D')" data-i18n="game.town.gradeD">D-Grade</button>
@@ -1873,15 +1907,18 @@
                 <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="voltarMenuEquipment()" data-i18n="game.town.back">Back</button>
             </div>
 
-            <div id="menu-grocer" class="npc-menu npc-hub npc-hub--grocer">
-                <div class="npc-hub__hero">
-                    <img src="assets/npcs/grocer.png" class="npc-menu-img" alt="">
-                    <div class="npc-hub__identity">
-                        <span class="npc-hub__role" data-i18n="game.town.roleConsumables">Consumables</span>
-                        <h3 class="npc-hub__name">Saria</h3>
+            <div id="menu-grocer" class="npc-menu npc-hub npc-hub--grocer npc-hub--portrait">
+                <div class="npc-hub-portrait">
+                    <div class="npc-hub-portrait__art">
+                        <img class="npc-hub-portrait__img" src="assets/npcs/hub/grocer.jpg" alt="" onerror="this.classList.add('is-missing')">
+                    </div>
+                    <div class="npc-hub-portrait__veil" aria-hidden="true"></div>
+                    <div class="npc-hub-portrait__id">
+                        <span class="npc-hub__role" data-i18n="game.town.npcLirienTitle">Potions</span>
+                        <h3 class="npc-hub__name" data-i18n="game.town.npcLirien">Lirien Valebrook</h3>
                     </div>
                 </div>
-                <div class="npc-dialog" data-i18n="game.town.grocerDialog">"Potions, scrolls, materials... I have everything you need to survive out there."</div>
+                <p class="npc-dialog npc-hub-portrait__line" data-i18n="game.town.grocerDialog">"Potions, scrolls — just say what you need."</p>
                 <div class="npc-hub__actions">
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--potion" onclick="abrirLojaGrocer('consumables')">
                         <span class="npc-action__label" data-i18n="game.town.buyConsumables">Buy Consumables</span>
@@ -1899,37 +1936,43 @@
                 </div>
             </div>
             
-            <div id="menu-enchanter" class="npc-menu npc-hub npc-hub--enchanter">
-                <div class="npc-hub__hero">
-                    <img src="assets/npcs/magister.png" class="npc-menu-img" alt="">
-                    <div class="npc-hub__identity">
-                        <span class="npc-hub__role" data-i18n="game.town.roleEnchanter">Enchanter</span>
-                        <h3 class="npc-hub__name">Ferris</h3>
+            <div id="menu-enchanter" class="npc-menu npc-hub npc-hub--enchanter npc-hub--portrait">
+                <div class="npc-hub-portrait">
+                    <div class="npc-hub-portrait__art">
+                        <img class="npc-hub-portrait__img" src="assets/npcs/hub/enchanter.jpg" alt="" onerror="this.classList.add('is-missing')">
+                    </div>
+                    <div class="npc-hub-portrait__veil" aria-hidden="true"></div>
+                    <div class="npc-hub-portrait__id">
+                        <span class="npc-hub__role" data-i18n="game.town.npcVexTitle">Enchant</span>
+                        <h3 class="npc-hub__name" data-i18n="game.town.npcVex">Vex Mir</h3>
                     </div>
                 </div>
-                <div class="npc-dialog" data-i18n="game.town.enchanterDialog">"Magic is volatile. I can make your gear godly, or awaken hidden powers. Dare to try?"</div>
+                <p class="npc-dialog npc-hub-portrait__line" data-i18n="game.town.enchanterDialog">"Set the item down. Enchant or stone — I got it."</p>
                 <div class="npc-hub__actions">
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--enchant" onclick="abrirJanelaEnchant()">
-                        <span class="npc-action__label" data-i18n="game.town.openEnchant">Open Enchant Menu</span>
+                        <span class="npc-action__label" data-i18n="game.town.openEnchant">Enchant</span>
                         <span class="npc-action__hint" data-i18n="game.town.openEnchantHint">Raise gear power with scrolls</span>
                     </button>
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--augment" onclick="abrirJanelaAugment()">
-                        <span class="npc-action__label" data-i18n="game.town.openAugment">Open Augment Menu</span>
+                        <span class="npc-action__label" data-i18n="game.town.openAugment">Augment</span>
                         <span class="npc-action__hint" data-i18n="game.town.openAugmentHint">Socket stones for bonuses</span>
                     </button>
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--back" onclick="fecharNpc()" data-i18n="game.town.backToTown">Back to Town</button>
                 </div>
             </div>
 
-            <div id="menu-classmaster" class="npc-menu npc-hub npc-hub--classmaster">
-                <div class="npc-hub__hero">
-                    <img src="assets/npcs/magister.png" class="npc-menu-img npc-menu-img--hue" alt="">
-                    <div class="npc-hub__identity">
-                        <span class="npc-hub__role" data-i18n="game.town.roleGrandMaster">Buffs & Class</span>
-                        <h3 class="npc-hub__name">Master</h3>
+            <div id="menu-classmaster" class="npc-menu npc-hub npc-hub--classmaster npc-hub--portrait">
+                <div class="npc-hub-portrait">
+                    <div class="npc-hub-portrait__art">
+                        <img class="npc-hub-portrait__img" src="assets/npcs/hub/classmaster.jpg" alt="" onerror="this.classList.add('is-missing')">
+                    </div>
+                    <div class="npc-hub-portrait__veil" aria-hidden="true"></div>
+                    <div class="npc-hub-portrait__id">
+                        <span class="npc-hub__role" data-i18n="game.town.npcSorenTitle">Class & Buffs</span>
+                        <h3 class="npc-hub__name" data-i18n="game.town.npcSoren">Soren</h3>
                     </div>
                 </div>
-                <div class="npc-dialog" data-i18n="game.town.classDialog">"The path to greatness is paved with blood and magic. Seek my blessings, or return when you are ready to ascend to a new class."</div>
+                <p class="npc-dialog npc-hub-portrait__line" data-i18n="game.town.classDialog">"Two-hour blessing, or a class change. What do you need?"</p>
                 <div class="npc-hub__actions">
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--blessing-build" onclick="abrirBlessingBuild()">
                         <span class="npc-action__label" data-i18n="game.town.blessingBuild">Blessing Build (2h)</span>
@@ -1944,15 +1987,18 @@
                 </div>
             </div>
 
-            <div id="menu-crafting" class="npc-menu npc-hub npc-hub--craft">
-                <div class="npc-hub__hero">
-                    <img src="assets/npcs/blacksmith.png" class="npc-menu-img npc-menu-img--craft" alt="">
-                    <div class="npc-hub__identity">
-                        <span class="npc-hub__role" data-i18n="game.town.roleCraft">Master Smith (Craft)</span>
-                        <h3 class="npc-hub__name">Reorin</h3>
+            <div id="menu-crafting" class="npc-menu npc-hub npc-hub--craft npc-hub--portrait">
+                <div class="npc-hub-portrait">
+                    <div class="npc-hub-portrait__art">
+                        <img class="npc-hub-portrait__img" src="assets/npcs/hub/crafting.jpg" alt="" onerror="this.classList.add('is-missing')">
+                    </div>
+                    <div class="npc-hub-portrait__veil" aria-hidden="true"></div>
+                    <div class="npc-hub-portrait__id">
+                        <span class="npc-hub__role" data-i18n="game.town.npcKaelTitle">Craft</span>
+                        <h3 class="npc-hub__name" data-i18n="game.town.npcKael">Kael Dravik</h3>
                     </div>
                 </div>
-                <div class="npc-dialog" data-i18n="game.town.craftDialog">"I can process ore and forge rare materials. What shall we craft today?"</div>
+                <p class="npc-dialog npc-hub-portrait__line" data-i18n="game.town.craftDialog">"Ore in, gear out. What are we forging?"</p>
                 <div class="npc-hub__actions">
                     <button type="button" class="btn-l2 btn-l2--npc npc-action npc-action--craft" onclick="abrirJanelaCraft('consumables')">
                         <span class="npc-action__label" data-i18n="game.town.consumableCraft">Consumable Craft</span>

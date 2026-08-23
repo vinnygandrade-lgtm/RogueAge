@@ -1,0 +1,527 @@
+/* Town Square plaza stage — mobile portrait scene
+   Art: assets/town/plaza_bg.jpg + npc layers (1080×1620)
+   docs/town-plaza-art-prompt.md */
+
+#tela-cidade.screen-content {
+    padding: 0;
+    border: none;
+    background: #0a0806;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+#tela-cidade.screen-content:has(.npc-menu[style*="display: flex"]),
+#tela-cidade.screen-content:has(.npc-menu[style*="display:flex"]) {
+    overflow-y: auto;
+    padding: var(--l2-screen-padding-y) var(--l2-screen-padding-x);
+    background: var(--l2-panel-overlay);
+    border: 1px solid var(--l2-border-soft);
+}
+
+#praca-cidade.town-plaza {
+    flex: 1 1 0%;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+}
+
+.town-plaza__header,
+#praca-cidade .npc-grid {
+    display: none;
+}
+
+.town-plaza-frame {
+    flex: 1 1 0%;
+    min-height: 0;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    background: #070605;
+}
+
+.town-plaza-stack {
+    --town-art-w: 1080;
+    --town-art-h: 1620;
+    position: relative;
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 1080 / 1620;
+    overflow: visible;
+    background: #0a0806;
+}
+
+.town-plaza-bg,
+.town-plaza-npc {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.town-plaza-bg {
+    z-index: 0;
+}
+
+.town-plaza-npc[data-town-npc="enchanter"],
+.town-plaza-npc[data-town-npc="classmaster"],
+.town-plaza-npc[data-town-npc="equipment"],
+.town-plaza-npc[data-town-npc="grocer"] {
+    z-index: 1;
+}
+
+.town-plaza-npc[data-town-npc="crafting"] {
+    z-index: 2;
+}
+
+.town-plaza-npc[data-town-npc="crafting"] {
+    --aura-rgb: 245 158 11;
+}
+
+.town-plaza-npc[data-town-npc="equipment"] {
+    --aura-rgb: 96 165 250;
+}
+
+.town-plaza-npc[data-town-npc="grocer"] {
+    --aura-rgb: 52 211 153;
+}
+
+.town-plaza-npc[data-town-npc="enchanter"] {
+    --aura-rgb: 192 132 252;
+}
+
+.town-plaza-npc[data-town-npc="classmaster"] {
+    --aura-rgb: 250 204 21;
+}
+
+.town-plaza-stack[data-selected-npc] .town-plaza-npc {
+    opacity: 0.78;
+    filter: saturate(0.82);
+}
+
+.town-plaza-stack[data-selected-npc="crafting"] .town-plaza-npc[data-town-npc="crafting"],
+.town-plaza-stack[data-selected-npc="equipment"] .town-plaza-npc[data-town-npc="equipment"],
+.town-plaza-stack[data-selected-npc="grocer"] .town-plaza-npc[data-town-npc="grocer"],
+.town-plaza-stack[data-selected-npc="enchanter"] .town-plaza-npc[data-town-npc="enchanter"],
+.town-plaza-stack[data-selected-npc="classmaster"] .town-plaza-npc[data-town-npc="classmaster"] {
+    opacity: 1;
+    animation: town-npc-aura 1.65s ease-in-out infinite;
+}
+
+.town-plaza-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(8, 6, 4, 0.42) 0%, transparent 16%, transparent 78%, rgba(6, 4, 3, 0.55) 100%),
+        radial-gradient(ellipse 90% 70% at 50% 58%, transparent 45%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+.town-plaza-title {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    margin: 0;
+    padding: 4px 14px 5px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: #fde68a;
+    text-shadow: 0 1px 0 #000, 0 2px 8px rgba(0, 0, 0, 0.85);
+    background: linear-gradient(180deg, rgba(12, 9, 6, 0.62) 0%, rgba(8, 6, 4, 0.28) 100%);
+    border: 1px solid rgba(202, 138, 4, 0.35);
+    border-radius: 999px;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.town-plaza-coach {
+    position: absolute;
+    left: 50%;
+    top: 36%;
+    transform: translate(-50%, -100%);
+    z-index: 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    pointer-events: auto;
+}
+
+.town-plaza-coach--hidden,
+.town-plaza-coach[hidden] {
+    display: none !important;
+}
+
+.town-plaza-coach__card {
+    padding: 7px 12px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(125, 211, 252, 0.42);
+    background: rgba(8, 14, 20, 0.88);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+    color: #e0f2fe;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.town-plaza-coach__arrow {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 8px solid rgba(125, 211, 252, 0.5);
+}
+
+.town-plaza-stack[data-selected-npc] .town-plaza-coach {
+    display: none !important;
+}
+
+.town-plaza-actor {
+    --aura: #fbbf24;
+    --aura-deep: 20 12 4;
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.town-plaza-actor:has(.town-plaza-speak:not([hidden])) {
+    z-index: 7;
+}
+
+.town-plaza-actor--crafting {
+    left: 32%;
+    top: 42%;
+    width: 36%;
+    height: 56%;
+    --aura: #fbbf24;
+    --aura-deep: 36 18 4;
+}
+
+.town-plaza-actor--equipment {
+    left: 6%;
+    top: 40%;
+    width: 26%;
+    height: 42%;
+    --aura: #60a5fa;
+    --aura-deep: 8 16 32;
+}
+
+.town-plaza-actor--grocer {
+    left: 70%;
+    top: 40%;
+    width: 26%;
+    height: 42%;
+    --aura: #34d399;
+    --aura-deep: 6 22 16;
+}
+
+.town-plaza-actor--enchanter {
+    left: 16%;
+    top: 11%;
+    width: 26%;
+    height: 28%;
+    --aura: #c084fc;
+    --aura-deep: 22 10 32;
+}
+
+.town-plaza-actor--classmaster {
+    left: 63%;
+    top: 11%;
+    width: 26%;
+    height: 28%;
+    --aura: #facc15;
+    --aura-deep: 32 24 6;
+}
+
+.town-plaza-hotspot {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    appearance: none;
+}
+
+.town-plaza-hotspot:focus-visible {
+    outline: 2px solid var(--aura);
+    outline-offset: 2px;
+}
+
+.town-plaza-hotspot.npc-card--classmaster.npc-ready--has-notif {
+    border: 0;
+}
+
+.town-plaza-hotspot .npc-ready-notif {
+    top: -2px;
+    right: 10%;
+}
+
+.town-plaza-speak {
+    position: absolute;
+    left: 50%;
+    top: auto;
+    bottom: 4%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 5.6rem;
+    min-height: 36px;
+    padding: 0 14px 2px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--aura) 78%, #fff);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--aura) 38%, rgb(var(--aura-deep))) 0%, rgb(var(--aura-deep) / 0.94) 100%);
+    box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.48),
+        0 0 18px color-mix(in srgb, var(--aura) 42%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--aura) 55%, #fff);
+    color: #fff8e7;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transform: translateX(-50%);
+    animation: town-speak-in 0.22s ease-out;
+}
+
+.town-plaza-actor--crafting .town-plaza-speak {
+    bottom: 14%;
+}
+
+.town-plaza-speak::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 7px solid color-mix(in srgb, var(--aura) 70%, #1a1208);
+    transform: translateX(-50%);
+}
+
+.town-plaza-speak:hover,
+.town-plaza-speak:focus-visible {
+    border-color: color-mix(in srgb, var(--aura) 92%, #fff);
+    color: #fff;
+    outline: none;
+}
+
+.town-plaza-speak:active {
+    transform: translateX(-50%) scale(0.96);
+}
+
+.town-plaza-speak[hidden] {
+    display: none !important;
+    animation: none;
+}
+
+.town-plaza-plate {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -108%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    pointer-events: none;
+    text-align: center;
+}
+
+.town-plaza-hotspot.is-selected .town-plaza-plate__name {
+    color: color-mix(in srgb, var(--aura) 55%, #fff);
+}
+
+.town-plaza-hotspot.is-selected .town-plaza-plate__role {
+    color: color-mix(in srgb, var(--aura) 72%, #e7e5e4);
+}
+
+.town-plaza-plate__name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fde68a;
+    line-height: 1.15;
+    text-shadow:
+        0 0 1px #000,
+        0 1px 0 #000,
+        1px 0 0 #000,
+        -1px 0 0 #000,
+        0 -1px 0 #000,
+        0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+.town-plaza-plate__role {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #e7e5e4;
+    line-height: 1.2;
+    text-shadow:
+        0 0 1px #000,
+        0 1px 0 #000,
+        1px 0 0 #000,
+        -1px 0 0 #000,
+        0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.town-plaza-dock {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: auto;
+    bottom: 10px;
+    z-index: 6;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.town-plaza-dock__btn {
+    pointer-events: auto;
+    position: relative;
+    min-width: 44%;
+    max-width: 58%;
+    min-height: 40px;
+    padding: 5px 4px 6px;
+    border-radius: 8px;
+    border: 1px solid rgba(120, 90, 48, 0.45);
+    background: rgba(10, 8, 6, 0.62);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    color: #e7e5e4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.town-plaza-dock__btn:hover,
+.town-plaza-dock__btn:focus-visible {
+    border-color: var(--npc-accent, #ca8a04);
+    background: rgba(16, 12, 8, 0.78);
+    outline: none;
+}
+
+.town-plaza-dock__btn--equipment { --npc-accent: #60a5fa; }
+.town-plaza-dock__btn--grocer { --npc-accent: #34d399; }
+.town-plaza-dock__btn--enchanter { --npc-accent: #c084fc; }
+.town-plaza-dock__btn--classmaster { --npc-accent: #4ade80; }
+
+.town-plaza-dock__role {
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--npc-accent) 75%, #fff);
+    line-height: 1.15;
+}
+
+.town-plaza-dock__name {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #fafaf9;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+#praca-cidade #town-plaza-presence,
+#praca-cidade .online-players-grid {
+    display: none;
+}
+
+@keyframes town-npc-aura {
+    0%, 100% {
+        filter:
+            drop-shadow(0 0 8px rgb(var(--aura-rgb) / 0.72))
+            drop-shadow(0 0 22px rgb(var(--aura-rgb) / 0.48))
+            drop-shadow(0 0 40px rgb(var(--aura-rgb) / 0.3));
+    }
+    50% {
+        filter:
+            drop-shadow(0 0 14px rgb(var(--aura-rgb) / 0.95))
+            drop-shadow(0 0 34px rgb(var(--aura-rgb) / 0.72))
+            drop-shadow(0 0 56px rgb(var(--aura-rgb) / 0.42));
+    }
+}
+
+@keyframes town-speak-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 10px) scale(0.88);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+html[data-l2-layout="landscape"] #tela-cidade.screen-content {
+    padding: 0;
+    justify-content: stretch;
+    align-items: stretch;
+}
+
+html[data-l2-layout="landscape"] #praca-cidade {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    height: 100%;
+    background: #070605;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+html[data-l2-layout="landscape"] #praca-cidade[style*="display: none"],
+html[data-l2-layout="landscape"] #praca-cidade[style*="display:none"] {
+    display: none !important;
+}
+
+html[data-l2-layout="landscape"] #tela-cidade .town-plaza-title::after {
+    display: none;
+}

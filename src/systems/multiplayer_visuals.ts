@@ -64,6 +64,11 @@ export const MultiplayerVisuals: MultiplayerVisualsApi = {
     onlineArea.id = this.containerId;
     onlineArea.className = 'online-players-grid';
 
+    const slot = document.getElementById('town-plaza-presence');
+    if (slot) {
+      slot.replaceWith(onlineArea);
+      return;
+    }
     const title = praca.querySelector('h4');
     if (title) {
       title.insertAdjacentElement('afterend', onlineArea);

@@ -53,7 +53,8 @@ function defaultUiCoachFlags(): UiCoachSave {
     missionsTipSeen: false,
     hotbarTipSeen: false,
     expeditionTipSeen: false,
-    consumablesTipSeen: false,
+        consumablesTipSeen: false,
+        plazaNpcTipSeen: false,
   };
 }
 
@@ -68,6 +69,7 @@ function ensureUiCoachFlags(): UiCoachSave {
   if (typeof f.hotbarTipSeen !== 'boolean') f.hotbarTipSeen = false;
   if (typeof f.expeditionTipSeen !== 'boolean') f.expeditionTipSeen = false;
   if (typeof f.consumablesTipSeen !== 'boolean') f.consumablesTipSeen = false;
+  if (typeof f.plazaNpcTipSeen !== 'boolean') f.plazaNpcTipSeen = false;
   return f;
 }
 

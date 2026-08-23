@@ -746,6 +746,7 @@ export interface UiCoachSave {
   hotbarTipSeen?: boolean;
   expeditionTipSeen?: boolean;
   consumablesTipSeen?: boolean;
+  plazaNpcTipSeen?: boolean;
 }
 
 /** Claimed level milestone rewards (Achievements hub). */

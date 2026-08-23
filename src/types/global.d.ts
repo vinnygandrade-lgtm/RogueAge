@@ -73,6 +73,11 @@ declare global {
     abrirAcaoItemBot?: (tipo: string, index?: number) => void;
     fecharNpc?: () => void;
     fecharNpcSocial?: () => void;
+    selecionarNpcTown?: (npcId: string, ev?: Event) => void;
+    falarNpcTown?: (npcId: string, ev?: Event) => void;
+    limparSelecaoTownPlaza?: (ev?: Event) => void;
+    dismissTownPlazaCoach?: (ev?: Event) => void;
+    maybeShowPlazaNpcCoach?: () => void;
     navegarSelecao?: (direcao: number) => void;
     setGender?: (sexo: string) => void;
     proximaEtapa?: () => Promise<void>;
@@ -1010,7 +1015,11 @@ declare global {
   function atualizarPreview(): void;
   function verificarLimitePersonagem(): boolean;
   function abrirNpc(npcId: string): void;
-  function abrirNpc(npcId: string): void;
+  function selecionarNpcTown(npcId: string, ev?: Event): void;
+  function falarNpcTown(npcId: string, ev?: Event): void;
+  function limparSelecaoTownPlaza(ev?: Event): void;
+  function dismissTownPlazaCoach(ev?: Event): void;
+  function maybeShowPlazaNpcCoach(): void;
   function abrirMenuSocial(menu: string): void;
   var charName: string;
   var charClass: string;

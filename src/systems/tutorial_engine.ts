@@ -93,6 +93,7 @@ window.TutorialEngine = {
         hotbarTipSeen: false,
         expeditionTipSeen: false,
         consumablesTipSeen: false,
+        plazaNpcTipSeen: false,
       };
     }
   },
@@ -112,6 +113,7 @@ window.TutorialEngine = {
     if (lugar === 'cidade') {
       try {
         window.maybeShowMenuTownCoach?.();
+        window.maybeShowPlazaNpcCoach?.();
       } catch {
         /* ignore */
       }
