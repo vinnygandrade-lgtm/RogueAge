@@ -70,6 +70,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-26',
                         items: [
+                            'Enchanted weapons (+4 and up) now light the blade itself — colored sheen on the metal, sparks along the silhouette, and a stronger glow as the enchant climbs.',
+                            '+25 legendary weapons cycle through every enchant color, with a harder pulse and brighter sparks.',
                             'World is now a painted valley — tap Deepgrove, Banner Hill, Ashen Field, Crown Ring, or The Maw, then Enter.',
                             'Hunting grades open from Deepgrove in a panel; the map does not pick your zone.',
                             'Missions now includes an Ascension tab for the weekly elite hunt. Marketplace, Clan Hall, and Rankings live on the Social tab.'
@@ -3620,6 +3622,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-26',
                         items: [
+                            'Armas encantadas (+4 ou mais) agora acendem a lâmina — brilho na cor do enchant em cima do metal, faíscas na silhueta, e o efeito fica mais forte conforme o nível sobe.',
+                            'Armas +25 lendárias passam por todas as cores de enchant, com pulso mais forte e faíscas mais vivas.',
                             'O Mundo agora é um vale pintado — toca em Deepgrove, Banner Hill, Ashen Field, Crown Ring ou The Maw e depois em Entrar.',
                             'As grades de caça abrem num painel a partir de Deepgrove; o mapa não escolhe a zona.',
                             'Missões ganham a aba Ascensão da caça semanal. Mercado, Clã e Rankings ficam na aba Social.'

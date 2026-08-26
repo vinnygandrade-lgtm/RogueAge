@@ -132,6 +132,7 @@ export type PaperdollLayerRole =
   | 'weapon'
   | 'weaponGrip'
   | 'weaponGlow'
+  | 'weaponSheen'
   | 'hands';
 
 export interface PaperdollFeetScan {

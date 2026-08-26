@@ -27,6 +27,7 @@ const LEGACY_LAYER_IDS: Record<PaperdollLayerRole, string> = {
   weapon: 'char-weapon-layer',
   weaponGrip: 'char-weapon-grip-layer',
   weaponGlow: 'char-weapon-glow',
+  weaponSheen: 'char-weapon-sheen',
   hands: 'char-hands-layer',
 };
 
@@ -192,21 +193,22 @@ function _setSvgAuraParams(lvl: number, color: string): void {
   const floodCore = document.getElementById('pd-aura-flood-core');
 
   if (lvl >= 25) {
-    if (blurWide) blurWide.setAttribute('stdDeviation', '22');
-    if (blurMid) blurMid.setAttribute('stdDeviation', '11');
-    if (blurCore) blurCore.setAttribute('stdDeviation', '3.5');
+    if (blurWide) blurWide.setAttribute('stdDeviation', '26');
+    if (blurMid) blurMid.setAttribute('stdDeviation', '14');
+    if (blurCore) blurCore.setAttribute('stdDeviation', '4.2');
     if (floodWide) {
-      floodWide.setAttribute('flood-color', '#ef4444');
-      floodWide.setAttribute('flood-opacity', '0.55');
+      floodWide.setAttribute('flood-color', '#ff2a2a');
+      floodWide.setAttribute('flood-opacity', '0.78');
     }
     if (floodMid) {
-      floodMid.setAttribute('flood-color', '#facc15');
-      floodMid.setAttribute('flood-opacity', '0.85');
+      floodMid.setAttribute('flood-color', '#ff8a1a');
+      floodMid.setAttribute('flood-opacity', '0.95');
     }
     if (floodCore) {
-      floodCore.setAttribute('flood-color', '#fff8e7');
-      floodCore.setAttribute('flood-opacity', '0.95');
+      floodCore.setAttribute('flood-color', '#ffffff');
+      floodCore.setAttribute('flood-opacity', '1');
     }
+    _setSvgSheenParams(lvl, color);
     return;
   }
 
@@ -235,12 +237,105 @@ function _setSvgAuraParams(lvl: number, color: string): void {
     floodCore.setAttribute('flood-color', coreColor);
     floodCore.setAttribute('flood-opacity', opCore.toFixed(3));
   }
+  _setSvgSheenParams(lvl, color);
+}
+
+function _setSvgSheenParams(lvl: number, color: string): void {
+  const flood = document.getElementById('pd-sheen-flood');
+  const floodHot = document.getElementById('pd-sheen-flood-hot');
+  const blurHot = document.getElementById('pd-sheen-blur-hot');
+  const core = paperdollWeaponGlowCore(color);
+  if (lvl >= 25) {
+    if (flood) {
+      flood.setAttribute('flood-color', '#ff3b3b');
+      flood.setAttribute('flood-opacity', '0.88');
+    }
+    if (floodHot) {
+      floodHot.setAttribute('flood-color', '#ffffff');
+      floodHot.setAttribute('flood-opacity', '0.62');
+    }
+    if (blurHot) blurHot.setAttribute('stdDeviation', '1.35');
+    return;
+  }
+  const step = Math.max(0, Math.min(20, Math.floor(lvl) - 4));
+  const opFill = Math.min(0.74, 0.42 + step * 0.016);
+  const opHot = Math.min(0.48, 0.22 + step * 0.012);
+  if (flood) {
+    flood.setAttribute('flood-color', color);
+    flood.setAttribute('flood-opacity', opFill.toFixed(3));
+  }
+  if (floodHot) {
+    floodHot.setAttribute('flood-color', core);
+    floodHot.setAttribute('flood-opacity', opHot.toFixed(3));
+  }
+  if (blurHot) blurHot.setAttribute('stdDeviation', (0.6 + step * 0.025).toFixed(2));
+}
+
+const PAPERDOLL_SPARK_SLOTS = 14;
+
+type PaperdollWeaponFx = {
+  sheen: HTMLImageElement | null;
+  sparks: HTMLElement | null;
+};
+
+function _getPaperdollWeaponFx(root: Element | null | undefined): PaperdollWeaponFx {
+  if (!root) return { sheen: null, sparks: null };
+  const sheenEl = root.querySelector('[data-pd-layer="weaponSheen"]');
+  const sparksEl = root.querySelector('[data-pd-weapon-sparks]');
+  return {
+    sheen: sheenEl instanceof HTMLImageElement ? sheenEl : null,
+    sparks: sparksEl instanceof HTMLElement ? sparksEl : null,
+  };
+}
+
+function _ensurePaperdollWeaponFx(root: Element | null | undefined): PaperdollWeaponFx {
+  if (!root) return { sheen: null, sparks: null };
+  const stack = root.querySelector('.paperdoll-character-stack');
+  if (!(stack instanceof HTMLElement)) return { sheen: null, sparks: null };
+
+  const existingSheen = stack.querySelector('[data-pd-layer="weaponSheen"]');
+  let sheen: HTMLImageElement;
+  if (existingSheen instanceof HTMLImageElement) {
+    sheen = existingSheen;
+  } else {
+    sheen = document.createElement('img');
+    sheen.setAttribute('data-pd-layer', 'weaponSheen');
+    sheen.className = 'char-layer paperdoll-weapon-sheen-img';
+    sheen.alt = '';
+    sheen.hidden = true;
+    sheen.src = PAPERDOLL_BLANK_SRC;
+    const weapon = stack.querySelector('[data-pd-layer="weapon"]');
+    if (weapon) weapon.insertAdjacentElement('afterend', sheen);
+    else stack.appendChild(sheen);
+  }
+
+  const existingSparks = stack.querySelector('[data-pd-weapon-sparks]');
+  let sparks: HTMLElement;
+  if (existingSparks instanceof HTMLElement) {
+    sparks = existingSparks;
+  } else {
+    sparks = document.createElement('div');
+    sparks.setAttribute('data-pd-weapon-sparks', '');
+    sparks.className = 'paperdoll-weapon-sparks';
+    sparks.setAttribute('aria-hidden', 'true');
+    sparks.hidden = true;
+    for (let i = 0; i < PAPERDOLL_SPARK_SLOTS; i++) {
+      sparks.appendChild(document.createElement('span'));
+    }
+    stack.appendChild(sparks);
+  }
+  while (sparks.childElementCount < PAPERDOLL_SPARK_SLOTS) {
+    sparks.appendChild(document.createElement('span'));
+  }
+
+  return { sheen, sparks };
 }
 
 function _clearPaperdollWeaponAura(
   weaponLayer: PaperdollWeaponGlowEl | null,
   glowLayer: PaperdollAuraImgEl | null,
   weaponItem: EquipInstance | null | undefined,
+  root?: Element | null,
 ): void {
   if (weaponLayer) {
     weaponLayer._pdGlowSig = '';
@@ -254,11 +349,45 @@ function _clearPaperdollWeaponAura(
   }
   if (glowLayer) {
     glowLayer._pdAuraSig = '';
-    glowLayer.classList.remove('paperdoll-weapon-glow-img--on', 'char-layer--fist');
+    glowLayer.classList.remove(
+      'paperdoll-weapon-glow-img--on',
+      'paperdoll-weapon-glow-img--pulse-mid',
+      'paperdoll-weapon-glow-img--pulse-high',
+      'paperdoll-weapon-glow-img--divino',
+      'char-layer--fist',
+    );
     glowLayer.style.filter = 'none';
     glowLayer.style.animation = 'none';
     glowLayer.style.opacity = '';
     setPaperdollLayerVisible(glowLayer, false);
+  }
+  const host =
+    root ||
+    glowLayer?.closest('.l2-paperdoll') ||
+    weaponLayer?.closest('.l2-paperdoll') ||
+    null;
+  const fx = _getPaperdollWeaponFx(host);
+  if (fx.sheen) {
+    fx.sheen.classList.remove(
+      'paperdoll-weapon-sheen-img--on',
+      'paperdoll-weapon-glow-img--pulse-mid',
+      'paperdoll-weapon-glow-img--pulse-high',
+      'paperdoll-weapon-glow-img--divino',
+      'char-layer--fist',
+    );
+    fx.sheen.style.filter = 'none';
+    fx.sheen.style.animation = 'none';
+    fx.sheen.style.opacity = '';
+    setPaperdollLayerVisible(fx.sheen, false);
+  }
+  if (fx.sparks) {
+    fx.sparks.hidden = true;
+    fx.sparks.setAttribute('hidden', '');
+    fx.sparks.classList.remove(
+      'paperdoll-weapon-sparks--mid',
+      'paperdoll-weapon-sparks--high',
+      'paperdoll-weapon-sparks--divino',
+    );
   }
 }
 
@@ -293,6 +422,7 @@ function _applyPaperdollWeaponGlow(
 ): void {
   const weapon = weaponLayer as PaperdollWeaponGlowEl | null;
   const glow = _getPaperdollLayer(root, 'weaponGlow') as PaperdollAuraImgEl | null;
+  const fx = _ensurePaperdollWeaponFx(root);
 
   // Remove leftover CSS-mask host from earlier attempt (if present in old DOM).
   const legacyMask = root ? root.querySelector('[data-pd-weapon-aura]') : null;
@@ -301,7 +431,7 @@ function _applyPaperdollWeaponGlow(
   }
 
   if (!weapon || !weaponItem) {
-    _clearPaperdollWeaponAura(weapon, glow, weaponItem ?? null);
+    _clearPaperdollWeaponAura(weapon, glow, weaponItem ?? null, root);
     return;
   }
 
@@ -314,13 +444,13 @@ function _applyPaperdollWeaponGlow(
   lvl = Math.floor(lvl);
 
   if (lvl < 4) {
-    _clearPaperdollWeaponAura(weapon, glow, weaponItem);
+    _clearPaperdollWeaponAura(weapon, glow, weaponItem, root);
     return;
   }
 
   const color = window.getEnchantTierGlowColor(lvl);
   const srcHint = weapon.currentSrc || weapon.src || '';
-  const glowSig = 'svg-v1|' + lvl + '|' + color + '|' + srcHint;
+  const glowSig = 'svg-v5|' + lvl + '|' + color + '|' + srcHint;
 
   if (
     weapon._pdGlowSig === glowSig &&
@@ -332,6 +462,11 @@ function _applyPaperdollWeaponGlow(
     weapon.style.filter = 'none';
     weapon.style.opacity = '1';
     weapon.style.animation = 'none';
+    _setPaperdollEnchantPulseClasses(glow, lvl, 'paperdoll-weapon-glow-img--on');
+    if (fx.sheen) {
+      _setPaperdollEnchantPulseClasses(fx.sheen, lvl, 'paperdoll-weapon-sheen-img--on');
+    }
+    _setPaperdollWeaponSparks(fx.sparks, weapon, lvl, color);
     return;
   }
 
@@ -347,18 +482,199 @@ function _applyPaperdollWeaponGlow(
   if (!glow) return;
 
   if (!_syncGlowImgToWeapon(weapon, glow)) {
-    _clearPaperdollWeaponAura(null, glow, weaponItem);
+    _clearPaperdollWeaponAura(null, glow, weaponItem, root);
     weapon._pdGlowSig = '';
     return;
   }
 
   _setSvgAuraParams(lvl, color);
   glow._pdAuraSig = glowSig;
-  glow.classList.add('paperdoll-weapon-glow-img--on');
-  // Sharp weapon stays filter-free; glow img is only the SVG aura silhouette.
-  glow.style.filter = 'url(#pd-weapon-enchant-aura)';
-  glow.style.animation = 'none';
-  glow.style.opacity = '1';
+  // Rear bloom stays behind the sharp PNG; sheen copy paints the core ON the blade.
+  // +25: CSS owns filter (hue cycle + SVG). Lower tiers keep a static url() filter.
+  glow.style.filter = lvl >= 25 ? '' : 'url(#pd-weapon-enchant-aura)';
+  _setPaperdollEnchantPulseClasses(glow, lvl, 'paperdoll-weapon-glow-img--on');
+
+  if (fx.sheen && _syncGlowImgToWeapon(weapon, fx.sheen)) {
+    fx.sheen.style.filter = lvl >= 25 ? '' : 'url(#pd-weapon-enchant-sheen)';
+    _setPaperdollEnchantPulseClasses(fx.sheen, lvl, 'paperdoll-weapon-sheen-img--on');
+  }
+  _setPaperdollWeaponSparks(fx.sparks, weapon, lvl, color);
+}
+
+function _setPaperdollEnchantPulseClasses(el: HTMLElement, lvl: number, onClass: string): void {
+  el.classList.remove(
+    'paperdoll-weapon-glow-img--on',
+    'paperdoll-weapon-sheen-img--on',
+    'paperdoll-weapon-glow-img--pulse-mid',
+    'paperdoll-weapon-glow-img--pulse-high',
+    'paperdoll-weapon-glow-img--divino',
+  );
+  el.classList.add(onClass);
+  if (lvl >= 25) {
+    el.classList.add('paperdoll-weapon-glow-img--divino');
+  } else if (lvl >= 16) {
+    el.classList.add('paperdoll-weapon-glow-img--pulse-high');
+  } else if (lvl >= 10) {
+    el.classList.add('paperdoll-weapon-glow-img--pulse-mid');
+  }
+  el.style.animation = '';
+  el.style.opacity = '';
+}
+
+function _sparkCountForEnchant(lvl: number): number {
+  if (lvl >= 25) return 14;
+  if (lvl >= 20) return 12;
+  if (lvl >= 16) return 10;
+  if (lvl >= 10) return 8;
+  return 5;
+}
+
+type WeaponSparkPoint = { x: number; y: number };
+
+const _pdWeaponSparkCache: Record<string, WeaponSparkPoint[]> = {};
+
+const _PD_WEAPON_SPARK_FALLBACK: WeaponSparkPoint[] = [
+  { x: 0.22, y: 0.62 },
+  { x: 0.27, y: 0.56 },
+  { x: 0.18, y: 0.68 },
+  { x: 0.31, y: 0.5 },
+  { x: 0.24, y: 0.58 },
+  { x: 0.16, y: 0.72 },
+  { x: 0.29, y: 0.54 },
+  { x: 0.2, y: 0.64 },
+  { x: 0.33, y: 0.46 },
+  { x: 0.26, y: 0.6 },
+  { x: 0.19, y: 0.7 },
+  { x: 0.28, y: 0.52 },
+  { x: 0.23, y: 0.66 },
+  { x: 0.3, y: 0.48 },
+];
+
+/** Sample opaque edge pixels of the weapon overlay so sparks sit on the blade, not the sky. */
+function _scanWeaponSparkPoints(imgEl: HTMLImageElement, want: number): WeaponSparkPoint[] {
+  const need = Math.max(1, Math.min(PAPERDOLL_SPARK_SLOTS, want));
+  const cacheKey =
+    (imgEl.currentSrc || imgEl.src) +
+    '|' +
+    imgEl.naturalWidth +
+    'x' +
+    imgEl.naturalHeight +
+    '|spk-' +
+    need;
+  const hit = _pdWeaponSparkCache[cacheKey];
+  if (hit && hit.length) return hit;
+
+  if (!imgEl.complete || (imgEl.naturalWidth || 0) <= 1) {
+    return _PD_WEAPON_SPARK_FALLBACK.slice(0, need);
+  }
+
+  const nw = imgEl.naturalWidth;
+  const nh = imgEl.naturalHeight;
+  const maxW = 220;
+  const cw = nw > maxW ? maxW : nw;
+  const ch = Math.max(1, Math.round(nh * (cw / nw)));
+  const canvas = document.createElement('canvas');
+  canvas.width = cw;
+  canvas.height = ch;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) return _PD_WEAPON_SPARK_FALLBACK.slice(0, need);
+  try {
+    ctx.drawImage(imgEl, 0, 0, cw, ch);
+  } catch {
+    return _PD_WEAPON_SPARK_FALLBACK.slice(0, need);
+  }
+
+  let data: Uint8ClampedArray;
+  try {
+    data = ctx.getImageData(0, 0, cw, ch).data;
+  } catch {
+    return _PD_WEAPON_SPARK_FALLBACK.slice(0, need);
+  }
+
+  const alphaMin = 40;
+  const edges: WeaponSparkPoint[] = [];
+  const interior: WeaponSparkPoint[] = [];
+  const step = Math.max(1, Math.floor(Math.min(cw, ch) / 90));
+  for (let y = 1; y < ch - 1; y += step) {
+    for (let x = 1; x < cw - 1; x += step) {
+      const a = data[(y * cw + x) * 4 + 3]!;
+      if (a < alphaMin) continue;
+      const n = data[((y - 1) * cw + x) * 4 + 3]!;
+      const s = data[((y + 1) * cw + x) * 4 + 3]!;
+      const w = data[(y * cw + (x - 1)) * 4 + 3]!;
+      const e = data[(y * cw + (x + 1)) * 4 + 3]!;
+      const pt = { x: (x + 0.5) / cw, y: (y + 0.5) / ch };
+      if (n < alphaMin || s < alphaMin || w < alphaMin || e < alphaMin) {
+        edges.push(pt);
+      } else {
+        interior.push(pt);
+      }
+    }
+  }
+
+  const pool = edges.length >= need ? edges : edges.concat(interior);
+  if (!pool.length) return _PD_WEAPON_SPARK_FALLBACK.slice(0, need);
+
+  pool.sort((a, b) => a.x + a.y - (b.x + b.y));
+  const picked: WeaponSparkPoint[] = [];
+  const last = pool.length - 1;
+  for (let i = 0; i < need; i++) {
+    const idx = need === 1 ? 0 : Math.round((i * last) / (need - 1));
+    picked.push(pool[idx]!);
+  }
+  _pdWeaponSparkCache[cacheKey] = picked;
+  return picked;
+}
+
+function _setPaperdollWeaponSparks(
+  sparks: HTMLElement | null,
+  weaponLayer: HTMLImageElement | null,
+  lvl: number,
+  color: string,
+): void {
+  if (!sparks) return;
+  sparks.classList.remove(
+    'paperdoll-weapon-sparks--mid',
+    'paperdoll-weapon-sparks--high',
+    'paperdoll-weapon-sparks--divino',
+  );
+  sparks.style.setProperty('--pd-enchant-glow', color);
+  sparks.style.setProperty('--pd-enchant-core', paperdollWeaponGlowCore(color));
+  if (lvl >= 25) {
+    sparks.classList.add('paperdoll-weapon-sparks--divino');
+  } else if (lvl >= 16) {
+    sparks.classList.add('paperdoll-weapon-sparks--high');
+  } else if (lvl >= 10) {
+    sparks.classList.add('paperdoll-weapon-sparks--mid');
+  }
+
+  const want = _sparkCountForEnchant(lvl);
+  const points =
+    weaponLayer && !_isPaperdollBlankLayer(weaponLayer)
+      ? _scanWeaponSparkPoints(weaponLayer, want)
+      : _PD_WEAPON_SPARK_FALLBACK.slice(0, want);
+
+  const spans = sparks.querySelectorAll('span');
+  for (let i = 0; i < spans.length; i++) {
+    const span = spans[i] as HTMLElement;
+    const p = points[i];
+    if (!p) {
+      span.style.display = 'none';
+      continue;
+    }
+    span.style.display = 'block';
+    span.style.left = (p.x * 100).toFixed(2) + '%';
+    span.style.top = (p.y * 100).toFixed(2) + '%';
+    span.style.setProperty('--spark-rot', String(-58 + ((i * 47) % 86)) + 'deg');
+    span.style.animationDelay = (i * (lvl >= 25 ? 0.12 : 0.18)).toFixed(2) + 's';
+    span.style.animationDuration =
+      lvl >= 25
+        ? (1.15 + (i % 5) * 0.16).toFixed(2) + 's'
+        : (1.7 + (i % 5) * 0.28).toFixed(2) + 's';
+  }
+
+  sparks.hidden = false;
+  sparks.removeAttribute('hidden');
 }
 
 type PaperdollRootEl = HTMLElement & {
@@ -528,6 +844,14 @@ function _refreshPaperdollRoot(
 
   if (layerGlow) {
     setPaperdollLayerVisible(layerGlow, false);
+  }
+  const rebuildFx = _getPaperdollWeaponFx(root);
+  if (rebuildFx.sheen) {
+    setPaperdollLayerVisible(rebuildFx.sheen, false);
+  }
+  if (rebuildFx.sparks) {
+    rebuildFx.sparks.hidden = true;
+    rebuildFx.sparks.setAttribute('hidden', '');
   }
 
   const layerHands = _getPaperdollLayer(root, 'hands');

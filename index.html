@@ -86,6 +86,18 @@
                     <feMergeNode in="glowCore"/>
                 </feMerge>
             </filter>
+            <!-- Solid tint ON the blade pixels (not a second halo). Tuned in ui_paperdoll.ts -->
+            <filter id="pd-weapon-enchant-sheen" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+                <feFlood id="pd-sheen-flood" flood-color="#facc15" flood-opacity="0.58" result="floodTint"/>
+                <feComposite in="floodTint" in2="SourceAlpha" operator="in" result="tint"/>
+                <feFlood id="pd-sheen-flood-hot" flood-color="#fff8e7" flood-opacity="0.32" result="floodHot"/>
+                <feComposite in="floodHot" in2="SourceAlpha" operator="in" result="hotFill"/>
+                <feGaussianBlur id="pd-sheen-blur-hot" in="hotFill" stdDeviation="0.8" result="hotSoft"/>
+                <feMerge>
+                    <feMergeNode in="tint"/>
+                    <feMergeNode in="hotSoft"/>
+                </feMerge>
+            </filter>
         </defs>
     </svg>
     <div id="loading-overlay" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-busy="true" aria-live="polite">

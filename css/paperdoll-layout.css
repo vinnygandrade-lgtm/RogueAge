@@ -336,7 +336,7 @@
     pointer-events: none;
 }
 
-.l2-paperdoll .paperdoll-character-stack .char-layer:not([hidden]):not(#char-weapon-layer):not([data-pd-layer="weapon"]):not(#char-weapon-glow):not([data-pd-layer="weaponGlow"]):not(#char-select-weapon-glow) {
+.l2-paperdoll .paperdoll-character-stack .char-layer:not([hidden]):not(#char-weapon-layer):not([data-pd-layer="weapon"]):not(#char-weapon-glow):not([data-pd-layer="weaponGlow"]):not(#char-select-weapon-glow):not([data-pd-layer="weaponSheen"]) {
     filter: none !important;
     animation: none !important;
 }
@@ -355,7 +355,7 @@
     --pd-layer-ty: var(--pd-off-armor-y, 0px);
 }
 
-/* Glow copy (SVG filter) behind sharp weapon */
+/* Glow copy (SVG filter) behind sharp weapon — pulse is on --on below */
 .l2-paperdoll .paperdoll-character-stack #char-weapon-glow.char-layer:not([hidden]),
 .l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGlow"].char-layer:not([hidden]),
 .l2-paperdoll .paperdoll-character-stack #char-select-weapon-glow.char-layer:not([hidden]) {
@@ -364,8 +364,6 @@
     --pd-layer-ty: var(--pd-off-weapon-y, 0px);
     overflow: visible;
     pointer-events: none;
-    opacity: 1;
-    animation: none !important;
 }
 
 .l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer:not([hidden]),
@@ -378,28 +376,42 @@
     filter: none !important;
 }
 
+/* Tight sheen ON TOP of the sharp weapon PNG (hands/grip stay above) */
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponSheen"].char-layer:not([hidden]) {
+    z-index: 5;
+    --pd-layer-tx: var(--pd-off-weapon-x, 0px);
+    --pd-layer-ty: var(--pd-off-weapon-y, 0px);
+    overflow: visible;
+    pointer-events: none;
+    mix-blend-mode: normal;
+}
+
 .l2-paperdoll .paperdoll-character-stack #char-weapon-grip-layer.char-layer:not([hidden]),
 .l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGrip"].char-layer:not([hidden]) {
-    z-index: 5;
+    z-index: 6;
     --pd-layer-tx: var(--pd-off-weapon-grip-x, 0px);
     --pd-layer-ty: var(--pd-off-weapon-grip-y, 0px);
 }
 
 .l2-paperdoll .paperdoll-character-stack #char-hands-layer.char-layer:not([hidden]),
 .l2-paperdoll .paperdoll-character-stack [data-pd-layer="hands"].char-layer:not([hidden]) {
-    z-index: 6;
+    z-index: 7;
     --pd-layer-tx: var(--pd-off-hands-x, 0px);
     --pd-layer-ty: var(--pd-off-hands-y, 0px);
 }
 
-.l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer.char-layer--fist:not([hidden]),
-.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer.char-layer--fist:not([hidden]) {
+.l2-paperdoll .paperdoll-character-stack #char-weapon-glow.char-layer.char-layer--fist:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGlow"].char-layer.char-layer--fist:not([hidden]) {
     z-index: 7;
 }
 
-.l2-paperdoll .paperdoll-character-stack #char-weapon-glow.char-layer.char-layer--fist:not([hidden]),
-.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponGlow"].char-layer.char-layer--fist:not([hidden]) {
-    z-index: 6;
+.l2-paperdoll .paperdoll-character-stack #char-weapon-layer.char-layer.char-layer--fist:not([hidden]),
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weapon"].char-layer.char-layer--fist:not([hidden]) {
+    z-index: 8;
+}
+
+.l2-paperdoll .paperdoll-character-stack [data-pd-layer="weaponSheen"].char-layer.char-layer--fist:not([hidden]) {
+    z-index: 9;
 }
 
 .l2-paperdoll .paperdoll-character-stack .char-layer[hidden] {
@@ -412,14 +424,201 @@
     pointer-events: none !important;
 }
 
-/* Allow SVG filter on the glow img (do not zero filter here) */
+/* Allow SVG filter on the glow img; opacity pulse like World Maw cave (not the sharp weapon) */
 .l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-glow-img--on:not([hidden]) {
     display: block !important;
     visibility: visible !important;
     width: 100% !important;
     height: 100% !important;
-    opacity: 1 !important;
     overflow: visible !important;
+    --pd-glow-pulse-lo: 0.62;
+    animation: pd-weapon-enchant-pulse 2.8s ease-in-out infinite;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-glow-img--on.paperdoll-weapon-glow-img--pulse-mid:not([hidden]) {
+    --pd-glow-pulse-lo: 0.54;
+    animation-duration: 2.5s;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-glow-img--on.paperdoll-weapon-glow-img--pulse-high:not([hidden]) {
+    --pd-glow-pulse-lo: 0.48;
+    animation-duration: 2.3s;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-glow-img--on.paperdoll-weapon-glow-img--divino:not([hidden]) {
+    --pd-glow-pulse-lo: 0.38;
+    animation:
+        pd-weapon-enchant-pulse 1.35s ease-in-out infinite,
+        pd-legendary-glow-hue 5.2s linear infinite;
+    filter: url(#pd-weapon-enchant-aura) hue-rotate(0deg) saturate(1.45) brightness(1.1);
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sheen-img--on:not([hidden]) {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: visible !important;
+    mix-blend-mode: normal;
+    --pd-sheen-pulse-lo: 0.48;
+    animation: pd-weapon-sheen-pulse 2.6s ease-in-out infinite;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sheen-img--on.paperdoll-weapon-glow-img--pulse-mid:not([hidden]) {
+    --pd-sheen-pulse-lo: 0.58;
+    animation-duration: 2.3s;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sheen-img--on.paperdoll-weapon-glow-img--pulse-high:not([hidden]) {
+    --pd-sheen-pulse-lo: 0.66;
+    animation-duration: 2.1s;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sheen-img--on.paperdoll-weapon-glow-img--divino:not([hidden]) {
+    --pd-sheen-pulse-lo: 0.52;
+    animation:
+        pd-weapon-sheen-pulse-legend 1.35s ease-in-out infinite,
+        pd-legendary-sheen-hue 5.2s linear infinite;
+    filter: url(#pd-weapon-enchant-sheen) hue-rotate(0deg) saturate(1.5) brightness(1.12);
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none;
+    overflow: visible;
+    opacity: 0.85;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks[hidden] {
+    display: none !important;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks--mid {
+    opacity: 0.95;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks--high,
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks--divino {
+    opacity: 1;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks--divino {
+    animation: pd-legendary-spark-hue 4.8s linear infinite;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks span {
+    position: absolute;
+    width: 2px;
+    height: 13px;
+    margin-left: -1px;
+    margin-top: -11px;
+    border-radius: 1px;
+    background: linear-gradient(
+        180deg,
+        #fff 0%,
+        var(--pd-enchant-core, #fff8e7) 26%,
+        var(--pd-enchant-glow, #facc15) 58%,
+        transparent 100%
+    );
+    box-shadow:
+        0 0 3px var(--pd-enchant-core, #fff8e7),
+        0 0 7px var(--pd-enchant-glow, #facc15);
+    opacity: 0;
+    transform-origin: 50% 100%;
+    animation: pd-weapon-spark 2.4s ease-out infinite;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks span::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 14%;
+    width: 9px;
+    height: 2px;
+    margin-left: -4.5px;
+    border-radius: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        #fff 42%,
+        var(--pd-enchant-core, #fff8e7) 52%,
+        transparent 100%
+    );
+    box-shadow: 0 0 3px var(--pd-enchant-core, #fff8e7);
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks span:nth-child(even) {
+    height: 10px;
+    margin-top: -8px;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks span:nth-child(even)::before {
+    width: 7px;
+    margin-left: -3.5px;
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks--divino span {
+    height: 18px;
+    margin-top: -16px;
+    box-shadow:
+        0 0 4px #fff,
+        0 0 8px var(--pd-enchant-core, #fff8e7),
+        0 0 14px var(--pd-enchant-glow, #facc15);
+}
+
+.l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks--divino span::before {
+    width: 11px;
+    margin-left: -5.5px;
+}
+
+.l2-paperdoll--class-transfer .paperdoll-weapon-sparks {
+    display: none !important;
+}
+
+@keyframes pd-weapon-enchant-pulse {
+    0%, 100% { opacity: var(--pd-glow-pulse-lo, 0.62); }
+    50% { opacity: 1; }
+}
+
+@keyframes pd-weapon-sheen-pulse {
+    0%, 100% { opacity: var(--pd-sheen-pulse-lo, 0.48); }
+    50% { opacity: 0.92; }
+}
+
+@keyframes pd-weapon-sheen-pulse-legend {
+    0%, 100% { opacity: 0.48; }
+    50% { opacity: 1; }
+}
+
+@keyframes pd-legendary-glow-hue {
+    0%   { filter: url(#pd-weapon-enchant-aura) hue-rotate(0deg) saturate(1.4) brightness(1.08); }
+    50%  { filter: url(#pd-weapon-enchant-aura) hue-rotate(180deg) saturate(1.6) brightness(1.22); }
+    100% { filter: url(#pd-weapon-enchant-aura) hue-rotate(360deg) saturate(1.4) brightness(1.08); }
+}
+
+@keyframes pd-legendary-sheen-hue {
+    0%   { filter: url(#pd-weapon-enchant-sheen) hue-rotate(0deg) saturate(1.45) brightness(1.1); }
+    50%  { filter: url(#pd-weapon-enchant-sheen) hue-rotate(180deg) saturate(1.65) brightness(1.22); }
+    100% { filter: url(#pd-weapon-enchant-sheen) hue-rotate(360deg) saturate(1.45) brightness(1.1); }
+}
+
+@keyframes pd-legendary-spark-hue {
+    0%   { filter: hue-rotate(0deg) saturate(1.5) brightness(1.12); }
+    100% { filter: hue-rotate(360deg) saturate(1.65) brightness(1.18); }
+}
+
+@keyframes pd-weapon-spark {
+    0% {
+        opacity: 0;
+        transform: rotate(var(--spark-rot, -32deg)) translateY(4px) scaleY(0.4);
+    }
+    14% { opacity: 1; }
+    100% {
+        opacity: 0;
+        transform: rotate(var(--spark-rot, -32deg)) translateY(-16px) scaleY(1.35);
+    }
 }
 
 @keyframes pulse-weapon-aura-paperdoll {
@@ -428,6 +627,32 @@
 
 @keyframes weapon-divino-paperdoll-global {
     0%, 100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-glow-img--on:not([hidden]) {
+        animation: none;
+        opacity: 0.88;
+    }
+    .l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sheen-img--on:not([hidden]) {
+        animation: none;
+        opacity: 0.7;
+    }
+    .l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-glow-img--on.paperdoll-weapon-glow-img--divino:not([hidden]) {
+        filter: url(#pd-weapon-enchant-aura) saturate(1.35) brightness(1.12);
+    }
+    .l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sheen-img--on.paperdoll-weapon-glow-img--divino:not([hidden]) {
+        filter: url(#pd-weapon-enchant-sheen) saturate(1.4) brightness(1.12);
+    }
+    .l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks--divino {
+        animation: none;
+        filter: saturate(1.4);
+    }
+    .l2-paperdoll .paperdoll-character-stack .paperdoll-weapon-sparks span {
+        animation: none;
+        opacity: 0.4;
+        transform: none;
+    }
 }
 
 /* Legado: colunas antigas sem modificador */
