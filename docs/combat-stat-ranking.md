@@ -1,6 +1,6 @@
 # Combat Stat Ranking (Status Rankings)
 
-Server-sorted ladder of **real player** combat totals. Open from Quick Menu → **Rankings** (`#janela-stat-ranking`).
+Server-sorted ladder of **real player** combat totals. Open from the **Social** tab → **Rankings** (`#janela-stat-ranking`).
 
 ## Flow
 
@@ -30,7 +30,7 @@ Script: `supabase_combat_stat_ranking.sql` (also MASTER §5I).
 | API | `SupabaseAPI.upsertCombatStatSnapshot` / `getCombatStatRanking` |
 | Sync hook | `src/systems/cloud_sync.ts` after successful save |
 | UI | `src/ui/ui_stat_ranking.ts` |
-| Nav | `navMenuGo('statRanking')` in `ui_nav_menu.ts` |
+| Nav | Social hub card → `abrirStatRanking()` (`ui_stat_ranking.ts`); `navMenuGo('statRanking')` still works as a leftover bridge |
 | i18n | `navMenu.statRanking`, `game.statRanking.*` |
 
 ## Honesty (§12.7)

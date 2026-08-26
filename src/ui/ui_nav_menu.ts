@@ -2,7 +2,9 @@
 
  * Quick Menu da barra inferior (#janela-nav-menu) — destinos secundários:
 
- * Community Hub, Marketplace, Clan Hall, Mailbox, Missões, Settings.
+ * Mailbox, Missões, Conquistas, Olympiad, Guerra de Clãs, Settings.
+
+ * Mercado, Clã e Rankings vivem na aba Social (`#btn-tab-social`).
 
  * Usa a pilha de modais partilhada (abrirModal/fecharModal — §5 do GDD).
 
@@ -119,14 +121,6 @@ function syncNavMenuActiveItem(): void {
 
     }
 
-    if (modalIsOpen('janela-stat-ranking')) {
-
-        document.getElementById('nav-menu-stat-ranking')?.classList.add('nav-menu-item--active');
-
-        return;
-
-    }
-
     if (modalIsOpen('janela-game-settings')) {
 
         document.getElementById('nav-menu-settings')?.classList.add('nav-menu-item--active');
@@ -140,32 +134,6 @@ function syncNavMenuActiveItem(): void {
         document.getElementById('nav-menu-olympiad')?.classList.add('nav-menu-item--active');
 
         return;
-
-    }
-
-    if (!socialScreenVisible()) return;
-
-
-
-    if (panelIsVisible('menu-social-market')) {
-
-        document.getElementById('nav-menu-market')?.classList.add('nav-menu-item--active');
-
-        return;
-
-    }
-
-    if (panelIsVisible('menu-social-clans')) {
-
-        document.getElementById('nav-menu-clans')?.classList.add('nav-menu-item--active');
-
-        return;
-
-    }
-
-    if (panelIsVisible('praca-social')) {
-
-        document.getElementById('nav-menu-social')?.classList.add('nav-menu-item--active');
 
     }
 
@@ -223,11 +191,9 @@ function syncTravelTabFromVisibleScreen(): void {
 
     let tabId: string | null = null;
 
-    if (lugar === 'social') tabId = 'btn-tab-menu';
+    if (lugar === 'floresta') tabId = 'btn-tab-world';
 
-    else if (lugar === 'floresta') tabId = 'btn-tab-world';
-
-    else if (['perfil', 'cidade', 'world', 'inventario'].includes(lugar)) tabId = `btn-tab-${lugar}`;
+    else if (['perfil', 'cidade', 'world', 'social', 'inventario'].includes(lugar)) tabId = `btn-tab-${lugar}`;
 
 
 
@@ -511,20 +477,10 @@ function navMenuGo(dest: string): void {
 
             setTimeout(() => {
 
-                const card = document.getElementById('card-clan-war-world');
-
-                if (card && card.style.display !== 'none' && window.ClanWarEngine?.abrirLobby) {
-
+                if (typeof window.entrarDestinoWorld === 'function') {
+                    window.entrarDestinoWorld('clanwar');
+                } else if (window.ClanWarEngine?.abrirLobby) {
                     window.ClanWarEngine.abrirLobby();
-
-                } else if (card) {
-
-                    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-                    card.classList.add('glow-yellow');
-
-                    window.setTimeout(() => card.classList.remove('glow-yellow'), 1600);
-
                 }
 
                 syncNavMenuActiveItem();

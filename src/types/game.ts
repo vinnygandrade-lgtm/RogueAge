@@ -722,6 +722,8 @@ export interface EndgamePursuitsApi {
   claimWeeklyEliteHunt: () => Promise<void>;
   openEndgamePursuits: () => void;
   closeEndgamePursuits: () => void;
+  mountEndgamePanel: () => void;
+  countClaimableWeeklyHunt: () => number;
   refreshEndgamePanelUI: () => void;
   refreshPublicAscensionHUD: () => void;
   getRenown: () => number;
@@ -1436,7 +1438,7 @@ export interface WeeklyMissionsSaveData {
   historicoEncerrado: DailyMissionRotationRecord[];
 }
 
-export type MissionsHubTab = 'daily' | 'weekly';
+export type MissionsHubTab = 'daily' | 'weekly' | 'ascension';
 
 export interface RaidParticipant {
   nome: string;

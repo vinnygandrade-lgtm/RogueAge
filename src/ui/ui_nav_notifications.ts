@@ -1,6 +1,7 @@
 /**
  * Notificações do Quick Menu — badge no tab MENU + badges por destino.
  * Fontes: mailbox, rewards GM, missões, conquistas, patentes Olympiad, guerra de clãs (líder).
+ * Mercado / clã / rankings não entram aqui — vivem na aba Social.
  */
 
 interface NavMenuNotifState {
@@ -200,9 +201,9 @@ function refreshNavMenuNotifications(partial?: Partial<NavMenuNotifState>): void
 }
 
 function syncWorldCardNotifs(): void {
-  const olyCard = document.getElementById('card-olympiad-world');
+  const olyCard = document.querySelector('.world-map-actor--olympiad');
   const olyPill = document.getElementById('world-notif-olympiad');
-  const cwCard = document.getElementById('card-clan-war-world');
+  const cwCard = document.querySelector('.world-map-actor--clanwar');
   const cwPill = document.getElementById('world-notif-clanwar');
 
   if (olyPill) {
@@ -224,7 +225,7 @@ function syncWorldCardNotifs(): void {
       olyPill.removeAttribute('aria-label');
     }
   }
-  olyCard?.classList.toggle('adv-card--has-notif', state.olympiad > 0);
+  olyCard?.classList.toggle('world-map-actor--has-notif', state.olympiad > 0);
 
   if (cwPill) {
     if (state.clanWar > 0) {
@@ -241,7 +242,7 @@ function syncWorldCardNotifs(): void {
       cwPill.removeAttribute('aria-label');
     }
   }
-  cwCard?.classList.toggle('adv-card--has-notif', state.clanWar > 0);
+  cwCard?.classList.toggle('world-map-actor--has-notif', state.clanWar > 0);
 }
 
 /** Animação curta quando chega recompensa GM nova (reward_engine). */

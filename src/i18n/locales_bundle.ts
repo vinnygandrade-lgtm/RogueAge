@@ -68,6 +68,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-26',
+                        items: [
+                            'World is now a painted valley — tap Deepgrove, Banner Hill, Ashen Field, Crown Ring, or The Maw, then Enter.',
+                            'Hunting grades open from Deepgrove in a panel; the map does not pick your zone.',
+                            'Missions now includes an Ascension tab for the weekly elite hunt. Marketplace, Clan Hall, and Rankings live on the Social tab.'
+                        ]
+                    },
+                    {
                         date: '2026-08-23',
                         items: [
                             'Town Square is now a painted plaza — tap Kael, Brann, Lirien, Vex, or Soren, then Speak.',
@@ -279,7 +287,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 consumablesTitle: 'Potions & shots',
                 consumablesBody: 'That little bar above your skills is HP, MP, and shots. Hit AUTO on the shot so it fires every attack.',
                 menuTownTitle: 'Quick Menu',
-                menuTownBody: 'MENU is your shortcut for mail, daily missions, market, and the rest. Peek when you can.',
+                menuTownBody: 'MENU is your shortcut for mail, daily missions, and settings. Marketplace and clan live on the Social tab.',
                 mailboxTitle: 'Mail waiting',
                 mailboxBody: 'You have mail! Open MENU → Mailbox and claim your stuff.',
                 missionsTitle: 'Missions ready',
@@ -683,9 +691,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     s9Title: 'Consumables',
                     s9Body: 'HP, MP, and shots sit on the bar above your skills. Tap HP when you\'re low — use AUTO on the shot to fire every attack.',
                     s10Title: 'Quick Menu',
-                    s10Body: 'Tap MENU anytime for mailbox, daily missions, marketplace, and settings.',
+                    s10Body: 'Tap MENU anytime for mailbox, daily missions, and settings. Marketplace is on the Social tab.',
                     s11Title: 'Quick Menu',
-                    s11Body: 'Tap MENU anytime for mailbox, daily missions, marketplace, and settings.',
+                    s11Body: 'Tap MENU anytime for mailbox, daily missions, and settings. Marketplace is on the Social tab.',
                     next: 'Next',
                     back: 'Back',
                     skip: 'Skip tour',
@@ -1391,6 +1399,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     modalTitle: 'MISSIONS',
                     tabDaily: 'Daily',
                     tabWeekly: 'Weekly',
+                    tabAscension: 'Ascension',
+                    ascensionHint: 'After S-Grade: weekly elite hunt, seasons, and renown. Hunt in the wilds — claim here.',
                     skipBtn: 'SKIP',
                     skipUsed: 'SKIPPED',
                     skipConfirm: 'Skip "{title}" and replace it with another mission from the same group? You can only do this once per mission.',
@@ -2476,7 +2486,26 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     badgeMeta: 'META',
                     cardAscensionTitle: 'Ascension',
                     cardAscensionDesc: 'After S-Grade: weekly elite hunt, seasons, renown.',
-                    loadingCard: 'Loading…'
+                    loadingCard: 'Loading…',
+                    map: {
+                        title: 'THE VALLEY',
+                        enter: 'Enter',
+                        selectHint: 'Choose a destination',
+                        zonesTitle: 'HUNTING ZONES',
+                        forest: 'Deepgrove',
+                        forestRole: 'Expedition',
+                        daily: 'Ashen Field',
+                        dailyRole: 'Daily Boss',
+                        clanwar: 'Banner Hill',
+                        clanwarRole: 'Clan War',
+                        olympiad: 'Crown Ring',
+                        olympiadRole: 'Olympiad',
+                        raid: 'The Maw',
+                        raidRole: 'World Raid',
+                        clanWarNeedClan: 'Join a clan to march to war.',
+                        clanWarLeaderOnly: 'Only the clan leader can open the war camp.',
+                        expeditionActive: 'ACTIVE'
+                    }
                 },
                 zones: {
                     modalTitle: 'Zone details',
@@ -3233,6 +3262,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     tierNone: 'None',
                     inspectDetailsUnavailable: 'Details unavailable.',
                     roleClanHall: 'Clan hall',
+                    roleRankings: 'Rankings',
+                    roleRankingsHint: 'Combat ladder',
                     inspectClose: 'CLOSE',
                     inspectLoadingTitle: 'Inspecting',
                     inspectLoadingHint: 'Fetching gear and combat stats…',
@@ -3587,6 +3618,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: 'Novidades',
                 entries: [
                     {
+                        date: '2026-08-26',
+                        items: [
+                            'O Mundo agora é um vale pintado — toca em Deepgrove, Banner Hill, Ashen Field, Crown Ring ou The Maw e depois em Entrar.',
+                            'As grades de caça abrem num painel a partir de Deepgrove; o mapa não escolhe a zona.',
+                            'Missões ganham a aba Ascensão da caça semanal. Mercado, Clã e Rankings ficam na aba Social.'
+                        ]
+                    },
+                    {
                         date: '2026-08-23',
                         items: [
                             'A Praça da Cidade agora é um palco pintado — toca no Kael, Brann, Lirien, Vex ou Soren e depois em Falar.',
@@ -3757,7 +3796,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 profile: 'PERFIL',
                 town: 'CIDADE',
                 world: 'MUNDO',
-                bag: 'MOCHILA',
+                bag: 'BOLSA',
                 social: 'SOCIAL',
                 menu: 'MENU'
             },
@@ -3798,7 +3837,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 consumablesTitle: 'Poções e shots',
                 consumablesBody: 'Aquela barrinha em cima das skills é HP, MP e shot. Liga o AUTO no shot que ele dispara sozinho.',
                 menuTownTitle: 'Menu rápido',
-                menuTownBody: 'O MENU é teu atalho pro correio, missões, mercado e o resto. Dá uma olhada quando puder.',
+                menuTownBody: 'O MENU é teu atalho pro correio, missões e configurações. Mercado e clã ficam na aba Social.',
                 mailboxTitle: 'Tem correio!',
                 mailboxBody: 'Chegou carta pra você. Abre MENU → Correio e resgata logo.',
                 missionsTitle: 'Missões te esperando',
@@ -4202,9 +4241,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     s9Title: 'Consumíveis',
                     s9Body: 'HP, MP e shots ficam na barra acima das skills. Toca em HP se baixar — e usa AUTO no shot para disparar a cada ataque.',
                     s10Title: 'Menu rápido',
-                    s10Body: 'Toca em MENU a qualquer momento para correio, missões diárias, mercado e configurações.',
+                    s10Body: 'Toca em MENU a qualquer momento para correio, missões diárias e configurações. O mercado fica na aba Social.',
                     s11Title: 'Menu rápido',
-                    s11Body: 'Toca em MENU a qualquer momento para correio, missões diárias, mercado e configurações.',
+                    s11Body: 'Toca em MENU a qualquer momento para correio, missões diárias e configurações. O mercado fica na aba Social.',
                     next: 'Próximo',
                     back: 'Voltar',
                     skip: 'Pular tour',
@@ -4910,6 +4949,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     modalTitle: 'MISSÕES',
                     tabDaily: 'Diárias',
                     tabWeekly: 'Semanais',
+                    tabAscension: 'Ascensão',
+                    ascensionHint: 'Depois do S-Grade: caça elite semanal, temporadas e renome. A caça é no mundo — o resgate é aqui.',
                     skipBtn: 'PULAR',
                     skipUsed: 'PULADA',
                     skipConfirm: 'Pular "{title}" e trocar por outra missão do mesmo grupo? Só pode fazer isso uma vez por missão.',
@@ -5995,7 +6036,26 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     badgeMeta: 'META',
                     cardAscensionTitle: 'Ascensão',
                     cardAscensionDesc: 'Depois do S-Grade: caça elite semanal, temporadas, renome.',
-                    loadingCard: 'Carregando…'
+                    loadingCard: 'Carregando…',
+                    map: {
+                        title: 'O VALE',
+                        enter: 'Entrar',
+                        selectHint: 'Escolhe um destino',
+                        zonesTitle: 'ZONAS DE CAÇA',
+                        forest: 'Deepgrove',
+                        forestRole: 'Expedição',
+                        daily: 'Ashen Field',
+                        dailyRole: 'Boss diário',
+                        clanwar: 'Banner Hill',
+                        clanwarRole: 'Guerra de Clãs',
+                        olympiad: 'Crown Ring',
+                        olympiadRole: 'Olimpíada',
+                        raid: 'The Maw',
+                        raidRole: 'Raid mundial',
+                        clanWarNeedClan: 'Entra num clã para marchar para a guerra.',
+                        clanWarLeaderOnly: 'Só o líder do clã pode abrir o acampamento de guerra.',
+                        expeditionActive: 'ATIVA'
+                    }
                 },
                 zones: {
                     modalTitle: 'Detalhes da zona',
@@ -6752,6 +6812,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     tierNone: 'Nenhum',
                     inspectDetailsUnavailable: 'Detalhes indisponíveis.',
                     roleClanHall: 'Salão do clã',
+                    roleRankings: 'Rankings',
+                    roleRankingsHint: 'Escada de combate',
                     inspectClose: 'FECHAR',
                     inspectLoadingTitle: 'Inspecionando',
                     inspectLoadingHint: 'Buscando equipamentos e status de combate…',

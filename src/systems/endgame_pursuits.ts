@@ -142,6 +142,7 @@ function onChampionKill(): void {
 function normalizeAfterLoad(): void {
     ensureWeekRollover();
     refreshPublicAscensionHUD();
+    syncMissionsAscensionBadge();
 }
 
 function _t(key: string, params?: Record<string, string | number>): string {
@@ -288,6 +289,29 @@ function buildPanelInnerHTML(): string {
     );
 }
 
+function countClaimableWeeklyHunt(): number {
+    if (typeof window.nivel !== 'number' || window.nivel < SGRADE_LEVEL) return 0;
+    ensureWeekRollover();
+    const e = eg();
+    const wk = getIsoWeekKey();
+    if (e.lastClaimedWeekKey === wk) return 0;
+    if ((e.weeklyChampionKills || 0) < WEEKLY_CHAMP_TARGET) return 0;
+    return 1;
+}
+
+function syncMissionsAscensionBadge(): void {
+    if (typeof window.aplicarHudMissoesBadge === 'function') {
+        window.aplicarHudMissoesBadge();
+    }
+}
+
+function mountEndgamePanel(): void {
+    const body = document.getElementById('endgame-panel-body');
+    if (!body) return;
+    body.innerHTML = buildPanelInnerHTML();
+    refreshEndgamePanelUI();
+}
+
 function refreshEndgamePanelUI(): void {
     ensureWeekRollover();
     const e = eg();
@@ -331,6 +355,7 @@ function refreshEndgamePanelUI(): void {
         if (elLife) elLife.textContent = (e.lifetimeChampionKills || 0).toLocaleString();
     }
     refreshPublicAscensionHUD();
+    syncMissionsAscensionBadge();
 }
 
 function getRenown(): number {
@@ -364,17 +389,19 @@ function refreshPublicAscensionHUD(): void {
 }
 
 function openEndgamePursuits(): void {
-    const el = document.getElementById('janela-endgame-pursuits');
-    if (!el) return;
-    const body = document.getElementById('endgame-panel-body');
-    if (body) body.innerHTML = buildPanelInnerHTML();
-    if (typeof window.abrirModal === 'function') window.abrirModal('janela-endgame-pursuits', 1650);
-    else if (el instanceof HTMLElement) el.style.display = 'flex';
-    refreshEndgamePanelUI();
+    if (typeof window.abrirMissoes === 'function') {
+        window.abrirMissoes('ascension');
+        return;
+    }
+    mountEndgamePanel();
 }
 
 function closeEndgamePursuits(): void {
-    if (typeof window.fecharModal === 'function') window.fecharModal('janela-endgame-pursuits');
+    if (typeof window.fecharMissoesDiarias === 'function') {
+        window.fecharMissoesDiarias();
+        return;
+    }
+    if (typeof window.fecharModal === 'function') window.fecharModal('janela-missoes-diarias');
 }
 
 const EndgamePursuits: EndgamePursuitsApi = {
@@ -386,6 +413,8 @@ const EndgamePursuits: EndgamePursuitsApi = {
     claimWeeklyEliteHunt,
     openEndgamePursuits,
     closeEndgamePursuits,
+    mountEndgamePanel,
+    countClaimableWeeklyHunt,
     refreshEndgamePanelUI,
     refreshPublicAscensionHUD,
     getRenown,

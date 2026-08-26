@@ -1,5 +1,5 @@
 /**
- * Status Rankings modal — chip filters + server-sorted ladder (Quick Menu).
+ * Status Rankings modal — chip filters + server-sorted ladder (Social tab).
  */
 import { classEvolutionDisplayName } from '../i18n/polish12_display';
 import type { CombatStatMetric, CombatStatRankingRow } from '../types/game';

@@ -3653,6 +3653,11 @@ export class ExpeditionEngine {
         dock.hidden = !active;
         grid.hidden = active;
         grid.style.display = active ? 'none' : '';
+        const expBadge = document.getElementById('world-notif-expedition');
+        if (expBadge) {
+            expBadge.hidden = !active;
+            expBadge.setAttribute('aria-hidden', active ? 'false' : 'true');
+        }
 
         if (subtitle) {
             if (active) {

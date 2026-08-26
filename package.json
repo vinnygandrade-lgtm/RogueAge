@@ -16,6 +16,7 @@
     "generate:skill-i18n": "node scripts/build-skill-pt-catalog.mjs && node scripts/generate-skill-i18n.mjs",
     "generate:polish12-i18n": "node scripts/generate-polish12-i18n.mjs",
     "generate:pwa-icons": "node tools/generate_pwa_icons.mjs",
+    "export:world": "node tools/export_world_map_art.mjs",
     "validate": "npm run typecheck && npm run check:i18n && npm run build",
     "test:smoke": "playwright test",
     "test:smoke:ui": "playwright test --ui",

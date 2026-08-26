@@ -939,7 +939,7 @@ function executarTrocaSubScreen(lugar) {
     const target = document.getElementById(targetId) as HTMLElement | null;
 
     if (target) {
-        target.style.display = (lugar === 'world') ? 'block' : 'flex';
+        target.style.display = 'flex';
         target.classList.add('screen-transition-enter');
         setTimeout(() => target.classList.remove('screen-transition-enter'), 300);
     }
@@ -958,19 +958,9 @@ function executarTrocaSubScreen(lugar) {
     }
     
     if (lugar === 'world') { 
-        if(target) {
-            const container = target.querySelector('.world-container');
-            if (container) container.scrollTop = 0;
-        }
+        if (typeof window.limparSelecaoWorldMap === 'function') window.limparSelecaoWorldMap();
         pararAtaqueMonstro(); 
         if (typeof window.atualizarWorldDailyBossUI === 'function') window.atualizarWorldDailyBossUI();
-
-        // NOVO: Controle de visibilidade do card de Clan War (Apenas para o Líder)
-        const cardClanWar = document.getElementById('card-clan-war-world');
-        if (cardClanWar) {
-            const isLider = Array.isArray(window.clans) && window.playerClanId && window.clans.find(c => c.id === window.playerClanId)?.lider === window.charName;
-            cardClanWar.style.display = isLider ? 'flex' : 'none';
-        }
         window.refreshNavMenuNotifications?.();
         if (typeof window.ExpeditionEngine?.syncWorldExpeditionPanel === 'function') {
             window.ExpeditionEngine.syncWorldExpeditionPanel();
@@ -1031,15 +1021,11 @@ function executarTrocaSubScreen(lugar) {
         if (barraGlobal) barraGlobal.style.setProperty('display', 'grid', 'important');
     }
 
-    // 3. Atualizar Botões do Menu Inferior (Social vive dentro do Quick Menu)
+    // 3. Atualizar Botões do Menu Inferior
     document.querySelectorAll('.btn-travel').forEach(btn => {
         btn.classList.remove('active');
         if (btn.id === `btn-tab-${lugar}`) btn.classList.add('active');
     });
-    if (lugar === 'social') {
-        const menuTab = document.getElementById('btn-tab-menu');
-        if (menuTab) menuTab.classList.add('active');
-    }
 
     try {
         if (typeof window.TutorialEngine !== 'undefined' && typeof window.TutorialEngine.onNav === 'function') {

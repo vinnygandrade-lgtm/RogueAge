@@ -1,6 +1,7 @@
 /**
- * UI — Missions Hub (Daily + Weekly)
+ * UI — Missions Hub (Daily + Weekly + Ascension)
  * Evolução de missões diárias: pool alargado, skip=reroll 1×, missões semanais ISO.
+ * Aba Ascensão monta o painel de EndgamePursuits — motores continuam separados.
  */
 
 import type {
@@ -832,13 +833,22 @@ function contarPendenciasLista(data: { missoes: DailyMissionInstance[]; bonusRei
   return n;
 }
 
+function contarPendenciasAscensao(): number {
+  return window.EndgamePursuits && typeof window.EndgamePursuits.countClaimableWeeklyHunt === 'function'
+    ? window.EndgamePursuits.countClaimableWeeklyHunt()
+    : 0;
+}
+
 function contarPendenciasMissoesHud(): number {
-  return contarPendenciasLista(missoesDiariasData) + contarPendenciasLista(missoesSemanaisData);
+  return contarPendenciasLista(missoesDiariasData)
+    + contarPendenciasLista(missoesSemanaisData)
+    + contarPendenciasAscensao();
 }
 
 function syncMissoesHubTabNotifs(): void {
   paintHubTabNotif('missoes-tab-daily', contarPendenciasLista(missoesDiariasData));
   paintHubTabNotif('missoes-tab-weekly', contarPendenciasLista(missoesSemanaisData));
+  paintHubTabNotif('missoes-tab-ascension', contarPendenciasAscensao());
 }
 
 function aplicarHudMissoesBadge(): void {
@@ -1247,31 +1257,50 @@ function renderizarBonusBox(
     + bonusBtn;
 }
 
+function normalizeMissoesHubTab(tab: unknown): MissionsHubTab {
+  if (tab === 'weekly' || tab === 'ascension') return tab;
+  return 'daily';
+}
+
 function syncMissoesHubTabsUi(): void {
   const tabDaily = document.getElementById('missoes-tab-daily');
   const tabWeekly = document.getElementById('missoes-tab-weekly');
+  const tabAscension = document.getElementById('missoes-tab-ascension');
   const panelDaily = document.getElementById('missoes-panel-daily');
   const panelWeekly = document.getElementById('missoes-panel-weekly');
+  const panelAscension = document.getElementById('missoes-panel-ascension');
   const hint = document.getElementById('missoes-hub-hint');
   const isDaily = missoesHubTab === 'daily';
+  const isWeekly = missoesHubTab === 'weekly';
+  const isAscension = missoesHubTab === 'ascension';
 
   if (tabDaily) {
     tabDaily.classList.toggle('missoes-hub-tab--active', isDaily);
     tabDaily.setAttribute('aria-selected', isDaily ? 'true' : 'false');
   }
   if (tabWeekly) {
-    tabWeekly.classList.toggle('missoes-hub-tab--active', !isDaily);
-    tabWeekly.setAttribute('aria-selected', !isDaily ? 'true' : 'false');
+    tabWeekly.classList.toggle('missoes-hub-tab--active', isWeekly);
+    tabWeekly.setAttribute('aria-selected', isWeekly ? 'true' : 'false');
+  }
+  if (tabAscension) {
+    tabAscension.classList.toggle('missoes-hub-tab--active', isAscension);
+    tabAscension.setAttribute('aria-selected', isAscension ? 'true' : 'false');
   }
   if (panelDaily) panelDaily.style.display = isDaily ? 'flex' : 'none';
-  if (panelWeekly) panelWeekly.style.display = isDaily ? 'none' : 'flex';
+  if (panelWeekly) panelWeekly.style.display = isWeekly ? 'flex' : 'none';
+  if (panelAscension) panelAscension.style.display = isAscension ? 'flex' : 'none';
   if (hint) {
-    hint.textContent = dailyMissionT(isDaily ? 'game.daily.modalHint' : 'game.weekly.modalHint');
+    const hintKey = isAscension
+      ? 'game.missions.ascensionHint'
+      : isWeekly
+        ? 'game.weekly.modalHint'
+        : 'game.daily.modalHint';
+    hint.textContent = dailyMissionT(hintKey);
   }
 }
 
 function setMissoesHubTab(tab: MissionsHubTab): void {
-  missoesHubTab = tab === 'weekly' ? 'weekly' : 'daily';
+  missoesHubTab = normalizeMissoesHubTab(tab);
   syncMissoesHubTabsUi();
   renderizarMissoesHub();
 }
@@ -1321,10 +1350,22 @@ function renderizarMissoesSemanais(): void {
   scrollClaimableIntoView(container, '.daily-mission-card--claimable');
 }
 
+function renderizarMissoesAscensao(): void {
+  if (window.EndgamePursuits && typeof window.EndgamePursuits.mountEndgamePanel === 'function') {
+    window.EndgamePursuits.mountEndgamePanel();
+    return;
+  }
+  if (window.EndgamePursuits && typeof window.EndgamePursuits.refreshEndgamePanelUI === 'function') {
+    window.EndgamePursuits.refreshEndgamePanelUI();
+  }
+}
+
 function renderizarMissoesHub(): void {
   syncMissoesHubTabsUi();
   if (missoesHubTab === 'weekly') {
     renderizarMissoesSemanais();
+  } else if (missoesHubTab === 'ascension') {
+    renderizarMissoesAscensao();
   } else {
     renderizarMissoesDiarias();
   }
@@ -1334,8 +1375,9 @@ function abrirMissoesDiarias(): void {
   abrirMissoes();
 }
 
-function abrirMissoes(): void {
+function abrirMissoes(tab?: MissionsHubTab): void {
   if (!window.charName) return;
+  if (tab) missoesHubTab = normalizeMissoesHubTab(tab);
   if (!missoesDiariasData) inicializarMissoesDiarias();
   if (!missoesSemanaisData) inicializarMissoesSemanais();
   aplicarRotacaoPorGradeSeNecessario();

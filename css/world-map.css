@@ -1,0 +1,581 @@
+/* World valley stage — mobile portrait
+   Art: assets/world/map_bg.jpg + optional cutout layers (1080×1620)
+   docs/world-map-art-prompt.md */
+
+#tela-world.screen-content,
+#game-viewport > #tela-world.screen-content {
+    padding: 0;
+    border: none;
+    background: #0a0806;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+#praca-world.world-map {
+    flex: 1 1 0%;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+}
+
+.world-map-frame {
+    flex: 1 1 0%;
+    min-height: 0;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    background: #070605;
+}
+
+.world-map-stack {
+    --world-art-w: 1080;
+    --world-art-h: 1620;
+    position: relative;
+    height: 100%;
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 1080 / 1620;
+    overflow: visible;
+    background: #0a0806;
+}
+
+.world-map-bg,
+.world-map-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.world-map-bg {
+    z-index: 0;
+}
+
+.world-map-layer {
+    z-index: 1;
+}
+
+/* Depth: mountain behind grove; camp/arena sit on top when those cutouts arrive. */
+.world-map-layer[data-world-spot="raid"] { z-index: 1; }
+.world-map-layer[data-world-spot="forest"] { z-index: 2; }
+.world-map-layer[data-world-spot="daily"] { z-index: 2; }
+.world-map-layer[data-world-spot="clanwar"] { z-index: 3; }
+.world-map-layer[data-world-spot="olympiad"] { z-index: 3; }
+
+.world-map-layer[hidden] {
+    display: none !important;
+}
+
+.world-map-layer[data-world-spot="raid"] { --aura-rgb: 217 119 6; }
+.world-map-layer[data-world-spot="forest"] { --aura-rgb: 20 184 166; }
+.world-map-layer[data-world-spot="clanwar"] { --aura-rgb: 239 68 68; }
+.world-map-layer[data-world-spot="daily"] { --aura-rgb: 231 229 228; }
+.world-map-layer[data-world-spot="olympiad"] { --aura-rgb: 196 165 116; }
+
+/* Recede other cutouts only while a cutout-backed landmark is selected. */
+.world-map-stack[data-selected-spot="raid"]:has(.world-map-actor--raid.world-map-actor--has-layer)
+    .world-map-layer:not([hidden]):not([data-world-spot="raid"]),
+.world-map-stack[data-selected-spot="forest"]:has(.world-map-actor--forest.world-map-actor--has-layer)
+    .world-map-layer:not([hidden]):not([data-world-spot="forest"]),
+.world-map-stack[data-selected-spot="clanwar"]:has(.world-map-actor--clanwar.world-map-actor--has-layer)
+    .world-map-layer:not([hidden]):not([data-world-spot="clanwar"]),
+.world-map-stack[data-selected-spot="daily"]:has(.world-map-actor--daily.world-map-actor--has-layer)
+    .world-map-layer:not([hidden]):not([data-world-spot="daily"]),
+.world-map-stack[data-selected-spot="olympiad"]:has(.world-map-actor--olympiad.world-map-actor--has-layer)
+    .world-map-layer:not([hidden]):not([data-world-spot="olympiad"]) {
+    opacity: 0.78;
+    filter: saturate(0.82);
+}
+
+.world-map-stack[data-selected-spot="raid"] .world-map-layer[data-world-spot="raid"],
+.world-map-stack[data-selected-spot="forest"] .world-map-layer[data-world-spot="forest"],
+.world-map-stack[data-selected-spot="clanwar"] .world-map-layer[data-world-spot="clanwar"],
+.world-map-stack[data-selected-spot="daily"] .world-map-layer[data-world-spot="daily"],
+.world-map-stack[data-selected-spot="olympiad"] .world-map-layer[data-world-spot="olympiad"] {
+    opacity: 1;
+    animation: world-spot-aura 1.65s ease-in-out infinite;
+}
+
+.world-map-vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(8, 6, 4, 0.22) 0%, transparent 12%, transparent 84%, rgba(6, 4, 3, 0.32) 100%),
+        radial-gradient(ellipse 92% 72% at 50% 52%, transparent 58%, rgba(0, 0, 0, 0.16) 100%);
+}
+
+.world-map-life {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.world-map-life__glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(10px);
+    mix-blend-mode: screen;
+}
+
+.world-map-life__glow--raid {
+    left: 43%;
+    top: 9%;
+    width: 20%;
+    height: 11%;
+    background: radial-gradient(circle, rgba(251, 146, 60, 0.55) 0%, rgba(234, 88, 12, 0.18) 42%, transparent 70%);
+    animation: world-life-pulse 2.8s ease-in-out infinite;
+}
+
+.world-map-life__glow--camp {
+    left: 12%;
+    top: 49%;
+    width: 14%;
+    height: 8%;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, rgba(239, 68, 68, 0.22) 45%, transparent 72%);
+    animation: world-life-flicker 1.15s ease-in-out infinite;
+}
+
+.world-map-life__glow--arena {
+    left: 62%;
+    top: 52%;
+    width: 16%;
+    height: 9%;
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.32) 0%, rgba(248, 113, 113, 0.16) 50%, transparent 74%);
+    animation: world-life-pulse 3.4s ease-in-out infinite 0.6s;
+}
+
+.world-map-life__fall {
+    left: 34%;
+    top: 10%;
+    width: 8%;
+    height: 18%;
+    position: absolute;
+    background: linear-gradient(180deg, rgba(226, 232, 240, 0.18) 0%, rgba(147, 197, 253, 0.08) 55%, transparent 100%);
+    filter: blur(1.5px);
+    opacity: 0.55;
+    animation: world-life-fall 1.8s linear infinite;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 80%, transparent 100%);
+}
+
+.world-map-life__smoke {
+    position: absolute;
+    width: 7%;
+    height: 10%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(226, 232, 240, 0.22) 0%, transparent 70%);
+    filter: blur(6px);
+    animation: world-life-smoke 5.5s ease-in-out infinite;
+}
+
+.world-map-life__smoke--a { left: 44%; top: 74%; animation-delay: 0s; }
+.world-map-life__smoke--b { left: 52%; top: 76%; animation-delay: 1.8s; width: 5%; height: 8%; }
+
+.world-map-life__mote {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #fde68a;
+    box-shadow: 0 0 8px #facc15, 0 0 14px rgba(125, 211, 252, 0.7);
+    opacity: 0;
+    animation: world-life-mote 5.2s ease-in-out infinite;
+}
+
+.world-map-life__mote:nth-child(7)  { left: 46%; top: 68%; animation-delay: 0s; background: #93c5fd; }
+.world-map-life__mote:nth-child(8)  { left: 52%; top: 70%; animation-delay: 0.7s; background: #f9a8d4; }
+.world-map-life__mote:nth-child(9)  { left: 49%; top: 66%; animation-delay: 1.4s; }
+.world-map-life__mote:nth-child(10) { left: 55%; top: 72%; animation-delay: 2.1s; background: #93c5fd; width: 4px; height: 4px; }
+.world-map-life__mote:nth-child(11) { left: 43%; top: 71%; animation-delay: 2.8s; background: #f9a8d4; }
+.world-map-life__mote:nth-child(12) { left: 18%; top: 50%; animation-delay: 0.4s; width: 4px; height: 4px; }
+.world-map-life__mote:nth-child(13) { left: 48%; top: 12%; animation-delay: 1.1s; background: #fdba74; }
+.world-map-life__mote:nth-child(14) { left: 72%; top: 54%; animation-delay: 1.9s; background: #93c5fd; width: 4px; height: 4px; }
+
+@keyframes world-life-pulse {
+    0%, 100% { opacity: 0.55; transform: scale(0.92); }
+    50% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes world-life-flicker {
+    0%, 100% { opacity: 0.45; transform: scale(0.9); }
+    40% { opacity: 1; transform: scale(1.12); }
+    70% { opacity: 0.6; transform: scale(0.96); }
+}
+
+@keyframes world-life-fall {
+    0% { opacity: 0.2; transform: translateY(-6%); }
+    50% { opacity: 0.7; }
+    100% { opacity: 0.2; transform: translateY(8%); }
+}
+
+@keyframes world-life-smoke {
+    0% { opacity: 0.05; transform: translateY(8%) scale(0.8); }
+    40% { opacity: 0.35; }
+    100% { opacity: 0; transform: translateY(-55%) scale(1.25); }
+}
+
+@keyframes world-life-mote {
+    0% { opacity: 0; transform: translate(0, 8px) scale(0.6); }
+    25% { opacity: 0.9; }
+    70% { opacity: 0.55; }
+    100% { opacity: 0; transform: translate(10px, -22px) scale(1.1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .world-map-life__glow,
+    .world-map-life__fall,
+    .world-map-life__smoke,
+    .world-map-life__mote,
+    .world-map-enter {
+        animation: none;
+        opacity: 0.45;
+    }
+    .world-map-life__mote { opacity: 0.35; }
+    .world-map-enter { opacity: 1; }
+    .world-map-stack[data-selected-spot="raid"] .world-map-layer[data-world-spot="raid"],
+    .world-map-stack[data-selected-spot="forest"] .world-map-layer[data-world-spot="forest"],
+    .world-map-stack[data-selected-spot="clanwar"] .world-map-layer[data-world-spot="clanwar"],
+    .world-map-stack[data-selected-spot="daily"] .world-map-layer[data-world-spot="daily"],
+    .world-map-stack[data-selected-spot="olympiad"] .world-map-layer[data-world-spot="olympiad"] {
+        animation: none;
+        filter:
+            drop-shadow(0 0 10px rgb(var(--aura-rgb) / 0.85))
+            drop-shadow(0 0 28px rgb(var(--aura-rgb) / 0.5));
+    }
+}
+
+.world-map-title {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    margin: 0;
+    padding: 4px 14px 5px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: #fde68a;
+    text-shadow: 0 1px 0 #000, 0 2px 8px rgba(0, 0, 0, 0.85);
+    background: linear-gradient(180deg, rgba(12, 9, 6, 0.62) 0%, rgba(8, 6, 4, 0.28) 100%);
+    border: 1px solid rgba(202, 138, 4, 0.35);
+    border-radius: 999px;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.world-map-actor {
+    --aura: #fbbf24;
+    --aura-deep: 20 12 4;
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.world-map-actor:has(.world-map-enter:not([hidden])) {
+    z-index: 7;
+}
+
+/* Positions for the denser 24 Aug 2026 map_bg (blky7o). Tune with cutouts. */
+.world-map-actor--raid {
+    left: 36%;
+    top: 6%;
+    width: 28%;
+    height: 16%;
+    --aura: #d97706;
+    --aura-deep: 36 14 4;
+    --aura-rgb: 217 119 6;
+}
+
+.world-map-actor--raid .world-map-plate {
+    top: auto;
+    bottom: 0;
+    transform: translate(-50%, 108%);
+}
+
+.world-map-actor--forest {
+    left: 5%;
+    top: 24%;
+    width: 32%;
+    height: 18%;
+    --aura: #14b8a6;
+    --aura-deep: 6 22 18;
+    --aura-rgb: 20 184 166;
+}
+
+.world-map-actor--forest .world-map-enter {
+    bottom: 18%;
+}
+
+.world-map-actor--clanwar {
+    left: 6%;
+    top: 47%;
+    width: 24%;
+    height: 16%;
+    --aura: #ef4444;
+    --aura-deep: 40 8 8;
+    --aura-rgb: 239 68 68;
+}
+
+.world-map-actor--clanwar .world-map-enter {
+    bottom: 14%;
+}
+
+.world-map-actor--daily {
+    left: 59%;
+    top: 30%;
+    width: 37%;
+    height: 16%;
+    --aura: #e7e5e4;
+    --aura-deep: 32 16 10;
+    --aura-rgb: 231 229 228;
+}
+
+.world-map-actor--daily .world-map-plate {
+    top: 8%;
+    transform: translate(-50%, 0);
+}
+
+.world-map-actor--daily .world-map-enter {
+    bottom: 12%;
+}
+
+.world-map-actor--olympiad {
+    left: 62%;
+    top: 49%;
+    width: 27%;
+    height: 15%;
+    --aura: #c4a574;
+    --aura-deep: 28 18 8;
+    --aura-rgb: 196 165 116;
+}
+
+.world-map-actor--olympiad .world-map-enter {
+    bottom: 12%;
+}
+
+.world-map-hotspot {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    appearance: none;
+}
+
+.world-map-hotspot:focus-visible {
+    outline: 2px solid var(--aura);
+    outline-offset: 2px;
+}
+
+/* Fallback until the cutout PNG lands — oval wash, never a rounded rectangle. */
+.world-map-hotspot.is-selected {
+    background: radial-gradient(
+        ellipse 72% 68% at 50% 52%,
+        color-mix(in srgb, var(--aura) 26%, transparent) 0%,
+        transparent 74%
+    );
+}
+
+.world-map-actor--has-layer .world-map-hotspot.is-selected {
+    background: transparent;
+}
+
+.world-map-actor--has-layer .world-map-hotspot:focus-visible {
+    outline: none;
+}
+
+.world-map-enter {
+    position: absolute;
+    left: 50%;
+    top: auto;
+    bottom: 4%;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 5.6rem;
+    min-height: 36px;
+    padding: 0 14px 2px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--aura) 78%, #fff);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--aura) 38%, rgb(var(--aura-deep))) 0%, rgb(var(--aura-deep) / 0.94) 100%);
+    box-shadow:
+        0 8px 18px rgba(0, 0, 0, 0.48),
+        0 0 18px color-mix(in srgb, var(--aura) 42%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--aura) 55%, #fff);
+    color: #fff8e7;
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transform: translateX(-50%);
+    animation: world-enter-in 0.22s ease-out;
+}
+
+.world-map-enter[hidden] {
+    display: none !important;
+    animation: none;
+}
+
+.world-map-enter::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 7px solid color-mix(in srgb, var(--aura) 70%, #1a1208);
+    transform: translateX(-50%);
+}
+
+.world-map-enter:hover,
+.world-map-enter:focus-visible {
+    color: #fff;
+    outline: none;
+}
+
+.world-map-enter:active {
+    transform: translateX(-50%) scale(0.96);
+}
+
+.world-map-plate {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -108%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    pointer-events: none;
+    text-align: center;
+}
+
+.world-map-plate__name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fde68a;
+    line-height: 1.15;
+    text-shadow:
+        0 0 1px #000,
+        0 1px 0 #000,
+        1px 0 0 #000,
+        -1px 0 0 #000,
+        0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+.world-map-plate__role {
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #e7e5e4;
+    text-shadow: 0 1px 0 #000, 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.world-map-hotspot.is-selected .world-map-plate__name {
+    color: color-mix(in srgb, var(--aura) 55%, #fff);
+}
+
+.world-map-hotspot.is-selected .world-map-plate__role {
+    color: color-mix(in srgb, var(--aura) 72%, #e7e5e4);
+}
+
+.world-map-hotspot .nav-notif,
+.world-map-hotspot .adv-notif-pill,
+.world-map-actor .adv-badge {
+    position: absolute;
+    top: 2px;
+    right: 8%;
+    z-index: 3;
+    pointer-events: none;
+}
+
+#janela-world-zones.store-window {
+    max-width: var(--l2-modal-max-width, 420px);
+}
+
+#janela-world-zones .store-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+#janela-world-zones .world-gatekeeper {
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+}
+
+#janela-world-zones .tp-grid {
+    margin-top: 8px;
+}
+
+@keyframes world-spot-aura {
+    0%, 100% {
+        filter:
+            drop-shadow(0 0 8px rgb(var(--aura-rgb) / 0.72))
+            drop-shadow(0 0 22px rgb(var(--aura-rgb) / 0.48))
+            drop-shadow(0 0 40px rgb(var(--aura-rgb) / 0.3));
+    }
+    50% {
+        filter:
+            drop-shadow(0 0 14px rgb(var(--aura-rgb) / 0.95))
+            drop-shadow(0 0 34px rgb(var(--aura-rgb) / 0.72))
+            drop-shadow(0 0 56px rgb(var(--aura-rgb) / 0.42));
+    }
+}
+
+@keyframes world-enter-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+html[data-l2-layout="landscape"] #tela-world.screen-content,
+html[data-l2-layout="landscape"] #game-viewport > #tela-world.screen-content {
+    padding: 0;
+    overflow: hidden;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+html[data-l2-layout="landscape"] #praca-world {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    height: 100%;
+    background: #070605;
+}

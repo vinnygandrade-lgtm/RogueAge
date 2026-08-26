@@ -61,7 +61,7 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 
 **Lojas NPC (landscape):** `#janela-loja` / `#janela-venda` ~1000px em balcão — grelha de catálogo (esquerda) | painel de detalhes + checkout + Comprar/Back em fila (direita). Tabs de armas/armadura/joias só no mega-loja de equipamentos (escondidas no grocer). Menus `#menu-equipment` / `#menu-grocer` um pouco mais largos; `#menu-equipment-grades` em grelha 3×2 de grades sob o diálogo (sem `display:!important`, para o JS poder esconder).
 
-**World hub (landscape):** `#tela-world .world-container` ~1240–1320px em grelha `title | gatekeeper + adventure`. Zonas da Clarissa como “bilhetes” (nome + pill de custo) em 2 colunas; aventuras em board 2×2 com cards altos. Em ≤1440px / altura baixa: `padding-left` para o chat; em ≤1100px empilha as colunas.
+**World hub (landscape):** palco `#praca-world` full-bleed (mesmo stack da praça: `map_bg` + camadas opcionais). Grades de caça no modal `#janela-world-zones`, não no mapa. Chat flutuante não deve empurrar o palco (sem `padding-left` extra no `#tela-world`).
 
 **Marketplace (landscape):** `#menu-social-market` balcão centrado ~1180–1220px (não o stage 1080 genérico). Tabs a largura total; aba Buy em grelha `search | filters` numa linha + lista densa; Sell com label + “Register” na mesma fila; modais `#janela-market-registrar` (~760px, item | preço) e `#janela-market-seletor` (~820px, grelha 8 cols). Com o mercado aberto, o chat vira dock de vidro (mais transparente + blur) no canto — sem empurrar o balcão; em ≤1100px empilha toolbar e registo.
 

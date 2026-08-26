@@ -3580,32 +3580,9 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     min-height: 44px;
 }
 
-#janela-endgame-pursuits {
-    width: 92%;
-    max-width: 420px;
-    z-index: 1650;
-    padding-bottom: 12px;
-}
-#janela-endgame-pursuits .store-header--endgame {
-    background: linear-gradient(90deg, #4c1d95, #1e1b4b, #4c1d95);
-    border-color: #7c3aed;
-}
-#janela-endgame-pursuits .store-header--endgame span {
-    color: #e9d5ff;
-}
-#janela-endgame-pursuits .store-body--endgame {
-    flex-direction: column;
-    align-items: stretch;
-    max-height: 85vh;
-    overflow-y: auto;
-}
-#endgame-panel-body {
+#endgame-panel-body,
+.missoes-ascension-body {
     width: 100%;
-}
-#janela-endgame-pursuits .btn-endgame-close {
-    background: #444;
-    width: 100%;
-    margin-top: 10px;
 }
 
 #janela-craft-resultado {
@@ -8598,7 +8575,8 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 #janela-missoes-diarias #missoes-diarias-container,
 #janela-missoes-diarias #missoes-semanais-container,
 #janela-missoes-diarias #missoes-bonus-box,
-#janela-missoes-diarias #missoes-bonus-box-weekly {
+#janela-missoes-diarias #missoes-bonus-box-weekly,
+#janela-missoes-diarias #missoes-panel-ascension {
     box-sizing: border-box;
     padding-left: 14px;
     padding-right: 14px;
@@ -8617,10 +8595,11 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 .missoes-hub-tab {
     flex: 1;
     min-height: 40px;
-    padding: 8px 10px;
-    font-size: 0.72rem;
+    padding: 8px 6px;
+    font-size: 0.66rem;
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
+    line-height: 1.15;
     text-transform: uppercase;
     color: #a1a1aa;
     background: rgba(24, 24, 27, 0.9);
@@ -8679,6 +8658,11 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     width: 100%;
     flex-direction: column;
     overflow: hidden;
+}
+
+#missoes-panel-ascension {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .missoes-hint {
@@ -9106,7 +9090,8 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-progress-summar
 html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-diarias-container,
 html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-semanais-container,
 html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-bonus-box,
-html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-bonus-box-weekly {
+html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-bonus-box-weekly,
+html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-panel-ascension {
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -9119,9 +9104,9 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hub-tabs {
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hub-tab {
     min-height: 36px;
-    padding: 6px 8px;
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
+    padding: 6px 4px;
+    font-size: 0.62rem;
+    letter-spacing: 0.03em;
 }
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hint {
@@ -9142,6 +9127,11 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .missoes-hub-panel {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+html[data-l2-layout="portrait"] #janela-missoes-diarias #missoes-panel-ascension {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 html[data-l2-layout="portrait"] #missoes-diarias-container,
@@ -13034,6 +13024,11 @@ small.mob-hunt-hp-text {
 }
 #praca-social {
     width: 100%;
+}
+#praca-social .npc-grid--social .npc-card:nth-child(3) {
+    grid-column: 1 / -1;
+    max-width: 220px;
+    justify-self: center;
 }
 .screen-title--social {
     margin: 0 0 20px 0;

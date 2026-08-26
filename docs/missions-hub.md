@@ -1,6 +1,8 @@
-# Missions Hub (Daily + Weekly)
+# Missions Hub (Daily + Weekly + Ascension)
 
-Client engagement system in `src/ui/ui_daily_missions.ts`. Modal `#janela-missoes-diarias` (body sibling of `#modal-overlay`, §5 pattern) with **Daily** / **Weekly** tabs.
+Client engagement system in `src/ui/ui_daily_missions.ts`. Modal `#janela-missoes-diarias` (body sibling of `#modal-overlay`, §5 pattern) with **Daily** / **Weekly** / **Ascension** tabs.
+
+**Ascension** is a door into `EndgamePursuits` (`#endgame-panel-body` inside `#missoes-panel-ascension`) — weekly elite hunt, claim, Renown. It is **not** a rotating mission slot: no skip, no daily/weekly pool, rewards stay on the endgame RPC (Adena + Ancient Coins + Renown). World no longer hosts an Ascension card; `EndgamePursuits.openEndgamePursuits()` opens this tab.
 
 ## Persistence (localStorage only)
 
@@ -44,6 +46,6 @@ Not in character JSONB / cloud save. Multi-device progress will diverge until a 
 
 ## UI entry
 
-MENU → PROGRESS → Missions → `abrirMissoes()` / `abrirMissoesDiarias()`.
+MENU → PROGRESS → Missions → `abrirMissoes()` / `abrirMissoesDiarias()`. Deep-link: `abrirMissoes('ascension')` or `EndgamePursuits.openEndgamePursuits()`.
 
-Badge `#nav-notif-missions` counts claimable daily + weekly missions and unclaimed final bonuses.
+Badge `#nav-notif-missions` counts claimable daily + weekly missions, unclaimed final bonuses, and a ready weekly Ascension hunt (`EndgamePursuits.countClaimableWeeklyHunt`).

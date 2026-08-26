@@ -49,6 +49,7 @@
     <!-- Landscape PC: DEVE ficar por último para vencer auth-flow / screens -->
     <link rel="stylesheet" href="css/shell-landscape.css">
     <link rel="stylesheet" href="css/town-plaza.css">
+    <link rel="stylesheet" href="css/world-map.css">
     <link rel="stylesheet" href="css/npc-hub-portrait.css">
     <script>
       /* Early layout hint — portrait-only product focus (PC landscape frozen). */
@@ -132,23 +133,6 @@
         <div class="nav-menu-sheet__title" data-i18n="navMenu.title">QUICK MENU</div>
         <div class="nav-menu-sheet__grid">
             <div class="nav-menu-group">
-                <div class="nav-menu-group__label" data-i18n="navMenu.groupSocial">SOCIAL</div>
-                <div class="nav-menu-group__items">
-                    <button type="button" class="nav-menu-item" id="nav-menu-social" onclick="navMenuGo('social')">
-                        <span class="nav-menu-item__glyph nav-menu-item__glyph--social" aria-hidden="true"></span>
-                        <span data-i18n="navMenu.social">Community Hub</span>
-                    </button>
-                    <button type="button" class="nav-menu-item" id="nav-menu-market" onclick="navMenuGo('market')">
-                        <span class="nav-menu-item__glyph nav-menu-item__glyph--market" aria-hidden="true"></span>
-                        <span data-i18n="navMenu.marketplace">Marketplace</span>
-                    </button>
-                    <button type="button" class="nav-menu-item" id="nav-menu-clans" onclick="navMenuGo('clans')">
-                        <span class="nav-menu-item__glyph nav-menu-item__glyph--clans" aria-hidden="true"></span>
-                        <span data-i18n="navMenu.clanHall">Clan Hall</span>
-                    </button>
-                </div>
-            </div>
-            <div class="nav-menu-group">
                 <div class="nav-menu-group__label" data-i18n="navMenu.groupProgress">PROGRESS</div>
                 <div class="nav-menu-group__items">
                     <button type="button" class="nav-menu-item nav-menu-item--retention-hub" id="nav-menu-retention" onclick="navMenuGo('retention')">
@@ -171,12 +155,6 @@
                             <span id="nav-notif-achievements" class="nav-notif nav-notif--achievements" hidden></span>
                         </span>
                         <span class="nav-menu-item__label" data-i18n="navMenu.achievements">Achievements</span>
-                    </button>
-                    <button type="button" class="nav-menu-item" id="nav-menu-stat-ranking" onclick="navMenuGo('statRanking')">
-                        <span class="nav-menu-item__icon-wrap">
-                            <span class="nav-menu-item__glyph nav-menu-item__glyph--stat-ranking" aria-hidden="true"></span>
-                        </span>
-                        <span class="nav-menu-item__label" data-i18n="navMenu.statRanking">Rankings</span>
                     </button>
                     <button type="button" class="nav-menu-item" id="nav-menu-olympiad" onclick="navMenuGo('olympiad')">
                         <span class="nav-menu-item__icon-wrap">
@@ -348,6 +326,44 @@
             <div class="zone-footer-actions">
                 <button type="button" id="btn-confirmar-viagem" class="btn-l2" data-i18n="game.zones.teleportBtn">TELEPORT NOW</button>
             </div>
+    </div>
+
+    <div id="janela-world-zones" class="store-window">
+        <div class="store-header">
+            <span data-i18n="game.world.map.zonesTitle">HUNTING ZONES</span>
+            <button type="button" class="fechar-store fechar-store--zone" onclick="fecharModal('janela-world-zones')">&times;</button>
+        </div>
+        <div class="store-body">
+            <div class="world-gatekeeper">
+                <div class="gk-header">
+                    <img src="assets/npcs/gatekeeper.png" class="gk-avatar" alt="">
+                    <div class="gk-title">
+                        <h3>Clarissa</h3>
+                        <p id="world-gk-subtitle" data-i18n="game.world.huntingZones">Hunting Zones</p>
+                    </div>
+                </div>
+                <div id="world-expedition-dock" class="world-expedition-dock" hidden aria-live="polite">
+                    <div class="world-expedition-dock__crest" aria-hidden="true">⛺</div>
+                    <div class="world-expedition-dock__kicker" data-i18n="game.world.expeditionDock.kicker">Expedition in progress</div>
+                    <h3 id="world-exp-dock-zone" class="world-expedition-dock__zone">—</h3>
+                    <div id="world-exp-dock-journey" class="world-expedition-dock__journey"></div>
+                    <div id="world-exp-dock-bag" class="world-expedition-dock__bag" role="status"></div>
+                    <p class="world-expedition-dock__hint" data-i18n="game.world.expeditionDock.hint">Run upgrades last until you extract. Collect keeps 100% of the bag.</p>
+                    <div class="world-expedition-dock__actions">
+                        <button type="button" id="world-exp-dock-resume" class="btn-l2 world-expedition-dock__resume" onclick="ExpeditionEngine.resumeFromWorld()" data-i18n="game.world.expeditionDock.resume">Resume Expedition</button>
+                        <button type="button" id="world-exp-dock-extract" class="btn-l2 world-expedition-dock__extract" onclick="ExpeditionEngine.promptExitAndExtract()" data-i18n="game.world.expeditionDock.extract">Collect &amp; exit</button>
+                    </div>
+                </div>
+                <div id="world-hunting-zones-grid" class="tp-grid">
+                    <button type="button" class="tp-button" onclick="escolherZonaWorld('No-Grade')"><span data-i18n="game.zones.ng.name">Talking Island</span> <span data-i18n="game.zones.ng.costShort">Free</span></button>
+                    <button type="button" class="tp-button tp-button--d" onclick="escolherZonaWorld('D')"><span data-i18n="game.zones.d.name">Ruins of Despair</span> <span data-i18n="game.zones.d.costShort">100a</span></button>
+                    <button type="button" class="tp-button tp-button--c" onclick="escolherZonaWorld('C')"><span data-i18n="game.zones.c.name">Death Pass</span> <span data-i18n="game.zones.c.costShort">500a</span></button>
+                    <button type="button" class="tp-button tp-button--b" onclick="escolherZonaWorld('B')"><span data-i18n="game.zones.b.name">Dragon Valley</span> <span data-i18n="game.zones.b.costShort">2k</span></button>
+                    <button type="button" class="tp-button tp-button--a" onclick="escolherZonaWorld('A')"><span data-i18n="game.zones.a.name">Tower of Insolence</span> <span data-i18n="game.zones.a.costShort">10k</span></button>
+                    <button type="button" class="tp-button tp-button--s" onclick="escolherZonaWorld('S')"><span data-i18n="game.zones.s.name">Imperial Tomb</span> <span data-i18n="game.zones.s.costShort">50k</span></button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modais in-game (.store-window + abrirModal): fora de #screen-game -->
@@ -735,15 +751,6 @@
         </div>
     </div>
 
-    <div id="janela-endgame-pursuits" class="store-window">
-        <div class="store-header store-header--endgame">
-            <span data-i18n="game.endgame.modalTitle">ASCENSION — Beyond S-Grade</span>
-        </div>
-        <div class="store-body store-body--endgame">
-            <div id="endgame-panel-body"></div>
-            <button type="button" class="btn-l2 btn-endgame-close" onclick="EndgamePursuits.closeEndgamePursuits()" data-i18n="game.endgame.closeBtn">Close</button>
-        </div>
-    </div>
 
     <div id="janela-craft-resultado" class="store-window">
         <div class="store-header store-header--craft-res">
@@ -1125,6 +1132,7 @@
         <div class="missoes-hub-tabs" role="tablist" aria-label="Missions">
             <button type="button" id="missoes-tab-daily" class="missoes-hub-tab missoes-hub-tab--active" role="tab" aria-selected="true" data-i18n="game.missions.tabDaily" onclick="setMissoesHubTab('daily')">Daily</button>
             <button type="button" id="missoes-tab-weekly" class="missoes-hub-tab" role="tab" aria-selected="false" data-i18n="game.missions.tabWeekly" onclick="setMissoesHubTab('weekly')">Weekly</button>
+            <button type="button" id="missoes-tab-ascension" class="missoes-hub-tab" role="tab" aria-selected="false" data-i18n="game.missions.tabAscension" onclick="setMissoesHubTab('ascension')">Ascension</button>
         </div>
         <div id="missoes-hub-hint" class="missoes-hint" data-i18n="game.daily.modalHint">Three goals per day — claim rewards, then unlock the legendary bonus. Resets at midnight.</div>
         <div id="missoes-panel-daily" class="missoes-hub-panel" style="display:flex;">
@@ -1136,6 +1144,9 @@
             <div id="missoes-progress-summary-weekly" class="missoes-progress-summary" aria-live="polite"></div>
             <div id="missoes-semanais-container"></div>
             <div id="missoes-bonus-box-weekly"></div>
+        </div>
+        <div id="missoes-panel-ascension" class="missoes-hub-panel" style="display:none;">
+            <div id="endgame-panel-body" class="missoes-ascension-body"></div>
         </div>
         <div class="store-footer store-footer--missoes">
             <button type="button" class="btn-l2 btn-missoes-close" data-i18n="game.daily.closeBtn" onclick="fecharMissoesDiarias()">CLOSE</button>
@@ -1767,6 +1778,9 @@
                 <span id="nav-notif-cidade-class" class="nav-notif nav-notif--tab nav-notif--class-transfer" hidden aria-hidden="true"></span>
             </button>
             <button id="btn-tab-world" class="btn-travel btn-travel--accent" data-i18n="nav.world" onclick="irPara('world')">WORLD</button>
+            <button id="btn-tab-social" class="btn-travel" onclick="irPara('social')">
+                <span class="btn-travel__label" data-i18n="nav.social">SOCIAL</span>
+            </button>
             <button id="btn-tab-inventario" class="btn-travel" data-i18n="nav.bag" onclick="irPara('inventario')">BAG</button>
             <button id="btn-tab-menu" class="btn-travel btn-travel--menu" onclick="abrirNavMenu()">
                 <span class="btn-travel__icon-wrap">
@@ -2018,98 +2032,89 @@
         </div>
 
         <div id="tela-world" class="screen-content">
-            <div class="world-container">
-                <h4 class="world-section-title" data-i18n="game.world.sectionTitle">WORLD & ADVENTURE</h4>
+            <div id="praca-world" class="world-map">
+                <div class="world-map-frame">
+                    <div class="world-map-stack" id="world-map-stack" onclick="limparSelecaoWorldMap(event)">
+                        <img class="world-map-bg" src="assets/world/map_bg.jpg?v=240824" alt="" draggable="false" decoding="async">
+                        <img class="world-map-layer" data-world-spot="raid" alt="" hidden draggable="false">
+                        <img class="world-map-layer" data-world-spot="forest" alt="" hidden draggable="false">
+                        <img class="world-map-layer" data-world-spot="clanwar" alt="" hidden draggable="false">
+                        <img class="world-map-layer" data-world-spot="daily" alt="" hidden draggable="false">
+                        <img class="world-map-layer" data-world-spot="olympiad" alt="" hidden draggable="false">
+                        <div class="world-map-vignette" aria-hidden="true"></div>
+                        <div class="world-map-life" aria-hidden="true">
+                            <span class="world-map-life__glow world-map-life__glow--raid"></span>
+                            <span class="world-map-life__glow world-map-life__glow--camp"></span>
+                            <span class="world-map-life__glow world-map-life__glow--arena"></span>
+                            <span class="world-map-life__fall"></span>
+                            <span class="world-map-life__smoke world-map-life__smoke--a"></span>
+                            <span class="world-map-life__smoke world-map-life__smoke--b"></span>
+                            <span class="world-map-life__mote"></span>
+                            <span class="world-map-life__mote"></span>
+                            <span class="world-map-life__mote"></span>
+                            <span class="world-map-life__mote"></span>
+                            <span class="world-map-life__mote"></span>
+                            <span class="world-map-life__mote"></span>
+                            <span class="world-map-life__mote"></span>
+                            <span class="world-map-life__mote"></span>
+                        </div>
+                        <h4 class="world-map-title" data-i18n="game.world.map.title">THE VALLEY</h4>
 
-                <!-- Gatekeeper Section -->
-                <div class="world-gatekeeper">
-                    <div class="gk-header">
-                        <img src="assets/npcs/gatekeeper.png" class="gk-avatar">
-                        <div class="gk-title">
-                            <h3>Clarissa</h3>
-                            <p id="world-gk-subtitle" data-i18n="game.world.huntingZones">Hunting Zones</p>
+                        <div class="world-map-actor world-map-actor--raid">
+                            <button type="button" class="world-map-hotspot" data-world-spot="raid" onclick="selecionarDestinoWorld('raid', event)" aria-pressed="false">
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.world.map.raid">The Maw</span>
+                                    <span class="world-map-plate__role" data-i18n="game.world.map.raidRole">World Raid</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-world-spot="raid" hidden aria-hidden="true" onclick="entrarDestinoWorld('raid', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor world-map-actor--forest">
+                            <span id="world-notif-expedition" class="adv-badge" hidden aria-hidden="true" data-i18n="game.world.map.expeditionActive">ACTIVE</span>
+                            <button type="button" class="world-map-hotspot" data-world-spot="forest" onclick="selecionarDestinoWorld('forest', event)" aria-pressed="false">
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.world.map.forest">Deepgrove</span>
+                                    <span class="world-map-plate__role" data-i18n="game.world.map.forestRole">Expedition</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-world-spot="forest" hidden aria-hidden="true" onclick="entrarDestinoWorld('forest', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor world-map-actor--clanwar">
+                            <button type="button" class="world-map-hotspot" data-world-spot="clanwar" onclick="selecionarDestinoWorld('clanwar', event)" aria-pressed="false">
+                                <span id="world-notif-clanwar" class="nav-notif nav-notif--clanwar nav-notif--dot" hidden aria-hidden="true"></span>
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.world.map.clanwar">Banner Hill</span>
+                                    <span class="world-map-plate__role" data-i18n="game.world.map.clanwarRole">Clan War</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-world-spot="clanwar" hidden aria-hidden="true" onclick="entrarDestinoWorld('clanwar', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor world-map-actor--daily">
+                            <button type="button" class="world-map-hotspot" data-world-spot="daily" onclick="selecionarDestinoWorld('daily', event)" aria-pressed="false">
+                                <span class="adv-badge" id="daily-boss-badge-estado" data-i18n="game.world.badge1xDay">1x/DAY</span>
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.world.map.daily">Ashen Field</span>
+                                    <span class="world-map-plate__role" data-i18n="game.world.map.dailyRole">Daily Boss</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-world-spot="daily" hidden aria-hidden="true" onclick="entrarDestinoWorld('daily', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor world-map-actor--olympiad">
+                            <button type="button" class="world-map-hotspot" data-world-spot="olympiad" onclick="selecionarDestinoWorld('olympiad', event)" aria-pressed="false">
+                                <span id="world-notif-olympiad" class="nav-notif nav-notif--olympiad" hidden aria-hidden="true"></span>
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.world.map.olympiad">Crown Ring</span>
+                                    <span class="world-map-plate__role" data-i18n="game.world.map.olympiadRole">Olympiad</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-world-spot="olympiad" hidden aria-hidden="true" onclick="entrarDestinoWorld('olympiad', event)" data-i18n="game.world.map.enter">Enter</button>
                         </div>
                     </div>
-
-                    <!-- Shown when an expedition run is active (parked); replaces hunting zone grid -->
-                    <div id="world-expedition-dock" class="world-expedition-dock" hidden aria-live="polite">
-                        <div class="world-expedition-dock__crest" aria-hidden="true">⛺</div>
-                        <div class="world-expedition-dock__kicker" data-i18n="game.world.expeditionDock.kicker">Expedition in progress</div>
-                        <h3 id="world-exp-dock-zone" class="world-expedition-dock__zone">—</h3>
-                        <div id="world-exp-dock-journey" class="world-expedition-dock__journey"></div>
-                        <div id="world-exp-dock-bag" class="world-expedition-dock__bag" role="status"></div>
-                        <p class="world-expedition-dock__hint" data-i18n="game.world.expeditionDock.hint">Run upgrades last until you extract. Collect keeps 100% of the bag.</p>
-                        <div class="world-expedition-dock__actions">
-                            <button type="button" id="world-exp-dock-resume" class="btn-l2 world-expedition-dock__resume" onclick="ExpeditionEngine.resumeFromWorld()" data-i18n="game.world.expeditionDock.resume">Resume Expedition</button>
-                            <button type="button" id="world-exp-dock-extract" class="btn-l2 world-expedition-dock__extract" onclick="ExpeditionEngine.promptExitAndExtract()" data-i18n="game.world.expeditionDock.extract">Collect &amp; exit</button>
-                        </div>
-                    </div>
-                    
-                    <div id="world-hunting-zones-grid" class="tp-grid">
-                        <button class="tp-button" onclick="abrirDetalhesZona('No-Grade')"><span data-i18n="game.zones.ng.name">Talking Island</span> <span data-i18n="game.zones.ng.costShort">Free</span></button>
-                        <button type="button" class="tp-button tp-button--d" onclick="abrirDetalhesZona('D')"><span data-i18n="game.zones.d.name">Ruins of Despair</span> <span data-i18n="game.zones.d.costShort">100a</span></button>
-                        <button type="button" class="tp-button tp-button--c" onclick="abrirDetalhesZona('C')"><span data-i18n="game.zones.c.name">Death Pass</span> <span data-i18n="game.zones.c.costShort">500a</span></button>
-                        <button type="button" class="tp-button tp-button--b" onclick="abrirDetalhesZona('B')"><span data-i18n="game.zones.b.name">Dragon Valley</span> <span data-i18n="game.zones.b.costShort">2k</span></button>
-                        <button type="button" class="tp-button tp-button--a" onclick="abrirDetalhesZona('A')"><span data-i18n="game.zones.a.name">Tower of Insolence</span> <span data-i18n="game.zones.a.costShort">10k</span></button>
-                        <button type="button" class="tp-button tp-button--s" onclick="abrirDetalhesZona('S')"><span data-i18n="game.zones.s.name">Imperial Tomb</span> <span data-i18n="game.zones.s.costShort">50k</span></button>
-                    </div>
-                </div>
-
-                <!-- Adventure Grid -->
-                <div class="adventure-grid">
-                    <!-- Clan War - Full Width (Exclusive for Clan Leaders) -->
-                    <div id="card-clan-war-world" class="adv-card adv-card--full clan-war" onclick="ClanWarEngine.abrirLobby()" style="display: none; background: linear-gradient(135deg, #450a0a 0%, #991b1b 100%); border: 2px solid #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);">
-                        <span class="adv-badge" style="background: #ef4444; color: #fff;" data-i18n="game.world.badgeNew">NEW</span>
-                        <span id="world-notif-clanwar" class="adv-notif-pill adv-notif-pill--clanwar adv-notif-pill--dot" hidden aria-hidden="true"></span>
-                        <i style="color: #fff; text-shadow: 0 0 10px #ef4444;">⚔️</i>
-                        <div class="adv-info">
-                            <h3 style="color: #fff; font-family: 'Cinzel', serif;" data-i18n="game.war.hubTitle">WAR COMMAND CENTER</h3>
-                            <p style="color: #fca5a5;" data-i18n="game.war.hubLead">Register your clan and challenge rivals!</p>
-                        </div>
-                    </div>
-
-                    <!-- Daily Boss -->
-                    <div class="adv-card daily-boss" onclick="abrirJanelaDailyBoss()">
-                        <span class="adv-badge" id="daily-boss-badge-estado" data-i18n="game.world.badge1xDay">1x/DAY</span>
-                        <i>👹</i>
-                        <div class="adv-info">
-                            <h3 data-i18n="game.world.cardDailyTitle">Daily Boss</h3>
-                            <p id="daily-boss-card-resumo" data-i18n="game.world.loadingCard">Loading…</p>
-                        </div>
-                    </div>
-
-                    <!-- Raid Boss -->
-                    <div class="adv-card raid" onclick="abrirLobbyRaid()">
-                        <span class="adv-badge" data-i18n="game.world.badgeLive">LIVE</span>
-                        <i>🐉</i>
-                        <div class="adv-info">
-                            <h3 data-i18n="game.world.cardRaidTitle">Epic Raid</h3>
-                            <p data-i18n="game.world.cardRaidDesc">Earth Dragon</p>
-                        </div>
-                    </div>
-
-                    <!-- Olympiad (X1) -->
-                    <div class="adv-card olympiad" id="card-olympiad-world" onclick="abrirOlympiad()">
-                        <span class="adv-badge" data-i18n="game.world.badgeLive">LIVE</span>
-                        <span id="world-notif-olympiad" class="adv-notif-pill adv-notif-pill--olympiad" hidden aria-hidden="true"></span>
-                        <i>⚔️</i>
-                        <div class="adv-info">
-                            <h3 data-i18n="game.world.cardOlympiadTitle">Olympiad</h3>
-                            <p data-i18n="game.world.cardOlympiadDesc">Simulated 1v1 PvP</p>
-                        </div>
-                    </div>
-
-                    <div class="adv-card ascension" onclick="EndgamePursuits.openEndgamePursuits()">
-                        <span class="adv-badge adv-badge--meta" data-i18n="game.world.badgeMeta">META</span>
-                        <i>🜂</i>
-                        <div class="adv-info">
-                            <h3 data-i18n="game.world.cardAscensionTitle">Ascension</h3>
-                            <p data-i18n="game.world.cardAscensionDesc">Goals after S-Grade — seasons, renown, elite hunt.</p>
-                        </div>
-                    </div>
-
                 </div>
             </div>
+            <span id="daily-boss-card-resumo" hidden></span>
+            <div id="card-clan-war-world" hidden></div>
+            <div id="card-olympiad-world" hidden></div>
         </div>
 
         <div id="tela-floresta" class="screen-content">
@@ -2294,7 +2299,7 @@
             <div id="praca-social">
                 <h4 class="screen-title--social" data-i18n="game.screens.community">COMMUNITY HUB</h4>
                 
-            <div class="npc-grid">
+            <div class="npc-grid npc-grid--social">
                 <div class="npc-card" onclick="abrirMenuSocial('market')">
                     <img src="assets/npcs/merchant.png" alt="">
                     <div class="npc-name" data-i18n="market.npcName">Marketplace</div>
@@ -2305,6 +2310,12 @@
                     <img src="assets/npcs/gatekeeper.png" alt="">
                     <div class="npc-name">Valeria</div>
                     <div class="npc-title" data-i18n="game.social.roleClanHall">Clan Hall</div>
+                </div>
+
+                <div class="npc-card" onclick="abrirStatRanking()">
+                    <img src="assets/npcs/blacksmith.png" alt="">
+                    <div class="npc-name" data-i18n="game.social.roleRankings">Rankings</div>
+                    <div class="npc-title" data-i18n="game.social.roleRankingsHint">Combat ladder</div>
                 </div>
             </div>
             </div>

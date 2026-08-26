@@ -76,6 +76,11 @@ declare global {
     selecionarNpcTown?: (npcId: string, ev?: Event) => void;
     falarNpcTown?: (npcId: string, ev?: Event) => void;
     limparSelecaoTownPlaza?: (ev?: Event) => void;
+    selecionarDestinoWorld?: (spotId: string, ev?: Event) => void;
+    entrarDestinoWorld?: (spotId: string, ev?: Event) => void;
+    limparSelecaoWorldMap?: (ev?: Event) => void;
+    abrirWorldHuntingZones?: () => void;
+    escolherZonaWorld?: (grade: string, ev?: Event) => void;
     dismissTownPlazaCoach?: (ev?: Event) => void;
     maybeShowPlazaNpcCoach?: () => void;
     navegarSelecao?: (direcao: number) => void;
@@ -579,7 +584,7 @@ declare global {
     refreshLogCollapsedPreview?: () => void;
     abrirJanelaCorreio?: () => void;
     abrirMissoesDiarias?: () => void;
-    abrirMissoes?: () => void;
+    abrirMissoes?: (tab?: import('./game').MissionsHubTab) => void;
     abrirLevelRewards?: () => void;
     abrirRetentionHub?: (tab?: RetentionHubTab) => void;
     fecharRetentionHub?: () => void;
@@ -625,7 +630,7 @@ declare global {
     pularMissaoSemanal?: (index: number) => void;
     reivindicarMissaoSemanal?: (index: number) => void;
     reivindicarBonusMissaoSemanal?: () => void;
-    setMissoesHubTab?: (tab: 'daily' | 'weekly') => void;
+    setMissoesHubTab?: (tab: import('./game').MissionsHubTab) => void;
     renderizarMissoesSemanais?: () => void;
     inicializarMissoesSemanais?: () => void;
     abrirMenuSocial?: (menu: string) => void;
@@ -1018,6 +1023,11 @@ declare global {
   function selecionarNpcTown(npcId: string, ev?: Event): void;
   function falarNpcTown(npcId: string, ev?: Event): void;
   function limparSelecaoTownPlaza(ev?: Event): void;
+  function selecionarDestinoWorld(spotId: string, ev?: Event): void;
+  function entrarDestinoWorld(spotId: string, ev?: Event): void;
+  function limparSelecaoWorldMap(ev?: Event): void;
+  function abrirWorldHuntingZones(): void;
+  function escolherZonaWorld(grade: string, ev?: Event): void;
   function dismissTownPlazaCoach(ev?: Event): void;
   function maybeShowPlazaNpcCoach(): void;
   function abrirMenuSocial(menu: string): void;
@@ -1053,7 +1063,7 @@ declare global {
   function reivindicarBonusMissaoSemanal(): void;
   function pularMissaoDiaria(index: number): void;
   function pularMissaoSemanal(index: number): void;
-  function setMissoesHubTab(tab: 'daily' | 'weekly'): void;
+  function setMissoesHubTab(tab: import('./game').MissionsHubTab): void;
   function dispararAnimacaoCooldown(nome: string, tempoMs: number): void;
   function usarPocao(): void;
   function usarPocaoMP(nomeDaPocao: string): void;
@@ -1089,7 +1099,7 @@ declare global {
   function inicializarMissoesDiarias(): void;
   function inicializarMissoesSemanais(): void;
   function abrirMissoesDiarias(): void;
-  function abrirMissoes(): void;
+  function abrirMissoes(tab?: import('./game').MissionsHubTab): void;
   function renderizarMissoesDiarias(): void;
   function renderizarMissoesSemanais(): void;
   function renderizarMissoesHub(): void;
