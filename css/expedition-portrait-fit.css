@@ -820,10 +820,6 @@ html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #te
     pointer-events: none !important;
 }
 
-.game-container.expedition-run-locked #tela-floresta.expedition-combat-open #player-combat-buffs {
-    display: none !important;
-}
-
 /* —— Modals (portrait compact) —— */
 html:not([data-l2-layout="landscape"]) .expedition-upgrade-body,
 html:not([data-l2-layout="landscape"]) .expedition-result-body,

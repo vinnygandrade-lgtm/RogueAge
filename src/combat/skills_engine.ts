@@ -252,8 +252,8 @@ function aplicarEfeitoSkillFloresta(nomeSkill: string, skill: SkillDef) {
                 let curHpLb = Math.floor(Number(monstro.hp)) || 0;
                 let vidaArrancada = Math.floor(curHpLb / 2);
                 monstro.hp = Math.max(0, curHpLb - vidaArrancada);
-                if (typeof renderizarMonstros === 'function') renderizarMonstros();
-                else if (typeof window.refreshMobHpUI === 'function') window.refreshMobHpUI(monstro);
+                if (typeof window.refreshMobHpUI === 'function') window.refreshMobHpUI(monstro);
+                else if (typeof renderizarMonstros === 'function') renderizarMonstros();
                 foiCriticoSkill = true;
                 writeSkillLog('lethalStrikeHalfHp', undefined, 'color:#000; background:#10b981; font-weight:bold; padding:2px 5px; border-radius:3px;');
                 if (typeof window.tryProcessForestMobDeath === 'function') window.tryProcessForestMobDeath(monstro);

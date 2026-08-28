@@ -17,6 +17,13 @@ import {
 } from './mob_archetype_visual';
 import { clearForestPlayerThreats, rollMobThreat } from './mob_threat';
 import type { MobThreat } from './mob_threat';
+import {
+    bindMobSpriteImg,
+    playMobAttackPose,
+    playMobDeathPose,
+    warmupMobSprites,
+} from './mob_sprite';
+import { atualizarIconesBuffPlayer } from './combat_buff_bar';
 
 interface ForestMob {
   idUnico?: string;
@@ -489,7 +496,6 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
         if (hpPorcento < 0) hpPorcento = 0;
         if (hpPorcento > 100) hpPorcento = 100;
 
-        let imgSrc = `assets/mobs/${mob.idImg}_idle.png`;
         let transform = 'translateY(0)';
         if (hpPorcento < 50 && hpPorcento > 0) { transform = 'translateY(5px) rotate(3deg)'; }
 
@@ -518,7 +524,7 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
             </div>
             <div class="mob-hunt-sprite-wrap">
                 <div class="${spriteWrapClass}">
-                    <img id="monster-img-${mob.idUnico}" class="${imgClasses}" src="${imgSrc}" style="${imgFilter} transition: transform 0.1s ease-out; transform: ${transform}; opacity: ${hpVal > 0 ? 1 : 0};">
+                    <img id="monster-img-${mob.idUnico}" class="${imgClasses}" data-mob-img="${mob.idImg || ''}" data-mob-pose="idle" src="assets/mobs/${mob.idImg}_idle.png" style="${imgFilter} transition: transform 0.1s ease-out; transform: ${transform}; opacity: ${hpVal > 0 ? 1 : 0};">
                 </div>
             </div>
             <div class="hp-bar mob-hunt-card__hpbar">
@@ -531,10 +537,24 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
     });
 
     container.innerHTML = htmlFinal;
+    bindForestMobSpriteImgs(container);
     _forestMobDomCache = Object.create(null) as ForestMobDomCache;
     if (prevRects && prevRects.size) {
         playMobCardFlip(prevRects);
     }
+}
+
+function bindForestMobSpriteImgs(container: HTMLElement): void {
+    const warmed = new Set<string>();
+    container.querySelectorAll<HTMLImageElement>('img[data-mob-img]').forEach((img) => {
+        const idImg = img.getAttribute('data-mob-img') || '';
+        if (!idImg) return;
+        bindMobSpriteImg(img, idImg, 'idle');
+        if (!warmed.has(idImg)) {
+            warmed.add(idImg);
+            warmupMobSprites(idImg);
+        }
+    });
 }
 
 type ForestMobDomCache = Record<string, { fill: HTMLElement | null; img: HTMLImageElement | null }>;
@@ -594,12 +614,8 @@ function iniciarAtaqueMonstro() {
 
                 const dom = getForestMobDom(mob.idUnico);
                 const mobImg = dom.img;
-                if (mobImg) {
-                    mobImg.src = `assets/mobs/${mob.idImg}_atk.png`;
-                    setTimeout(() => {
-                        const mAtual = document.getElementById(`monster-img-${mob.idUnico}`) as HTMLImageElement | null;
-                        if (mAtual && mAtual.src.includes('_atk')) mAtual.src = `assets/mobs/${mob.idImg}_idle.png`;
-                    }, 300);
+                if (mobImg && mob.idImg) {
+                    playMobAttackPose(mobImg, String(mob.idImg));
                 }
 
                 window.executarDanoDeUmMonstro?.(mob);
@@ -883,7 +899,7 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
 
     const mobImgDie = document.getElementById(`monster-img-${mobMorto.idUnico}`) as HTMLImageElement | null;
     if (mobImgDie) {
-        mobImgDie.src = `assets/mobs/${mobMorto.idImg}_die.png`;
+        if (mobMorto.idImg) playMobDeathPose(mobImgDie, String(mobMorto.idImg));
         mobImgDie.classList.remove('tomando-dano');
         void mobImgDie.offsetWidth;
         mobImgDie.classList.add('mob-desintegrando');
@@ -919,21 +935,7 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
 // ==========================================
 // SISTEMA VISUAL DE BUFFS/DEBUFFS
 // ==========================================
-function atualizarIconesBuffPlayer(nome, duracaoMs, iconeHtml) {
-    const container = document.getElementById('player-combat-buffs');
-    if (!container) return;
-    let idIcone = `buff-${nome.replace(/\s+/g, '-')}`;
-    if (document.getElementById(idIcone)) {
-        let divAntiga = document.getElementById(idIcone);
-        const overlay = divAntiga.querySelector('.buff-timer-overlay') as HTMLElement | null;
-        if (overlay) { overlay.style.animation = 'none'; void overlay.offsetWidth; overlay.style.animation = `drain-buff ${duracaoMs}ms linear forwards`; }
-        return;
-    }
-    let div = document.createElement('div'); div.id = idIcone; div.className = 'mini-icon-buff';
-    div.innerHTML = `${iconeHtml}<div class="buff-timer-overlay" style="animation: drain-buff ${duracaoMs}ms linear forwards;"></div>`;
-    container.appendChild(div);
-    setTimeout(() => { if (div.parentNode) div.parentNode.removeChild(div); }, duracaoMs);
-}
+// Player strip: src/combat/combat_buff_bar.ts (`#player-combat-buffs`).
 
 function atualizarIconesDebuffMonstro(indexMonstro: number, nome: string, duracaoMs: number, iconeHtml: string) {
     const monstro = window.monstrosAtivos[indexMonstro] as ForestMob | undefined;

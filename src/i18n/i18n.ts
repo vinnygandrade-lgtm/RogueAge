@@ -259,6 +259,16 @@ import type { I18nLocaleTree, I18nParams, I18nSetLocaleOptions, UiLocale } from 
         /* ignore */
       }
     }
+    if (typeof window.renderWorldHuntingZoneCards === 'function') {
+      try {
+        const zonesWin = document.getElementById('janela-world-zones');
+        if (zonesWin && zonesWin.style.display === 'flex') {
+          window.renderWorldHuntingZoneCards();
+        }
+      } catch {
+        /* ignore */
+      }
+    }
     if (typeof window.renderizarBarraAtalhos === 'function') {
       try {
         window.renderizarBarraAtalhos();

@@ -9,7 +9,7 @@
 
 | ID | Visual | Abre |
 |----|--------|------|
-| `forest` | floresta / trilha | Expedição → modal de zona (`abrirDetalhesZona`); **6 grades só no modal** |
+| `forest` | floresta / trilha | Expedição → postcards em `#janela-world-zones` → `abrirDetalhesZona(<grade>)`; **6 grades só no modal** |
 | `daily` | campo de ossos | Boss diário (`abrirJanelaDailyBoss`) |
 | `olympiad` | coliseu | Grand Olympiad (`abrirOlympiad`) |
 | `raid` | caverna | Raid mundial (`abrirLobbyRaid`) |
@@ -516,7 +516,7 @@ Toque = **selecionar**; **Enter** abre o destino (mesmo padrão da praça).
 
 | Hotspot | Visual | Enter |
 |---------|--------|-------|
-| `forest` | Deepgrove | modal `#janela-world-zones` → `abrirDetalhesZona(<grade>)` — o mapa **não** escolhe o grade |
+| `forest` | Deepgrove | modal `#janela-world-zones` (postcards `battle_<slug>.webp`) → `abrirDetalhesZona(<grade>)` — o mapa **não** escolhe o grade |
 | `daily` | Ashen Field | `abrirJanelaDailyBoss()` |
 | `clanwar` | Banner Hill | `ClanWarEngine.abrirLobby()` — **só líder**; sem clã / membro vê `l2Alert` |
 | `olympiad` | Crown Ring | `abrirOlympiad()` |

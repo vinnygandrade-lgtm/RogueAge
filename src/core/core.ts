@@ -391,6 +391,8 @@ setInterval(() => {
         window.tempoFimBuffGuerreiro = 0;
         window.tempoFimBuffMistico = 0;
     }
+
+    if (typeof window.tickCombatBuffBar === 'function') window.tickCombatBuffBar();
 }, 1000); 
 
 setInterval(() => {

@@ -2,6 +2,8 @@
  * Mob threat affixes — poison DoT and bleed burst on the 3rd hit.
  */
 
+import { upsertCombatBuffIcon } from './combat_buff_bar';
+
 export type MobThreat = 'none' | 'poison' | 'bleed';
 
 export interface ForestPoisonDebuff {
@@ -74,21 +76,22 @@ function stopPoisonTick(): void {
 }
 
 function renderPlayerPoisonBuff(expiresAt: number): void {
-    const host = document.getElementById('player-combat-buffs');
-    if (!host) return;
-    let el = host.querySelector('[data-forest-poison-debuff]') as HTMLElement | null;
-    if (!el) {
-        el = document.createElement('div');
-        el.className = 'mini-icon-buff forest-poison-buff';
-        el.dataset.forestPoisonDebuff = '1';
-        el.title = typeof window.t === 'function' ? window.t('game.combat.poisonDebuffHint') : 'Poisoned';
-        el.innerHTML = `<span class="forest-poison-buff__icon" aria-hidden="true">☠</span>`;
-        host.appendChild(el);
-    }
     const remain = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
-    el.setAttribute('aria-label', typeof window.t === 'function'
-        ? window.t('game.combat.poisonDebuffAria', { sec: remain })
-        : `Poison ${remain}s`);
+    const title = typeof window.t === 'function' ? window.t('game.combat.poisonDebuffHint') : 'Poisoned';
+    upsertCombatBuffIcon({
+        id: 'buff-forest-poison',
+        iconHtml: '<span class="forest-poison-buff__icon" aria-hidden="true">☠</span>',
+        expiresAt,
+        title,
+        extraClass: 'forest-poison-buff',
+    });
+    const el = document.getElementById('buff-forest-poison');
+    if (el) {
+        el.dataset.forestPoisonDebuff = '1';
+        el.setAttribute('aria-label', typeof window.t === 'function'
+            ? window.t('game.combat.poisonDebuffAria', { sec: remain })
+            : `Poison ${remain}s`);
+    }
 }
 
 function applyPoisonFromHit(mobPower: number, hitDamage: number): void {

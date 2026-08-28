@@ -6,6 +6,9 @@
  * Landscape (PC):    `assets/zones/battle_<slug>_wide.webp` — 1920×1080
  *                    (falls back to portrait art + CSS crop if wide missing)
  *
+ * The portrait file is also the postcard for World → Deepgrove, the zone-details
+ * banner, and the expedition trailhead hub. Combat still loads via this module.
+ *
  * Master PNGs stay outside the repo; ship only compressed WebP.
  */
 

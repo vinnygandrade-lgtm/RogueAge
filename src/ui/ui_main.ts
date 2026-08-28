@@ -1933,6 +1933,31 @@ function abrirDetalhesZona(grade) {
               : `${dados.custo.toLocaleString()} Adena`;
     document.getElementById('zona-detalhe-descricao').innerText = zoneCatalogText(grade, 'desc');
 
+    const banner = document.getElementById('zona-detalhe-banner');
+    const artEl = document.getElementById('zona-detalhe-art') as HTMLImageElement | null;
+    const artUrl = dados.img || (typeof window.battleBgUrlForGrade === 'function' ? window.battleBgUrlForGrade(grade, false) : '');
+    if (banner && artEl && artUrl) {
+        banner.classList.add('is-art-pending');
+        banner.classList.remove('has-zone-art');
+        artEl.hidden = true;
+        artEl.removeAttribute('src');
+        artEl.alt = '';
+        const probe = new Image();
+        probe.onload = () => {
+            artEl.src = artUrl;
+            artEl.hidden = false;
+            banner.classList.remove('is-art-pending');
+            banner.classList.add('has-zone-art');
+        };
+        probe.onerror = () => {
+            artEl.hidden = true;
+            artEl.removeAttribute('src');
+            banner.classList.add('is-art-pending');
+            banner.classList.remove('has-zone-art');
+        };
+        probe.src = artUrl;
+    }
+
     const monstros = zoneCatalogList(grade, 'inhabitants', dados.monstros);
     const recompensas = zoneCatalogList(grade, 'rewards', dados.recompensas);
 

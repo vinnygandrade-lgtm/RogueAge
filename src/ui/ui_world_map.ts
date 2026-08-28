@@ -111,7 +111,148 @@ function abrirWorldHuntingZones(): void {
   if (typeof window.ExpeditionEngine?.syncWorldExpeditionPanel === 'function') {
     window.ExpeditionEngine.syncWorldExpeditionPanel();
   }
+  renderWorldHuntingZoneCards();
   if (typeof window.abrirModal === 'function') window.abrirModal('janela-world-zones');
+}
+
+const HUNT_ZONE_CARD_GRADES = ['No-Grade', 'D', 'C', 'B', 'A', 'S'] as const;
+
+function zoneCardSlug(grade: string): string {
+  if (grade === 'No-Grade') return 'ng';
+  return String(grade || 'ng').toLowerCase();
+}
+
+function zoneCardArtUrl(grade: string): string {
+  const cat = window.catalogoZonas?.[grade];
+  if (cat?.img) return cat.img;
+  return typeof window.battleBgUrlForGrade === 'function'
+    ? window.battleBgUrlForGrade(grade, false)
+    : `assets/zones/battle_${zoneCardSlug(grade)}.webp`;
+}
+
+function bindZoneCardArt(img: HTMLImageElement, card: HTMLElement, url: string): void {
+  card.classList.add('is-art-pending');
+  card.classList.remove('has-zone-art');
+  img.hidden = true;
+  img.removeAttribute('src');
+  img.alt = '';
+  const probe = new Image();
+  probe.onload = () => {
+    img.src = url;
+    img.hidden = false;
+    card.classList.remove('is-art-pending');
+    card.classList.add('has-zone-art');
+  };
+  probe.onerror = () => {
+    img.hidden = true;
+    img.removeAttribute('src');
+    card.classList.add('is-art-pending');
+    card.classList.remove('has-zone-art');
+  };
+  probe.src = url;
+}
+
+function renderWorldHuntingZoneCards(): void {
+  const grid = document.getElementById('world-hunting-zones-grid');
+  if (!grid) return;
+  grid.replaceChildren();
+  grid.classList.add('world-zone-grid');
+
+  HUNT_ZONE_CARD_GRADES.forEach((grade) => {
+    const cat = window.catalogoZonas?.[grade];
+    if (!cat) return;
+    const sfx = zoneCardSlug(grade);
+    const name = typeof window.t === 'function' ? window.t(`game.zones.${sfx}.name`) : cat.nome;
+    const costShort = typeof window.t === 'function' ? window.t(`game.zones.${sfx}.costShort`) : String(cat.custo);
+    const level = typeof window.t === 'function'
+      ? window.t('game.zones.levelRange', { range: cat.nivelSugerido })
+      : `Lv. ${cat.nivelSugerido}`;
+    const pending = typeof window.t === 'function'
+      ? window.t('game.zones.artPending')
+      : 'Scenery coming soon';
+    const aria = typeof window.t === 'function'
+      ? window.t('game.zones.cardAria', { name, range: cat.nivelSugerido, cost: costShort })
+      : `${name}. ${level}. ${costShort}`;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `world-zone-card world-zone-card--${sfx}`;
+    if (grade === 'No-Grade') btn.classList.add('world-zone-card--trailhead');
+    btn.setAttribute('data-zone-grade', grade);
+    btn.setAttribute('aria-label', aria);
+    btn.onclick = (ev) => escolherZonaWorld(grade, ev);
+
+    const art = document.createElement('span');
+    art.className = 'world-zone-card__art';
+    art.setAttribute('aria-hidden', 'true');
+    const img = document.createElement('img');
+    img.className = 'world-zone-card__img';
+    img.decoding = 'async';
+    img.draggable = false;
+    img.alt = '';
+    const pendingEl = document.createElement('span');
+    pendingEl.className = 'world-zone-card__pending';
+    const pendingMark = document.createElement('span');
+    pendingMark.className = 'world-zone-card__pending-mark';
+    pendingMark.textContent = grade === 'No-Grade' ? 'NG' : grade;
+    const pendingTxt = document.createElement('span');
+    pendingTxt.className = 'world-zone-card__pending-txt';
+    pendingTxt.textContent = pending;
+    pendingEl.appendChild(pendingMark);
+    pendingEl.appendChild(pendingTxt);
+    art.appendChild(img);
+    art.appendChild(pendingEl);
+
+    const body = document.createElement('span');
+    body.className = 'world-zone-card__body';
+
+    const top = document.createElement('span');
+    top.className = 'world-zone-card__top';
+    const gradeEl = document.createElement('span');
+    gradeEl.className = 'world-zone-card__grade';
+    gradeEl.textContent = grade === 'No-Grade' ? 'NG' : grade;
+    top.appendChild(gradeEl);
+    if (grade === 'No-Grade') {
+      const badge = document.createElement('span');
+      badge.className = 'world-zone-card__badge';
+      const badgeTxt = typeof window.t === 'function' ? window.t('game.zones.trailheadBadge') : 'Start here';
+      badge.textContent = badgeTxt && badgeTxt !== 'game.zones.trailheadBadge' ? badgeTxt : 'Start here';
+      top.appendChild(badge);
+    }
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'world-zone-card__name';
+    nameEl.textContent = name && name !== `game.zones.${sfx}.name` ? name : cat.nome;
+
+    const meta = document.createElement('span');
+    meta.className = 'world-zone-card__meta';
+    const levelEl = document.createElement('span');
+    levelEl.className = 'world-zone-card__level';
+    levelEl.textContent = level && level !== 'game.zones.levelRange' ? level : `Lv. ${cat.nivelSugerido}`;
+    const costEl = document.createElement('span');
+    costEl.className = 'world-zone-card__cost';
+    costEl.textContent = costShort && costShort !== `game.zones.${sfx}.costShort` ? costShort : String(cat.custo);
+    const go = document.createElement('span');
+    go.className = 'world-zone-card__go';
+    go.setAttribute('aria-hidden', 'true');
+    go.textContent = '›';
+    meta.appendChild(levelEl);
+    meta.appendChild(costEl);
+    meta.appendChild(go);
+
+    const foot = document.createElement('span');
+    foot.className = 'world-zone-card__foot';
+    foot.appendChild(nameEl);
+    foot.appendChild(meta);
+
+    body.appendChild(top);
+    body.appendChild(foot);
+
+    btn.appendChild(art);
+    btn.appendChild(body);
+    grid.appendChild(btn);
+    bindZoneCardArt(img, btn, zoneCardArtUrl(grade));
+  });
 }
 
 function escolherZonaWorld(grade: string, ev?: Event): void {
@@ -172,3 +313,4 @@ registerGlobalFn('entrarDestinoWorld', entrarDestinoWorld as (...args: never[]) 
 registerGlobalFn('limparSelecaoWorldMap', limparSelecaoWorldMap as (...args: never[]) => unknown);
 registerGlobalFn('abrirWorldHuntingZones', abrirWorldHuntingZones as (...args: never[]) => unknown);
 registerGlobalFn('escolherZonaWorld', escolherZonaWorld as (...args: never[]) => unknown);
+registerGlobalFn('renderWorldHuntingZoneCards', renderWorldHuntingZoneCards as (...args: never[]) => unknown);

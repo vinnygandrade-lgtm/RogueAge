@@ -346,10 +346,11 @@ function aplicarDanoNoMonstro(index: number, dano: number, isCrit = false) {
     monstro.hp = 0;
     if (typeof window.tryProcessForestMobDeath === 'function') window.tryProcessForestMobDeath(monstro);
   } else {
-    if (typeof renderizarMonstros === 'function') renderizarMonstros();
-    else window.syncAllForestMobHpBars();
     const mobImg = document.getElementById('monster-img-' + monstro.idUnico);
-    if (mobImg) {
+    if (mobImg instanceof HTMLElement) {
+      const capHp = Math.max(1, Number(monstro.maxHp) || 1);
+      const hpPct = (Number(monstro.hp) / capHp) * 100;
+      mobImg.style.transform = (hpPct < 50 && hpPct > 0) ? 'translateY(5px) rotate(3deg)' : 'translateY(0)';
       mobImg.classList.remove('tomando-dano');
       void mobImg.offsetWidth;
       mobImg.classList.add('tomando-dano');

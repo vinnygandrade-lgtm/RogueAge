@@ -61,6 +61,7 @@ Este é o GDD oficial do **RogueAge**. Toda a lógica e desenvolvimento deve seg
   - `docs/paperdoll-art-spec.md` — paperdoll **1080×984**, presets em `assets/paperdolls/<id>/`, `resolvePaperdollPresetId`, **`src/paperdoll/paperdoll_config.ts`**, **`src/paperdoll/ui_paperdoll.ts`**. Índice de pastas: `assets/paperdolls/README.md`.
   - `docs/town-plaza-art-prompt.md` — praça da cidade (hub Town): canvas **1080×1620**, `assets/town/plaza_bg.jpg` + layers `assets/town/<npc>.png`, palco em `#praca-cidade` / `css/town-plaza.css`.
   - `docs/world-map-art-prompt.md` — mapa do Mundo (hub World): canvas **1080×1620**, `assets/world/map_bg` + camadas `assets/world/<id>.png` (como a praça); live: `forest` + `clanwar` + `daily` + `olympiad` + `raid`; drop `_incoming/` + `npm run export:world`.
+  - `docs/mob-combat-anim.md` — sprites de caça idle/atk/die: PNG still + **WebP animado** drop-in (sem GIF); lote 1 No-Grade (`spider` `wolf` `goblin`); cliente `src/combat/mob_sprite.ts`.
   - `docs/paperdoll-armor-art-brief.md` — brief visual dos **sets de armadura por grade** (Heavy/Light/Robe, IDs `a1`…`arm_s_vesper_*`, pares `_hands`) para arte em `equips/`.
   - `docs/paperdoll-armor-image-prompts.md` — mesmos sets em **prompts longos** para geradores de imagem (Midjourney, SD, etc.).
   - `docs/paperdoll-weapon-image-prompts.md` — **todas as armas** do catálogo (`wpn_ng_*` … `wpn_s_vesper_*`) em características detalhadas para prompts de imagem.
@@ -309,6 +310,7 @@ Este é o GDD oficial do **RogueAge**. Toda a lógica e desenvolvimento deve seg
 20. Novo módulo TS → **`src/<área>/`**, import em **`src/main.ts`**, tipos em **`src/types/`** — **§14.5**; não recriar `js/`.
 21. Retune de stats de equipamento / classes secundárias (Crit, Spd, Cast, Dodge) → ler **`docs/stat-budget.md`**; manter tetos teóricos; **não** reintroduzir soft-caps nem enchant× nesses rates; actualizar doc + patch notes se o feel mudar.
 22. Alterou `enrichEquipBaseFromCatalogIfNeeded` / hidratação de equip no load → **nunca** voltar a “skip rebind se `base` já tem stats”; gear owned deve seguir o catálogo após cada update do cliente.
+23. Alterou **sprites de caça** (`_idle` / `_atk` / `_die`) → **`docs/mob-combat-anim.md`**; WebP animado drop-in, **sem GIF**; PNG still fica de fallback.
 
 ### 11.6 Explicações ao humano (iniciante / “modo simples”) — **regra de ouro**
 - **Obrigação:** Respostas sobre **como fazer algo** (Supabase, GM, deploy de SQL, contas, passos no dashboard) **não podem** começar por parede técnica. **Primeiro** o utilizador tem de conseguir seguir **sem** precisar de saber o que é RLS, JSONB ou RPC.

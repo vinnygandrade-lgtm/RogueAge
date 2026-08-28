@@ -842,6 +842,9 @@ export class ExpeditionEngine {
         if (this.state.active && mode === 'combat') {
             botoes.style.setProperty('display', 'none', 'important');
             if (flee) flee.style.setProperty('display', 'none', 'important');
+            if (typeof (window as any).tickCombatBuffBar === 'function') {
+                (window as any).tickCombatBuffBar();
+            }
             return;
         }
 
@@ -3569,8 +3572,8 @@ export class ExpeditionEngine {
             const fromZona = win.zonaAtual?.nome ? String(win.zonaAtual.nome) : '';
             nameEl.textContent = fromZona || this.getZoneLabel(zoneId);
         }
+        const cat = win.catalogoZonas?.[zoneId];
         if (levelEl) {
-            const cat = win.catalogoZonas?.[zoneId];
             const range = cat?.nivelSugerido ? String(cat.nivelSugerido) : '';
             if (range) {
                 levelEl.textContent = this.t(
@@ -3583,6 +3586,30 @@ export class ExpeditionEngine {
                 levelEl.textContent = '';
                 levelEl.style.display = 'none';
             }
+        }
+
+        const hubArt = document.getElementById('expedition-hub-art');
+        const hubBanner = document.querySelector('#expedition-hub .expedition-hub__banner') as HTMLElement | null;
+        const artUrl = cat?.img
+            || (typeof win.battleBgUrlForGrade === 'function' ? win.battleBgUrlForGrade(zoneId, false) : '');
+        if (hubArt && artUrl) {
+            hubArt.classList.add('is-art-pending');
+            hubArt.classList.remove('has-zone-art');
+            hubArt.style.backgroundImage = '';
+            const probe = new Image();
+            probe.onload = () => {
+                hubArt.style.backgroundImage = 'url("' + artUrl + '")';
+                hubArt.classList.remove('is-art-pending');
+                hubArt.classList.add('has-zone-art');
+                hubBanner?.classList.add('expedition-hub__banner--has-art');
+            };
+            probe.onerror = () => {
+                hubArt.style.backgroundImage = '';
+                hubArt.classList.add('is-art-pending');
+                hubArt.classList.remove('has-zone-art');
+                hubBanner?.classList.remove('expedition-hub__banner--has-art');
+            };
+            probe.src = artUrl;
         }
     }
 
@@ -3653,12 +3680,15 @@ export class ExpeditionEngine {
         const active = !!this.state.active;
         dock.hidden = !active;
         grid.hidden = active;
-        grid.style.display = active ? 'none' : '';
+        grid.style.display = active ? 'none' : 'grid';
         const expBadge = document.getElementById('world-notif-expedition');
         if (expBadge) {
             expBadge.hidden = !active;
             expBadge.setAttribute('aria-hidden', active ? 'false' : 'true');
         }
+
+        const hint = document.getElementById('world-gk-pick-hint');
+        if (hint) hint.hidden = active;
 
         if (subtitle) {
             if (active) {

@@ -227,21 +227,44 @@
 
 .zone-header-banner {
     width: 100%;
-    height: 120px;
+    height: 148px;
     border-radius: 8px;
+    background: #14100c;
     background-size: cover;
-    background-position: center;
+    background-position: center 38%;
     border: 1px solid #5a4634;
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
+.zone-header-banner__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 38%;
+    z-index: 0;
+}
+
+.zone-header-banner.is-art-pending {
+    background:
+        radial-gradient(120% 80% at 50% 20%, rgba(115, 89, 57, 0.28), transparent 55%),
+        #14100c;
+}
+
 .zone-header-banner::after {
     content: "";
     position: absolute;
     inset: 0;
+    z-index: 1;
+    pointer-events: none;
     background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+}
+
+.zone-header-banner.is-art-pending::after {
+    opacity: 0.4;
 }
 
 .zone-grade-badge {

@@ -81,6 +81,7 @@ declare global {
     limparSelecaoWorldMap?: (ev?: Event) => void;
     abrirWorldHuntingZones?: () => void;
     escolherZonaWorld?: (grade: string, ev?: Event) => void;
+    renderWorldHuntingZoneCards?: () => void;
     dismissTownPlazaCoach?: (ev?: Event) => void;
     maybeShowPlazaNpcCoach?: () => void;
     navegarSelecao?: (direcao: number) => void;
@@ -709,6 +710,14 @@ declare global {
     fecharVitoriaEProcurar?: () => void;
     fecharVitoriaEVoltar?: () => void;
     atualizarIconesBuffPlayer?: (nome: string, duracaoMs: number, iconeHtml: string) => void;
+    tickCombatBuffBar?: () => void;
+    upsertCombatBuffIcon?: (opts: {
+      id: string;
+      iconHtml: string;
+      expiresAt: number;
+      title: string;
+      extraClass?: string;
+    }) => void;
     atualizarIconesDebuffMonstro?: (indexMonstro: number, nome: string, duracaoMs: number, iconeHtml: string) => void;
     refreshMobHpUI?: (monstro: unknown) => void;
     syncAllForestMobHpBars?: () => void;
@@ -793,6 +802,7 @@ declare global {
   function fecharVitoriaEProcurar(): void;
   function fecharVitoriaEVoltar(): void;
   function atualizarIconesBuffPlayer(nome: string, duracaoMs: number, iconeHtml: string): void;
+  function tickCombatBuffBar(): void;
   function atualizarIconesDebuffMonstro(indexMonstro: number, nome: string, duracaoMs: number, iconeHtml: string): void;
   function reconciliarMobsFlorestHpZero(): void;
   function forceRemoveStuckDeadForestMob(monstro: unknown): void;
@@ -1034,6 +1044,7 @@ declare global {
   function limparSelecaoWorldMap(ev?: Event): void;
   function abrirWorldHuntingZones(): void;
   function escolherZonaWorld(grade: string, ev?: Event): void;
+  function renderWorldHuntingZoneCards(): void;
   function dismissTownPlazaCoach(ev?: Event): void;
   function maybeShowPlazaNpcCoach(): void;
   function abrirMenuSocial(menu: string): void;

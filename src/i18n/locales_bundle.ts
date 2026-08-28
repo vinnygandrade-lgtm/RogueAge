@@ -1682,6 +1682,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     poisonApplied: '☠ Poison! {dps} damage/sec for a few seconds.',
                     poisonDebuffHint: 'Poisoned — losing HP every second.',
                     poisonDebuffAria: 'Poisoned — {sec}s left',
+                    activeEffectsAria: 'Active effects',
                     bleedAlmost: '🩸 Bleed building — next hit hits hard!',
                     bleedBurst: '🩸 Bleed burst! +{damage} damage.',
                     bleedPipsAria: 'Bleed stacks — third hit bursts',
@@ -2477,6 +2478,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 world: {
                     sectionTitle: 'WORLD & ADVENTURE',
                     huntingZones: 'Hunting Zones',
+                    pickZoneHint: 'Tap a hunting ground to inspect it, then teleport.',
                     expeditionDock: {
                         subtitle: 'Active Expedition',
                         kicker: 'Expedition in progress',
@@ -2536,6 +2538,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     inhabitantsTitle: 'Common Inhabitants',
                     rewardsTitle: 'Notable Rewards',
                     teleportBtn: 'TELEPORT NOW',
+                    artPending: 'Scenery coming soon',
+                    trailheadBadge: 'Start here',
+                    cardAria: '{name}. Suggested level {range}. Teleport {cost}. Tap to inspect.',
                     ng: {
                         name: 'Talking Island',
                         desc: 'The starting point for every adventurer. A peaceful isle—yet corrupted beasts stalk its shores.',
@@ -5251,6 +5256,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     poisonApplied: '☠ Veneno! {dps} de dano/seg por alguns segundos.',
                     poisonDebuffHint: 'Envenenado — perdendo HP a cada segundo.',
                     poisonDebuffAria: 'Envenenado — {sec}s restantes',
+                    activeEffectsAria: 'Efeitos ativos',
                     bleedAlmost: '🩸 Sangramento subindo — o próximo golpe dói!',
                     bleedBurst: '🩸 Estouro de sangramento! +{damage} de dano.',
                     bleedPipsAria: 'Cargas de sangramento — o 3º golpe estoura',
@@ -6046,6 +6052,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 world: {
                     sectionTitle: 'MUNDO E AVENTURA',
                     huntingZones: 'Zonas de caça',
+                    pickZoneHint: 'Toque numa zona para ver detalhes e teleportar.',
                     expeditionDock: {
                         subtitle: 'Expedição ativa',
                         kicker: 'Expedição em andamento',
@@ -6105,6 +6112,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     inhabitantsTitle: 'Habitantes comuns',
                     rewardsTitle: 'Recompensas notáveis',
                     teleportBtn: 'TELEPORTAR AGORA',
+                    artPending: 'Cenário em breve',
+                    trailheadBadge: 'Começa aqui',
+                    cardAria: '{name}. Nível sugerido {range}. Teleporte {cost}. Toque para inspecionar.',
                     ng: {
                         name: 'Talking Island',
                         desc: 'O ponto de partida de todo aventureiro. Uma ilha pacífica — mas feras corrompidas rondam suas praias.',

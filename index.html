@@ -302,6 +302,7 @@
             <div class="store-body">
                 <div class="zone-modal-content">
                     <div id="zona-detalhe-banner" class="zone-header-banner">
+                        <img id="zona-detalhe-art" class="zone-header-banner__img" alt="" hidden>
                         <div id="zona-detalhe-grade" class="zone-grade-badge">NO-GRADE</div>
                     </div>
 
@@ -354,6 +355,7 @@
                         <p id="world-gk-subtitle" data-i18n="game.world.huntingZones">Hunting Zones</p>
                     </div>
                 </div>
+                <p id="world-gk-pick-hint" class="world-gk-pick-hint" data-i18n="game.world.pickZoneHint">Tap a hunting ground to inspect it, then teleport.</p>
                 <div id="world-expedition-dock" class="world-expedition-dock" hidden aria-live="polite">
                     <div class="world-expedition-dock__crest" aria-hidden="true">⛺</div>
                     <div class="world-expedition-dock__kicker" data-i18n="game.world.expeditionDock.kicker">Expedition in progress</div>
@@ -366,14 +368,7 @@
                         <button type="button" id="world-exp-dock-extract" class="btn-l2 world-expedition-dock__extract" onclick="ExpeditionEngine.promptExitAndExtract()" data-i18n="game.world.expeditionDock.extract">Collect &amp; exit</button>
                     </div>
                 </div>
-                <div id="world-hunting-zones-grid" class="tp-grid">
-                    <button type="button" class="tp-button" onclick="escolherZonaWorld('No-Grade')"><span data-i18n="game.zones.ng.name">Talking Island</span> <span data-i18n="game.zones.ng.costShort">Free</span></button>
-                    <button type="button" class="tp-button tp-button--d" onclick="escolherZonaWorld('D')"><span data-i18n="game.zones.d.name">Ruins of Despair</span> <span data-i18n="game.zones.d.costShort">100a</span></button>
-                    <button type="button" class="tp-button tp-button--c" onclick="escolherZonaWorld('C')"><span data-i18n="game.zones.c.name">Death Pass</span> <span data-i18n="game.zones.c.costShort">500a</span></button>
-                    <button type="button" class="tp-button tp-button--b" onclick="escolherZonaWorld('B')"><span data-i18n="game.zones.b.name">Dragon Valley</span> <span data-i18n="game.zones.b.costShort">2k</span></button>
-                    <button type="button" class="tp-button tp-button--a" onclick="escolherZonaWorld('A')"><span data-i18n="game.zones.a.name">Tower of Insolence</span> <span data-i18n="game.zones.a.costShort">10k</span></button>
-                    <button type="button" class="tp-button tp-button--s" onclick="escolherZonaWorld('S')"><span data-i18n="game.zones.s.name">Imperial Tomb</span> <span data-i18n="game.zones.s.costShort">50k</span></button>
-                </div>
+                <div id="world-hunting-zones-grid" class="world-zone-grid"></div>
             </div>
         </div>
     </div>
@@ -2176,12 +2171,14 @@
             </div>
             <div id="expedition-combat-stage" class="expedition-combat-stage">
                 <div id="forest-battle-bg" class="forest-battle-bg" aria-hidden="true"></div>
+                <div id="player-combat-buffs" class="player-combat-buffs"></div>
                 <div class="tela-floresta-inner">
                 <h4 id="hud-zona-nome" data-i18n="game.zones.ng.name">Talking Island</h4>
 
                 <div id="expedition-hub" class="expedition-hub">
                     <div class="expedition-hub__panel">
                         <header class="expedition-hub__banner">
+                            <div id="expedition-hub-art" class="expedition-hub__art" aria-hidden="true"></div>
                             <div class="expedition-hub__zone-grade" id="expedition-hub-grade">NG</div>
                             <div class="expedition-hub__zone-meta">
                                 <span class="expedition-hub__zone-kicker" data-i18n="game.hunt.expedition.hubZoneLabel">Trailhead</span>
@@ -2263,7 +2260,6 @@
             <div id="expedition-combat-hotbar-slot" class="expedition-hotbar-slot" aria-hidden="true"></div>
 
             <div id="botoes-combate">
-                <div id="player-combat-buffs"></div>
                 <button id="btn-fugir" type="button" class="btn-l2" onclick="tentarFugir()" data-i18n="game.hunt.escape">ESCAPE</button>
             </div>
         </div>

@@ -31,6 +31,25 @@ Master PNG can live outside the repo; commit the compressed WebP the client load
 
 Code: `src/ui/ui_forest_battle_bg.ts`.
 
+## Same portrait, three more surfaces
+
+The **portrait** `battle_<slug>.webp` is also the postcard art. Drop the file and these pick it up — no extra crop, no second filename.
+
+| Surface | Where | Crop |
+|---------|--------|------|
+| World hunting picker | `#janela-world-zones` `.world-zone-card` | **2-col tiles 124px tall**, img `position:absolute` + `object-fit: cover` at `center 36%` (never the full 1080×2340 plate, never a 4∶1 pancake strip) |
+| Zone details | `#zona-detalhe-banner` | banner 148px tall, same crop |
+| Expedition hub | `#expedition-hub-art` | banner cover, same crop |
+| Live combat | `#forest-battle-bg` | full stage |
+
+**Shipped today:** `battle_ng.webp` (+ `battle_ng_wide.webp` for PC). D / C / B / A / S portrait files are expected drop-ins at the names above; until they exist the picker/details/hub show a **Scenery coming soon** pending tile instead of a broken image.
+
+Do **not** reuse No-Grade art for other grades — each zone keeps its own identity.
+
+## Art brief (picker crop)
+
+Cards and banners crop a **wide strip** from the tall portrait — they must **not** display the full 1080×2340 plate (that stretches the picker). Keep the zone landmark / path around **34% from the top**. Sky-only tops and feet-only bottoms get cut off.
+
 ## Art brief (wide)
 
 - Same zone identity as the portrait piece (palette, landmarks, mood).

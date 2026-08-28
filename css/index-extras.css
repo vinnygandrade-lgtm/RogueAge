@@ -1290,8 +1290,8 @@ html:not([data-l2-layout="landscape"]) #janela-item-acao .jewel-pick-grid {
     font-size: 1.5em;
     cursor: pointer;
 }
-#zona-detalhe-banner.zone-header-banner {
-    background-image: url('assets/npcs/gatekeeper.png');
+#zona-detalhe-banner.zone-header-banner.has-zone-art {
+    background-image: none;
 }
 #janela-detalhes-zona .zone-footer-actions {
     padding: 15px;
@@ -4105,14 +4105,44 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     flex-shrink: 0;
     padding: 14px 14px 12px;
     border-bottom: 1px solid rgba(179, 138, 77, 0.28);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
     background:
         linear-gradient(180deg, rgba(72, 52, 24, 0.28) 0%, rgba(0, 0, 0, 0.18) 100%);
+}
+.expedition-hub__art {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-size: cover;
+    background-position: center 38%;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 0.22s ease;
+}
+.expedition-hub__art.has-zone-art {
+    opacity: 1;
+}
+.expedition-hub__banner--has-art {
+    background: #120e0a;
+}
+.expedition-hub__banner--has-art::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(8, 6, 4, 0.88) 0%, rgba(8, 6, 4, 0.5) 48%, rgba(8, 6, 4, 0.8) 100%);
 }
 .expedition-hub__brief,
 .expedition-hub__zone-card {
     display: contents;
 }
 .expedition-hub__zone-grade {
+    position: relative;
+    z-index: 2;
     flex: 0 0 auto;
     width: 54px;
     height: 54px;
@@ -4133,6 +4163,8 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     box-shadow: inset 0 1px 0 rgba(255, 248, 220, 0.12), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 .expedition-hub__zone-meta {
+    position: relative;
+    z-index: 2;
     min-width: 0;
     flex: 1 1 auto;
 }
@@ -12716,6 +12748,11 @@ html.l2-standalone .settings-section--pwa {
         transition: none !important;
         transform: none !important;
     }
+    .mob-hunt-sprite-shell:has([data-mob-pose="idle"]),
+    .mob-hunt-sprite-shell--lunge,
+    .mob-hunt-sprite-shell--lunge::after {
+        animation: none !important;
+    }
 }
 .exp-vitals--hit {
     animation: expVitalsHitPulse 0.4s ease-out;
@@ -12817,6 +12854,45 @@ small.mob-hunt-hp-text {
     display: inline-block;
     max-width: 100%;
     line-height: 0;
+    transform-origin: 50% 100%;
+}
+/* Idle breathe + attack lunge live on the shell so the img keeps wounded-tilt / hit-flash. */
+.mob-hunt-sprite-shell:has([data-mob-pose="idle"]:not([data-mob-animated="1"])):not(.mob-hunt-sprite-shell--lunge):not(:has(.mob-desintegrando)) {
+    animation: mobHuntBreathe 1.4s ease-in-out infinite;
+}
+.mob-hunt-card:nth-child(3n+2) .mob-hunt-sprite-shell:has([data-mob-pose="idle"]) {
+    animation-delay: -0.45s;
+}
+.mob-hunt-card:nth-child(3n+3) .mob-hunt-sprite-shell:has([data-mob-pose="idle"]) {
+    animation-delay: -0.9s;
+}
+.mob-hunt-sprite-shell--lunge {
+    animation: mobHuntLunge 0.42s cubic-bezier(0.18, 0.85, 0.32, 1) both;
+    animation-delay: 0s;
+}
+.mob-hunt-sprite-shell--lunge::after {
+    content: '';
+    position: absolute;
+    inset: 6% 10% 0;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(ellipse at 50% 72%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.12) 42%, transparent 72%);
+    animation: mobHuntStrikeFlash 0.42s ease-out both;
+}
+@keyframes mobHuntBreathe {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-2px) scale(1.035); }
+}
+@keyframes mobHuntLunge {
+    0% { transform: translateY(0) scale(1); }
+    28% { transform: translateY(7px) scale(1.12); }
+    55% { transform: translateY(4px) scale(1.05); }
+    100% { transform: translateY(0) scale(1); }
+}
+@keyframes mobHuntStrikeFlash {
+    0% { opacity: 0; }
+    22% { opacity: 1; }
+    100% { opacity: 0; }
 }
 .mob-hunt-sprite {
     display: block;
@@ -12954,11 +13030,11 @@ small.mob-hunt-hp-text {
     background: linear-gradient(135deg, #38bdf8 40%, #4ade80 60%);
 }
 .forest-poison-buff {
-    border-color: rgba(74, 222, 128, 0.55) !important;
-    background: rgba(20, 83, 45, 0.55) !important;
+    background: transparent !important;
+    border: none !important;
 }
 .forest-poison-buff__icon {
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1;
 }
 .damage-number.poison-dot {
@@ -12984,12 +13060,77 @@ small.mob-hunt-hp-text {
 #tela-floresta.forest-hunt-summary-open #botoes-combate {
     display: none !important;
 }
-#player-combat-buffs {
+#player-combat-buffs,
+.player-combat-buffs {
+    display: none;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 5px 6px;
+    width: auto;
+    max-width: calc(100% - 16px);
+    height: auto;
+    justify-content: flex-start;
+    pointer-events: none;
+}
+#tela-floresta.expedition-combat-open #player-combat-buffs:not(:empty) {
     display: flex;
-    gap: 8px;
-    height: 35px;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 5;
+}
+.combat-buff-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 32px;
+    flex: 0 0 auto;
+}
+.combat-buff-icon__time {
+    font-size: 9px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: #fde68a;
+    text-shadow: 0 1px 2px #000, 0 0 4px #000;
+    letter-spacing: 0.02em;
+}
+.combat-buff-icon--urgent .combat-buff-icon__time {
+    color: #fca5a5;
+}
+.combat-buff-icon__art {
+    width: 28px;
+    height: 28px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    width: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(201, 162, 39, 0.5);
+    border-radius: 3px;
+    background: rgba(8, 7, 6, 0.72);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+.combat-buff-icon__art img,
+.combat-buff-icon__art .bless-icon {
+    width: 28px !important;
+    height: 28px !important;
+    max-width: 28px;
+    max-height: 28px;
+    object-fit: contain;
+    pointer-events: none;
+}
+.combat-buff-icon__art .bless-icon {
+    border-radius: 3px;
+}
+.forest-poison-buff .combat-buff-icon__art {
+    border-color: rgba(74, 222, 128, 0.55);
+    background: rgba(20, 83, 45, 0.55);
+}
+.forest-poison-buff__icon {
+    font-size: 14px;
+    line-height: 1;
 }
 .game-container.expedition-run-locked #btn-fugir {
     display: none !important;
