@@ -1789,11 +1789,15 @@
                 <span class="btn-travel__label" data-i18n="nav.town">TOWN</span>
                 <span id="nav-notif-cidade-class" class="nav-notif nav-notif--tab nav-notif--class-transfer" hidden aria-hidden="true"></span>
             </button>
-            <button id="btn-tab-world" class="btn-travel btn-travel--accent" data-i18n="nav.world" onclick="irPara('world')">WORLD</button>
+            <button id="btn-tab-world" class="btn-travel" onclick="irPara('world')">
+                <span class="btn-travel__label" data-i18n="nav.world">WORLD</span>
+            </button>
             <button id="btn-tab-social" class="btn-travel" onclick="irPara('social')">
                 <span class="btn-travel__label" data-i18n="nav.social">SOCIAL</span>
             </button>
-            <button id="btn-tab-inventario" class="btn-travel" data-i18n="nav.bag" onclick="irPara('inventario')">BAG</button>
+            <button id="btn-tab-inventario" class="btn-travel" onclick="irPara('inventario')">
+                <span class="btn-travel__label" data-i18n="nav.bag">BAG</span>
+            </button>
             <button id="btn-tab-menu" class="btn-travel btn-travel--menu" onclick="abrirNavMenu()">
                 <span class="btn-travel__icon-wrap">
                     <span class="btn-travel__glyph btn-travel__glyph--menu" aria-hidden="true"></span>
@@ -1801,11 +1805,10 @@
                 </span>
                 <span class="btn-travel__label" data-i18n="nav.menu">MENU</span>
             </button>
+            <!-- Coach shells sit above the dock when visible -->
+            <div id="nav-menu-town-coach" class="nav-menu-town-coach nav-menu-town-coach--hidden" hidden aria-hidden="true"></div>
+            <div id="nav-coach-toast" class="nav-menu-town-coach nav-menu-town-coach--hidden" hidden aria-hidden="true"></div>
         </div>
-
-        <!-- Legacy coach shells kept hidden; tips use #l2-tip-toast -->
-        <div id="nav-menu-town-coach" class="nav-menu-town-coach nav-menu-town-coach--hidden" hidden aria-hidden="true"></div>
-        <div id="nav-coach-toast" class="nav-menu-town-coach nav-menu-town-coach--hidden" hidden aria-hidden="true"></div>
 
         <div class="game-viewport" id="game-viewport">
         
@@ -2812,8 +2815,22 @@
         </div>
 
         <div id="tela-perfil" class="screen-content screen-profile">
+            <header class="profile-sticky-head">
+                <h4 class="profile-char-title">CHARACTER PROFILE</h4>
+                <div class="profile-subnav" role="tablist" data-i18n-aria-label="game.inventoryUi.profileSubnav.aria" aria-label="Character pages">
+                    <button type="button" role="tab" class="profile-subnav__btn is-active" id="profile-tab-gear" data-profile-tab="gear" aria-selected="true" onclick="selecionarAbaPerfil('gear')">
+                        <span data-i18n="game.inventoryUi.profileSubnav.gear">Gear</span>
+                    </button>
+                    <button type="button" role="tab" class="profile-subnav__btn" id="btn-profile-spellbook" data-profile-tab="skills" aria-selected="false" onclick="selecionarAbaPerfil('skills')">
+                        <span data-i18n="game.inventoryUi.profileSubnav.skills">Skills</span>
+                        <span id="nav-notif-spellbook" class="nav-notif nav-notif--skills nav-notif--spellbook-btn" hidden aria-hidden="true"></span>
+                    </button>
+                    <button type="button" role="tab" class="profile-subnav__btn" id="profile-tab-titles" data-profile-tab="titles" aria-selected="false" onclick="selecionarAbaPerfil('titles')">
+                        <span data-i18n="game.inventoryUi.profileSubnav.titles">Titles</span>
+                    </button>
+                </div>
+            </header>
             <div class="profile-scroll-pane">
-            <h4 class="profile-char-title" data-i18n="game.inventoryUi.profileGeneric">CHARACTER PROFILE</h4>
             <div id="profile-endgame-ascension"></div>
             
             
@@ -2893,12 +2910,7 @@
             <div id="profile-stats-preview" class="profile-stats-preview" role="region"></div>
 
             <div class="paperdoll-actions">
-                <button type="button" id="btn-profile-spellbook" class="btn-l2 btn-profile-spellbook" onclick="abrirSpellbook()">
-                    <span data-i18n="game.spellbook.profileBtn">SPELLBOOK (SKILLS)</span>
-                    <span id="nav-notif-spellbook" class="nav-notif nav-notif--skills nav-notif--spellbook-btn" hidden aria-hidden="true"></span>
-                </button>
                 <button type="button" class="btn-l2 btn-profile-status" data-i18n="game.inventoryUi.profilePreview.sourcesBtn" onclick="abrirStatusDetalhado()">SOURCES & BREAKDOWN</button>
-                <button type="button" class="btn-l2 btn-profile-titles" data-i18n="game.gameplayAchievements.profileTitlesBtn" onclick="abrirPlayerTitles()">TITLES</button>
             </div>
             </div>
         </div>

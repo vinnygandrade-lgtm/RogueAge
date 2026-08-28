@@ -19,7 +19,7 @@
     pointer-events: auto;
     position: absolute;
     left: 10px;
-    bottom: calc(56px + var(--l2-safe-bottom, 0px));
+    bottom: calc(62px + var(--l2-safe-bottom, 0px));
     z-index: 2;
     display: inline-flex;
     align-items: center;
@@ -106,7 +106,7 @@
     position: absolute;
     left: 8px;
     right: 8px;
-    bottom: calc(56px + var(--l2-safe-bottom, 0px));
+    bottom: calc(62px + var(--l2-safe-bottom, 0px));
     width: auto;
     max-width: 420px;
     height: min(42vh, 290px);
@@ -178,6 +178,11 @@
 .game-container.expedition-run-locked:has(#tela-floresta.expedition-combat-open) .floating-chat-fab:not(.floating-chat-fab--placed),
 .game-container.expedition-run-locked:has(#tela-floresta.expedition-combat-open) .floating-chat.floating-chat--open .log-container.floating-chat__panel:not(.floating-chat__panel--placed) {
     bottom: calc(56px + var(--exp-combat-hud-h, 96px) + var(--l2-safe-bottom, 0px));
+}
+
+.game-container.shell-battle-immersive:not(.expedition-run-locked) .floating-chat-fab:not(.floating-chat-fab--placed),
+.game-container.shell-battle-immersive:not(.expedition-run-locked) .floating-chat.floating-chat--open .log-container.floating-chat__panel:not(.floating-chat__panel--placed) {
+    bottom: calc(12px + var(--l2-safe-bottom, 0px));
 }
 
 /* Hunt-log-only inside floating panel (normal forest fight) */

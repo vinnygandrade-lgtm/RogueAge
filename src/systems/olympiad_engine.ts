@@ -1095,6 +1095,7 @@ const OlympiadEngine = {
         this.renderizarHistorico();
         await this.carregarOponentes();
         this.refreshOlympiadClaimNotifs();
+        window.syncShellBattleChrome?.();
     },
 
     async carregarOponentes() {
@@ -1373,6 +1374,7 @@ const OlympiadEngine = {
         
         // Renderiza a barra de atalhos mas bloqueia cliques
         if (typeof window.renderizarBarraAtalhos === 'function') window.renderizarBarraAtalhos();
+        window.syncShellBattleChrome?.();
 
         // --- SISTEMA DE COUNTDOWN ---
         const overlay = document.getElementById('oly-countdown-overlay');

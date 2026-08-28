@@ -391,6 +391,10 @@ declare global {
     carregarJogo: (nome: string, opts?: CarregarJogoOptions) => Promise<boolean>;
     mudarTela: (id: string) => void;
     irPara: (lugar: string) => void;
+    syncShellBattleChrome?: () => void;
+    selecionarAbaPerfil?: (tab: string) => void;
+    setProfileSubnavActive?: (tab: string) => void;
+    syncProfileSubnavAfterModalClose?: () => void;
     abrirSpellbook?: () => void;
     voltarListaSpellbook?: () => void;
     fecharSpellbook?: (forceClose?: boolean) => void;
@@ -773,6 +777,7 @@ declare global {
   function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<boolean>;
   function mudarTela(id: string): void;
   function irPara(lugar: string): void;
+  function syncShellBattleChrome(): void;
   function atualizar(): void;
   function iniciarJogo(): void;
   function escreverLog(html: string): void;
@@ -971,6 +976,7 @@ declare global {
   function dailyBossJaConsumiuHoje(): boolean;
   function fecharStatusDetalhado(): void;
   function abrirStatusDetalhado(): void;
+  function selecionarAbaPerfil(tab: string): void;
   function abrirAcaoPerfil(tipo: string): void;
   function abrirAcaoInventario(index: number, slotPerfilPref?: string): void;
   function fecharJanelaAcao(): void;

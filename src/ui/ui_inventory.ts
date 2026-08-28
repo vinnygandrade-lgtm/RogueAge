@@ -996,9 +996,78 @@ function _fillProfilePaperdollSlot(
     }
 }
 
+type ProfileSubnavTab = 'gear' | 'skills' | 'titles';
+
+let profileSubnavSkipCloseSync = false;
+
+function normalizeProfileSubnavTab(tab: unknown): ProfileSubnavTab {
+    return tab === 'skills' || tab === 'titles' ? tab : 'gear';
+}
+
+function setProfileSubnavActive(tab: unknown): void {
+    const next = normalizeProfileSubnavTab(tab);
+    document.querySelectorAll('#tela-perfil .profile-subnav__btn').forEach((node) => {
+        const btn = node as HTMLElement;
+        const on = btn.dataset.profileTab === next;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+}
+
+function syncProfileSubnavAfterModalClose(): void {
+    if (profileSubnavSkipCloseSync) return;
+    const spellOpen = document.getElementById('janela-spellbook')?.style.display === 'flex';
+    const titlesOpen = document.getElementById('janela-player-titles')?.style.display === 'flex';
+    if (spellOpen) setProfileSubnavActive('skills');
+    else if (titlesOpen) setProfileSubnavActive('titles');
+    else setProfileSubnavActive('gear');
+}
+
+function closeProfileSubnavModalsExcept(keep?: ProfileSubnavTab): void {
+    profileSubnavSkipCloseSync = true;
+    try {
+        if (keep !== 'skills') {
+            const spell = document.getElementById('janela-spellbook');
+            if (spell && spell.style.display === 'flex') {
+                if (typeof window.fecharSpellbook === 'function') window.fecharSpellbook(true);
+                else window.fecharModal?.('janela-spellbook');
+            }
+        }
+        if (keep !== 'titles') {
+            const titles = document.getElementById('janela-player-titles');
+            if (titles && titles.style.display === 'flex') {
+                if (typeof window.fecharPlayerTitles === 'function') window.fecharPlayerTitles();
+                else window.fecharModal?.('janela-player-titles');
+            }
+        }
+    } finally {
+        profileSubnavSkipCloseSync = false;
+    }
+}
+
+function selecionarAbaPerfil(tab: unknown): void {
+    const next = normalizeProfileSubnavTab(tab);
+    if (next === 'gear') {
+        closeProfileSubnavModalsExcept();
+        setProfileSubnavActive('gear');
+        const pane = document.querySelector('#tela-perfil .profile-scroll-pane');
+        if (pane) (pane as HTMLElement).scrollTop = 0;
+        return;
+    }
+    if (next === 'skills') {
+        closeProfileSubnavModalsExcept('skills');
+        if (typeof window.abrirSpellbook === 'function') window.abrirSpellbook();
+        else setProfileSubnavActive('skills');
+        return;
+    }
+    closeProfileSubnavModalsExcept('titles');
+    if (typeof window.abrirPlayerTitles === 'function') window.abrirPlayerTitles();
+    else setProfileSubnavActive('titles');
+}
+
 function renderizarPerfil(): void {
     // Atualiza o título do perfil com o nome do personagem real
-    const profileHeader = document.querySelector('#tela-perfil h4') as HTMLElement | null;
+    const profileHeader = document.querySelector('#tela-perfil .profile-char-title') as HTMLElement | null;
     const tInv = typeof window.t === 'function' ? window.t : null;
     const L = (k, fb) => {
         if (!tInv) return fb;
@@ -1687,6 +1756,9 @@ window._l2InvIconFrameHtml = _l2InvIconFrameHtml;
 window._l2AppendInvGridSlot = _l2AppendInvGridSlot;
 window.renderizarInventario = renderizarInventario;
 window.renderizarPerfil = renderizarPerfil;
+window.selecionarAbaPerfil = selecionarAbaPerfil;
+window.setProfileSubnavActive = setProfileSubnavActive;
+window.syncProfileSubnavAfterModalClose = syncProfileSubnavAfterModalClose;
 window.abrirStatusDetalhado = abrirStatusDetalhado;
 window.fecharStatusDetalhado = fecharStatusDetalhado;
 window.abrirHarmonyInfo = abrirHarmonyInfo;

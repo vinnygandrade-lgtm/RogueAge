@@ -97,6 +97,8 @@ function prepararTelaCacada() {
         }
     }
 
+    window.syncShellBattleChrome?.();
+
     if (exp && typeof exp.syncForestEntryUi === 'function') {
         if (typeof exp.isExpeditionCombatUiActive === 'function' && exp.isExpeditionCombatUiActive()) {
             if (typeof exp.syncExpeditionCombatControls === 'function') {
@@ -386,6 +388,7 @@ function spawnMonstros() {
     if (typeof window.CombatAutoPrefs?.tryStartAutoAttackFromPrefs === 'function') {
         window.CombatAutoPrefs.tryStartAutoAttackFromPrefs();
     }
+    window.syncShellBattleChrome?.();
 }
 
 function prefersReducedMobMotion(): boolean {
@@ -638,6 +641,7 @@ window.dispararAnimacaoCooldown = function dispararAnimacaoCooldown(nome: string
 function iniciarFechamentoVitoriaCacada() {
     pararAtaqueMonstro();
     if (typeof window.setChatCollapsedForCombat === 'function') window.setChatCollapsedForCombat(false);
+    window.syncShellBattleChrome?.();
     setTimeout(() => {
         let mobsContainer = document.getElementById('mobs-container');
         if (mobsContainer) mobsContainer.innerHTML = '';

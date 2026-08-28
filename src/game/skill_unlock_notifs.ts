@@ -106,7 +106,7 @@ export function clearUnseenSkillUnlocks(): void {
   syncSkillUnlockNotifUi();
 }
 
-/** Refresh Profile tab, Spellbook button, and open spellbook row badges. */
+/** Refresh Profile tab, Spellbook subnav, and open spellbook row badges. */
 export function syncSkillUnlockNotifUi(): void {
   const count = unseenSkillIds.size;
 

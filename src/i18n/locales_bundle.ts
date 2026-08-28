@@ -68,6 +68,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-28',
+                        items: [
+                            'Hub tabs sit at the bottom of the phone, in thumb reach — Profile, Town, World, Social, Bag, and Menu.',
+                            'In a live fight (expedition, raid, Olympiad, clan war, forest pull) the hub tabs hide so the battlefield fills the screen. Town and the other hubs bring them back.',
+                            'Town, World, and Bag icons are more RPG now: a castle keep, a globe, and a treasure chest.',
+                            'Profile keeps Gear, Skills, and Titles pinned at the top — no more scrolling past your character to open the Spellbook or titles. Full stat breakdown stays on Gear.',
+                            'The game stays on the tall mobile layout for now (the wide PC layout is paused).'
+                        ]
+                    },
+                    {
                         date: '2026-08-26',
                         items: [
                             'Enchanted weapons (+4 and up) now light the blade itself — colored sheen on the metal, sparks along the silhouette, and a stronger glow as the enchant climbs.',
@@ -2090,6 +2100,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         other: 'Other'
                     },
                     gotIt: 'GOT IT',
+                    profileSubnav: {
+                        aria: 'Character pages',
+                        gear: 'Gear',
+                        skills: 'Skills',
+                        titles: 'Titles'
+                    },
                     profilePreview: {
                         headline: 'Combat attributes',
                         badge: 'Same as your bars',
@@ -3619,6 +3635,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-28',
+                        items: [
+                            'As abas do hub ficam em baixo no telemóvel, ao alcance do polegar — Perfil, Cidade, Mundo, Social, Bolsa e Menu.',
+                            'Numa luta ao vivo (expedição, raid, Olimpíada, guerra de clãs, pull na floresta) as abas escondem-se para o combate ocupar o ecrã. Na cidade e nos outros hubs voltam a aparecer.',
+                            'Ícones de Cidade, Mundo e Bolsa mais de RPG: castelo, globo e baú de tesouro.',
+                            'No Perfil, Traje, Skills e Títulos ficam fixos no topo — já não precisas de rolar o personagem para abrir o grimório ou os títulos. A apuração completa continua no Traje.',
+                            'O jogo fica no layout alto de telemóvel por agora (o modo largo de PC está em pausa).'
+                        ]
+                    },
                     {
                         date: '2026-08-26',
                         items: [
@@ -5642,6 +5668,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         other: 'Outros'
                     },
                     gotIt: 'ENTENDI',
+                    profileSubnav: {
+                        aria: 'Páginas do personagem',
+                        gear: 'Traje',
+                        skills: 'Skills',
+                        titles: 'Títulos'
+                    },
                     profilePreview: {
                         headline: 'Atributos de combate',
                         badge: 'Igual às barras',

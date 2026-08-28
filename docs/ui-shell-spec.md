@@ -4,6 +4,8 @@ Contrato de layout para o jogo parecer **o mesmo** em telemóveis diferentes (pr
 
 Suporta **dois modos efectivos**: **portrait** (telemóvel) e **landscape** (PC / ecrã largo).
 
+**Estado actual:** o produto corre **só portrait**. `src/ui/ui_layout_mode.ts` força `FORCE_PORTRAIT` — o selector de Layout nas settings fica oculto e o lead explica o modo vertical. `css/shell-landscape.css` permanece no repo para um redesign PC futuro, mas **não activa**.
+
 ## Implementação
 
 | Ficheiro | Papel |
@@ -91,6 +93,8 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 2. **Sem** letterbox por proporção 9∶19.5 — o layout interno (flex + scroll) adapta-se à altura real do aparelho.
 3. Media: `(orientation: portrait) and (max-width: 768px)` ou touch `(pointer: coarse)` em portrait até 900px.
 4. Se `data-l2-layout="landscape"` estiver activo, **não** usar fill — `shell-landscape.css` força contain 16∶9.
+5. **Grelha in-game (igual ao PC):** HUD → viewport → hotbar → tabs (`.travel-menu` em baixo, zona do polegar). As 6 abas **só** no hub (Profile / Town / World / Social / Bag / Menu). Em combate ao vivo (expedição luta, duelo Olympiad, raid, arena de guerra, pull clássico) a classe `.shell-battle-immersive` esconde as tabs; estágios com vitals próprios também escondem o HUD (`.shell-battle-hide-hud`). A luta fica **cenário a ecrã cheio + barra de atalhos**.
+6. **Perfil (portrait):** cabeçalho fixo `.profile-sticky-head` com **Gear · Skills · Titles**. Gear = paperdoll + Harmony + resumo de combate + botão de apuração. Skills e Titles abrem os modais existentes (`#janela-spellbook`, `#janela-player-titles`); ao fechar, a faixa volta a Gear. Os três destinos **não** descem no scroll.
 
 ### Desktop / landscape / preview centrado
 
@@ -104,7 +108,7 @@ Referência: **cliente MMO clássico em janela** (mesmo jogo, mesa de PC).
 Sob `data-l2-layout="landscape"` e `#screen-game` (classe `game-ingame` no `.game-container`):
 
 - Shell full-width; `#screen-game` continua **flex** (não grid — evita partir a largura).
-- Tabs reordenadas para baixo via `order`.
+- Tabs no fundo (mesmo stack do portrait; `order` em `layout.css`).
 - **Chat** = messenger flutuante (FAB + painel ~420×240); fechado por defeito; badge de não lidas; FAB **arrastável** (posição persistida).
 - Hotbar centrada; inventário/perfil com tamanhos ideais.
 

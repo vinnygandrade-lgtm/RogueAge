@@ -297,21 +297,58 @@
     box-sizing: border-box;
 }
 
-#tela-perfil .paperdoll-actions .btn-profile-spellbook {
-    background: linear-gradient(180deg, #3b1d4e 0%, #1d0e26 100%);
-    border-color: #613080;
-    min-height: 48px;
-}
-
 #tela-perfil .paperdoll-actions .btn-profile-status {
     background: linear-gradient(180deg, #162b4d 0%, #0b1526 100%);
     border-color: #2b5292;
-    min-height: 48px;
+    min-height: 44px;
 }
 
-#tela-perfil .paperdoll-actions .btn-profile-titles {
-    background: linear-gradient(180deg, #4a2d12 0%, #261508 100%);
-    border-color: #b45309;
-    min-height: 48px;
-    color: #fde68a;
+#tela-perfil .profile-sticky-head {
+    background:
+        linear-gradient(180deg, rgba(12, 9, 6, 0.97) 0%, rgba(12, 9, 6, 0.88) 72%, transparent 100%);
+}
+
+#tela-perfil .profile-subnav {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    max-width: 440px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border: 1px solid #5a4634;
+    background: rgba(0, 0, 0, 0.42);
+    box-shadow: inset 0 1px 0 rgba(230, 194, 138, 0.08);
+}
+
+#tela-perfil .profile-subnav__btn {
+    flex: 1 1 0;
+    position: relative;
+    min-height: 40px;
+    margin: 0;
+    padding: 6px 4px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #8a7968;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+#tela-perfil .profile-subnav__btn:focus-visible {
+    outline: 2px solid var(--l2-focus-ring, #facc15);
+    outline-offset: 2px;
+}
+
+#tela-perfil .profile-subnav__btn.is-active {
+    color: #facc15;
+    background: linear-gradient(180deg, rgba(250, 204, 21, 0.18) 0%, rgba(90, 70, 20, 0.38) 100%);
+    box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.4);
 }

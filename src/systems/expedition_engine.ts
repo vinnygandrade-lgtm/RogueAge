@@ -3450,6 +3450,7 @@ export class ExpeditionEngine {
         this.syncCombatHud(mode);
         this.syncExpeditionCombatControls(mode);
         this.syncExpeditionHotbar(mode);
+        if (typeof window.syncShellBattleChrome === 'function') window.syncShellBattleChrome();
     }
 
     /**

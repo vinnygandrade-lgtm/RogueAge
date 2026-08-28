@@ -537,6 +537,9 @@ function ativarNovaTela(target: HTMLElement, id: string) {
     if (gameRoot) {
         if (id === 'screen-game') gameRoot.classList.add('game-ingame');
         else gameRoot.classList.remove('game-ingame');
+        if (id !== 'screen-game') {
+            gameRoot.classList.remove('shell-battle-immersive', 'shell-battle-hide-hud');
+        }
     }
 
     target.classList.add('active-screen', 'screen-transition-enter');
@@ -644,6 +647,9 @@ function fecharModal(id: string) {
     if (!el) return;
     el.style.display = 'none';
     toggleModalBackdrop(id, false);
+    if (id === 'janela-spellbook' || id === 'janela-player-titles') {
+        window.syncProfileSubnavAfterModalClose?.();
+    }
 }
 
 function fecharTopModal() {
@@ -794,6 +800,52 @@ function fecharNpcSocial() {
     if (document.getElementById('menu-social-market')) document.getElementById('menu-social-market').style.display = 'none';
     if (document.getElementById('menu-social-clans')) document.getElementById('menu-social-clans').style.display = 'none';
     window.syncNavMenuActiveItem?.();
+}
+
+function shellChromeElVisible(el: HTMLElement | null): boolean {
+    if (!el || el.hidden) return false;
+    const inline = (el.style.display || '').trim();
+    if (inline === 'none') return false;
+    if (inline === 'flex' || inline === 'block') return true;
+    try {
+        const cs = window.getComputedStyle(el);
+        return cs.display !== 'none' && cs.visibility !== 'hidden';
+    } catch {
+        return false;
+    }
+}
+
+/** Hub tabs at the bottom while navigating; hide them (and HUD) on live fight stages. */
+function syncShellBattleChrome() {
+    const root = document.querySelector('.game-container');
+    if (!root) return;
+
+    const floresta = document.getElementById('tela-floresta');
+    const expeditionCombat = !!floresta?.classList.contains('expedition-combat-open') && shellChromeElVisible(floresta);
+
+    const raidLive = shellChromeElVisible(document.getElementById('tela-raid-arena'));
+
+    const olyArena = document.getElementById('tela-olympiad-arena');
+    const olyLobby = document.getElementById('olympiad-lobby');
+    const olyDuel = shellChromeElVisible(olyArena) && !!olyLobby && (olyLobby.style.display || '').trim() === 'none';
+
+    const cwScreen = document.getElementById('tela-clan-war');
+    const cwArena = document.getElementById('clan-war-arena');
+    const cwLive = shellChromeElVisible(cwScreen) && shellChromeElVisible(cwArena);
+
+    const classicHunt = shellChromeElVisible(floresta)
+        && !!floresta
+        && !floresta.classList.contains('expedition-combat-open')
+        && !floresta.classList.contains('expedition-map-open')
+        && !floresta.classList.contains('expedition-hub-open')
+        && Array.isArray(window.monstrosAtivos)
+        && window.monstrosAtivos.length > 0;
+
+    const immersive = expeditionCombat || raidLive || olyDuel || cwLive || classicHunt;
+    root.classList.toggle('shell-battle-immersive', immersive);
+    root.classList.toggle('shell-battle-hide-hud', expeditionCombat || raidLive || olyDuel || cwLive);
+    const tabs = document.querySelector('#screen-game > .travel-menu');
+    if (tabs) tabs.setAttribute('aria-hidden', immersive ? 'true' : 'false');
 }
 
 function irPara(lugar) {
@@ -993,6 +1045,7 @@ function executarTrocaSubScreen(lugar) {
     if (lugar === 'perfil') {
         var _psp = document.querySelector('#tela-perfil .profile-scroll-pane');
         if (_psp) _psp.scrollTop = 0;
+        window.setProfileSubnavActive?.('gear');
         if(typeof renderizarPerfil === 'function') renderizarPerfil();
         if (typeof window.schedulePaperdollFootShadowSyncWithRetries === 'function') {
             requestAnimationFrame(function () {
@@ -1032,6 +1085,8 @@ function executarTrocaSubScreen(lugar) {
             window.TutorialEngine.onNav(lugar);
         }
     } catch (eTut) { /* ignore */ }
+
+    syncShellBattleChrome();
 }
 
 function renderizarSocial() {
@@ -2098,6 +2153,7 @@ window.isPlayerInGameWorld = isPlayerInGameWorld;
 window.closeStaffModals = closeStaffModals;
 window.mudarTela = mudarTela;
 window.irPara = irPara;
+window.syncShellBattleChrome = syncShellBattleChrome;
 window.abrirNpc = abrirNpc;
 window.fecharNpc = fecharNpc;
 window.abrirMenuSocial = abrirMenuSocial;

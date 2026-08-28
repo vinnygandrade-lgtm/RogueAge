@@ -555,6 +555,7 @@ function abrirPlayerTitles(): void {
   syncEliteKillStatFromEndgame();
   renderizarPlayerTitles();
   window.abrirModal('janela-player-titles', 1550);
+  window.setProfileSubnavActive?.('titles');
 }
 
 function fecharPlayerTitles(): void {

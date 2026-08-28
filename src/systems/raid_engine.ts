@@ -122,6 +122,7 @@ const RaidEngine = {
         
         const enterMsg = (typeof window.t === 'function') ? window.t('game.raid.enterBattle', { boss: bossNomeUi }) : ('You entered battle against ' + bossNomeUi + '!');
         this.escreverLogRaid(`<span style="color:#ef4444; font-weight:bold;">${enterMsg}</span>`);
+        window.syncShellBattleChrome?.();
     },
 
     criarNovaRaid: function() {
@@ -812,6 +813,8 @@ const RaidEngine = {
         if (typeof window.renderizarBarraAtalhos === 'function') {
             window.renderizarBarraAtalhos();
         }
+
+        window.syncShellBattleChrome?.();
 
         // Remove a gente da lista global ao sair
         this.carregarEstadoGlobal();

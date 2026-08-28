@@ -1072,6 +1072,7 @@ window.abrirSpellbook = function() {
     }
 
     abrirModal('janela-spellbook', 1500);
+    window.setProfileSubnavActive?.('skills');
     if (typeof window.syncSkillUnlockNotifUi === 'function') {
         window.syncSkillUnlockNotifUi();
     }

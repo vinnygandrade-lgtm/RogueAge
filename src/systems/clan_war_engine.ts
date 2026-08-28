@@ -89,6 +89,7 @@ const ClanWarEngine = {
         document.getElementById('cw-waiting-anim').style.display = 'none';
         document.getElementById('cw-status-text').innerText = window.t('game.war.matchProximity');
         document.getElementById('cw-status-text').style.color = '#88745c';
+        window.syncShellBattleChrome?.();
     },
 
     registrarParaGuerra() {
@@ -290,6 +291,7 @@ const ClanWarEngine = {
         document.getElementById('war-clans-vs').innerText = `${this.meuClan.nome} VS ${this.clanInimigo.nome}`;
         this.atualizarPlacar();
         this.prepararProximoDuelo();
+        window.syncShellBattleChrome?.();
     },
 
     gerarInscritosInimigos(clan) {

@@ -1352,8 +1352,8 @@ html[data-l2-layout="landscape"] .travel-menu .btn-travel:last-child {
 }
 
 html[data-l2-layout="landscape"] .travel-menu .btn-travel::before {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
 }
 
 html[data-l2-layout="landscape"] .travel-menu .btn-travel::after {
