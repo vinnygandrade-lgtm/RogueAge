@@ -70,6 +70,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-28',
                         items: [
+                            'Profile, Social, and Menu icons now match the rest of the hub: a knight helm, a clan banner, and a spellbook.',
                             'Hub tabs sit at the bottom of the phone, in thumb reach — Profile, Town, World, Social, Bag, and Menu.',
                             'In a live fight (expedition, raid, Olympiad, clan war, forest pull) the hub tabs hide so the battlefield fills the screen. Town and the other hubs bring them back.',
                             'Town, World, and Bag icons are more RPG now: a castle keep, a globe, and a treasure chest.',
@@ -3638,6 +3639,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-08-28',
                         items: [
+                            'Ícones de Perfil, Social e Menu no mesmo traço RPG: elmo, bandeira de clã e grimório.',
                             'As abas do hub ficam em baixo no telemóvel, ao alcance do polegar — Perfil, Cidade, Mundo, Social, Bolsa e Menu.',
                             'Numa luta ao vivo (expedição, raid, Olimpíada, guerra de clãs, pull na floresta) as abas escondem-se para o combate ocupar o ecrã. Na cidade e nos outros hubs voltam a aparecer.',
                             'Ícones de Cidade, Mundo e Bolsa mais de RPG: castelo, globo e baú de tesouro.',
