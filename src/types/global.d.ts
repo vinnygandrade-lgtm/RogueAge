@@ -536,12 +536,21 @@ declare global {
       normalizePreference: (raw: unknown) => import('./game').UiLayoutMode;
     };
     AudioPrefs?: {
-      get: () => { musicEnabled: boolean; battleSfxEnabled: boolean };
+      get: () => {
+        musicEnabled: boolean;
+        battleSfxEnabled: boolean;
+        musicVolume: number;
+        battleVolume: number;
+      };
       isMusicEnabled: () => boolean;
       isBattleSfxEnabled: () => boolean;
       isBattleSoundKey: (nome: string) => boolean;
+      getMusicVolume: () => number;
+      getBattleVolume: () => number;
       setMusicEnabled: (enabled: boolean) => void;
       setBattleSfxEnabled: (enabled: boolean) => void;
+      setMusicVolume: (volume: number) => void;
+      setBattleVolume: (volume: number) => void;
       toggleMusicEnabled: () => boolean;
       toggleBattleSfxEnabled: () => boolean;
     };

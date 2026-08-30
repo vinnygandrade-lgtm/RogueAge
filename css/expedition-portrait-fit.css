@@ -801,6 +801,18 @@ html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #te
     min-width: 56px !important;
     max-width: 82px !important;
 }
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #tela-floresta.expedition-combat-open #mobs-container.mob-hunt-formation {
+    overflow: hidden;
+}
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #tela-floresta.expedition-combat-open #mobs-container.mob-hunt-formation .mob-hunt-card {
+    flex: none !important;
+    min-width: 64px !important;
+    max-width: 88px !important;
+    width: 76px;
+}
+html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #tela-floresta.expedition-combat-open #mobs-container.mob-hunt-formation .mob-hunt-sprite {
+    max-height: 68px;
+}
 
 html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #tela-floresta.expedition-combat-open .mob-hunt-sprite {
     max-height: 56px;

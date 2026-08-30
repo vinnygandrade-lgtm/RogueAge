@@ -68,6 +68,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-08-30',
+                        items: [
+                            'D-grade hunt is a real courtyard now — moonlight, cobbles, and the gate in the fog. The empty postcard is gone.',
+                            'Mobs no longer stand in a neat row. On D they scatter across the path, dirt, and mound; No-Grade uses the trail berm and fence. Survivors keep their spot.',
+                            'Foot shadows follow the light: moon to the left on D, sun to the right on No-Grade.',
+                            'D-grade expedition has its own courtyard score.',
+                            'Settings → Sound: sliders for Music and Battle volume. Your phone remembers the mix.'
+                        ]
+                    },
+                    {
                         date: '2026-08-28',
                         items: [
                             'Profile, Social, and Menu icons now match the rest of the hub: a knight helm, a clan banner, and a spellbook.',
@@ -3438,11 +3448,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     },
                     sound: {
                         title: 'Sound',
-                        lead: 'Turn music and battle cues on or off. UI sounds stay available.',
+                        lead: 'Set music and battle volume. UI sounds stay available.',
                         music: 'Music',
                         musicHint: 'Expedition and map background tracks.',
                         battle: 'Battle sounds',
                         battleHint: 'Weapon swings, critical hits, soulshots, teleport.',
+                        volume: 'Volume',
+                        volumePct: '{pct}%',
                         on: 'ON',
                         off: 'OFF'
                     },
@@ -3641,6 +3653,16 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-08-30',
+                        items: [
+                            'A caça D-grade agora é um pátio de verdade — luar, pedras e o portão no nevoeiro. O cartão vazio acabou.',
+                            'Os mobs deixam de ficar numa fila. Em D espalham-se pelo caminho, terra e túmulo; No-Grade usa a berma e a cerca. Quem sobrevive fica no sítio.',
+                            'Sombras nos pés seguem a luz: luar à esquerda em D, sol à direita no No-Grade.',
+                            'A expedição D-grade ganha trilha própria do pátio.',
+                            'Menu → Settings → Som: sliders para volume da Música e da Batalha. O telemóvel guarda a mistura.'
+                        ]
+                    },
                     {
                         date: '2026-08-28',
                         items: [
@@ -7012,11 +7034,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     },
                     sound: {
                         title: 'Som',
-                        lead: 'Liga ou desliga música e sons de batalha. Sons de interface continuam ativos.',
+                        lead: 'Ajusta o volume da música e da batalha. Sons de interface continuam ativos.',
                         music: 'Música',
                         musicHint: 'Trilhas de fundo da expedição e do mapa.',
                         battle: 'Sons de batalha',
                         battleHint: 'Golpes de arma, críticos, soulshots e teleporte.',
+                        volume: 'Volume',
+                        volumePct: '{pct}%',
                         on: 'ON',
                         off: 'OFF'
                     },

@@ -24,6 +24,12 @@ import {
     warmupMobSprites,
 } from './mob_sprite';
 import { atualizarIconesBuffPlayer } from './combat_buff_bar';
+import {
+    applyHuntFormationLayout,
+    assignHuntFormationSlots,
+    isHuntFormationActive,
+    zoneUsesHuntFormation,
+} from './mob_hunt_formation';
 
 interface ForestMob {
   idUnico?: string;
@@ -49,6 +55,7 @@ interface ForestMob {
   isChampion?: boolean;
   debuffs?: { preso?: boolean; spoil?: boolean; [key: string]: unknown };
   __forestDeathProcessing?: boolean;
+  huntSlot?: string;
 }
 
 type MobTemplate = {
@@ -383,6 +390,8 @@ function spawnMonstros() {
         });
     }
 
+    assignHuntFormationSlots(zonaID, window.monstrosAtivos as ForestMob[]);
+
     let resumoNomes = nomesSorteados.reduce((acc, curr) => { acc[curr] = (acc[curr] || 0) + 1; return acc; }, {});
     let msgNomes = Object.entries(resumoNomes).map(([n, q]) => `${q}x ${n}`).join(', ');
 
@@ -423,6 +432,7 @@ function captureMobCardRects(): Map<string, DOMRect> {
 /** Slide surviving cards from old positions to the new centered layout. */
 function playMobCardFlip(prev: Map<string, DOMRect>): void {
     if (!prev.size || prefersReducedMobMotion()) return;
+    if (isHuntFormationActive(document.getElementById('mobs-container'))) return;
     prev.forEach((first, id) => {
         const el = document.getElementById(`mob-card-${id}`) as HTMLElement | null;
         if (!el) return;
@@ -454,7 +464,7 @@ function beginMobCardExit(idUnico: string | number | undefined): void {
     if (idUnico == null) return;
     const card = document.getElementById(`mob-card-${idUnico}`) as HTMLElement | null;
     if (!card || card.classList.contains('mob-hunt-card--exiting')) return;
-    if (prefersReducedMobMotion()) {
+    if (isHuntFormationActive(card.parentElement) || prefersReducedMobMotion()) {
         card.classList.add('mob-hunt-card--exiting');
         return;
     }
@@ -537,9 +547,11 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
     });
 
     container.innerHTML = htmlFinal;
+    const zoneId = String(window.zonaAtual?.id || 'No-Grade');
+    applyHuntFormationLayout(container, zoneId, window.monstrosAtivos as ForestMob[]);
     bindForestMobSpriteImgs(container);
     _forestMobDomCache = Object.create(null) as ForestMobDomCache;
-    if (prevRects && prevRects.size) {
+    if (prevRects && prevRects.size && !zoneUsesHuntFormation(zoneId)) {
         playMobCardFlip(prevRects);
     }
 }

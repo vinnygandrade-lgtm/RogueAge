@@ -436,27 +436,51 @@
 
             <section class="settings-section settings-section--sound" aria-labelledby="settings-sound-heading">
                 <h3 id="settings-sound-heading" class="settings-section__title" data-i18n="game.settings.sound.title">Sound</h3>
-                <p class="settings-sound-lead" data-i18n="game.settings.sound.lead">Turn music and battle cues on or off. UI sounds stay available.</p>
+                <p class="settings-sound-lead" data-i18n="game.settings.sound.lead">Set music and battle volume. UI sounds stay available.</p>
                 <div class="settings-toggle-list" role="group" aria-labelledby="settings-sound-heading">
-                    <div class="settings-toggle-row">
-                        <div class="settings-toggle-row__text">
-                            <span class="settings-toggle-row__title" data-i18n="game.settings.sound.music">Music</span>
-                            <span class="settings-toggle-row__hint" data-i18n="game.settings.sound.musicHint">Expedition and map background tracks.</span>
+                    <div class="settings-toggle-row settings-toggle-row--mixer">
+                        <div class="settings-toggle-row__head">
+                            <div class="settings-toggle-row__text">
+                                <span class="settings-toggle-row__title" data-i18n="game.settings.sound.music">Music</span>
+                                <span class="settings-toggle-row__hint" data-i18n="game.settings.sound.musicHint">Expedition and map background tracks.</span>
+                            </div>
+                            <button type="button" id="settings-toggle-music" class="settings-switch" role="switch" aria-checked="true" aria-labelledby="settings-sound-music-label">
+                                <span id="settings-sound-music-label" class="settings-switch__track" aria-hidden="true"><span class="settings-switch__thumb"></span></span>
+                                <span class="settings-switch__state" data-i18n="game.settings.sound.on">ON</span>
+                            </button>
                         </div>
-                        <button type="button" id="settings-toggle-music" class="settings-switch" role="switch" aria-checked="true" aria-labelledby="settings-sound-music-label">
-                            <span id="settings-sound-music-label" class="settings-switch__track" aria-hidden="true"><span class="settings-switch__thumb"></span></span>
-                            <span class="settings-switch__state" data-i18n="game.settings.sound.on">ON</span>
-                        </button>
+                        <label class="settings-vol" for="settings-music-vol">
+                            <span class="settings-vol__label" data-i18n="game.settings.sound.volume">Volume</span>
+                            <span class="settings-vol__bar">
+                                <span class="settings-vol__groove" aria-hidden="true"></span>
+                                <span class="settings-vol__fill" aria-hidden="true"></span>
+                                <span class="settings-vol__knob" aria-hidden="true"></span>
+                                <input type="range" id="settings-music-vol" class="settings-vol__range" min="0" max="100" step="1" value="100" />
+                            </span>
+                            <span id="settings-music-vol-pct" class="settings-vol__pct">100%</span>
+                        </label>
                     </div>
-                    <div class="settings-toggle-row">
-                        <div class="settings-toggle-row__text">
-                            <span class="settings-toggle-row__title" data-i18n="game.settings.sound.battle">Battle sounds</span>
-                            <span class="settings-toggle-row__hint" data-i18n="game.settings.sound.battleHint">Weapon swings, critical hits, soulshots, teleport.</span>
+                    <div class="settings-toggle-row settings-toggle-row--mixer">
+                        <div class="settings-toggle-row__head">
+                            <div class="settings-toggle-row__text">
+                                <span class="settings-toggle-row__title" data-i18n="game.settings.sound.battle">Battle sounds</span>
+                                <span class="settings-toggle-row__hint" data-i18n="game.settings.sound.battleHint">Weapon swings, critical hits, soulshots, teleport.</span>
+                            </div>
+                            <button type="button" id="settings-toggle-battle" class="settings-switch" role="switch" aria-checked="true" aria-labelledby="settings-sound-battle-label">
+                                <span id="settings-sound-battle-label" class="settings-switch__track" aria-hidden="true"><span class="settings-switch__thumb"></span></span>
+                                <span class="settings-switch__state" data-i18n="game.settings.sound.on">ON</span>
+                            </button>
                         </div>
-                        <button type="button" id="settings-toggle-battle" class="settings-switch" role="switch" aria-checked="true" aria-labelledby="settings-sound-battle-label">
-                            <span id="settings-sound-battle-label" class="settings-switch__track" aria-hidden="true"><span class="settings-switch__thumb"></span></span>
-                            <span class="settings-switch__state" data-i18n="game.settings.sound.on">ON</span>
-                        </button>
+                        <label class="settings-vol" for="settings-battle-vol">
+                            <span class="settings-vol__label" data-i18n="game.settings.sound.volume">Volume</span>
+                            <span class="settings-vol__bar">
+                                <span class="settings-vol__groove" aria-hidden="true"></span>
+                                <span class="settings-vol__fill" aria-hidden="true"></span>
+                                <span class="settings-vol__knob" aria-hidden="true"></span>
+                                <input type="range" id="settings-battle-vol" class="settings-vol__range" min="0" max="100" step="1" value="100" />
+                            </span>
+                            <span id="settings-battle-vol-pct" class="settings-vol__pct">100%</span>
+                        </label>
                     </div>
                 </div>
             </section>

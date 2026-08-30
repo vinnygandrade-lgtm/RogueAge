@@ -89,6 +89,9 @@ html[data-l2-layout="landscape"] #janela-game-settings .store-body--settings {
 html[data-l2-layout="landscape"] #janela-game-settings .settings-toggle-row {
     min-height: 52px;
 }
+html[data-l2-layout="landscape"] #janela-game-settings .settings-toggle-row--mixer {
+    min-height: 0;
+}
 html[data-l2-layout="landscape"] #janela-game-settings .settings-lang-row,
 html[data-l2-layout="landscape"] #janela-game-settings .settings-layout-row {
     gap: 10px;
@@ -3706,6 +3709,19 @@ html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-co
     width: auto !important;
     overflow: visible !important;
     padding-bottom: 4px;
+}
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container.mob-hunt-formation,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container.mob-hunt-formation {
+    overflow: hidden !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+}
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open #mobs-container.mob-hunt-formation .mob-hunt-card,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active #mobs-container.mob-hunt-formation .mob-hunt-card {
+    flex: none !important;
+    min-width: 120px !important;
+    max-width: 168px !important;
+    width: 148px !important;
 }
 
 html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-sprite,

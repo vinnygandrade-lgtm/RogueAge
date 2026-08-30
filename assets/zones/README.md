@@ -42,7 +42,9 @@ The **portrait** `battle_<slug>.webp` is also the postcard art. Drop the file an
 | Expedition hub | `#expedition-hub-art` | banner cover, same crop |
 | Live combat | `#forest-battle-bg` | full stage |
 
-**Shipped today:** `battle_ng.webp` (+ `battle_ng_wide.webp` for PC). D / C / B / A / S portrait files are expected drop-ins at the names above; until they exist the picker/details/hub show a **Scenery coming soon** pending tile instead of a broken image.
+**Shipped today:** `battle_ng.webp` (+ `battle_ng_wide.webp` for PC) and `battle_d.webp`. C / B / A / S portrait files are expected drop-ins at the names above; until they exist the picker/details/hub show a **Scenery coming soon** pending tile instead of a broken image.
+
+Hunt combat scatters mobs on painted ground instead of a row (`src/combat/mob_hunt_formation.ts`): **No-Grade** trail (path / left berm / fence, max 3) and **D** courtyard (path / dirt / sarcophagus / far path, max 4). Foot shadows follow each zone’s light (NG sun left → cast right; D moon right → cast left).
 
 Do **not** reuse No-Grade art for other grades — each zone keeps its own identity.
 

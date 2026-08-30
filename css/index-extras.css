@@ -11324,6 +11324,122 @@ html[data-l2-layout="portrait"] .gameplay-ach-card__btn {
     background: rgba(0, 0, 0, 0.28);
 }
 
+.settings-toggle-row--mixer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    min-height: 0;
+}
+
+.settings-toggle-row__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.settings-vol {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+}
+
+.settings-vol--muted {
+    opacity: 0.45;
+}
+
+.settings-vol__label {
+    flex-shrink: 0;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--l2-text-muted, #9a8a78);
+}
+
+.settings-vol__pct {
+    flex-shrink: 0;
+    min-width: 2.8em;
+    text-align: right;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--l2-text-secondary, #c9b8a0);
+    font-variant-numeric: tabular-nums;
+}
+
+.settings-vol__bar {
+    --vol-n: 100;
+    --vol-knob: 18px;
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+}
+
+.settings-vol__groove,
+.settings-vol__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+.settings-vol__groove {
+    border: 1px solid #5a4634;
+    background: #2a2218;
+}
+
+.settings-vol__fill {
+    right: auto;
+    width: calc((var(--vol-n) / 100) * (100% - var(--vol-knob)) + var(--vol-knob));
+    border: 1px solid rgba(249, 226, 168, 0.35);
+    background: var(--l2-accent-gold, #b38a4d);
+}
+
+.settings-vol__knob {
+    position: absolute;
+    top: 50%;
+    left: calc((var(--vol-n) / 100) * (100% - var(--vol-knob)));
+    width: var(--vol-knob);
+    height: var(--vol-knob);
+    margin-top: -9px;
+    border-radius: 50%;
+    border: 1px solid #f9e2a8;
+    background: #f5e6c8;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.settings-vol__range {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    opacity: 0;
+    cursor: pointer;
+    touch-action: manipulation;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.settings-vol__range:focus-visible {
+    outline: none;
+}
+
+.settings-vol__bar:has(.settings-vol__range:focus-visible) {
+    outline: 2px solid var(--l2-focus-ring, #facc15);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
 .settings-toggle-row__text {
     display: flex;
     flex-direction: column;
@@ -12697,6 +12813,54 @@ html.l2-standalone .settings-section--pwa {
     background: transparent;
     box-shadow: none;
 }
+/* D-grade courtyard: cards sit on painted ground, not a row. */
+#mobs-container.mob-hunt-formation {
+    position: relative;
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
+}
+#mobs-container.mob-hunt-formation .mob-hunt-card {
+    position: absolute;
+    left: var(--hunt-x, 50%);
+    bottom: var(--hunt-y, 12%);
+    z-index: var(--hunt-z, 2);
+    width: 76px;
+    flex: none;
+    min-width: 64px;
+    max-width: 88px;
+    transform: translateX(-50%) scale(var(--hunt-scale, 1));
+    transform-origin: 50% 100%;
+}
+#mobs-container.mob-hunt-formation .mob-hunt-card--entering {
+    animation-name: mobHuntEnterSlot;
+}
+@keyframes mobHuntEnterSlot {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(18px) scale(calc(var(--hunt-scale, 1) * 0.86));
+        filter: blur(5px) brightness(1.4);
+    }
+    55% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-4px) scale(calc(var(--hunt-scale, 1) * 1.04));
+        filter: blur(0) brightness(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(var(--hunt-scale, 1));
+        filter: none;
+    }
+}
+#mobs-container.mob-hunt-formation .mob-hunt-card--exiting {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-12px) scale(calc(var(--hunt-scale, 1) * 0.55));
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.65s cubic-bezier(0.45, 0, 0.2, 1) !important;
+}
+#mobs-container.mob-hunt-formation .mob-hunt-sprite {
+    max-height: 72px;
+}
 .mob-hunt-card--entering {
     animation: mobHuntEnter 0.58s cubic-bezier(0.18, 0.89, 0.32, 1.2) both;
     animation-delay: var(--mob-enter-delay, 0ms);
@@ -12747,6 +12911,14 @@ html.l2-standalone .settings-section--pwa {
     .mob-hunt-card--reflow {
         transition: none !important;
         transform: none !important;
+    }
+    #mobs-container.mob-hunt-formation .mob-hunt-card--entering {
+        animation: none;
+        opacity: 1;
+        transform: translateX(-50%) scale(var(--hunt-scale, 1));
+    }
+    .mob-hunt-sprite-wrap::before {
+        transition: none;
     }
     .mob-hunt-sprite-shell:has([data-mob-pose="idle"]),
     .mob-hunt-sprite-shell--lunge,
@@ -12844,13 +13016,50 @@ small.mob-hunt-hp-text {
 }
 
 .mob-hunt-sprite-wrap {
+    position: relative;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: flex-end;
 }
+/* Contact shadow — ellipse at the feet, cast left (moon / dusk from the right). */
+.mob-hunt-sprite-wrap::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 1px;
+    z-index: 0;
+    width: var(--hunt-shadow-w, 74%);
+    height: var(--hunt-shadow-h, 9px);
+    transform: translateX(var(--hunt-shadow-dx, -58%)) rotate(var(--hunt-shadow-rot, -7deg));
+    transform-origin: 50% 50%;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse 100% 70% at 50% 50%,
+        rgba(var(--hunt-shadow-rgb, 10, 14, 24), var(--hunt-shadow-a, 0.46)) 0%,
+        rgba(var(--hunt-shadow-rgb, 10, 14, 24), calc(var(--hunt-shadow-a, 0.46) * 0.42)) 44%,
+        transparent 74%
+    );
+    filter: blur(var(--hunt-shadow-blur, 2.4px));
+}
+#mobs-container[data-hunt-formation="d"] {
+    --hunt-shadow-rgb: 8, 14, 28;
+    --hunt-shadow-a: 0.48;
+}
+#mobs-container[data-hunt-formation="no-grade"] {
+    --hunt-shadow-rgb: 28, 18, 10;
+    --hunt-shadow-a: 0.44;
+    --hunt-shadow-dx: 56%;
+    --hunt-shadow-rot: 7deg;
+}
+.mob-hunt-card--exiting .mob-hunt-sprite-wrap::before,
+.mob-hunt-sprite-wrap:has(.mob-desintegrando)::before {
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
 .mob-hunt-sprite-shell {
     position: relative;
+    z-index: 1;
     display: inline-block;
     max-width: 100%;
     line-height: 0;

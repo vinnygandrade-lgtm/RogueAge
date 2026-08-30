@@ -45,11 +45,20 @@ function isCuttingWeaponEquipped(): boolean {
 
 let gameAudioUnlocked = false;
 
-function sfxVolume(nome: GameSoundKey): number {
-  if (nome === 'critical') return 0.85;
-  if (nome === 'teleport') return 0.9;
-  if (nome === 'soulshot') return 0.8;
+function playerBattleGain(): number {
+  if (typeof window.AudioPrefs?.getBattleVolume === 'function') {
+    const g = window.AudioPrefs.getBattleVolume();
+    return typeof g === 'number' && Number.isFinite(g) ? Math.max(0, Math.min(1, g)) : 1;
+  }
   return 1;
+}
+
+function sfxVolume(nome: GameSoundKey): number {
+  let base = 1;
+  if (nome === 'critical') base = 0.85;
+  else if (nome === 'teleport') base = 0.9;
+  else if (nome === 'soulshot') base = 0.8;
+  return Math.min(1, base * playerBattleGain());
 }
 
 /** Mobile browsers block Audio created at boot — unlock on first tap/key. */
@@ -124,7 +133,7 @@ function tocarSomEspada(): void {
   const src = BLADE_SWING_SRC[Math.floor(Math.random() * BLADE_SWING_SRC.length)];
   try {
     const clip = new Audio(src);
-    clip.volume = 0.78;
+    clip.volume = Math.min(1, 0.78 * playerBattleGain());
     clip.play().catch(() => {});
   } catch {
     /* ignore */
