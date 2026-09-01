@@ -39,39 +39,13 @@ export function buildMobSpriteShellClasses(mob: MobVisualSource): string {
     ].filter(Boolean).join(' ');
 }
 
-/** Silhouette-only glow — drop-shadow respects PNG alpha (no full-canvas tint). */
-export function buildMobSpriteImgFilter(mob: MobVisualSource): string {
-    const imgFilters: string[] = [];
-
-    if (mob.tipo === 'magico') {
-        imgFilters.push('drop-shadow(0 0 6px rgba(56, 189, 248, 0.92))');
-        imgFilters.push('drop-shadow(0 0 11px rgba(37, 99, 235, 0.5))');
-    } else {
-        imgFilters.push('drop-shadow(0 0 4px rgba(248, 113, 113, 0.35))');
-    }
-
-    if (mob.mobThreat === 'poison') {
-        imgFilters.push('drop-shadow(0 0 7px rgba(74, 222, 128, 0.88))');
-        imgFilters.push('drop-shadow(0 0 13px rgba(34, 197, 94, 0.42))');
-    }
-    if (mob.mobThreat === 'bleed') {
-        imgFilters.push('drop-shadow(0 0 7px rgba(251, 113, 133, 0.9))');
-        imgFilters.push('drop-shadow(0 0 13px rgba(239, 68, 68, 0.48))');
-    }
-    if (mob.isChampion) {
-        imgFilters.push('drop-shadow(0 0 9px rgba(250, 204, 21, 0.85))');
-    }
-
-    return imgFilters.length ? `filter: ${imgFilters.join(' ')};` : '';
+/** Silhouette glow retired — variants use their own stills (`goblin_poison_idle.png`, …). */
+export function buildMobSpriteImgFilter(_mob: MobVisualSource): string {
+    return '';
 }
 
-export function buildMobSpriteImgClasses(mob: MobVisualSource): string {
-    const classes = ['mob-hunt-sprite'];
-    if (mob.tipo === 'magico') classes.push('mob-sprite-glow--magic');
-    if (mob.mobThreat === 'poison') classes.push('mob-sprite-glow--poison');
-    if (mob.mobThreat === 'bleed') classes.push('mob-sprite-glow--bleed');
-    if (mob.isChampion) classes.push('mob-sprite-glow--champion');
-    return classes.join(' ');
+export function buildMobSpriteImgClasses(_mob: MobVisualSource): string {
+    return 'mob-hunt-sprite';
 }
 
 export function buildMobBleedPipsHtml(mob: MobVisualSource): string {
@@ -106,7 +80,7 @@ export function renderMobTypeLegend(): void {
         <span class="mob-type-legend__item mob-type-legend__item--magic">${t('game.combat.mobLegendMagic', 'Blue — Magic')}</span>
         <span class="mob-type-legend__item mob-type-legend__item--poison">${t('game.combat.mobLegendPoison', 'Green — Poison')}</span>
         <span class="mob-type-legend__item mob-type-legend__item--bleed">${t('game.combat.mobLegendBleed', 'Red — Bleed')}</span>
-        <span class="mob-type-legend__item mob-type-legend__item--hybrid">${t('game.combat.mobLegendHybrid', 'Auras stack on hybrids')}</span>
+        <span class="mob-type-legend__item mob-type-legend__item--hybrid">${t('game.combat.mobLegendHybrid', 'Tags stack — look at the creature')}</span>
     `;
     legend.hidden = false;
     legend.setAttribute('aria-hidden', 'false');

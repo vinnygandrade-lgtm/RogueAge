@@ -1,14 +1,26 @@
 /**
  * Hunt-mob combat poses.
  *
- * Still PNG is the fallback (`assets/mobs/<id>_<pose>.png`).
+ * Still PNG: `assets/mobs/<id>_<pose>.png` or `assets/mobs/<id>_<variant>_<pose>.png`.
  * Drop an animated WebP with the same basename to upgrade in place.
  * GIF is not supported — see docs/mob-combat-anim.md.
  */
 
 export type MobSpritePose = 'idle' | 'atk' | 'die';
 
+/** Costume stem after species id — empty = base still. */
+export type MobSpriteVariant =
+  | ''
+  | 'magic'
+  | 'poison'
+  | 'bleed'
+  | 'magic_poison'
+  | 'magic_bleed';
+
 type ResolvedMobSprite = { url: string; animated: boolean };
+
+/** Bump when replacing hunt stills so phones drop the old PNG cache. */
+const MOB_SPRITE_REV = '20260901e';
 
 /** Attack pose hold — CSS lunge + `_atk` still. Keep in sync with `mobHuntLunge`. */
 export const MOB_ATK_POSE_MS = 420;
@@ -17,16 +29,49 @@ const cache = new Map<string, ResolvedMobSprite>();
 const inflight = new Map<string, Promise<ResolvedMobSprite>>();
 const atkTokens = new WeakMap<HTMLImageElement, number>();
 
-function cacheKey(idImg: string, pose: MobSpritePose): string {
-  return `${idImg}:${pose}`;
+export function mobSpriteVariantKey(tipo?: string, threat?: string): MobSpriteVariant {
+  const magic = tipo === 'magico';
+  if (magic && threat === 'poison') return 'magic_poison';
+  if (magic && threat === 'bleed') return 'magic_bleed';
+  if (magic) return 'magic';
+  if (threat === 'poison') return 'poison';
+  if (threat === 'bleed') return 'bleed';
+  return '';
 }
 
-export function mobSpritePngUrl(idImg: string, pose: MobSpritePose): string {
-  return `assets/mobs/${idImg}_${pose}.png`;
+/** Prefer specific costume art, then threat, then magic, then the species still. */
+export function mobSpriteStemCandidates(idImg: string, variant: string): string[] {
+  const id = String(idImg || '').trim();
+  if (!id) return [];
+  const stems: string[] = [];
+  const push = (s: string) => {
+    if (s && !stems.includes(s)) stems.push(s);
+  };
+  if (variant === 'magic_poison') {
+    push(`${id}_magic_poison`);
+    push(`${id}_poison`);
+    push(`${id}_magic`);
+  } else if (variant === 'magic_bleed') {
+    push(`${id}_magic_bleed`);
+    push(`${id}_bleed`);
+    push(`${id}_magic`);
+  } else if (variant) {
+    push(`${id}_${variant}`);
+  }
+  push(id);
+  return stems;
 }
 
-export function mobSpriteWebpUrl(idImg: string, pose: MobSpritePose): string {
-  return `assets/mobs/${idImg}_${pose}.webp`;
+function cacheKey(stem: string, pose: MobSpritePose): string {
+  return `${stem}:${pose}`;
+}
+
+export function mobSpritePngUrl(stem: string, pose: MobSpritePose): string {
+  return `assets/mobs/${stem}_${pose}.png?v=${MOB_SPRITE_REV}`;
+}
+
+export function mobSpriteWebpUrl(stem: string, pose: MobSpritePose): string {
+  return `assets/mobs/${stem}_${pose}.webp?v=${MOB_SPRITE_REV}`;
 }
 
 function prefersReducedMotion(): boolean {
@@ -47,18 +92,47 @@ function probeUrl(url: string): Promise<boolean> {
   });
 }
 
-export function resolveMobSprite(idImg: string, pose: MobSpritePose): Promise<ResolvedMobSprite> {
-  const key = cacheKey(idImg, pose);
+function variantFromImg(img: HTMLImageElement, fallback: string): string {
+  const v = img.getAttribute('data-mob-variant');
+  return v != null && v !== '' ? v : fallback;
+}
+
+export async function resolveMobSprite(
+  idImg: string,
+  pose: MobSpritePose,
+  variant: string = '',
+): Promise<ResolvedMobSprite> {
+  const stems = mobSpriteStemCandidates(idImg, variant);
+  const key = `${stems.join('|')}:${pose}`;
   const hit = cache.get(key);
-  if (hit) return Promise.resolve(hit);
+  if (hit) return hit;
   const pending = inflight.get(key);
   if (pending) return pending;
   const job = (async () => {
-    const webp = mobSpriteWebpUrl(idImg, pose);
-    const ok = prefersReducedMotion() ? false : await probeUrl(webp);
-    const resolved: ResolvedMobSprite = ok
-      ? { url: webp, animated: true }
-      : { url: mobSpritePngUrl(idImg, pose), animated: false };
+    const skipWebp = prefersReducedMotion();
+    for (const stem of stems) {
+      if (!skipWebp) {
+        const webp = mobSpriteWebpUrl(stem, pose);
+        if (await probeUrl(webp)) {
+          const resolved: ResolvedMobSprite = { url: webp, animated: true };
+          cache.set(key, resolved);
+          inflight.delete(key);
+          return resolved;
+        }
+      }
+      const png = mobSpritePngUrl(stem, pose);
+      if (await probeUrl(png)) {
+        const resolved: ResolvedMobSprite = { url: png, animated: false };
+        cache.set(key, resolved);
+        inflight.delete(key);
+        return resolved;
+      }
+    }
+    const fallbackStem = stems[stems.length - 1] || idImg;
+    const resolved: ResolvedMobSprite = {
+      url: mobSpritePngUrl(fallbackStem, pose),
+      animated: false,
+    };
     cache.set(key, resolved);
     inflight.delete(key);
     return resolved;
@@ -85,35 +159,41 @@ function setShellLunge(img: HTMLImageElement, on: boolean): void {
   shell.classList.add('mob-hunt-sprite-shell--lunge');
 }
 
-/** Show the still immediately; swap to WebP when the probe succeeds. */
+/** Show the still immediately; swap to variant / WebP when the probe succeeds. */
 export function bindMobSpriteImg(
   img: HTMLImageElement | null,
   idImg: string,
   pose: MobSpritePose,
+  variant?: string,
 ): void {
   if (!img || !idImg) return;
+  const v = variant != null ? variant : variantFromImg(img, '');
   img.setAttribute('data-mob-img', idImg);
+  img.setAttribute('data-mob-variant', v);
   img.setAttribute('data-mob-pose', pose);
-  const hit = cache.get(cacheKey(idImg, pose));
+  const stems = mobSpriteStemCandidates(idImg, v);
+  const key = `${stems.join('|')}:${pose}`;
+  const hit = cache.get(key);
   if (hit) {
     applyResolvedSprite(img, hit);
     return;
   }
   img.setAttribute('data-mob-animated', '0');
-  const png = mobSpritePngUrl(idImg, pose);
-  if (img.getAttribute('src') !== png) img.src = png;
-  void resolveMobSprite(idImg, pose).then((resolved) => {
+  const preview = mobSpritePngUrl(stems[0] || idImg, pose);
+  if (img.getAttribute('src') !== preview) img.src = preview;
+  void resolveMobSprite(idImg, pose, v).then((resolved) => {
     if (img.getAttribute('data-mob-img') !== idImg) return;
     if (img.getAttribute('data-mob-pose') !== pose) return;
+    if (variantFromImg(img, v) !== v) return;
     applyResolvedSprite(img, resolved);
   });
 }
 
-export function warmupMobSprites(idImg: string): void {
+export function warmupMobSprites(idImg: string, variant: string = ''): void {
   if (!idImg) return;
-  void resolveMobSprite(idImg, 'idle');
-  void resolveMobSprite(idImg, 'atk');
-  void resolveMobSprite(idImg, 'die');
+  void resolveMobSprite(idImg, 'idle', variant);
+  void resolveMobSprite(idImg, 'atk', variant);
+  void resolveMobSprite(idImg, 'die', variant);
 }
 
 export function playMobAttackPose(img: HTMLImageElement | null, idImg: string): void {

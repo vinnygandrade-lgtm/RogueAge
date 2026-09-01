@@ -19,8 +19,8 @@ function legacyStaticDirsPlugin() {
         next();
         return;
       }
-      // Dev: always revalidate CSS/static so shell-landscape edits show up
-      if (url.startsWith('/css/')) {
+      // Dev: always revalidate CSS/static so shell-landscape / sprite edits show up
+      if (url.startsWith('/css/') || url.startsWith('/assets/')) {
         res.setHeader('Cache-Control', 'no-store');
       }
       serve(req, res, next);

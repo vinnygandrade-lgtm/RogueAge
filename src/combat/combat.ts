@@ -8,8 +8,6 @@ import { buildMobCombatStats } from './mob_combat_stats';
 import {
     buildMobArchetypeTagsHtml,
     buildMobBleedPipsHtml,
-    buildMobSpriteImgFilter,
-    buildMobSpriteImgClasses,
     buildMobSpriteShellClasses,
     hideMobTypeLegend,
     renderMobTypeLegend,
@@ -19,6 +17,9 @@ import { clearForestPlayerThreats, rollMobThreat } from './mob_threat';
 import type { MobThreat } from './mob_threat';
 import {
     bindMobSpriteImg,
+    mobSpritePngUrl,
+    mobSpriteStemCandidates,
+    mobSpriteVariantKey,
     playMobAttackPose,
     playMobDeathPose,
     warmupMobSprites,
@@ -515,8 +516,8 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
         const isMagico = mob.tipo === 'magico';
         const archetypeTags = buildMobArchetypeTagsHtml(mob);
         const spriteWrapClass = buildMobSpriteShellClasses(mob);
-        const imgFilter = buildMobSpriteImgFilter(mob);
-        const imgClasses = buildMobSpriteImgClasses(mob);
+        const spriteVariant = mobSpriteVariantKey(mob.tipo, mob.mobThreat);
+        const spriteStem = mobSpriteStemCandidates(String(mob.idImg || ''), spriteVariant)[0] || String(mob.idImg || '');
         const bleedPips = buildMobBleedPipsHtml(mob);
         const mobKey = String(mob.idUnico || '');
         const isEntering = !!mobKey && !_forestMobEnteredIds.has(mobKey);
@@ -534,7 +535,7 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
             </div>
             <div class="mob-hunt-sprite-wrap">
                 <div class="${spriteWrapClass}">
-                    <img id="monster-img-${mob.idUnico}" class="${imgClasses}" data-mob-img="${mob.idImg || ''}" data-mob-pose="idle" src="assets/mobs/${mob.idImg}_idle.png" style="${imgFilter} transition: transform 0.1s ease-out; transform: ${transform}; opacity: ${hpVal > 0 ? 1 : 0};">
+                    <img id="monster-img-${mob.idUnico}" class="mob-hunt-sprite" data-mob-img="${mob.idImg || ''}" data-mob-variant="${spriteVariant}" data-mob-pose="idle" src="${mobSpritePngUrl(spriteStem, 'idle')}" style="transition: transform 0.1s ease-out; transform: ${transform}; opacity: ${hpVal > 0 ? 1 : 0};">
                 </div>
             </div>
             <div class="hp-bar mob-hunt-card__hpbar">
@@ -562,9 +563,11 @@ function bindForestMobSpriteImgs(container: HTMLElement): void {
         const idImg = img.getAttribute('data-mob-img') || '';
         if (!idImg) return;
         bindMobSpriteImg(img, idImg, 'idle');
-        if (!warmed.has(idImg)) {
-            warmed.add(idImg);
-            warmupMobSprites(idImg);
+        const variant = img.getAttribute('data-mob-variant') || '';
+        const warmKey = `${idImg}:${variant}`;
+        if (!warmed.has(warmKey)) {
+            warmed.add(warmKey);
+            warmupMobSprites(idImg, variant);
         }
     });
 }

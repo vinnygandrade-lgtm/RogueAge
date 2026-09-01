@@ -11,3 +11,5 @@ Live motion is **CSS on the three stills** (idle breathe, attack lunge + flash).
 | Death | `<id>_die.png` | `<id>_die.webp` (**play once**, hold last frame) |
 
 **No GIF.** Brief: `docs/mob-combat-anim.md`. Client: `src/combat/mob_sprite.ts`.
+
+Costume variants (goblin / wolf): `<id>_<variant>_<pose>.png` where variant is `magic`, `poison`, `bleed`, `magic_poison`, or `magic_bleed`. Missing files fall back to the species still. Working magenta masters live in `_incoming/` (not shipped).

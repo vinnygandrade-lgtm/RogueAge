@@ -68,6 +68,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-09-01',
+                        items: [
+                            'No-Grade goblins and wolves are redrawn to match the game — cel-shade, trail light, transparent stills. The old black-box PNGs are gone.',
+                            'Each type is its own creature now: normal, magic, poison, bleed, and the two hybrids. No stacked glow aura on the same picture.',
+                            'Attack and death poses follow that costume — a magic-bleed goblin swings the hooked staff, not the club.',
+                            'Name tags still read MAGIC / POISON / BLEED so the type is clear on a phone. Spider keeps the older art for now.'
+                        ]
+                    },
+                    {
                         date: '2026-08-30',
                         items: [
                             'D-grade hunt is a real courtyard now — moonlight, cobbles, and the gate in the fog. The empty postcard is gone.',
@@ -1685,10 +1694,10 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     mobPoisonTag: 'POISON',
                     mobBleedTag: 'BLEED',
                     mobLegendTitle: 'Enemy types',
-                    mobLegendMagic: 'Blue — Magic',
-                    mobLegendPoison: 'Green — Poison',
-                    mobLegendBleed: 'Red — Bleed',
-                    mobLegendHybrid: 'Hybrids combine auras',
+                    mobLegendMagic: 'MAGIC — caster look',
+                    mobLegendPoison: 'POISON — venom look',
+                    mobLegendBleed: 'BLEED — slasher look',
+                    mobLegendHybrid: 'Both tags = mixed look when art exists',
                     poisonApplied: '☠ Poison! {dps} damage/sec for a few seconds.',
                     poisonDebuffHint: 'Poisoned — losing HP every second.',
                     poisonDebuffAria: 'Poisoned — {sec}s left',
@@ -3654,6 +3663,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: 'Novidades',
                 entries: [
                     {
+                        date: '2026-09-01',
+                        items: [
+                            'Goblins e lobos No-Grade redesenhados no traço do jogo — cel-shade, luz da trilha, stills transparentes. Os PNG de fundo preto acabaram.',
+                            'Cada tipo é um visual próprio: normal, mágico, veneno, sangra e os dois híbridos. Sem aura empilhada no mesmo desenho.',
+                            'Ataque e morte seguem aquele fato — um goblin mágico-sangue usa o cajado-cutelo, não a clava.',
+                            'As tags MAGIC / VENENO / SANGRA continuam no nome para ler no telemóvel. A aranha fica na arte antiga por agora.'
+                        ]
+                    },
+                    {
                         date: '2026-08-30',
                         items: [
                             'A caça D-grade agora é um pátio de verdade — luar, pedras e o portão no nevoeiro. O cartão vazio acabou.',
@@ -5271,10 +5289,10 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     mobPoisonTag: 'VENENO',
                     mobBleedTag: 'SANGRA',
                     mobLegendTitle: 'Tipos de inimigo',
-                    mobLegendMagic: 'Azul — Mágico',
-                    mobLegendPoison: 'Verde — Veneno',
-                    mobLegendBleed: 'Vermelho — Sangramento',
-                    mobLegendHybrid: 'Híbridos somam auras',
+                    mobLegendMagic: 'MÁGICO — visual de caster',
+                    mobLegendPoison: 'VENENO — visual tóxico',
+                    mobLegendBleed: 'SANGRA — visual de corte',
+                    mobLegendHybrid: 'As duas tags = visual misto quando houver arte',
                     poisonApplied: '☠ Veneno! {dps} de dano/seg por alguns segundos.',
                     poisonDebuffHint: 'Envenenado — perdendo HP a cada segundo.',
                     poisonDebuffAria: 'Envenenado — {sec}s restantes',
