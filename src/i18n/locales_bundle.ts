@@ -70,6 +70,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-09-01',
                         items: [
+                            'Giant spiders now match the goblins and wolves — cel-shade, trail light, transparent stills. The old black-box pixel spider is gone.',
+                            'Same six looks: normal, magic, poison, bleed, and the two hybrids. Wrap, crystals, mushrooms, hooked front blades. No stacked glow.',
+                            'Attack raises the front legs; death folds them in. Tags still read MAGIC / POISON / BLEED.'
+                        ]
+                    },
+                    {
+                        date: '2026-09-01',
+                        items: [
                             'No-Grade goblins and wolves are redrawn to match the game — cel-shade, trail light, transparent stills. The old black-box PNGs are gone.',
                             'Each type is its own creature now: normal, magic, poison, bleed, and the two hybrids. No stacked glow aura on the same picture.',
                             'Attack and death poses follow that costume — a magic-bleed goblin swings the hooked staff, not the club.',
@@ -3662,6 +3670,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-01',
+                        items: [
+                            'Aranhas gigantes no mesmo traço dos goblins e lobos — cel-shade, luz da trilha, stills transparentes. O pixel de fundo preto acabou.',
+                            'Os mesmos seis visuais: normal, mágico, veneno, sangra e os dois híbridos. Faixa, cristais, cogumelos, ganchos na frente. Sem aura empilhada.',
+                            'O ataque levanta as patas da frente; a morte fecha-as. Tags MAGIC / VENENO / SANGRA no nome.'
+                        ]
+                    },
                     {
                         date: '2026-09-01',
                         items: [

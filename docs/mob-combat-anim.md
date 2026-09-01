@@ -76,7 +76,7 @@ Mesma silhueta e paleta dos PNG. Pixel / retro RPG, **não** 3D nem cinematic.
 - **Atk:** golpe por cima ou estocada (o que o still `_atk` já sugerir). Frame 3 = impacto.
 - **Die:** joelho no chão depois corpo; último frame = no chão.
 
-**Teste de estilo (No-Grade, 2026-09-01):** stills PNG **256×256** com **transparência**, cel-shade + outline a casar com o paperdoll e a trilha `battle_ng`. Goblin verde-oliva e lobo pardo da trilha, luz de cima-esquerda. O CSS de `.mob-hunt-sprite-wrap::before` continua a ser a sombra de contacto — **não** pintar elipse no PNG. **Sem aura CSS** — variantes (`magic` / `poison` / `bleed`) usam stills ` <id>_<variant>_<pose>.png ` com fallback ao base. Stills antigos em `assets/mobs/_archive/`. Magenta masters em `assets/mobs/_incoming/`. Spider ainda no lote pixel até o lobo ser aprovado.
+**Teste de estilo (No-Grade, 2026-09-01):** stills PNG **256×256** com **transparência**, cel-shade + outline a casar com o paperdoll e a trilha `battle_ng`. Goblin verde-oliva, lobo pardo e aranha terracota da trilha, luz de cima-esquerda. O CSS de `.mob-hunt-sprite-wrap::before` continua a ser a sombra de contacto — **não** pintar elipse no PNG. **Sem aura CSS** — variantes (`magic` / `poison` / `bleed` / `magic_poison` / `magic_bleed`) usam stills `<id>_<variant>_<pose>.png` com fallback ao base. Stills antigos em `assets/mobs/_archive/`. Magenta masters em `assets/mobs/_incoming/`. Lote 1 completo: `spider` / `wolf` / `goblin`.
 
 ## Cliente (já feito)
 
