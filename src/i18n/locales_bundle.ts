@@ -70,6 +70,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-09-01',
                         items: [
+                            'D-grade hunt stills now use the same bold black anime line as the fighter paperdoll — flat cel-shade, no painted moon in the PNG.'
+                        ]
+                    },
+                    {
+                        date: '2026-09-01',
+                        items: [
                             'D-grade courtyard mobs are redrawn to the moonlight — zombie soldier, skeleton archer, and ruin bat. Cool light from the right, shadows fall left like the cobbles.',
                             'Each type is its own costume: normal, magic, poison, bleed, and the two hybrids. Staff, mushrooms, hooked blades — no stacked glow on the same picture.',
                             'Attack and death keep that costume. Tags still read MAGIC / POISON / BLEED.'
@@ -3678,6 +3684,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-01',
+                        items: [
+                            'Stills da caça D-grade no mesmo traço preto grosso do paperdoll fighter — cel-shade chapado, sem lua pintada no PNG.'
+                        ]
+                    },
                     {
                         date: '2026-09-01',
                         items: [
