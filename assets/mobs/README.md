@@ -10,7 +10,7 @@ Live motion is **CSS on the three stills** (idle breathe, attack lunge + flash).
 | Attack | `<id>_atk.png` | `<id>_atk.webp` (**play once**) |
 | Death | `<id>_die.png` | `<id>_die.webp` (**play once**, hold last frame) |
 
-**No GIF.** Brief: `docs/mob-combat-anim.md`. Client: `src/combat/mob_sprite.ts`.
+**No GIF.** Motion: `docs/mob-combat-anim.md`. **Style lock:** `docs/hunt-mob-art-style.md` (paperdoll `human_fighter/body.png` + approved `zombie_idle` / `skeleton_idle` / `bat_idle` / `goblin_idle`). Client: `src/combat/mob_sprite.ts`.
 
 Costume variants (goblin / wolf / spider / zombie / skeleton / bat): `<id>_<variant>_<pose>.png` where variant is `magic`, `poison`, `bleed`, `magic_poison`, or `magic_bleed`. Missing files fall back to the species still. Working magenta masters live in `_incoming/` (not shipped).
 

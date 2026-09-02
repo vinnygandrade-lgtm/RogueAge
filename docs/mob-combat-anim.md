@@ -76,7 +76,7 @@ Mesma silhueta e paleta dos PNG. Pixel / retro RPG, **não** 3D nem cinematic.
 - **Atk:** golpe por cima ou estocada (o que o still `_atk` já sugerir). Frame 3 = impacto.
 - **Die:** joelho no chão depois corpo; último frame = no chão.
 
-**Teste de estilo (No-Grade, 2026-09-01):** stills PNG **256×256** com **transparência**, cel-shade + outline a casar com o paperdoll e a trilha `battle_ng`. Goblin verde-oliva, lobo pardo e aranha terracota da trilha, luz de cima-esquerda. O CSS de `.mob-hunt-sprite-wrap::before` continua a ser a sombra de contacto — **não** pintar elipse no PNG. **Sem aura CSS** — variantes (`magic` / `poison` / `bleed` / `magic_poison` / `magic_bleed`) usam stills `<id>_<variant>_<pose>.png` com fallback ao base. Stills antigos em `assets/mobs/_archive/`. Magenta masters em `assets/mobs/_incoming/`. Lote 1 completo: `spider` / `wolf` / `goblin`.
+**Estilo aprovado (2026-09-01):** ver **`docs/hunt-mob-art-style.md`**. Âncora de traço = `assets/paperdolls/human_fighter/body.png` (outline preto grosso, cel-shade em blocos). Stills de referência: `zombie_idle` / `skeleton_idle` / `bat_idle` / `goblin_idle`. PNG **256×256** transparente. **Sem** lua/cenário no ficheiro. Sombra de contacto só no CSS `::before`. Variantes = fato próprio, sem aura. Masters magenta em `_incoming/`.
 
 ## Cliente (já feito)
 
@@ -89,6 +89,6 @@ Mesma silhueta e paleta dos PNG. Pixel / retro RPG, **não** 3D nem cinematic.
 
 Bosses (`db_bosses`), Olympiad, guerra de clãs — **não** usam este resolver. Não misturar.
 
-**D-grade (2026-09-01):** `zombie` / `skeleton` / `bat` no mesmo contrato 256×256 + variantes. Luz do **pátio** — lua no canto superior direito de `battle_d`; highlights à direita do still, sombra à esquerda (o CSS de contacto já cai para a esquerda). Sem elipse no PNG. Magenta masters em `_incoming/`.
+**D-grade:** `zombie` / `skeleton` / `bat` — mesmo contrato + variantes. Luz do pátio (lua **cima-direita** em `battle_d`) pintada **só no corpo**. Sem lua no PNG. Detalhe: `docs/hunt-mob-art-style.md`.
 
 C / B / A / S: mesmos nomes `_idle` / `_atk` / `_die` quando o lote D estiver aprovado no telefone.
