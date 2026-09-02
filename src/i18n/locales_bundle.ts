@@ -70,6 +70,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-09-01',
                         items: [
+                            'D-grade courtyard mobs are redrawn to the moonlight — zombie soldier, skeleton archer, and ruin bat. Cool light from the right, shadows fall left like the cobbles.',
+                            'Each type is its own costume: normal, magic, poison, bleed, and the two hybrids. Staff, mushrooms, hooked blades — no stacked glow on the same picture.',
+                            'Attack and death keep that costume. Tags still read MAGIC / POISON / BLEED.'
+                        ]
+                    },
+                    {
+                        date: '2026-09-01',
+                        items: [
                             'Giant spiders now match the goblins and wolves — cel-shade, trail light, transparent stills. The old black-box pixel spider is gone.',
                             'Same six looks: normal, magic, poison, bleed, and the two hybrids. Wrap, crystals, mushrooms, hooked front blades. No stacked glow.',
                             'Attack raises the front legs; death folds them in. Tags still read MAGIC / POISON / BLEED.'
@@ -3670,6 +3678,14 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-01',
+                        items: [
+                            'Mobs do pátio D-grade redesenhados no luar — soldado zumbi, arqueiro esqueleto e morcego das ruínas. Luz fria à direita, sombra à esquerda como nas pedras.',
+                            'Cada tipo é um fato próprio: normal, mágico, veneno, sangra e os dois híbridos. Cajado, cogumelos, lâminas — sem aura empilhada.',
+                            'Ataque e morte seguem aquele fato. Tags MAGIC / VENENO / SANGRA no nome.'
+                        ]
+                    },
                     {
                         date: '2026-09-01',
                         items: [

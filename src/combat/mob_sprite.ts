@@ -20,7 +20,7 @@ export type MobSpriteVariant =
 type ResolvedMobSprite = { url: string; animated: boolean };
 
 /** Bump when replacing hunt stills so phones drop the old PNG cache. */
-const MOB_SPRITE_REV = '20260901f';
+const MOB_SPRITE_REV = '20260901g';
 
 /** Attack pose hold — CSS lunge + `_atk` still. Keep in sync with `mobHuntLunge`. */
 export const MOB_ATK_POSE_MS = 420;

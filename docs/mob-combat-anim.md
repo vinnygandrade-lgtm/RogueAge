@@ -89,4 +89,6 @@ Mesma silhueta e paleta dos PNG. Pixel / retro RPG, **não** 3D nem cinematic.
 
 Bosses (`db_bosses`), Olympiad, guerra de clãs — **não** usam este resolver. Não misturar.
 
-D / C / B / A / S: mesmos nomes `_idle` / `_atk` / `_die` quando o lote 1 estiver aprovado no telefone.
+**D-grade (2026-09-01):** `zombie` / `skeleton` / `bat` no mesmo contrato 256×256 + variantes. Luz do **pátio** — lua no canto superior direito de `battle_d`; highlights à direita do still, sombra à esquerda (o CSS de contacto já cai para a esquerda). Sem elipse no PNG. Magenta masters em `_incoming/`.
+
+C / B / A / S: mesmos nomes `_idle` / `_atk` / `_die` quando o lote D estiver aprovado no telefone.
