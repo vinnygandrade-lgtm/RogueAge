@@ -3748,6 +3748,16 @@ html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hun
     margin-bottom: 6px !important;
     gap: 4px !important;
 }
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-target-mark,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-target-mark {
+    height: 14px;
+    margin-bottom: 2px;
+}
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-target-mark svg,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-target-mark svg {
+    width: 16px;
+    height: 10px;
+}
 
 html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-hp-text,
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-hp-text {

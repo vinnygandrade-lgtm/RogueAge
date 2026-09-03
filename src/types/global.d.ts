@@ -730,7 +730,11 @@ declare global {
     atualizarIconesDebuffMonstro?: (indexMonstro: number, nome: string, duracaoMs: number, iconeHtml: string) => void;
     refreshMobHpUI?: (monstro: unknown) => void;
     syncAllForestMobHpBars?: () => void;
+    forestHuntTargetId?: string | null;
     getForestTargetMobIndex?: () => number;
+    setForestHuntTarget?: (idUnico: string) => boolean;
+    clearForestHuntTarget?: () => void;
+    syncForestHuntTargetUi?: () => void;
     aplicarDanoNoMonstro?: (index: number, dano: number, isCrit?: boolean) => void;
     atacar?: () => void;
     toggleAutoAtaque?: () => void;

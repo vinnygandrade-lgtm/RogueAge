@@ -68,6 +68,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-09-03',
+                        items: [
+                            'Forest Expedition: Evasion cards now add 3% (legendary 6%) of the Evasion you already have — not +3 / +6 flat points. Late-run dodge no longer walks you toward immortality (run cap 55%).',
+                            'Hunt: tap a monster to change target. A small gold chevron marks who you are hitting — every grade, not just the trail.'
+                        ]
+                    },
+                    {
                         date: '2026-09-01',
                         items: [
                             'D-grade hunt stills now use the same bold black anime line as the fighter paperdoll — flat cel-shade, no painted moon in the PNG.'
@@ -1730,6 +1737,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     ambush: 'AMBUSH! {list} appeared!',
                     searchingTracks: 'Searching for tracks in the zone...',
                     noTarget: 'No target to attack!',
+                    targetHint: 'Tap a monster to change target',
+                    targeting: 'Targeting {name}',
                     rareDrop: '💎 RARE DROP! You found {qty}× {item}!',
                     legendaryDrop: '🔥 LEGENDARY DROP: {item}!',
                     monsterDefeated: 'The monster was defeated!',
@@ -2792,7 +2801,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         upgradeCritTitle: 'Deadly Precision',
                         upgradeCritDesc: '+5% Crit Rate — more critical hits this run.',
                         upgradeEvasionTitle: 'Light Footwork',
-                        upgradeEvasionDesc: '+3 Evasion investment — dodge more hits this run (stacks with gear; hard cap 95%).',
+                        upgradeEvasionDesc: '+3% of your Evasion this run (not +3 points).',
                         upgradeSpeedTitle: 'Faster Auto-Attacks',
                         upgradeSpeedDesc: '+5% Attack Speed — Attack swings more often. Not skill cast or cooldown.',
                         upgradePdefTitle: 'Iron Guard',
@@ -2865,7 +2874,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         buildWarden: 'Trail Warden',
                         buildWardenBonus: '−10% poison · −10% bleed',
                         buildPhantomStep: 'Phantom Step',
-                        buildPhantomStepBonus: '+4 Evasion · +3% Attack Speed',
+                        buildPhantomStepBonus: '+4% of your Evasion · +3% Attack Speed',
                         buildArcaneChannel: 'Arcane Channel',
                         buildArcaneChannelBonus: '+6% Casting Speed · +8% Max MP · +3% M.Atk',
                         buildMastery3: 'Pathfinder (3 builds)',
@@ -2919,7 +2928,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         upgradeLegendCritTitle: 'Fatal Star',
                         upgradeLegendCritDesc: '+10% Crit Rate — far more critical hits this run.',
                         upgradeLegendEvasionTitle: 'Ghost Step',
-                        upgradeLegendEvasionDesc: '+6 Evasion investment — more dodges this run (stacks with gear; hard cap 95%).',
+                        upgradeLegendEvasionDesc: '+6% of your Evasion this run (not +6 points).',
                         upgradeLegendVitalityTitle: 'Ironheart',
                         upgradeLegendVitalityDesc: '+15% Max HP — much bigger health pool this run.',
                         upgradeLegendCastSpeedTitle: 'Lightning Launch',
@@ -3684,6 +3693,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-03',
+                        items: [
+                            'Expedição da Floresta: cartas de Evasion agora somam 3% (lendária 6%) da Evasion que você já tem — não +3 / +6 pontos fixos. O dodge no fim da run deixa de ir rumo à imortalidade (teto da run 55%).',
+                            'Caça: toca no monstro para mudar o alvo. Uma setinha dourada marca quem estás a bater — em todas as grades, não só na trilha.'
+                        ]
+                    },
                     {
                         date: '2026-09-01',
                         items: [
@@ -5347,6 +5363,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     ambush: 'EMBOSCADA! {list} apareceram!',
                     searchingTracks: 'Procurando rastros na zona...',
                     noTarget: 'Nenhum alvo para atacar!',
+                    targetHint: 'Toque num monstro para mudar o alvo',
+                    targeting: 'Mirando em {name}',
                     rareDrop: '💎 DROP RARO! Você encontrou {qty}× {item}!',
                     legendaryDrop: '🔥 DROP LENDÁRIO: {item}!',
                     monsterDefeated: 'O monstro foi derrotado!',
@@ -6409,7 +6427,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         upgradeCritTitle: 'Precisão mortal',
                         upgradeCritDesc: '+5% taxa de crítico — mais críticos nesta run.',
                         upgradeEvasionTitle: 'Passo leve',
-                        upgradeEvasionDesc: '+3 investimento de Evasion — desvia mais golpes nesta run (soma com o gear; teto 95%).',
+                        upgradeEvasionDesc: '+3% da sua Evasion nesta run (não +3 pontos).',
                         upgradeSpeedTitle: 'Ataque automático mais rápido',
                         upgradeSpeedDesc: '+5% Vel. de Ataque — o Attack bate mais vezes. Não é cast nem recarga de skill.',
                         upgradePdefTitle: 'Guarda de ferro',
@@ -6482,7 +6500,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         buildWarden: 'Guardião da trilha',
                         buildWardenBonus: '−10% veneno · −10% sangramento',
                         buildPhantomStep: 'Passo fantasma',
-                        buildPhantomStepBonus: '+4 Evasion · +3% Vel. de Ataque',
+                        buildPhantomStepBonus: '+4% da sua Evasion · +3% Vel. de Ataque',
                         buildArcaneChannel: 'Canal arcano',
                         buildArcaneChannelBonus: '+6% Vel. de Conjuração · +8% MP máx. · +3% M.Atk',
                         buildMastery3: 'Desbravador (3 builds)',
@@ -6536,7 +6554,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         upgradeLegendCritTitle: 'Estrela fatal',
                         upgradeLegendCritDesc: '+10% taxa de crítico — muitos mais críticos nesta run.',
                         upgradeLegendEvasionTitle: 'Passo fantasma',
-                        upgradeLegendEvasionDesc: '+6 investimento de Evasion — mais desvios nesta run (soma com o gear; teto 95%).',
+                        upgradeLegendEvasionDesc: '+6% da sua Evasion nesta run (não +6 pontos).',
                         upgradeLegendVitalityTitle: 'Coração de ferro',
                         upgradeLegendVitalityDesc: '+15% HP máx. — bem mais vida nesta run.',
                         upgradeLegendCastSpeedTitle: 'Lançamento relâmpago',

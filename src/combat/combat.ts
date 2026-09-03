@@ -98,6 +98,7 @@ function prepararTelaCacada() {
         clearForestPlayerThreats();
         hideMobTypeLegend();
         window.monstrosAtivos.length = 0;
+        window.clearForestHuntTarget?.();
         if (typeof window.setChatCollapsedForCombat === 'function') window.setChatCollapsedForCombat(false);
         const texto = document.getElementById('texto-procurando');
         if (texto) texto.style.display = 'none';
@@ -303,6 +304,7 @@ function spawnMonstros() {
 
     let qtd = Math.floor(Math.random() * maxMobs) + 1;
     window.monstrosAtivos.length = 0; // Limpa o array mantendo a referência global
+    window.clearForestHuntTarget?.();
     let nomesSorteados = [];
 
     const zonaKey = (window.zonaAtual && window.zonaAtual.id) ? window.zonaAtual.id : 'No-Grade';
@@ -489,6 +491,50 @@ function beginMobCardExit(idUnico: string | number | undefined): void {
     card.style.paddingRight = '0';
 }
 
+function forestHuntCardId(card: Element | null): string {
+    if (!(card instanceof HTMLElement)) return '';
+    return String(card.getAttribute('data-mob-unico') || '');
+}
+
+function bindForestHuntTargetClicks(container: HTMLElement) {
+    if (container.dataset.huntTargetBound === '1') return;
+    container.dataset.huntTargetBound = '1';
+    const pickFromEvent = (ev: Event) => {
+        const raw = ev.target;
+        if (!(raw instanceof Element)) return;
+        const card = raw.closest('.mob-hunt-card');
+        if (!card || !container.contains(card) || card.classList.contains('mob-hunt-card--exiting')) return;
+        const id = forestHuntCardId(card);
+        if (id) window.setForestHuntTarget?.(id);
+    };
+    container.addEventListener('click', pickFromEvent);
+    container.addEventListener('keydown', (ev: KeyboardEvent) => {
+        if (ev.key !== 'Enter' && ev.key !== ' ') return;
+        const raw = ev.target;
+        if (!(raw instanceof HTMLElement) || !raw.classList.contains('mob-hunt-card')) return;
+        ev.preventDefault();
+        pickFromEvent(ev);
+    });
+}
+
+function syncForestHuntTargetUi() {
+    const container = document.getElementById('mobs-container');
+    if (!container) return;
+    const tFn = typeof window.t === 'function' ? window.t : (k: string) => k;
+    const hint = tFn('game.combat.targetHint');
+    const targetId = window.forestHuntTargetId ? String(window.forestHuntTargetId) : '';
+    container.querySelectorAll('.mob-hunt-card').forEach((el) => {
+        const card = el as HTMLElement;
+        const id = forestHuntCardId(card);
+        const on = !!id && id === targetId;
+        card.classList.toggle('mob-hunt-card--targeted', on);
+        card.setAttribute('aria-pressed', on ? 'true' : 'false');
+        const name = card.querySelector('.mob-hunt-card__name')?.textContent?.trim() || '';
+        card.setAttribute('title', hint);
+        card.setAttribute('aria-label', on && name ? tFn('game.combat.targeting', { name }) : hint);
+    });
+}
+
 function renderizarMonstros(opts?: { animateLayout?: boolean }) {
     const container = document.getElementById('mobs-container');
     if(!container) return;
@@ -510,7 +556,6 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
         let transform = 'translateY(0)';
         if (hpPorcento < 50 && hpPorcento > 0) { transform = 'translateY(5px) rotate(3deg)'; }
 
-        let marker = (index === 0 && window.monstrosAtivos.length > 1) ? '<span style="color:#ef4444; margin-left:2px;">▼</span>' : '';
         let exibicaoHp = Math.max(0, Math.floor(hpVal));
 
         const isMagico = mob.tipo === 'magico';
@@ -526,24 +571,33 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
         const enterClass = isEntering ? ' mob-hunt-card--entering' : '';
 
         htmlFinal += `
-        <div id="mob-card-${mob.idUnico}" class="mob-hunt-card${enterClass}${mob.mobThreat && mob.mobThreat !== 'none' ? ` mob-hunt-card--${mob.mobThreat}` : ''}${isMagico ? ' mob-hunt-card--magic' : ''}"${enterDelay}>
-            <div class="mob-hunt-card__header">
-                <div class="mob-hunt-card__name">${formatMobCardName(mob)}${marker}${archetypeTags}</div>
+        <div id="mob-card-${mob.idUnico}" class="mob-hunt-card${enterClass}${mob.mobThreat && mob.mobThreat !== 'none' ? ` mob-hunt-card--${mob.mobThreat}` : ''}${isMagico ? ' mob-hunt-card--magic' : ''}" data-mob-unico="${mob.idUnico}" role="button" tabindex="0"${enterDelay}>
+            <div class="mob-hunt-plate">
+                <div class="mob-hunt-target-mark" aria-hidden="true">
+                    <svg viewBox="0 0 12 8" width="12" height="8" focusable="false">
+                        <path d="M1.5 1.5 L6 6.2 L10.5 1.5" fill="none" stroke="#f5d38a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="mob-hunt-plate__id">
+                    <span class="mob-hunt-card__name">${formatMobCardName(mob)}</span>
+                    ${archetypeTags}
+                </div>
+                <div class="hp-bar mob-hunt-card__hpbar">
+                    <div id="mob-hp-fill-${mob.idUnico}" class="mob-hunt-hp-fill" style="width: ${hpPorcento}%;"></div>
+                    <small id="mob-hp-text-${mob.idUnico}" class="mob-hunt-hp-text">${exibicaoHp}</small>
+                </div>
                 <div class="mob-hunt-card__atkbar">
                     <div id="mob-cd-fill-${mob.idUnico}" class="mob-hunt-card__atkfill" style="width: ${mob.progresso}%;"></div>
                 </div>
+                ${bleedPips}
+                <div id="mob-debuffs-${mob.idUnico}" class="mob-hunt-card__debuffs"></div>
             </div>
             <div class="mob-hunt-sprite-wrap">
+                <div class="mob-hunt-foot-shadow" aria-hidden="true"></div>
                 <div class="${spriteWrapClass}">
                     <img id="monster-img-${mob.idUnico}" class="mob-hunt-sprite" data-mob-img="${mob.idImg || ''}" data-mob-variant="${spriteVariant}" data-mob-pose="idle" src="${mobSpritePngUrl(spriteStem, 'idle')}" style="transition: transform 0.1s ease-out; transform: ${transform}; opacity: ${hpVal > 0 ? 1 : 0};">
                 </div>
             </div>
-            <div class="hp-bar mob-hunt-card__hpbar">
-                <div id="mob-hp-fill-${mob.idUnico}" class="mob-hunt-hp-fill" style="width: ${hpPorcento}%;"></div>
-                <small id="mob-hp-text-${mob.idUnico}" class="mob-hunt-hp-text">${exibicaoHp}</small>
-            </div>
-            <div id="mob-debuffs-${mob.idUnico}" class="mob-hunt-card__debuffs"></div>
-            ${bleedPips}
         </div>`;
     });
 
@@ -551,6 +605,9 @@ function renderizarMonstros(opts?: { animateLayout?: boolean }) {
     const zoneId = String(window.zonaAtual?.id || 'No-Grade');
     applyHuntFormationLayout(container, zoneId, window.monstrosAtivos as ForestMob[]);
     bindForestMobSpriteImgs(container);
+    bindForestHuntTargetClicks(container);
+    if (typeof window.getForestTargetMobIndex === 'function') window.getForestTargetMobIndex();
+    syncForestHuntTargetUi();
     _forestMobDomCache = Object.create(null) as ForestMobDomCache;
     if (prevRects && prevRects.size && !zoneUsesHuntFormation(zoneId)) {
         playMobCardFlip(prevRects);
@@ -937,6 +994,13 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
     }
 
     window.monstrosAtivos.splice(resolvedIdx, 1);
+    if (String(window.forestHuntTargetId || '') === String(mobMorto.idUnico || '')) {
+        window.clearForestHuntTarget?.();
+    }
+    if (window.monstrosAtivos.length > 0 && typeof window.getForestTargetMobIndex === 'function') {
+        window.getForestTargetMobIndex();
+        syncForestHuntTargetUi();
+    }
 
     if (window.monstrosAtivos.length === 0) {
         iniciarFechamentoVitoriaCacada();
@@ -1234,6 +1298,7 @@ window.iniciarAtaqueMonstro = iniciarAtaqueMonstro;
 window.prepararTelaCacada = prepararTelaCacada;
 window.procurarMonstros = procurarMonstros;
 window.renderizarMonstros = renderizarMonstros;
+window.syncForestHuntTargetUi = syncForestHuntTargetUi;
 window.tentarFugir = tentarFugir;
 window.fecharVitoriaEProcurar = fecharVitoriaEProcurar;
 window.fecharVitoriaEVoltar = fecharVitoriaEVoltar;

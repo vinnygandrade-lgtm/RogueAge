@@ -70,15 +70,69 @@ window.syncAllForestMobHpBars = function () {
   });
 };
 
-/** First alive mob in hunting zone (index 0 is not always the valid target when multiple mobs spawn). */
-window.getForestTargetMobIndex = function () {
-  const list = window.monstrosAtivos;
-  if (!Array.isArray(list) || list.length === 0) return -1;
+function forestMobIsAlive(mob: ForestMob | null | undefined): boolean {
+  return !!(mob && Math.floor(Number(mob.hp)) > 0);
+}
+
+function forestMobId(mob: ForestMob | null | undefined): string {
+  return mob?.idUnico != null ? String(mob.idUnico) : '';
+}
+
+/** Latch the hunt target to the first living mob when the current pick is gone. */
+function latchForestHuntTargetFallback(list: ForestMob[]): number {
   for (let i = 0; i < list.length; i++) {
-    const m = list[i] as ForestMob;
-    if (m && Math.floor(Number(m.hp)) > 0) return i;
+    const m = list[i];
+    if (!forestMobIsAlive(m)) continue;
+    const nextId = forestMobId(m);
+    const changed = String(window.forestHuntTargetId || '') !== nextId;
+    window.forestHuntTargetId = nextId || null;
+    if (changed && typeof window.syncForestHuntTargetUi === 'function') {
+      window.syncForestHuntTargetUi();
+    }
+    return i;
   }
+  window.forestHuntTargetId = null;
   return -1;
+}
+
+/** Living hunt target — player pick first, then the next living mob. */
+window.getForestTargetMobIndex = function () {
+  const list = window.monstrosAtivos as ForestMob[] | undefined;
+  if (!Array.isArray(list) || list.length === 0) {
+    window.forestHuntTargetId = null;
+    return -1;
+  }
+  const wanted = window.forestHuntTargetId ? String(window.forestHuntTargetId) : '';
+  if (wanted) {
+    const idx = list.findIndex((m) => forestMobId(m) === wanted && forestMobIsAlive(m));
+    if (idx >= 0) return idx;
+  }
+  return latchForestHuntTargetFallback(list);
+};
+
+/** Player tap/click — GDD §6: auto-attack turns off when the target changes. */
+window.setForestHuntTarget = function (idUnico: string) {
+  const id = String(idUnico || '');
+  if (!id) return false;
+  const list = window.monstrosAtivos as ForestMob[] | undefined;
+  if (!Array.isArray(list) || list.length === 0) return false;
+  const idx = list.findIndex((m) => forestMobId(m) === id && forestMobIsAlive(m));
+  if (idx < 0) return false;
+  const prev = window.forestHuntTargetId ? String(window.forestHuntTargetId) : '';
+  if (prev === id) {
+    window.syncForestHuntTargetUi?.();
+    return true;
+  }
+  window.forestHuntTargetId = id;
+  if (window.autoAtaqueAtivo) {
+    window.pararAutoAtaque?.();
+  }
+  window.syncForestHuntTargetUi?.();
+  return true;
+};
+
+window.clearForestHuntTarget = function () {
+  window.forestHuntTargetId = null;
 };
 
 /** Effective dodge chance % vs an incoming forest hit (class+gear+buff − mob accuracy). */
@@ -89,7 +143,7 @@ window.getPlayerDodgeChanceVsMob = function (
   // Linear dodge (content-budgeted). Ultimate Evasion / expedition add on top of gear raw.
   const win = window as Window & {
     _l2DodgeRawGear?: number;
-    ExpeditionEngine?: { getRunDodgeInvestment?: () => number };
+    ExpeditionEngine?: { getRunDodgeInvestment?: () => number; RUN_DODGE_HARD_CAP?: number };
   };
   const hasGearRaw = typeof win._l2DodgeRawGear === 'number';
   const gearRaw = hasGearRaw
@@ -112,8 +166,9 @@ window.getPlayerDodgeChanceVsMob = function (
   if (ataqueMagicoDoMonstro) {
     raw *= 0.85;
   }
-  // Sanity: never above 95% dodge chance in a single roll.
-  return Math.max(0, Math.min(95, Math.floor(raw)));
+  const runCap = Number(win.ExpeditionEngine?.RUN_DODGE_HARD_CAP);
+  const cap = runDodge > 0 && Number.isFinite(runCap) && runCap > 0 ? runCap : 95;
+  return Math.max(0, Math.min(cap, Math.floor(raw)));
 };
 
 window.tryPlayerDodgeIncoming = function (

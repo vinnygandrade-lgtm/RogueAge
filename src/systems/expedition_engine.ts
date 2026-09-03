@@ -43,8 +43,8 @@ export interface ExpeditionRunBuffs {
     /** Shortens skill cast time during the run (+8% per card; combined with gear, hard-capped at 40%). */
     castSpeedPct: number;
     /**
-     * Additive Evasion investment during the run (+3 per card / +6 legendary).
-     * Linear with gear; combat hard-caps dodge chance at 95%.
+     * Percent of **gear** Evasion this run (+3% / legendary +6%), same shape as Crit cards.
+     * Not flat +3 points. Combat hard-caps dodge chance at `RUN_DODGE_HARD_CAP`.
      */
     dodgeRatePct: number;
     maxHpPct: number;
@@ -416,7 +416,7 @@ const RUN_BUILDS: ExpeditionBuildDef[] = [
         titleKey: 'game.hunt.expedition.buildPhantomStep',
         titleFallback: 'Phantom Step',
         bonusKey: 'game.hunt.expedition.buildPhantomStepBonus',
-        bonusFallback: '+4 Evasion · +3% Attack Speed',
+        bonusFallback: '+4% of your Evasion · +3% Attack Speed',
         // Evasion ×3 (+3) + Atk Spd ×2 (+5) ≈ 5 picks — shares speed with Blade Dancer
         requirements: [
             { kind: 'stat', stat: 'dodgeRatePct', minPct: 9 },
@@ -514,7 +514,7 @@ const UPGRADE_POOL_RAW: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeEvasionTitle',
         titleFallback: 'Light Footwork',
         descKey: 'game.hunt.expedition.upgradeEvasionDesc',
-        descFallback: '+3 Evasion investment — dodge more hits this run (stacks with gear; hard cap 95%).'
+        descFallback: '+3% of your Evasion this run (not +3 points).'
     },
     {
         id: 'speed',
@@ -683,7 +683,7 @@ const LEGENDARY_UPGRADE_POOL_RAW: UpgradeDef[] = [
         titleKey: 'game.hunt.expedition.upgradeLegendEvasionTitle',
         titleFallback: 'Ghost Step',
         descKey: 'game.hunt.expedition.upgradeLegendEvasionDesc',
-        descFallback: '+6 Evasion investment — more dodges this run (stacks with gear; hard cap 95%).'
+        descFallback: '+6% of your Evasion this run (not +6 points).'
     },
     {
         id: 'vitality',
@@ -725,6 +725,9 @@ const LEGENDARY_UPGRADE_POOL: UpgradeDef[] = LEGENDARY_UPGRADE_POOL_RAW.map(enri
 const RARE_EVENT_TYPES: ExpeditionRareEventType[] = ['shrine', 'gambler', 'cache', 'storm'];
 
 export class ExpeditionEngine {
+    /** Forest run dodge chance ceiling — cards are % of gear, not +points. */
+    static RUN_DODGE_HARD_CAP = 55;
+
     static state: ExpeditionState = ExpeditionEngine.createInitialState('');
 
     /** When true, calcularStatusGlobais skips run-buff apply (upgrade UI base snapshot). */
@@ -1392,10 +1395,14 @@ export class ExpeditionEngine {
         };
     }
 
-    /** Additive Evasion investment from run cards + builds (0 when effects paused). */
+    /** Extra dodge points from run cards: `floor(gearEvasion × dodgeRatePct / 100)`. */
     static getRunDodgeInvestment(): number {
         if (!this.isRunEffectsActive()) return 0;
-        return Math.max(0, Math.floor(this.getCombinedBuffPct('dodgeRatePct')));
+        const win = window as Window & { _l2DodgeRawGear?: number };
+        if (typeof win._l2DodgeRawGear !== 'number') return 0;
+        const gearRaw = Math.max(0, Math.floor(win._l2DodgeRawGear));
+        const pct = Math.max(0, this.getCombinedBuffPct('dodgeRatePct'));
+        return Math.max(0, Math.round((gearRaw * pct) / 100));
     }
 
 
@@ -2429,7 +2436,7 @@ export class ExpeditionEngine {
         maxHp: number;
         maxMp: number;
         castSpeedAdd: number;
-        dodgeAdd: number;
+        dodgeMult: number;
     } {
         return {
             pAtk: 1 + this.getCombinedBuffPct('pAtkPct') / 100,
@@ -2442,7 +2449,7 @@ export class ExpeditionEngine {
             maxHp: 1 + this.getCombinedBuffPct('maxHpPct') / 100,
             maxMp: 1 + this.getCombinedBuffPct('maxMpPct') / 100,
             castSpeedAdd: Math.max(0, this.getCombinedBuffPct('castSpeedPct')),
-            dodgeAdd: Math.max(0, Math.floor(this.getCombinedBuffPct('dodgeRatePct')))
+            dodgeMult: 1 + this.getCombinedBuffPct('dodgeRatePct') / 100
         };
     }
 
@@ -2507,12 +2514,14 @@ export class ExpeditionEngine {
     }) {
         const win = window as any;
         const m = this.getRunBuffMults();
-        const dodgeInvest = Math.max(0, Math.floor(Number(base.dodgeRaw) || 0) + m.dodgeAdd);
+        const dodgeRaw = Math.max(0, Number(base.dodgeRaw) || 0);
+        const dodgeInvest = Math.round(dodgeRaw * m.dodgeMult);
         // No world soft-caps — timer sanity floor only (card values carry the balance).
         const absAtkMin =
             typeof win.EXPEDITION_ATK_SPEED_ABS_MIN_MS === 'number' && win.EXPEDITION_ATK_SPEED_ABS_MIN_MS > 0
                 ? win.EXPEDITION_ATK_SPEED_ABS_MIN_MS
                 : 50;
+        const dodgeCap = this.RUN_DODGE_HARD_CAP;
         return {
             pAtk: Math.floor(base.pAtk * m.pAtk),
             mAtk: Math.floor(base.mAtk * m.mAtk),
@@ -2523,7 +2532,7 @@ export class ExpeditionEngine {
             maxHp: Math.floor(base.maxHp * m.maxHp),
             maxMp: Math.floor(base.maxMp * m.maxMp),
             castSpeed: Math.max(0, Math.floor(Number(base.castSpeed) || 0) + m.castSpeedAdd),
-            dodgeRate: Math.max(0, Math.min(95, dodgeInvest))
+            dodgeRate: Math.max(0, Math.min(dodgeCap, dodgeInvest))
         };
     }
 

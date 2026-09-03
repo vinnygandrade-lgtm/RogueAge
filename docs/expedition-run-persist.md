@@ -59,8 +59,8 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 
 - Unlock **as many builds as you complete** — bonuses **stack** (`unlockedBuildIds` on `expeditionRun`; legacy `activeBuildId` migrates on load)
 - 10 builds in Offense / Defense / Sustain (Swift Caster, Blade Dancer, Executioner, Spell Fortress, Iron Wall, Trail Warden, **Phantom Step**, Mana Well, Vital Pulse, Arcane Channel)
-- **Phantom Step:** Evasion cards (`dodgeRatePct` ≥ 9) + Atk Spd (`atkSpeedPct` ≥ 10) → `+4` Evasion investment · `+3%` Atk Spd (linear with gear; hard dodge cap 95%)
-- Post-fight upgrade pool includes **Casting Speed** (`castSpeedPct`), **Max MP** (`maxMpPct`), and **Evasion** (`dodgeRatePct`, **+3** / legendary **+6**, linear with gear, hard dodge cap 95%) alongside Atk Spd / HP / CDR / etc.
+- **Phantom Step:** Evasion cards (`dodgeRatePct` ≥ 9) + Atk Spd (`atkSpeedPct` ≥ 10) → `+4%` of gear Evasion · `+3%` Atk Spd (same % shape as Crit cards; run dodge cap 55%)
+- Post-fight upgrade pool includes **Casting Speed** (`castSpeedPct`), **Max MP** (`maxMpPct`), and **Evasion** (`dodgeRatePct`, **+3% / legendary +6% of gear Evasion**, not flat +3/+6 points; run dodge cap 55%) alongside Atk Spd / HP / CDR / etc.
 - Upgrade cards reuse **Blessing Build** art when mapped (`assets/blessings/<id>.png` via `UPGRADE_BLESSING_ICON`) with emoji fallback until the PNG exists.
 - Path / journey route cards load `assets/expedition/paths/<type>.png` (`combat`, `boss`, `elite`, `warhorn`, …) with emoji fallback — see `assets/expedition/paths/README.md`.
 - **Legendary upgrade chance** after a win scales by path: combat **15%**, elite **30%**, boss **50%** (fallback 18%). Storm `luckLegendaryNext` still forces one legendary on the next win.

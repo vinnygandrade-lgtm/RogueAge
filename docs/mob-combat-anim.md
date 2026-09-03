@@ -78,6 +78,10 @@ Mesma silhueta e paleta dos PNG. Pixel / retro RPG, **não** 3D nem cinematic.
 
 **Estilo aprovado (2026-09-01):** ver **`docs/hunt-mob-art-style.md`**. Âncora de traço = `assets/paperdolls/human_fighter/body.png` (outline preto grosso, cel-shade em blocos). Stills de referência: `zombie_idle` / `skeleton_idle` / `bat_idle` / `goblin_idle`. PNG **256×256** transparente. **Sem** lua/cenário no ficheiro. Sombra de contacto só no CSS `::before`. Variantes = fato próprio, sem aura. Masters magenta em `_incoming/`.
 
+## Alvo (toque)
+
+Toque no card do monstro para escolher o alvo — **todas as grades** (No-Grade … S), formação ou fila. Uma seta dourada discreta (`.mob-hunt-target-mark`) marca só o alvo actual. `getForestTargetMobIndex` / `setForestHuntTarget` em `combat_math.ts`. Auto-ataque desliga na **troca manual** (GDD §6); se o alvo morrer, a seta passa ao próximo vivo.
+
 ## Cliente (já feito)
 
 1. Spawn / re-render: PNG idle → probe WebP → troca se 200.  

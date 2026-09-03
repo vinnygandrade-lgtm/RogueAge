@@ -806,9 +806,9 @@ html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #te
 }
 html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #tela-floresta.expedition-combat-open #mobs-container.mob-hunt-formation .mob-hunt-card {
     flex: none !important;
-    min-width: 64px !important;
-    max-width: 88px !important;
-    width: 76px;
+    min-width: 72px !important;
+    max-width: 96px !important;
+    width: 86px;
 }
 html:not([data-l2-layout="landscape"]) .game-container.expedition-run-locked #tela-floresta.expedition-combat-open #mobs-container.mob-hunt-formation .mob-hunt-sprite {
     max-height: 68px;

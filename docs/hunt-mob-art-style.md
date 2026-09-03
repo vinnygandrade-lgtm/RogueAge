@@ -20,7 +20,7 @@ Luz de zona (não pintar o cenário no PNG):
 | Zona | Fundo de caça | Luz no corpo | Sombra CSS |
 |------|----------------|--------------|------------|
 | D | `assets/zones/battle_d.webp` — lua **canto superior direito** | highlights à **direita** | elipse à **esquerda** |
-| No-Grade | `assets/zones/battle_ng.webp` — sol **cima-esquerda** | highlights à **esquerda** | elipse à **direita** |
+| No-Grade | `assets/zones/battle_ng.webp` — sol **cima-esquerda** | highlights à **esquerda** | mancha nos **pés**, alongada à **direita** (respira/lunge com o sprite) |
 
 ## Contrato do still
 

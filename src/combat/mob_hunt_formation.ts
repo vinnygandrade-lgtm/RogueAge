@@ -73,7 +73,7 @@ const D_PACKS: Record<number, string[]> = {
   4: ['earth-left', 'path-near', 'mound-right', 'path-far'],
 };
 
-/** Dusk trail — sun upper-left, shadows fall right. Max pack 3. */
+/** Dusk trail — painted light is top-left, CSS cast falls right. */
 const NG_SLOTS: HuntSlot[] = [
   {
     id: 'path-near',
@@ -89,7 +89,7 @@ const NG_SLOTS: HuntSlot[] = [
     y: 22,
     scale: 0.96,
     z: 3,
-    shadow: { dx: '42%', blur: '3.2px', w: '70%', h: '9px', a: '0.36', rgb: '20, 24, 12', rot: '6deg' },
+    shadow: { dx: '50%', blur: '3.2px', w: '70%', h: '9px', a: '0.36', rgb: '20, 24, 12', rot: '6deg' },
   },
   {
     id: 'fence-right',
@@ -97,7 +97,7 @@ const NG_SLOTS: HuntSlot[] = [
     y: 24,
     scale: 0.94,
     z: 3,
-    shadow: { dx: '68%', blur: '3.4px', w: '86%', h: '10px', a: '0.42', rgb: '30, 16, 8', rot: '10deg' },
+    shadow: { dx: '66%', blur: '3.4px', w: '86%', h: '10px', a: '0.42', rgb: '30, 16, 8', rot: '10deg' },
   },
 ];
 
