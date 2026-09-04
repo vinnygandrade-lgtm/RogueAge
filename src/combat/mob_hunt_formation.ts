@@ -1,6 +1,6 @@
 /**
  * Scenic hunt slots — cards sit on the painted ground (not a row).
- * Survivors keep their slot. D = moonlit courtyard; No-Grade = dusk trail.
+ * Survivors keep their slot. D = moonlit courtyard; No-Grade = dusk trail; C = Death Pass gorge.
  *
  * Ground stain (`.mob-hunt-foot-shadow`) is on **every** hunt grade.
  * Cast follows zone light: NG/B stretch right; D/C/A/S stretch left.
@@ -110,9 +110,62 @@ const NG_PACKS: Record<number, string[]> = {
   3: ['berm-left', 'path-near', 'fence-right'],
 };
 
+/** Death Pass — sky slit from the right, CSS cast falls left. Five shelves on the gorge road. */
+const C_SLOTS: HuntSlot[] = [
+  {
+    id: 'path-near',
+    x: 48,
+    y: 11,
+    scale: 1.08,
+    z: 5,
+    shadow: { dx: '-60%', blur: '2px', w: '76%', h: '8px', a: '0.5', rgb: '8, 10, 16', rot: '-5deg' },
+  },
+  {
+    id: 'berm-left',
+    x: 16,
+    y: 22,
+    scale: 0.95,
+    z: 4,
+    shadow: { dx: '-66%', blur: '3.2px', w: '82%', h: '10px', a: '0.38', rgb: '8, 12, 18', rot: '-4deg' },
+  },
+  {
+    id: 'ledge-right',
+    x: 84,
+    y: 24,
+    scale: 0.93,
+    z: 4,
+    shadow: { dx: '-52%', blur: '3px', w: '70%', h: '9px', a: '0.36', rgb: '10, 12, 18', rot: '-7deg' },
+  },
+  {
+    id: 'path-mid',
+    x: 36,
+    y: 34,
+    scale: 0.8,
+    z: 3,
+    shadow: { dx: '-58%', blur: '4px', w: '64%', h: '8px', a: '0.3', rgb: '12, 14, 20', rot: '-5deg' },
+  },
+  {
+    id: 'arch-far',
+    x: 62,
+    y: 44,
+    scale: 0.68,
+    z: 2,
+    shadow: { dx: '-54%', blur: '5px', w: '58%', h: '7px', a: '0.24', rgb: '16, 18, 26', rot: '-6deg' },
+  },
+];
+
+const C_PACKS: Record<number, string[]> = {
+  1: ['path-near'],
+  2: ['berm-left', 'ledge-right'],
+  3: ['berm-left', 'path-near', 'ledge-right'],
+  4: ['berm-left', 'path-near', 'ledge-right', 'path-mid'],
+  5: ['berm-left', 'path-near', 'ledge-right', 'path-mid', 'arch-far'],
+};
+
 const FORMATIONS: Record<string, { slots: HuntSlot[]; packs: Record<number, string[]> }> = {
   'No-Grade': { slots: NG_SLOTS, packs: NG_PACKS },
   D: { slots: D_SLOTS, packs: D_PACKS },
+  C: { slots: C_SLOTS, packs: C_PACKS },
 };
 
 /** CSS contact stain — one look, cast side matches the painted key light. */

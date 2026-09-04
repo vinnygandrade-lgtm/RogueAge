@@ -1,7 +1,8 @@
 # Hunt mob art style (approved)
 
 **Produto:** RogueAge · stills de caça (`assets/mobs/`)  
-**Aprovado:** 2026-09-01 (lote D-grade `zombie` / `skeleton` / `bat` + traço do paperdoll fighter)
+**Aprovado:** 2026-09-01 (lote D-grade `zombie` / `skeleton` / `bat` + traço do paperdoll fighter)  
+**Cenário C:** 2026-09-04 — `assets/zones/battle_c.webp` (Death Pass, lua cima-direita, até 5 slots)
 
 Usar estas referências em **qualquer** still novo (C–S, variantes, poses). Não voltar ao pintado / 3D / linha fina.
 
@@ -21,7 +22,7 @@ Luz de zona (não pintar o cenário no PNG):
 |------|----------------|--------------|------------|
 | D | `assets/zones/battle_d.webp` — lua **canto superior direito** | highlights à **direita** | mancha nos pés, alongada à **esquerda** |
 | No-Grade | `assets/zones/battle_ng.webp` — sol **cima-esquerda** | highlights à **esquerda** | mancha nos pés, alongada à **direita** |
-| C | `battle_c.webp` (quando existir) | gorge / céu à direita | mancha à **esquerda** |
+| C | `assets/zones/battle_c.webp` — fenda de céu **cima-direita** | highlights à **direita** | mancha à **esquerda** |
 | B | `battle_b.webp` (quando existir) | brasa / calor à esquerda | mancha à **direita** |
 | A | `battle_a.webp` (quando existir) | céu da torre à direita | mancha à **esquerda** |
 | S | `battle_s.webp` (quando existir) | tocha / câmara à direita | mancha à **esquerda** |
