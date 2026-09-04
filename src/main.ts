@@ -148,6 +148,8 @@ async function bootGame(): Promise<void> {
 
   finishBootLoading();
   window.syncGameBgm?.();
+  window.setTimeout(() => window.syncGameBgm?.(), 200);
+  window.setTimeout(() => window.syncGameBgm?.(), 700);
   if (typeof window.PatchNotes?.tryShowAfterBoot === 'function') {
     window.PatchNotes.tryShowAfterBoot();
   }

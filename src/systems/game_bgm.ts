@@ -130,14 +130,21 @@ function pauseCurrent(reset: boolean): void {
 
 function startSpec(spec: BgmSpec): void {
   const clip = ensureClip(spec);
+  clip.setAttribute('playsinline', 'true');
   const dest = targetVolume(spec);
   if (clip.paused) {
     clip.volume = 0;
     const kick = clip.play();
-    if (kick && typeof kick.catch === 'function') {
-      kick.catch(() => {
-        unlocked = false;
-      });
+    if (kick && typeof kick.then === 'function') {
+      kick
+        .then(() => {
+          unlocked = true;
+          fadeAudioTo(clip, dest, FADE_MS);
+        })
+        .catch(() => {
+          unlocked = false;
+        });
+      return;
     }
   }
   fadeAudioTo(clip, dest, FADE_MS);
@@ -163,11 +170,20 @@ function armUnlockGesture(): void {
   if (gestureArmed) return;
   gestureArmed = true;
   const unlock = () => {
+    if (!musicEnabled()) return;
     unlocked = true;
     syncGameBgm();
   };
-  window.addEventListener('pointerdown', unlock, { once: true, capture: true });
-  window.addEventListener('keydown', unlock, { once: true, capture: true });
+  const opts: AddEventListenerOptions = { capture: true, passive: true };
+  window.addEventListener('pointerdown', unlock, opts);
+  window.addEventListener('touchstart', unlock, opts);
+  window.addEventListener('click', unlock, opts);
+  window.addEventListener('keydown', unlock, opts);
+  window.addEventListener('input', unlock, opts);
+  window.addEventListener('focusin', unlock, opts);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') syncGameBgm();
+  });
 }
 
 /** Pick and play the bed for the current screen / expedition state. */
@@ -182,15 +198,8 @@ export function syncGameBgm(): void {
     pauseCurrent(true);
     return;
   }
-  if (!unlocked && bgmAudio && bgmSrc === resolved.spec.src && !bgmAudio.paused) {
-    bgmAudio.volume = targetVolume(resolved.spec);
-    return;
-  }
-  if (!unlocked) {
-    // Prime the element so the first tap can start immediately.
-    ensureClip(resolved.spec);
-    return;
-  }
+  // Always try play() — login should start as soon as the page is up.
+  // Browsers may reject until any tap; then the listeners above retry.
   playSpec(resolved.spec);
 }
 

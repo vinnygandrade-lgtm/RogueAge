@@ -186,6 +186,7 @@ function hidePatchNotes(markAsSeen: boolean): void {
 
 function dismissPatchNotes(): void {
   hidePatchNotes(true);
+  window.syncGameBgm?.();
 }
 
 function tryShowAfterBoot(): void {
