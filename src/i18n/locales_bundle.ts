@@ -68,6 +68,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-09-04',
+                        items: [
+                            'Hunt: the soft ground shadow under each mob now shows on every grade — D courtyard through S tomb — not only the No-Grade trail.'
+                        ]
+                    },
+                    {
                         date: '2026-09-03',
                         items: [
                             'Forest Expedition: Evasion cards now add 3% (legendary 6%) of the Evasion you already have — not +3 / +6 flat points. Late-run dodge no longer walks you toward immortality (run cap 55%).',
@@ -3693,6 +3699,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-04',
+                        items: [
+                            'Caça: a sombra no chão debaixo de cada mob agora aparece em todas as grades — do pátio D até o túmulo S — não só na trilha No-Grade.'
+                        ]
+                    },
                     {
                         date: '2026-09-03',
                         items: [

@@ -12798,6 +12798,9 @@ html.l2-standalone .settings-section--pwa {
     padding: 12px 8px 14px;
     position: relative;
     z-index: 2;
+    --hunt-stain-x: -42%;
+    --hunt-stain-x-mid: -38%;
+    --hunt-stain-rot: 5deg;
 }
 .mob-hunt-card {
     display: flex;
@@ -13103,49 +13106,18 @@ small.mob-hunt-hp-text {
     justify-content: center;
     align-items: flex-end;
 }
-/* Contact shadow — ellipse at the feet, cast left (moon / dusk from the right). */
-.mob-hunt-sprite-wrap::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 1px;
-    z-index: 0;
-    width: var(--hunt-shadow-w, 74%);
-    height: var(--hunt-shadow-h, 9px);
-    transform: translateX(var(--hunt-shadow-dx, -58%)) rotate(var(--hunt-shadow-rot, -7deg));
-    transform-origin: 50% 50%;
-    pointer-events: none;
-    background: radial-gradient(
-        ellipse 100% 70% at 50% 50%,
-        rgba(var(--hunt-shadow-rgb, 10, 14, 24), var(--hunt-shadow-a, 0.46)) 0%,
-        rgba(var(--hunt-shadow-rgb, 10, 14, 24), calc(var(--hunt-shadow-a, 0.46) * 0.42)) 44%,
-        transparent 74%
-    );
-    filter: blur(var(--hunt-shadow-blur, 2.4px));
-}
-#mobs-container[data-hunt-formation="d"] {
-    --hunt-shadow-rgb: 8, 14, 28;
-    --hunt-shadow-a: 0.48;
-}
-/* NG trial: contact stain at the feet (not a silhouette halo).
-   Trail light is top-left — the puddle sits under the feet and stretches right. */
-#mobs-container[data-hunt-formation="no-grade"] {
-    --hunt-shadow-rgb: 12, 8, 5;
-    --hunt-shadow-a: 0.42;
-}
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-card,
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-sprite-wrap {
-    overflow: visible;
-}
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-sprite-wrap::before,
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-sprite-wrap::after {
+/* Old wrap ellipse — replaced by `.mob-hunt-foot-shadow` on every grade. */
+.mob-hunt-sprite-wrap::before,
+.mob-hunt-sprite-wrap::after {
     content: none;
     display: none;
 }
-.mob-hunt-foot-shadow {
-    display: none;
+.mob-hunt-card,
+.mob-hunt-sprite-wrap {
+    overflow: visible;
 }
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-foot-shadow {
+/* Contact stain under the feet (not a silhouette halo). Cast side is `--hunt-stain-*`. */
+.mob-hunt-foot-shadow {
     display: block;
     position: absolute;
     left: 50%;
@@ -13154,7 +13126,7 @@ small.mob-hunt-hp-text {
     width: 62%;
     height: 9px;
     pointer-events: none;
-    transform: translateX(-42%) rotate(5deg);
+    transform: translateX(var(--hunt-stain-x, -42%)) rotate(var(--hunt-stain-rot, 5deg));
     transform-origin: 50% 50%;
     border-radius: 50%;
     mix-blend-mode: multiply;
@@ -13166,57 +13138,52 @@ small.mob-hunt-hp-text {
     );
     filter: blur(2.4px);
 }
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-sprite-shell {
-    position: relative;
-    z-index: 1;
-    filter: none;
-}
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-sprite-wrap:has(.mob-hunt-sprite-shell:has([data-mob-pose="idle"]:not([data-mob-animated="1"])):not(.mob-hunt-sprite-shell--lunge):not(:has(.mob-desintegrando))) .mob-hunt-foot-shadow {
+.mob-hunt-sprite-wrap:has(.mob-hunt-sprite-shell:has([data-mob-pose="idle"]:not([data-mob-animated="1"])):not(.mob-hunt-sprite-shell--lunge):not(:has(.mob-desintegrando))) .mob-hunt-foot-shadow {
     animation: mobHuntShadowBreathe 1.4s ease-in-out infinite;
 }
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-card:nth-child(3n+2) .mob-hunt-foot-shadow {
+.mob-hunt-card:nth-child(3n+2) .mob-hunt-foot-shadow {
     animation-delay: -0.45s;
 }
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-card:nth-child(3n+3) .mob-hunt-foot-shadow {
+.mob-hunt-card:nth-child(3n+3) .mob-hunt-foot-shadow {
     animation-delay: -0.9s;
 }
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-sprite-wrap:has(.mob-hunt-sprite-shell--lunge) .mob-hunt-foot-shadow {
+.mob-hunt-sprite-wrap:has(.mob-hunt-sprite-shell--lunge) .mob-hunt-foot-shadow {
     animation: mobHuntShadowLunge 0.42s cubic-bezier(0.18, 0.85, 0.32, 1) both;
 }
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-card--exiting .mob-hunt-foot-shadow,
-#mobs-container[data-hunt-formation="no-grade"] .mob-hunt-sprite-wrap:has(.mob-desintegrando) .mob-hunt-foot-shadow {
+.mob-hunt-card--exiting .mob-hunt-foot-shadow,
+.mob-hunt-sprite-wrap:has(.mob-desintegrando) .mob-hunt-foot-shadow {
     opacity: 0;
     animation: none;
     transition: opacity 0.3s ease;
 }
 @keyframes mobHuntShadowBreathe {
     0%, 100% {
-        transform: translateX(-42%) rotate(5deg) scaleX(1) scaleY(1);
+        transform: translateX(var(--hunt-stain-x, -42%)) rotate(var(--hunt-stain-rot, 5deg)) scaleX(1) scaleY(1);
         opacity: 1;
         filter: blur(2.4px);
     }
     50% {
-        transform: translateX(-38%) rotate(5deg) scaleX(1.1) scaleY(0.82);
+        transform: translateX(var(--hunt-stain-x-mid, -38%)) rotate(var(--hunt-stain-rot, 5deg)) scaleX(1.1) scaleY(0.82);
         opacity: 0.78;
         filter: blur(3.2px);
     }
 }
 @keyframes mobHuntShadowLunge {
     0% {
-        transform: translateX(-42%) rotate(5deg) scaleX(1) scaleY(1);
+        transform: translateX(var(--hunt-stain-x, -42%)) rotate(var(--hunt-stain-rot, 5deg)) scaleX(1) scaleY(1);
         opacity: 1;
     }
     28% {
-        transform: translateX(-46%) rotate(4deg) scaleX(1.16) scaleY(0.68);
+        transform: translateX(var(--hunt-stain-x, -42%)) rotate(var(--hunt-stain-rot, 5deg)) scaleX(1.16) scaleY(0.68);
         opacity: 1;
         filter: blur(2px);
     }
     55% {
-        transform: translateX(-44%) rotate(4deg) scaleX(1.06) scaleY(0.86);
+        transform: translateX(var(--hunt-stain-x-mid, -38%)) rotate(var(--hunt-stain-rot, 5deg)) scaleX(1.06) scaleY(0.86);
         opacity: 1;
     }
     100% {
-        transform: translateX(-42%) rotate(5deg) scaleX(1) scaleY(1);
+        transform: translateX(var(--hunt-stain-x, -42%)) rotate(var(--hunt-stain-rot, 5deg)) scaleX(1) scaleY(1);
         opacity: 1;
     }
 }
@@ -13234,6 +13201,7 @@ small.mob-hunt-hp-text {
     max-width: 100%;
     line-height: 0;
     transform-origin: 50% 100%;
+    filter: none;
 }
 /* Idle breathe + attack lunge live on the shell so the img keeps wounded-tilt / hit-flash. */
 .mob-hunt-sprite-shell:has([data-mob-pose="idle"]:not([data-mob-animated="1"])):not(.mob-hunt-sprite-shell--lunge):not(:has(.mob-desintegrando)) {

@@ -1,6 +1,9 @@
 /**
  * Scenic hunt slots — cards sit on the painted ground (not a row).
  * Survivors keep their slot. D = moonlit courtyard; No-Grade = dusk trail.
+ *
+ * Ground stain (`.mob-hunt-foot-shadow`) is on **every** hunt grade.
+ * Cast follows zone light: NG/B stretch right; D/C/A/S stretch left.
  */
 
 export type HuntGroundShadow = {
@@ -112,6 +115,38 @@ const FORMATIONS: Record<string, { slots: HuntSlot[]; packs: Record<number, stri
   D: { slots: D_SLOTS, packs: D_PACKS },
 };
 
+/** CSS contact stain — one look, cast side matches the painted key light. */
+export type HuntGroundStain = {
+  /** `right` = sun/fire from the left; `left` = moon/sky from the right. */
+  cast: 'left' | 'right';
+  stainX: string;
+  stainXMid: string;
+  stainRot: string;
+};
+
+const ZONE_STAIN: Record<string, HuntGroundStain> = {
+  'No-Grade': { cast: 'right', stainX: '-42%', stainXMid: '-38%', stainRot: '5deg' },
+  D: { cast: 'left', stainX: '-62%', stainXMid: '-68%', stainRot: '-5deg' },
+  C: { cast: 'left', stainX: '-58%', stainXMid: '-64%', stainRot: '-4deg' },
+  B: { cast: 'right', stainX: '-40%', stainXMid: '-36%', stainRot: '6deg' },
+  A: { cast: 'left', stainX: '-60%', stainXMid: '-66%', stainRot: '-6deg' },
+  S: { cast: 'left', stainX: '-58%', stainXMid: '-64%', stainRot: '-5deg' },
+};
+
+function stainForZone(zoneId: string): HuntGroundStain {
+  return ZONE_STAIN[zoneId] || ZONE_STAIN['No-Grade'];
+}
+
+/** Stamp stain CSS vars on every hunt grade (formation or row). */
+export function applyHuntGroundShadow(container: HTMLElement, zoneId: string): void {
+  const stain = stainForZone(zoneId);
+  container.setAttribute('data-hunt-cast', stain.cast);
+  container.setAttribute('data-hunt-zone', zoneId.toLowerCase());
+  container.style.setProperty('--hunt-stain-x', stain.stainX);
+  container.style.setProperty('--hunt-stain-x-mid', stain.stainXMid);
+  container.style.setProperty('--hunt-stain-rot', stain.stainRot);
+}
+
 function slotById(slots: HuntSlot[], id: string): HuntSlot | undefined {
   return slots.find((s) => s.id === id);
 }
@@ -148,6 +183,7 @@ export function applyHuntFormationLayout(
   mobs: HuntMobSlotHost[],
 ): void {
   const spec = FORMATIONS[zoneId];
+  applyHuntGroundShadow(container, zoneId);
   if (!spec) {
     container.classList.remove('mob-hunt-formation');
     container.removeAttribute('data-hunt-formation');

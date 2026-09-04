@@ -20,7 +20,7 @@ Player-approved line. New hunt stills **must** match this, not a painterly or 3D
 - Outlines: very thick **black** on silhouette **and** internals. Thin or brown lines = reject.
 - Fills: 2–3 hard tones per material. No soft airbrush, no photoreal.
 - Light **on the body only**: D-grade = moon from **top-right**; No-Grade = sun from **top-left**.
-- Contact shadow is CSS `::before` — do not paint one.
+- Contact shadow is CSS `.mob-hunt-foot-shadow` — do not paint one.
 - Costumes are props (staff, mushrooms, hooked weapon), not a recolor glow.
 
 Brief: `docs/hunt-mob-art-style.md`.

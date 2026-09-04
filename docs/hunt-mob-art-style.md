@@ -17,10 +17,16 @@ Usar estas referências em **qualquer** still novo (C–S, variantes, poses). N�
 
 Luz de zona (não pintar o cenário no PNG):
 
-| Zona | Fundo de caça | Luz no corpo | Sombra CSS |
+| Zona | Fundo de caça | Luz no corpo | Sombra CSS (`.mob-hunt-foot-shadow`) |
 |------|----------------|--------------|------------|
-| D | `assets/zones/battle_d.webp` — lua **canto superior direito** | highlights à **direita** | elipse à **esquerda** |
-| No-Grade | `assets/zones/battle_ng.webp` — sol **cima-esquerda** | highlights à **esquerda** | mancha nos **pés**, alongada à **direita** (respira/lunge com o sprite) |
+| D | `assets/zones/battle_d.webp` — lua **canto superior direito** | highlights à **direita** | mancha nos pés, alongada à **esquerda** |
+| No-Grade | `assets/zones/battle_ng.webp` — sol **cima-esquerda** | highlights à **esquerda** | mancha nos pés, alongada à **direita** |
+| C | `battle_c.webp` (quando existir) | gorge / céu à direita | mancha à **esquerda** |
+| B | `battle_b.webp` (quando existir) | brasa / calor à esquerda | mancha à **direita** |
+| A | `battle_a.webp` (quando existir) | céu da torre à direita | mancha à **esquerda** |
+| S | `battle_s.webp` (quando existir) | tocha / câmara à direita | mancha à **esquerda** |
+
+A mancha respira e faz lunge com o sprite. **Não** pintar elipse no PNG.
 
 ## Contrato do still
 

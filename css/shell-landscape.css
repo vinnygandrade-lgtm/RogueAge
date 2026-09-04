@@ -3740,6 +3740,12 @@ html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hun
     min-height: 0;
     align-items: flex-end;
 }
+html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-foot-shadow,
+html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-foot-shadow {
+    width: 70%;
+    height: 12px;
+    bottom: 10px;
+}
 
 html[data-l2-layout="landscape"] #tela-floresta.expedition-combat-open .mob-hunt-card__name,
 html[data-l2-layout="landscape"] #tela-floresta.forest-battle-bg-active .mob-hunt-card__name {

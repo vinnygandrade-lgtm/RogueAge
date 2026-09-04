@@ -76,7 +76,7 @@ Mesma silhueta e paleta dos PNG. Pixel / retro RPG, **não** 3D nem cinematic.
 - **Atk:** golpe por cima ou estocada (o que o still `_atk` já sugerir). Frame 3 = impacto.
 - **Die:** joelho no chão depois corpo; último frame = no chão.
 
-**Estilo aprovado (2026-09-01):** ver **`docs/hunt-mob-art-style.md`**. Âncora de traço = `assets/paperdolls/human_fighter/body.png` (outline preto grosso, cel-shade em blocos). Stills de referência: `zombie_idle` / `skeleton_idle` / `bat_idle` / `goblin_idle`. PNG **256×256** transparente. **Sem** lua/cenário no ficheiro. Sombra de contacto só no CSS `::before`. Variantes = fato próprio, sem aura. Masters magenta em `_incoming/`.
+**Estilo aprovado (2026-09-01):** ver **`docs/hunt-mob-art-style.md`**. Âncora de traço = `assets/paperdolls/human_fighter/body.png` (outline preto grosso, cel-shade em blocos). Stills de referência: `zombie_idle` / `skeleton_idle` / `bat_idle` / `goblin_idle`. PNG **256×256** transparente. **Sem** lua/cenário no ficheiro. Sombra de contacto só no CSS `.mob-hunt-foot-shadow` (todas as grades). Variantes = fato próprio, sem aura. Masters magenta em `_incoming/`.
 
 ## Alvo (toque)
 

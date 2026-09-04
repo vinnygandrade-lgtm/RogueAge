@@ -14,4 +14,4 @@ Live motion is **CSS on the three stills** (idle breathe, attack lunge + flash).
 
 Costume variants (goblin / wolf / spider / zombie / skeleton / bat): `<id>_<variant>_<pose>.png` where variant is `magic`, `poison`, `bleed`, `magic_poison`, or `magic_bleed`. Missing files fall back to the species still. Working magenta masters live in `_incoming/` (not shipped).
 
-D-grade stills follow courtyard moonlight (key from the top-right, CSS shadow left). No-Grade stills follow trail sun (key from the top-left). Do not paint a contact shadow in the PNG. NG trial uses a soft foot stain (`.mob-hunt-foot-shadow`) under the feet, stretched right, animated with breathe/lunge.
+D-grade stills follow courtyard moonlight (key from the top-right). No-Grade stills follow trail sun (key from the top-left). Do not paint a contact shadow in the PNG. Every hunt grade uses a soft foot stain (`.mob-hunt-foot-shadow`) under the feet — NG/B stretch right, D/C/A/S stretch left — animated with breathe/lunge.
