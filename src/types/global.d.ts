@@ -535,6 +535,7 @@ declare global {
       bindSettingsButtons: () => void;
       normalizePreference: (raw: unknown) => import('./game').UiLayoutMode;
     };
+    syncGameBgm?: () => void;
     AudioPrefs?: {
       get: () => {
         musicEnabled: boolean;

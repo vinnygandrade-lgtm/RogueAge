@@ -70,7 +70,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-09-04',
                         items: [
-                            'Hunt: the soft ground shadow under each mob now shows on every grade — D courtyard through S tomb — not only the No-Grade trail.'
+                            'Hunt: the soft ground shadow under each mob now shows on every grade — D courtyard through S tomb — not only the No-Grade trail.',
+                            'A real soundtrack now loops on the login screen, then another in town while you are out of an expedition. Hunt beds still take over in the Forest. First tap unlocks audio (browser rule).'
                         ]
                     },
                     {
@@ -3496,7 +3497,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         title: 'Sound',
                         lead: 'Set music and battle volume. UI sounds stay available.',
                         music: 'Music',
-                        musicHint: 'Expedition and map background tracks.',
+                        musicHint: 'Login, town, and expedition background tracks.',
                         battle: 'Battle sounds',
                         battleHint: 'Weapon swings, critical hits, soulshots, teleport.',
                         volume: 'Volume',
@@ -3702,7 +3703,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-09-04',
                         items: [
-                            'Caça: a sombra no chão debaixo de cada mob agora aparece em todas as grades — do pátio D até o túmulo S — não só na trilha No-Grade.'
+                            'Caça: a sombra no chão debaixo de cada mob agora aparece em todas as grades — do pátio D até o túmulo S — não só na trilha No-Grade.',
+                            'Trilha sonora de verdade: uma no ecrã de login e outra na cidade quando estás fora da expedição. Na Floresta continuam as músicas de caça. O primeiro toque liberta o som (regra do browser).'
                         ]
                     },
                     {
@@ -7128,7 +7130,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         title: 'Som',
                         lead: 'Ajusta o volume da música e da batalha. Sons de interface continuam ativos.',
                         music: 'Música',
-                        musicHint: 'Trilhas de fundo da expedição e do mapa.',
+                        musicHint: 'Trilhas do login, da cidade e da expedição.',
                         battle: 'Sons de batalha',
                         battleHint: 'Golpes de arma, críticos, soulshots e teleporte.',
                         volume: 'Volume',

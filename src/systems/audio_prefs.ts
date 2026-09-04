@@ -6,7 +6,7 @@
 export type AudioPrefs = {
   musicEnabled: boolean;
   battleSfxEnabled: boolean;
-  /** 0–1 player gain on expedition / map BGM. */
+  /** 0–1 player gain on login / hub / expedition BGM. */
   musicVolume: number;
   /** 0–1 player gain on battle SFX (swings, crit, shots). */
   battleVolume: number;
@@ -107,6 +107,10 @@ export function isBattleSoundKey(nome: string): boolean {
 
 function notifyMusicChanged(): void {
   try {
+    if (typeof window.syncGameBgm === 'function') {
+      window.syncGameBgm();
+      return;
+    }
     const exp = window.ExpeditionEngine as { syncRunBgm?: () => void } | undefined;
     if (typeof exp?.syncRunBgm === 'function') exp.syncRunBgm();
   } catch {

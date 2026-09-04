@@ -567,6 +567,7 @@ function ativarNovaTela(target: HTMLElement, id: string) {
             (sc as HTMLElement).style.display = 'none';
         });
     }
+    window.syncGameBgm?.();
 }
 
 // --- SISTEMA DE MODAIS E TRAVAS DE INTERAÇÃO ---

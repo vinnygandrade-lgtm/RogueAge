@@ -120,6 +120,7 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_inventory');
   tickBoot(91, bootMsg('loading.phaseUi', 'Preparing interface...'));
   await import('./systems/endgame_pursuits');
+  await import('./systems/game_bgm');
   await import('./systems/expedition_bgm');
   await import('./systems/expedition_meta');
   await import('./systems/expedition_engine');
@@ -146,6 +147,7 @@ async function bootGame(): Promise<void> {
   await import('./ui/ui_daily_boss');
 
   finishBootLoading();
+  window.syncGameBgm?.();
   if (typeof window.PatchNotes?.tryShowAfterBoot === 'function') {
     window.PatchNotes.tryShowAfterBoot();
   }
