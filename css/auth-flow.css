@@ -636,8 +636,8 @@
     gap: 12px;
     padding: 15px max(var(--l2-screen-padding-x, 14px), 16px) 
              calc(var(--l2-safe-bottom, env(safe-area-inset-bottom, 0px)) + 15px);
-    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.95) 100%);
-    border-top: 1px solid #261c14;
+    background: linear-gradient(180deg, transparent 0%, rgba(8, 6, 4, 0.72) 100%);
+    border-top: 1px solid rgba(250, 204, 21, 0.12);
 }
 
 #screen-char-select .char-select-dock .btn-char-logout {
@@ -653,11 +653,13 @@
 }
 
 #screen-char-select .char-hero-plaque {
-    border-radius: 0;
-    border: 1px solid #3d3126;
-    background: #0d0a08;
+    border-radius: 6px;
+    border: 1px solid rgba(250, 204, 21, 0.28);
+    background: linear-gradient(180deg, rgba(22, 16, 10, 0.72) 0%, rgba(10, 8, 6, 0.78) 100%);
     padding: 15px 20px 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 #screen-char-select .char-hero-showcase.selected .char-hero-plaque {

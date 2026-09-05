@@ -1,5 +1,7 @@
 /* ========================================== */
-/* EPIC CHARACTER SELECT — post-login hero   */
+/* CHARACTER SELECT — post-login hero        */
+/* Scenery: assets/ui/char_select_gate.webp  */
+/* (1080×1920, thick-ink anime, empty plaza) */
 /* ========================================== */
 
 #screen-char-select.char-select-screen {
@@ -11,7 +13,7 @@
     justify-content: flex-start;
     padding: 0;
     min-height: 100%;
-    background: #050403;
+    background: #1a140c;
 }
 
 #screen-char-select.char-select-screen.active-screen {
@@ -23,26 +25,44 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background:
-        radial-gradient(ellipse 90% 55% at 50% 88%, rgba(202, 138, 4, 0.22) 0%, transparent 58%),
-        radial-gradient(circle at 50% 35%, rgba(30, 22, 14, 0.95) 0%, #050403 72%);
+    background: #1a140c;
 }
 
 .char-select-scenery {
-    display: none !important;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center 38%;
+}
+
+.char-select-wash {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(8, 6, 4, 0.58) 0%,
+        rgba(8, 6, 4, 0.18) 18%,
+        transparent 34%,
+        transparent 58%,
+        rgba(8, 6, 4, 0.22) 78%,
+        rgba(8, 6, 4, 0.55) 100%
+    );
 }
 
 .char-select-vignette {
     position: absolute;
     inset: 0;
-    box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.85);
+    box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.42);
     pointer-events: none;
 }
 
 .char-select-embers {
     position: absolute;
     inset: 0;
-    opacity: 0.45;
+    opacity: 0.28;
     background-image:
         radial-gradient(1px 1px at 12% 72%, rgba(250, 204, 21, 0.9) 0%, transparent 100%),
         radial-gradient(1px 1px at 28% 84%, rgba(250, 180, 60, 0.7) 0%, transparent 100%),
@@ -75,7 +95,10 @@
     font-weight: 900;
     color: #fff;
     letter-spacing: 0.08em;
-    text-shadow: 0 0 18px rgba(250, 204, 21, 0.35), 2px 2px 4px #000;
+    text-shadow:
+        0 0 22px rgba(250, 204, 21, 0.4),
+        0 2px 10px rgba(0, 0, 0, 0.85),
+        2px 2px 4px #000;
 }
 
 .char-select-brand span {
@@ -88,14 +111,16 @@
     font-size: 0.62rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: var(--l2-text-muted, #7a6a58);
+    color: #e8d5b0;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
 }
 
 .char-select-account {
     margin: 10px 0 0;
     font-size: 0.72rem;
-    color: var(--l2-text-secondary, #c4b5a0);
+    color: #d8c8b0;
     letter-spacing: 0.04em;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
 }
 
 .char-select-stage {
@@ -133,10 +158,10 @@
 .l2-paperdoll--char-select {
     display: block;
     position: relative;
-    width: min(100%, 340px);
+    width: min(100%, 360px);
     aspect-ratio: 360 / 328;
-    min-height: 260px;
-    max-height: min(52vh, 360px);
+    min-height: 280px;
+    max-height: min(56vh, 400px);
     margin-inline: auto;
     padding: 0;
     background: transparent;
@@ -144,6 +169,7 @@
     box-shadow: none;
     overflow: visible;
     isolation: isolate;
+    filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.55));
 }
 
 .l2-paperdoll--char-select .paperdoll-scenery,
@@ -248,10 +274,12 @@
     width: 100%;
     text-align: center;
     padding: 14px 16px 10px;
-    background: linear-gradient(180deg, rgba(24, 18, 12, 0.92) 0%, rgba(10, 8, 6, 0.88) 100%);
-    border: 1px solid rgba(90, 74, 58, 0.85);
+    background: linear-gradient(180deg, rgba(22, 16, 10, 0.72) 0%, rgba(10, 8, 6, 0.78) 100%);
+    border: 1px solid rgba(250, 204, 21, 0.28);
     border-radius: 6px;
-    box-shadow: var(--l2-shadow-deep, 0 10px 30px rgba(0, 0, 0, 0.8));
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .char-hero-plaque::before {
@@ -371,41 +399,33 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+    margin-top: min(18vh, 140px);
     animation: charHeroFadeIn 0.55s ease-out both;
 }
 
 .char-hero-pedestal--empty {
-    opacity: 0.75;
+    display: none;
 }
 
 .char-hero-silhouette {
-    width: min(50vw, 160px);
-    height: min(36vh, 200px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 4.5rem;
-    font-weight: 200;
-    color: rgba(202, 138, 4, 0.35);
-    text-shadow: 0 0 30px rgba(250, 204, 21, 0.15);
-    border: 1px dashed rgba(90, 74, 58, 0.7);
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.35);
+    display: none;
 }
 
 .char-hero-empty-title {
-    margin: 16px 0 6px;
+    margin: 0 0 8px;
     font-family: 'Cinzel', serif;
-    font-size: 1.05rem;
+    font-size: 1.2rem;
     color: #facc15;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
 }
 
 .char-hero-empty-hint {
-    margin: 0 0 14px;
-    font-size: 0.75rem;
-    color: var(--l2-text-secondary, #c4b5a0);
-    line-height: 1.45;
+    margin: 0 0 18px;
+    font-size: 0.8rem;
+    color: #efe2cc;
+    line-height: 1.5;
     max-width: 280px;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
 }
 
 /* —— Footer dock (see auth-flow.css) —— */

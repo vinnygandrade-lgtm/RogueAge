@@ -915,6 +915,10 @@ html[data-l2-layout="landscape"] #screen-criacao .auth-flow-panel {
     margin-inline: auto;
 }
 
+html[data-l2-layout="landscape"] #screen-char-select .char-select-scenery {
+    object-position: center 32%;
+}
+
 html[data-l2-layout="landscape"] #screen-char-select .char-select-stage {
     max-width: 720px;
     margin: 0 auto;
