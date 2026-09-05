@@ -1049,34 +1049,58 @@ const AuthEngine = {
         }
 
         let html = '';
-        const delTitle = authT('charSelect.deleteTitle').replace(/"/g, '&quot;');
+        const identity = document.getElementById('char-select-identity');
+        const identityName = document.getElementById('char-select-hero-name');
+        const identityBadges = document.getElementById('char-select-hero-badges');
+        const identityMeta = document.getElementById('char-select-hero-meta');
+        const enterDock = document.getElementById('btn-char-enter-dock');
+        const deleteDock = document.getElementById('btn-char-delete-dock');
+        const delTitle = authT('charSelect.deleteTitle');
         const delAction = authT('charSelect.deleteAction');
 
-        this.availableCharacters.forEach((char) => {
-            const safeName = String(char.charName || '').replace(/'/g, "\\'");
-            const lvlLabel = authT('charSelect.levelTag', { level: char.nivel || 1 });
-            const classLabel = String(char.charClass || '').replace(/_/g, ' ');
-            const raceLabel = char.charRace || '';
-            const genderLabel = char.charGender || '';
-            const metaParts = [raceLabel, genderLabel].filter(Boolean).join(' · ');
+        const previewChar = this.availableCharacters[0];
+        if (previewChar && identity && identityName && identityBadges) {
+            const lvlLabel = authT('charSelect.levelTag', { level: previewChar.nivel || 1 });
+            const classLabel = String(previewChar.charClass || '').replace(/_/g, ' ');
+            const metaParts = [previewChar.charRace || '', previewChar.charGender || ''].filter(Boolean).join(' · ');
+            identityName.textContent = String(previewChar.charName || '');
+            identityBadges.innerHTML =
+                `<span class="char-hero-level">${lvlLabel}</span>` +
+                `<span class="char-hero-class">${classLabel}</span>`;
+            if (identityMeta) {
+                identityMeta.textContent = metaParts;
+                identityMeta.hidden = !metaParts;
+            }
+            identity.hidden = false;
+        } else if (identity) {
+            identity.hidden = true;
+        }
 
+        if (previewChar && enterDock) {
+            const safeName = String(previewChar.charName || '').replace(/'/g, "\\'");
+            enterDock.hidden = false;
+            enterDock.textContent = authT('charSelect.enterWorld');
+            enterDock.setAttribute('onclick', `AuthEngine.selectCharacter('${safeName}')`);
+        } else if (enterDock) {
+            enterDock.hidden = true;
+            enterDock.removeAttribute('onclick');
+        }
+
+        if (previewChar && deleteDock) {
+            const safeName = String(previewChar.charName || '').replace(/'/g, "\\'");
+            deleteDock.hidden = false;
+            deleteDock.textContent = delAction;
+            deleteDock.title = delTitle;
+            deleteDock.setAttribute('onclick', `AuthEngine.deleteCharacter('${safeName}')`);
+        } else if (deleteDock) {
+            deleteDock.hidden = true;
+            deleteDock.removeAttribute('onclick');
+        }
+
+        this.availableCharacters.forEach((char) => {
             html += `
                 <article class="char-hero-showcase" data-char-name="${char.charName}">
                     ${this._buildCharSelectPaperdollHtml()}
-                    <div class="char-hero-chrome">
-                        <div class="char-hero-plaque">
-                            <h2 class="char-hero-name">${char.charName}</h2>
-                            <div class="char-hero-badges">
-                                <span class="char-hero-level">${lvlLabel}</span>
-                                <span class="char-hero-class">${classLabel}</span>
-                            </div>
-                            ${metaParts ? `<p class="char-hero-meta">${metaParts}</p>` : ''}
-                        </div>
-                        <button type="button" class="auth-flow-btn-primary btn-char-enter" onclick="AuthEngine.selectCharacter('${safeName}')">${authT('charSelect.enterWorld')}</button>
-                        <div class="btn-char-delete-wrap">
-                            <button type="button" class="btn-char-delete-text" onclick="AuthEngine.deleteCharacter('${safeName}')" title="${delTitle}">${delAction}</button>
-                        </div>
-                    </div>
                 </article>
             `;
         });

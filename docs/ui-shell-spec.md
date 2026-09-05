@@ -122,7 +122,7 @@ Social / Olimpíada / Guerra: usáveis na moldura larga.
 - Modais com `abrirModal`: `max-width` via `--l2-modal-max-width`, não valores soltos em px.
 - Não definir `height: 800px` fixo no shell; usar `% do shell ou `dvh` com teto `85dvh` em modais.
 - Arte full-screen (paperdoll 1080×984, ícones 256×256) é **asset**, não tamanho de ecrã.
-- **Character select** (`#screen-char-select`): cenário full-bleed `assets/ui/char_select_gate.webp` (1080×1920, `object-fit: cover`). O herói fica **plantado na praça** (sem moldura/quadrado do paperdoll). Chrome (placa + Enter World) flutua aos pés. Traço = human fighter (tinta preta grossa, anime 2D).
+- **Character select** (`#screen-char-select`): cenário full-bleed `assets/ui/char_select_gate.webp` (1080×1920, `object-fit: cover`). O herói fica **grande e plantado na praça** (sem moldura). Identidade no header; **Enter World** no dock de baixo — sem placa em cima das pernas. Traço = human fighter (tinta preta grossa, anime 2D).
 - Overrides landscape: preferir seletores sob `html[data-l2-layout="landscape"]` em `shell-landscape.css` (ou ficheiro de ecrã), não alterar tokens portrait globais.
 
 ## Expedição (portrait fit + PC desk)

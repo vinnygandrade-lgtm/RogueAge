@@ -1687,6 +1687,11 @@
         <header class="char-select-top">
             <div class="char-select-brand">ROGUE<span>AGE</span></div>
             <p class="char-select-subtitle" data-i18n="charSelect.subtitle">The gate is open</p>
+            <div id="char-select-identity" class="char-select-identity" hidden>
+                <h2 id="char-select-hero-name" class="char-hero-name"></h2>
+                <div id="char-select-hero-badges" class="char-hero-badges"></div>
+                <p id="char-select-hero-meta" class="char-hero-meta" hidden></p>
+            </div>
             <p id="char-select-account" class="char-select-account" hidden></p>
         </header>
 
@@ -1697,7 +1702,9 @@
         </main>
 
         <footer class="char-select-dock auth-flow-dock">
+            <button type="button" id="btn-char-enter-dock" class="auth-flow-btn-primary btn-char-enter" hidden></button>
             <button type="button" class="auth-flow-btn-ghost btn-char-logout" data-i18n="charSelect.logout" onclick="AuthEngine.logout()">LOGOUT</button>
+            <button type="button" id="btn-char-delete-dock" class="btn-char-delete-text" hidden></button>
             <button type="button" id="btn-new-hero" class="btn-l2" data-i18n="charSelect.newHero" onclick="AuthEngine.startNewCharacter()" hidden>NEW HERO</button>
         </footer>
     </div>

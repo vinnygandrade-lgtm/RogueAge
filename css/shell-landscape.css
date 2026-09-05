@@ -935,8 +935,8 @@ html[data-l2-layout="landscape"] #screen-char-select .l2-paperdoll--char-select 
     max-height: none;
 }
 
-html[data-l2-layout="landscape"] #screen-char-select .char-hero-chrome {
-    width: min(100%, 400px);
+html[data-l2-layout="landscape"] #screen-char-select .char-select-identity {
+    margin-top: 8px;
 }
 
 html[data-l2-layout="landscape"] #screen-char-select .char-select-dock {

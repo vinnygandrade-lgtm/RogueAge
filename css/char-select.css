@@ -115,12 +115,33 @@
     text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
 }
 
+.char-select-top:has(#char-select-identity:not([hidden])) .char-select-subtitle {
+    display: none;
+}
+
 .char-select-account {
-    margin: 10px 0 0;
-    font-size: 0.72rem;
+    margin: 8px 0 0;
+    font-size: 0.68rem;
     color: #d8c8b0;
     letter-spacing: 0.04em;
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+
+.char-select-identity {
+    margin-top: 10px;
+}
+
+#screen-char-select .char-select-identity .char-hero-name {
+    font-size: clamp(1.4rem, 6.2vw, 1.75rem);
+}
+
+.char-select-identity .char-hero-badges {
+    margin-top: 6px;
+}
+
+.char-select-identity .char-hero-plaque,
+.char-select-identity .char-hero-plaque::before {
+    display: none;
 }
 
 .char-select-stage {
@@ -197,11 +218,10 @@
 
 #screen-char-select .l2-paperdoll--char-select .paperdoll-character-stack {
     left: 50%;
-    /* Sit on the painted cobbles, just above the name plate */
-    bottom: 148px !important;
-    width: min(78%, 300px);
-    max-width: 300px;
-    max-height: 52%;
+    bottom: 0 !important;
+    width: min(124%, 460px);
+    max-width: 460px;
+    max-height: 88%;
     --pd-figure-w: 100%;
     --pd-stack-bottom: 0%;
     transform: translateX(-50%);
@@ -209,21 +229,11 @@
 }
 
 #screen-char-select .l2-paperdoll--char-select .paperdoll-character-stack [data-pd-layer="base"].char-layer:not([hidden]) {
-    filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.4)) !important;
+    filter: drop-shadow(0 10px 12px rgba(0, 0, 0, 0.45)) !important;
 }
 
 .char-hero-chrome {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    z-index: 2;
-    width: min(100%, 340px);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-    padding: 0 max(var(--l2-screen-padding-x, 14px), 16px) 4px;
+    display: none;
 }
 
 .char-hero-pedestal {
