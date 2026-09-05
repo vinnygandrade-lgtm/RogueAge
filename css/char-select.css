@@ -128,15 +128,15 @@
 }
 
 .char-select-identity {
-    margin-top: 10px;
+    margin-top: 8px;
 }
 
 #screen-char-select .char-select-identity .char-hero-name {
-    font-size: clamp(1.4rem, 6.2vw, 1.75rem);
+    font-size: clamp(1.25rem, 5.4vw, 1.55rem);
 }
 
 .char-select-identity .char-hero-badges {
-    margin-top: 6px;
+    margin-top: 4px;
 }
 
 .char-select-identity .char-hero-plaque,
@@ -180,8 +180,8 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 2%;
-    bottom: 0;
+    top: 0;
+    bottom: 22%;
     display: block;
     margin: 0;
     pointer-events: none;
@@ -219,9 +219,9 @@
 #screen-char-select .l2-paperdoll--char-select .paperdoll-character-stack {
     left: 50%;
     bottom: 0 !important;
-    width: min(124%, 460px);
-    max-width: 460px;
-    max-height: 88%;
+    width: min(118%, 440px);
+    max-width: 440px;
+    max-height: 100%;
     --pd-figure-w: 100%;
     --pd-stack-bottom: 0%;
     transform: translateX(-50%);
