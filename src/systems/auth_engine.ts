@@ -1079,10 +1079,13 @@ const AuthEngine = {
         if (previewChar && enterDock) {
             const safeName = String(previewChar.charName || '').replace(/'/g, "\\'");
             enterDock.hidden = false;
+            enterDock.removeAttribute('hidden');
+            enterDock.style.display = 'flex';
             enterDock.textContent = authT('charSelect.enterWorld');
             enterDock.setAttribute('onclick', `AuthEngine.selectCharacter('${safeName}')`);
         } else if (enterDock) {
             enterDock.hidden = true;
+            enterDock.style.display = 'none';
             enterDock.removeAttribute('onclick');
         }
 

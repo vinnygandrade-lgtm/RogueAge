@@ -630,6 +630,9 @@
 /* —— Character select —— */
 
 .char-select-dock {
+    position: relative;
+    z-index: 5;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -640,10 +643,13 @@
     border-top: 1px solid rgba(250, 204, 21, 0.12);
 }
 
-#screen-char-select .char-select-dock #btn-char-enter-dock {
+#screen-char-select .char-select-dock #btn-char-enter-dock:not([hidden]) {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     width: 100%;
     max-width: 320px;
-    min-height: 48px;
+    min-height: 52px;
     margin: 0;
 }
 
