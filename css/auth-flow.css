@@ -655,11 +655,11 @@
 #screen-char-select .char-hero-plaque {
     border-radius: 6px;
     border: 1px solid rgba(250, 204, 21, 0.28);
-    background: linear-gradient(180deg, rgba(22, 16, 10, 0.72) 0%, rgba(10, 8, 6, 0.78) 100%);
-    padding: 15px 20px 12px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: linear-gradient(180deg, rgba(22, 16, 10, 0.62) 0%, rgba(10, 8, 6, 0.7) 100%);
+    padding: 8px 14px 7px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 #screen-char-select .char-hero-showcase.selected .char-hero-plaque {
@@ -668,7 +668,7 @@
 }
 
 #screen-char-select .char-hero-name {
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     color: #ca8a04;
 }
 
@@ -681,10 +681,10 @@
 }
 
 #screen-char-select .btn-char-enter {
-    min-height: 54px;
-    border-radius: 0;
-    font-size: 0.95rem;
-    letter-spacing: 0.15em;
+    min-height: 44px;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    letter-spacing: 0.14em;
 }
 
 /* —— Creation —— */
