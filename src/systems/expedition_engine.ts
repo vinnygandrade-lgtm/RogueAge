@@ -1915,11 +1915,11 @@ export class ExpeditionEngine {
         return ZONE_REWARD_RATE[this.state.zoneId] ?? ZONE_REWARD_RATE['No-Grade'];
     }
 
-    /** Loot bonus from journey depth (+rate% per journey after the first). Capped at +100%. */
+    /** Loot bonus from journey depth (+rate% per journey after the first). No ceiling — deep runs keep paying. */
     static getJourneyRewardMult(): number {
         const rate = this.getZoneRewardRate();
         const bonus = rate * Math.max(0, this.state.journey - 1);
-        return Math.min(2, 1 + bonus);
+        return 1 + bonus;
     }
 
     /** Roguelike curve: HP ramps gently so early journeys stay learnable. */
