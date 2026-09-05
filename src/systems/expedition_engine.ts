@@ -728,6 +728,12 @@ export class ExpeditionEngine {
     /** Forest run dodge chance ceiling — cards are % of gear, not +points. */
     static RUN_DODGE_HARD_CAP = 55;
 
+    /**
+     * How much run DPS (Atk × Atk Speed vs gear) thickens mob HP.
+     * 1 = full time-to-kill preserve; below 1 leaves speed a bit rewarding.
+     */
+    static RUN_DPS_MOB_HP_STRENGTH = 0.7;
+
     static state: ExpeditionState = ExpeditionEngine.createInitialState('');
 
     /** When true, calcularStatusGlobais skips run-buff apply (upgrade UI base snapshot). */
@@ -1943,6 +1949,24 @@ export class ExpeditionEngine {
         const hp = this.getJourneyMobHpScale();
         const atk = this.getJourneyMobAtkScale();
         return hp * 0.35 + atk * 0.65;
+    }
+
+    /**
+     * Run DPS vs unbuffed gear (Atk cards × faster AA). 1 = no offense cards.
+     * Defence / sustain cards do not enter this ratio.
+     */
+    static getRunDpsRatio(): number {
+        const m = this.getRunBuffMults();
+        const atkMult = Math.max(m.pAtk, m.mAtk);
+        const spdMult = Math.max(0.05, m.atkSpeed);
+        const ratio = atkMult / spdMult;
+        return Number.isFinite(ratio) && ratio > 0 ? ratio : 1;
+    }
+
+    /** Extra mob HP from this run’s offense cards. Never below 1 (slow builds stay as-is). */
+    static getRunDpsMobHpScale(): number {
+        const extra = Math.max(0, this.getRunDpsRatio() - 1) * this.RUN_DPS_MOB_HP_STRENGTH;
+        return 1 + extra;
     }
 
     /** Champion bonus (HP/ATK above normal mob) scales with journey — weak mini-champs early, full power late run. */
@@ -4863,6 +4887,7 @@ export class ExpeditionEngine {
         const journey = this.state.journey;
         const rewardPct = Math.round((this.getJourneyRewardMult() - 1) * 100);
         const mobScalePct = Math.round((this.getJourneyMobAtkScale() - 1) * 100);
+        const packHpPct = Math.round((this.getRunDpsMobHpScale() - 1) * 100);
         const zoneRatePct = Math.round(this.getZoneRewardRate() * 100);
 
         const mapTitle = this.t('game.hunt.expedition.rogueMapTitle', 'Roguelike Expedition');
@@ -4877,6 +4902,7 @@ export class ExpeditionEngine {
 
         const lootLabel = this.t('game.hunt.expedition.metaLoot', 'Loot bonus');
         const enemyLabel = this.t('game.hunt.expedition.metaEnemies', 'Enemy power');
+        const packHpLabel = this.t('game.hunt.expedition.metaPackHp', 'Foe HP');
         const zoneLabel = this.t('game.hunt.expedition.metaZone', 'Zone rate');
         const traitName = this.getTraitLabel(this.state.journeyTrait);
 
@@ -4902,6 +4928,9 @@ export class ExpeditionEngine {
                     <span class="expedition-meta-chip expedition-meta-chip--trait expedition-meta-chip--${this.state.journeyTrait}" role="listitem">${traitName}</span>
                     <span class="expedition-meta-chip expedition-meta-chip--gold" role="listitem">${lootLabel} +${rewardPct}%</span>
                     <span class="expedition-meta-chip expedition-meta-chip--danger" role="listitem">${enemyLabel} +${mobScalePct}%</span>
+                    ${packHpPct > 0
+                        ? `<span class="expedition-meta-chip expedition-meta-chip--pack" role="listitem">${packHpLabel} +${packHpPct}%</span>`
+                        : ''}
                     <span class="expedition-meta-chip" role="listitem">${zoneLabel} +${zoneRatePct}%</span>
                 </div>
             </div>
@@ -5050,7 +5079,8 @@ export class ExpeditionEngine {
         const journeyHpScale = this.getJourneyMobHpScale();
         const journeyAtkScale = this.getJourneyMobAtkScale();
         const journeyDefScale = (journeyHpScale + journeyAtkScale) / 2;
-        let hp = base.hp * journeyHpScale;
+        const runDpsHpScale = this.getRunDpsMobHpScale();
+        let hp = base.hp * journeyHpScale * runDpsHpScale;
         let atk = base.atk * journeyAtkScale;
         let def = base.def * journeyDefScale;
         // Novice No-Grade tuning crushes mob atk — partial recovery for fair expedition hits.

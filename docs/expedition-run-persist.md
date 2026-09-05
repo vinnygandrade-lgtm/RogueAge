@@ -70,6 +70,10 @@ Players can leave Forest (town, inventory, World, logout) **without extracting**
 - Dedicated **Builds** tab — role groups, mastery track, stacked-bonus list, closest-build tip; upgrade cards show **Toward** / **Unlocks** hints; Stats chips mark ★ when builds contribute
 - Compact chips still on the upgrade pick modal
 
+## Pack HP vs run DPS
+
+Offense cards thicken every mob (`getRunDpsMobHpScale` in `expedition_engine.ts`): Atk × Atk Speed vs unbuffed gear, then × `RUN_DPS_MOB_HP_STRENGTH` (0.7). Defence / sustain cards do not add this HP. Stacks on journey HP. Shown on the map chip **Foe HP** and in Rules (`rulesPackHp*`). No Attack Speed cap.
+
 ## Honesty (§12.7)
 
 Still **client-authoritative** bag credit on extract. Persistence only prevents silent loss on reload/navigation.

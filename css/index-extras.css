@@ -5422,6 +5422,11 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     border-color: rgba(234, 179, 8, 0.35);
     background: rgba(69, 26, 3, 0.5);
 }
+.expedition-meta-chip--pack {
+    color: #fda4af;
+    border-color: rgba(251, 113, 133, 0.35);
+    background: rgba(76, 18, 28, 0.5);
+}
 .expedition-meta-chip--danger {
     color: #fca5a5;
     border-color: rgba(239, 68, 68, 0.35);
