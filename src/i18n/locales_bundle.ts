@@ -68,6 +68,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-09-05',
+                        items: [
+                            'After login, your hero now stands in a painted dawn gate — same thick black anime line as the fighter — not boxed in a paperdoll frame.',
+                            'Name and level sit at the top. Enter World is the gold button at the bottom, so nothing covers the legs.'
+                        ]
+                    },
+                    {
                         date: '2026-09-04',
                         items: [
                             'Hunt: the soft ground shadow under each mob now shows on every grade — D courtyard through S tomb — not only the No-Grade trail.',
@@ -3705,6 +3712,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-05',
+                        items: [
+                            'Depois do login, o herói fica em pé no portão ao amanhecer — o mesmo traço preto do fighter — sem a caixinha do paperdoll.',
+                            'Nome e nível no topo. Entrar no mundo é o botão dourado em baixo, para nada tapar as pernas.'
+                        ]
+                    },
                     {
                         date: '2026-09-04',
                         items: [

@@ -5,10 +5,10 @@
 import { registerGlobal } from '../runtime/register-global';
 
 /** Bump when publishing new dated entries (independent of package.json if needed). */
-export const L2MINI_PATCH_NOTES_ID = '1.5.38';
+export const L2MINI_PATCH_NOTES_ID = '1.5.39';
 
 /** ISO date of the newest entry — shown in the header. */
-export const L2MINI_PATCH_NOTES_DATE = '2026-09-04';
+export const L2MINI_PATCH_NOTES_DATE = '2026-09-05';
 
 const STORAGE_KEY = 'l2mini_seen_patch_notes';
 
