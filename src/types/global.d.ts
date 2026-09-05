@@ -409,6 +409,7 @@ declare global {
     obterSkillsSpellbookSections?: () => import('./game').SpellbookSection[];
     /** Log + toast for skills unlocked by leveling from levelBefore → levelAfter. */
     notifySkillsUnlockedAfterLevelChange?: (levelBefore: number, levelAfter: number) => void;
+    notifySkillsUnlockedAfterClassChange?: (previousSkillIds?: string[]) => void;
     pushCombatStatSnapshot?: (opts?: { force?: boolean }) => Promise<boolean>;
     fetchCombatStatRanking?: (
       metric: import('./game').CombatStatMetric,
@@ -427,6 +428,7 @@ declare global {
     getUnseenSkillUnlocksSavePayload?: () => string[];
     applyUnseenSkillUnlocksFromSave?: (raw: unknown) => void;
     clearUnseenSkillUnlocks?: () => void;
+    pruneUnseenSkillUnlocksToLearned?: () => void;
     selecionarSkillSpellbook?: (nomeSkill: string) => void;
     mostrarSeletorSlot?: () => void;
     equiparSkillNaBarra?: (indexSlot: number) => void;

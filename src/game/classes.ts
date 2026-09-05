@@ -595,6 +595,10 @@ function confirmarTrocaClasse(novaClasse) {
 function executarTrocaClasse(novaClasse) {
     let tFn = (typeof window.t === 'function') ? window.t : null;
 
+    const skillsBefore = typeof window.obterSkillsAprendidas === 'function'
+        ? window.obterSkillsAprendidas().map((s) => s.idNome).filter(Boolean)
+        : [];
+
     charClass = novaClasse;
     tocarSom('lvlup');
     const displayName = classEvolutionDisplayName(novaClasse);
@@ -604,7 +608,18 @@ function executarTrocaClasse(novaClasse) {
     window.calcularStatusGlobais(); // Recalcula os status com a nova classe!
     playerHP = playerStats.maxHp; playerMP = playerStats.maxMp; // Enche a vida de brinde
     
-    atualizar(); renderizarPerfil(); salvarJogo();
+    atualizar(); renderizarPerfil();
+    let newSkillCount = 0;
+    if (typeof window.notifySkillsUnlockedAfterClassChange === 'function') {
+        window.notifySkillsUnlockedAfterClassChange(skillsBefore);
+        newSkillCount = typeof window.countUnseenSkillUnlocks === 'function'
+            ? window.countUnseenSkillUnlocks()
+            : 0;
+    }
+    if (typeof window.syncSkillUnlockNotifUi === 'function') {
+        window.syncSkillUnlockNotifUi();
+    }
+    salvarJogo();
     if (typeof window.refreshClassTransferNotifs === 'function') {
         try { window.refreshClassTransferNotifs(); } catch (eNotif) { /* ignore */ }
     }
@@ -615,7 +630,13 @@ function executarTrocaClasse(novaClasse) {
     let bodyRaw = tFn
         ? tFn('game.classes.successBody', { className: `<b style="color:#fde047">${displayName}</b>` })
         : (`You advanced to <b style="color:#fde047">${displayName}</b>. Your base stats were boosted and your combat potential rose sharply!`);
-    document.getElementById('acao-desc').innerHTML = `<b style="color:white; font-size: 1.2em;">${congrats}</b><br><br><span style="color:#ccc;">${bodyRaw}</span>`;
+    const skillsLine = newSkillCount > 0
+        ? (tFn
+            ? tFn('game.classes.successBodySkills', { n: newSkillCount })
+            : `${newSkillCount} new skills are waiting — check the mark on Profile and Spellbook.`)
+        : '';
+    document.getElementById('acao-desc').innerHTML = `<b style="color:white; font-size: 1.2em;">${congrats}</b><br><br><span style="color:#ccc;">${bodyRaw}</span>`
+        + (skillsLine ? `<br><br><span style="color:#7dd3fc; font-weight:bold;">📘 ${skillsLine}</span>` : '');
     
     let btnAcao = document.getElementById('btn-acao-item');
     btnAcao.innerText = tFn ? tFn('game.enchantUi.continue') : 'CONTINUE'; 

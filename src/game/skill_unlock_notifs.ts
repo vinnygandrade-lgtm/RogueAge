@@ -74,6 +74,20 @@ export function markSkillUnlockSeen(skillId: string): void {
   }
 }
 
+/** Drop unseen ids the current class can no longer use (class change). */
+export function pruneUnseenSkillUnlocksToLearned(): void {
+  if (typeof window.obterSkillsAprendidas !== 'function') return;
+  const learned = new Set(window.obterSkillsAprendidas().map((s) => s.idNome));
+  let changed = false;
+  Array.from(unseenSkillIds).forEach((id) => {
+    if (!learned.has(id)) {
+      unseenSkillIds.delete(id);
+      changed = true;
+    }
+  });
+  if (changed) syncSkillUnlockNotifUi();
+}
+
 export function applyUnseenSkillUnlocksFromSave(raw: unknown): void {
   unseenSkillIds.clear();
   if (Array.isArray(raw)) {
@@ -83,13 +97,7 @@ export function applyUnseenSkillUnlocksFromSave(raw: unknown): void {
       }
     });
   }
-  // Drop ids the character can no longer use (class change / wipe).
-  if (typeof window.obterSkillsAprendidas === 'function') {
-    const learned = new Set(window.obterSkillsAprendidas().map((s) => s.idNome));
-    Array.from(unseenSkillIds).forEach((id) => {
-      if (!learned.has(id)) unseenSkillIds.delete(id);
-    });
-  }
+  pruneUnseenSkillUnlocksToLearned();
   syncSkillUnlockNotifUi();
 }
 
@@ -161,5 +169,6 @@ window.countUnseenSkillUnlocks = countUnseenSkillUnlocks;
 window.getUnseenSkillUnlocksSavePayload = getUnseenSkillUnlocksSavePayload;
 window.applyUnseenSkillUnlocksFromSave = applyUnseenSkillUnlocksFromSave;
 window.clearUnseenSkillUnlocks = clearUnseenSkillUnlocks;
+window.pruneUnseenSkillUnlocksToLearned = pruneUnseenSkillUnlocksToLearned;
 
 export {};

@@ -1355,6 +1355,43 @@ window.notifySkillsUnlockedAfterLevelChange = function (
     showSkillUnlockToast(msg);
 };
 
+/**
+ * After a class transfer, mark skills the new path just granted (not on the old class).
+ * This is the 20 / 40 / 76 hole — level-up notify only sees the old tree.
+ */
+window.notifySkillsUnlockedAfterClassChange = function (previousSkillIds?: string[]): void {
+    if (typeof window.pruneUnseenSkillUnlocksToLearned === 'function') {
+        window.pruneUnseenSkillUnlocksToLearned();
+    }
+
+    const before = new Set(
+        Array.isArray(previousSkillIds)
+            ? previousSkillIds.filter((id) => typeof id === 'string' && id)
+            : [],
+    );
+    const learned = typeof window.obterSkillsAprendidas === 'function'
+        ? window.obterSkillsAprendidas()
+        : [];
+    const newly = learned.filter((s) => {
+        if (!s || s.idNome === 'Attack') return false;
+        return !before.has(s.idNome);
+    });
+    if (newly.length <= 0) return;
+
+    const ids = newly.map((s) => s.idNome).filter(Boolean);
+    if (typeof window.markSkillsUnseen === 'function') {
+        window.markSkillsUnseen(ids);
+    }
+
+    const tn = typeof window.t === 'function' ? window.t : (k: string) => k;
+    const msg = tn('game.combat.skillsUnlockedClass', { n: newly.length });
+
+    if (typeof window.escreverLog === 'function') {
+        window.escreverLog(`<span style="color:#67e8f9; font-weight:bold;">📘 ${msg}</span>`);
+    }
+    showSkillUnlockToast(msg);
+};
+
 /** Bridge para módulos TS e scripts legados */
 window.bancoDeSkills = bancoDeSkills;
 window.arvoreDeSkills = arvoreDeSkills;
