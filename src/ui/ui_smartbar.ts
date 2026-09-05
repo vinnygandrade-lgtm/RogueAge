@@ -923,7 +923,16 @@ function paintHotbarCooldownOverlays(agora: number): void {
     const timerText = el.nextElementSibling as HTMLElement | null;
 
     // Personal recharge only (grey). Never paint cast as red overlay on the icon.
-    const personalLeft = Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
+    let personalLeft = Math.max(0, (Number(window.cooldownsAtivos[nome]) || 0) - agora);
+    const altRaw = el.getAttribute('data-cd-alt');
+    if (altRaw) {
+      const parts = altRaw.split(',');
+      for (let a = 0; a < parts.length; a++) {
+        const key = parts[a].trim();
+        if (!key) continue;
+        personalLeft = Math.max(personalLeft, Math.max(0, (Number(window.cooldownsAtivos[key]) || 0) - agora));
+      }
+    }
     el.classList.remove('cd-overlay--cast');
 
     if (personalLeft > 0) {
@@ -971,6 +980,7 @@ function tickHotbarCooldownLoop(): void {
 
 /** Wake CD/cast rails immediately when a skill/CD starts (avoids idle 250ms lag). */
 function kickHotbarCdLoop(): void {
+  invalidateHotbarCdOverlayCache();
   scheduleHotbarCdLoop(0);
 }
 

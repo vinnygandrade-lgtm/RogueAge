@@ -29,9 +29,18 @@ function shotIcon(key: string): string {
     : 'assets/itens/soulshot_ng.png';
 }
 
-function potionCdPct(nome: string): number {
+function potionCdLeftMs(...names: string[]): number {
   const agora = Date.now();
-  const left = Math.max(0, (Number(window.cooldownsAtivos?.[nome]) || 0) - agora);
+  const cds = window.cooldownsAtivos || {};
+  let left = 0;
+  for (let i = 0; i < names.length; i++) {
+    left = Math.max(left, Math.max(0, (Number(cds[names[i]]) || 0) - agora));
+  }
+  return left;
+}
+
+function potionCdPct(...names: string[]): number {
+  const left = potionCdLeftMs(...names);
   if (left <= 0) return 0;
   return Math.min(100, (left / 15000) * 100);
 }
@@ -44,15 +53,20 @@ function buildPotionSlotHtml(opts: {
   label: string;
   onClick: string;
   cdName: string;
+  cdNames?: string[];
 }): string {
-  const pct = potionCdPct(opts.cdName);
+  const cdNames = opts.cdNames && opts.cdNames.length ? opts.cdNames : [opts.cdName];
+  const pct = potionCdPct(...cdNames);
+  const left = potionCdLeftMs(...cdNames);
   const empty = opts.qty <= 0 ? ' is-empty' : '';
   const title = `${opts.label} ×${opts.qty}`;
+  const timer = left > 0 ? (left / 1000).toFixed(1) : '';
   return `
     <button type="button" id="${opts.id}" class="consumable-slot${empty}" title="${title.replace(/"/g, '&quot;')}"
       aria-label="${title.replace(/"/g, '&quot;')}"
       onclick="event.preventDefault(); ${opts.onClick}">
-      <div class="cd-overlay" data-cd="${opts.cdName}" style="height:${pct}%;"></div>
+      <div class="cd-overlay" data-cd="${opts.cdName}"${cdNames.length > 1 ? ` data-cd-alt="${cdNames.filter((n) => n !== opts.cdName).join(',')}"` : ''} style="height:${pct}%;"></div>
+      <div class="cd-timer-text"${left > 0 ? '' : ' style="display:none;"'}>${timer}</div>
       <img class="shortcut-slot__icon shortcut-slot__icon--item" src="${opts.img}" alt="" draggable="false">
       <span class="shortcut-count">${opts.qty}</span>
       <span class="consumable-slot__tag">${opts.label}</span>
@@ -94,6 +108,7 @@ function renderizarBarraConsumiveis(): void {
     label: consT('game.consumablesBar.tagMp'),
     onClick: "if (typeof window.usarPocaoMP === 'function') window.usarPocaoMP('Mana Potion');",
     cdName: 'Mana Potion',
+    cdNames: ['Mana Potion', 'MP Potion'],
   });
 
   const shotDisabled = estaNaOlympiad ? ' is-disabled' : '';
@@ -135,6 +150,7 @@ function renderizarBarraConsumiveis(): void {
     && window.getComputedStyle(skillBar).display !== 'none'
   );
   bar.hidden = !skillVisible;
+  if (typeof window.kickHotbarCdLoop === 'function') window.kickHotbarCdLoop();
 }
 
 window.renderizarBarraConsumiveis = renderizarBarraConsumiveis;

@@ -497,7 +497,12 @@ function usarPocaoMP(nomeDaPocao: string): void {
         window.inventario[nomeCerto]--; if (typeof window.registrarProgressoMissaoDiaria === 'function') window.registrarProgressoMissaoDiaria('usar_pocoes', 1);
         if (typeof renderizarBarraAtalhos === 'function') renderizarBarraAtalhos(); if (typeof salvarJogo === 'function') salvarJogo();
         escreverLog(`<span style="color:#3b82f6; font-weight:bold;">${typeof window.t === 'function' ? window.t('game.core.drankManaPotion', { potion: nomeCerto }) : ('🧪 You used a ' + nomeCerto + '. Mana is recovering...')}</span>`);
-        if (typeof dispararAnimacaoCooldown === 'function') dispararAnimacaoCooldown(nomeCerto, 15000); if (typeof tocarSom === 'function') tocarSom('potion'); 
+        if (typeof dispararAnimacaoCooldown === 'function') {
+            dispararAnimacaoCooldown(nomeCerto, 15000);
+            if (nomeCerto !== 'Mana Potion') dispararAnimacaoCooldown('Mana Potion', 15000);
+            if (nomeCerto !== 'MP Potion') dispararAnimacaoCooldown('MP Potion', 15000);
+        }
+        if (typeof tocarSom === 'function') tocarSom('potion'); 
         if (pocaoMpInterval) clearInterval(pocaoMpInterval);
         let ticks = 0; pocaoMpInterval = setInterval(() => {
             if (window.playerHP <= 0) { clearInterval(pocaoMpInterval); return; }
