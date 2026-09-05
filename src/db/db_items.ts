@@ -362,8 +362,8 @@ const precosVenda: Record<string, number> = { "Animal Skin": 13, "Animal Bone": 
 // --- CONSUMÍVEIS E SCROLLS ---
 // Catalog `preco` is legacy base; shop pay = base × EconomyBalance inflation (shots ×80, pots ×55, scrolls by grade).
 const catalogoConsumiveis: ShopCatalogItem[] = [
-    { id: 'pot_hp', nome: 'HP Potion', preco: 58, img: 'assets/itens/pot_hp.png', desc: 'Instantly restores 50 HP.' },
-    { id: 'pot_mp', nome: 'Mana Potion', preco: 58, img: 'assets/itens/pot_mp.png', desc: 'Instantly restores 40 MP.' },
+    { id: 'pot_hp', nome: 'HP Potion', preco: 58, img: 'assets/itens/pot_hp.png', desc: 'Heals 5% of your max HP every second for 15s (about 75% of your bar). Scales with max HP. 15s cooldown.' },
+    { id: 'pot_mp', nome: 'Mana Potion', preco: 58, img: 'assets/itens/pot_mp.png', desc: 'Restores 5% of your max MP every second for 15s (about 75% of your bar). Scales with max MP. 15s cooldown.' },
     { id: 'shot_ng', nome: 'Soulshot (NG)', grade: 'No-Grade', preco: 6, img: 'assets/itens/soulshot_ng.png', desc: 'Auto-use: +20% damage on hit. Matches No-Grade weapons. [Fighters]' },
     { id: 'shot_d', nome: 'Soulshot (D)', grade: 'D', preco: 20, img: 'assets/itens/soulshot_d.png', desc: 'Auto-use: +20% damage on hit. Matches D-grade weapons. [Fighters]' },
     { id: 'shot_c', nome: 'Soulshot (C)', grade: 'C', preco: 60, img: 'assets/itens/soulshot_c.png', desc: 'Auto-use: +20% damage on hit. Matches C-grade weapons. [Fighters]' },

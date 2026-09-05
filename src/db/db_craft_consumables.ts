@@ -48,7 +48,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     'rec_cons_hp_x10',
     'HP Potion ×10',
     'assets/itens/pot_hp.png',
-    'Brew healing draughts from hide and bone. Cheaper than the Grocer when you farm mats.',
+    'Each bottle heals 5% max HP/sec for 15s. Brew from hide and bone — cheaper than the Grocer when you farm mats.',
     'HP Potion',
     10,
     [
@@ -61,7 +61,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     'rec_cons_hp_x50',
     'HP Potion ×50',
     'assets/itens/pot_hp.png',
-    'Bulk brew for long expeditions.',
+    'Bulk brew for long expeditions. Each bottle: 5% max HP/sec for 15s.',
     'HP Potion',
     50,
     [
@@ -74,7 +74,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     'rec_cons_mp_x10',
     'Mana Potion ×10',
     'assets/itens/pot_mp.png',
-    'Distill focus tonic from coal and charcoal.',
+    'Each bottle restores 5% max MP/sec for 15s. Distill from coal and charcoal.',
     'Mana Potion',
     10,
     [
@@ -87,7 +87,7 @@ export const CATALOGO_RECEITAS_CONSUMIVEIS: CraftRecipe[] = [
     'rec_cons_mp_x50',
     'Mana Potion ×50',
     'assets/itens/pot_mp.png',
-    'Bulk mana draughts for casters and long pulls.',
+    'Bulk mana draughts. Each bottle: 5% max MP/sec for 15s.',
     'Mana Potion',
     50,
     [

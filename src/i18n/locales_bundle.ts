@@ -1991,8 +1991,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     closeDetails: 'CLOSE',
                     olympiadShotsDisabled: 'Soulshots and Spiritshots are disabled in the Olympiad Arena!',
                     itemDesc: {
-                        hpPotion: 'Magic potion. Use to restore HP in combat.',
-                        manaPotion: 'Magic potion. Use to restore MP in combat.',
+                        hpPotion: 'Heals 5% of your max HP every second for 15s (about 75% of your bar). Scales with max HP. 15s cooldown.',
+                        manaPotion: 'Restores 5% of your max MP every second for 15s (about 75% of your bar). Scales with max MP. 15s cooldown.',
                         soulshot: 'Auto-use: +20% physical damage. Must match your weapon grade.',
                         spiritshot: 'Auto-use: +20% magic damage. Must match your weapon grade.',
                         recipe: 'Ancient instructions used to forge powerful gear.',
@@ -5627,8 +5627,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     closeDetails: 'FECHAR',
                     olympiadShotsDisabled: 'Soulshots e Spiritshots estão desativados na Arena da Olimpíada!',
                     itemDesc: {
-                        hpPotion: 'Poção mágica. Use para recuperar HP em combate.',
-                        manaPotion: 'Poção mágica. Use para recuperar MP em combate.',
+                        hpPotion: 'Cura 5% do HP máximo por segundo durante 15s (cerca de 75% da barra). Cresce com o teu HP máximo. Recarga de 15s.',
+                        manaPotion: 'Recupera 5% do MP máximo por segundo durante 15s (cerca de 75% da barra). Cresce com o teu MP máximo. Recarga de 15s.',
                         soulshot: 'Uso automático: +20% de dano físico. Precisa combinar com a grade da arma.',
                         spiritshot: 'Uso automático: +20% de dano mágico. Precisa combinar com a grade da arma.',
                         recipe: 'Instruções antigas para forjar equipamento poderoso.',

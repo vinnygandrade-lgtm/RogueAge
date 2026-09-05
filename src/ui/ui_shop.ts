@@ -402,7 +402,9 @@ function selecionarConsumivel(id: string, categoria: ShopGrocerCategory, element
 
     _setShopDetailHtml(_shopDetailCardHtml({
         name: String(itemSelecionado.nome || ''),
-        desc: itemSelecionado.desc ? String(itemSelecionado.desc) : undefined,
+        desc: (typeof window.consumableDescText === 'function'
+            ? window.consumableDescText(String(itemSelecionado.nome || ''))
+            : '') || (itemSelecionado.desc ? String(itemSelecionado.desc) : undefined),
         statsHtml: _shopStatChip(
             shopT('game.shop.labelPrice'),
             '<span style="color:' + corMoeda + '">' + unitEff + siglaMoeda + '</span> ' +
