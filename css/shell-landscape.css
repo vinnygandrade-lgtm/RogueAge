@@ -920,18 +920,23 @@ html[data-l2-layout="landscape"] #screen-char-select .char-select-scenery {
 }
 
 html[data-l2-layout="landscape"] #screen-char-select .char-select-stage {
-    max-width: 720px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
 }
 
 html[data-l2-layout="landscape"] #screen-char-select .char-select-hero-root {
-    max-width: 360px;
-    margin-inline: auto;
+    max-width: none;
+    margin-inline: 0;
+    height: 100%;
 }
 
 html[data-l2-layout="landscape"] #screen-char-select .l2-paperdoll--char-select {
-    width: min(100%, 340px);
-    max-height: min(52vh, 360px);
+    width: 100%;
+    max-height: none;
+}
+
+html[data-l2-layout="landscape"] #screen-char-select .char-hero-chrome {
+    width: min(100%, 400px);
 }
 
 html[data-l2-layout="landscape"] #screen-char-select .char-select-dock {

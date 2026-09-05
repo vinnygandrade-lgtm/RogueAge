@@ -882,7 +882,7 @@ button.hud-mail-btn {
 }
 
 /* Paperdoll global: css/paperdoll-layout.css + js/paperdoll_config.js; moldura perfil → paperdoll-profile.css */
-.l2-paperdoll:not(.l2-paperdoll--profile) {
+.l2-paperdoll:not(.l2-paperdoll--profile):not(.l2-paperdoll--char-select):not(.l2-paperdoll--class-transfer) {
     margin-bottom: 15px;
     background: #0a0806;
     border: 2px solid #735939;

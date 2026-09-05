@@ -1063,17 +1063,19 @@ const AuthEngine = {
             html += `
                 <article class="char-hero-showcase" data-char-name="${char.charName}">
                     ${this._buildCharSelectPaperdollHtml()}
-                    <div class="char-hero-plaque">
-                        <h2 class="char-hero-name">${char.charName}</h2>
-                        <div class="char-hero-badges">
-                            <span class="char-hero-level">${lvlLabel}</span>
-                            <span class="char-hero-class">${classLabel}</span>
+                    <div class="char-hero-chrome">
+                        <div class="char-hero-plaque">
+                            <h2 class="char-hero-name">${char.charName}</h2>
+                            <div class="char-hero-badges">
+                                <span class="char-hero-level">${lvlLabel}</span>
+                                <span class="char-hero-class">${classLabel}</span>
+                            </div>
+                            ${metaParts ? `<p class="char-hero-meta">${metaParts}</p>` : ''}
                         </div>
-                        ${metaParts ? `<p class="char-hero-meta">${metaParts}</p>` : ''}
-                    </div>
-                    <button type="button" class="auth-flow-btn-primary btn-char-enter" onclick="AuthEngine.selectCharacter('${safeName}')">${authT('charSelect.enterWorld')}</button>
-                    <div class="btn-char-delete-wrap">
-                        <button type="button" class="btn-char-delete-text" onclick="AuthEngine.deleteCharacter('${safeName}')" title="${delTitle}">${delAction}</button>
+                        <button type="button" class="auth-flow-btn-primary btn-char-enter" onclick="AuthEngine.selectCharacter('${safeName}')">${authT('charSelect.enterWorld')}</button>
+                        <div class="btn-char-delete-wrap">
+                            <button type="button" class="btn-char-delete-text" onclick="AuthEngine.deleteCharacter('${safeName}')" title="${delTitle}">${delAction}</button>
+                        </div>
                     </div>
                 </article>
             `;
