@@ -50,6 +50,7 @@
     <link rel="stylesheet" href="css/shell-landscape.css">
     <link rel="stylesheet" href="css/town-plaza.css">
     <link rel="stylesheet" href="css/world-map.css">
+    <link rel="stylesheet" href="css/expedition-map.css">
     <link rel="stylesheet" href="css/npc-hub-portrait.css">
     <script>
       /* Early layout hint — portrait-only product focus (PC landscape frozen). */
@@ -356,18 +357,6 @@
                     </div>
                 </div>
                 <p id="world-gk-pick-hint" class="world-gk-pick-hint" data-i18n="game.world.pickZoneHint">Tap a hunting ground to inspect it, then teleport.</p>
-                <div id="world-expedition-dock" class="world-expedition-dock" hidden aria-live="polite">
-                    <div class="world-expedition-dock__crest" aria-hidden="true">⛺</div>
-                    <div class="world-expedition-dock__kicker" data-i18n="game.world.expeditionDock.kicker">Expedition in progress</div>
-                    <h3 id="world-exp-dock-zone" class="world-expedition-dock__zone">—</h3>
-                    <div id="world-exp-dock-journey" class="world-expedition-dock__journey"></div>
-                    <div id="world-exp-dock-bag" class="world-expedition-dock__bag" role="status"></div>
-                    <p class="world-expedition-dock__hint" data-i18n="game.world.expeditionDock.hint">Run upgrades last until you extract. Collect keeps 100% of the bag.</p>
-                    <div class="world-expedition-dock__actions">
-                        <button type="button" id="world-exp-dock-resume" class="btn-l2 world-expedition-dock__resume" onclick="ExpeditionEngine.resumeFromWorld()" data-i18n="game.world.expeditionDock.resume">Resume Expedition</button>
-                        <button type="button" id="world-exp-dock-extract" class="btn-l2 world-expedition-dock__extract" onclick="ExpeditionEngine.promptExitAndExtract()" data-i18n="game.world.expeditionDock.extract">Collect &amp; exit</button>
-                    </div>
-                </div>
                 <div id="world-hunting-zones-grid" class="world-zone-grid"></div>
             </div>
         </div>
@@ -2171,6 +2160,100 @@
             <span id="daily-boss-card-resumo" hidden></span>
             <div id="card-clan-war-world" hidden></div>
             <div id="card-olympiad-world" hidden></div>
+        </div>
+
+        <div id="tela-expedition" class="screen-content">
+            <div id="praca-expedition" class="world-map">
+                <div class="world-map-frame">
+                    <div class="world-map-stack" id="expedition-map-stack" onclick="limparSelecaoExpeditionMap(event)">
+                        <img class="world-map-bg" src="assets/expedition/map_bg.jpg?v=260906" alt="" draggable="false" decoding="async">
+                        <img class="exp-map-layer" data-exp-spot="s" alt="" hidden draggable="false">
+                        <img class="exp-map-layer" data-exp-spot="a" alt="" hidden draggable="false">
+                        <img class="exp-map-layer" data-exp-spot="b" alt="" hidden draggable="false">
+                        <img class="exp-map-layer" data-exp-spot="c" alt="" hidden draggable="false">
+                        <img class="exp-map-layer" data-exp-spot="d" alt="" hidden draggable="false">
+                        <img class="exp-map-layer" data-exp-spot="ng" alt="" hidden draggable="false">
+                        <div class="world-map-vignette" aria-hidden="true"></div>
+                        <button type="button" class="exp-map-back" onclick="voltarValeDaExpedicao(event)" data-i18n="game.world.expeditionMap.back">‹ Valley</button>
+                        <h4 class="world-map-title" data-i18n="game.world.expeditionMap.title">THE TRAIL</h4>
+
+                        <div class="world-map-actor exp-map-actor--s">
+                            <span class="adv-badge exp-map-active" data-exp-spot="s" hidden aria-hidden="true" data-i18n="game.world.map.expeditionActive">ACTIVE</span>
+                            <button type="button" class="world-map-hotspot" data-exp-spot="s" onclick="selecionarZonaExpedicao('s', event)" aria-pressed="false">
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.zones.s.name">Imperial Tomb</span>
+                                    <span class="world-map-plate__role">S</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-exp-spot="s" hidden aria-hidden="true" onclick="entrarZonaExpedicao('s', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor exp-map-actor--a">
+                            <span class="adv-badge exp-map-active" data-exp-spot="a" hidden aria-hidden="true" data-i18n="game.world.map.expeditionActive">ACTIVE</span>
+                            <button type="button" class="world-map-hotspot" data-exp-spot="a" onclick="selecionarZonaExpedicao('a', event)" aria-pressed="false">
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.zones.a.name">Tower of Insolence</span>
+                                    <span class="world-map-plate__role">A</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-exp-spot="a" hidden aria-hidden="true" onclick="entrarZonaExpedicao('a', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor exp-map-actor--b">
+                            <span class="adv-badge exp-map-active" data-exp-spot="b" hidden aria-hidden="true" data-i18n="game.world.map.expeditionActive">ACTIVE</span>
+                            <button type="button" class="world-map-hotspot" data-exp-spot="b" onclick="selecionarZonaExpedicao('b', event)" aria-pressed="false">
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.zones.b.name">Dragon Valley</span>
+                                    <span class="world-map-plate__role">B</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-exp-spot="b" hidden aria-hidden="true" onclick="entrarZonaExpedicao('b', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor exp-map-actor--c">
+                            <span class="adv-badge exp-map-active" data-exp-spot="c" hidden aria-hidden="true" data-i18n="game.world.map.expeditionActive">ACTIVE</span>
+                            <button type="button" class="world-map-hotspot" data-exp-spot="c" onclick="selecionarZonaExpedicao('c', event)" aria-pressed="false">
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.zones.c.name">Death Pass</span>
+                                    <span class="world-map-plate__role">C</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-exp-spot="c" hidden aria-hidden="true" onclick="entrarZonaExpedicao('c', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor exp-map-actor--d">
+                            <span class="adv-badge exp-map-active" data-exp-spot="d" hidden aria-hidden="true" data-i18n="game.world.map.expeditionActive">ACTIVE</span>
+                            <button type="button" class="world-map-hotspot" data-exp-spot="d" onclick="selecionarZonaExpedicao('d', event)" aria-pressed="false">
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.zones.d.name">Ruins of Despair</span>
+                                    <span class="world-map-plate__role">D</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-exp-spot="d" hidden aria-hidden="true" onclick="entrarZonaExpedicao('d', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                        <div class="world-map-actor exp-map-actor--ng">
+                            <span class="adv-badge exp-map-active" data-exp-spot="ng" hidden aria-hidden="true" data-i18n="game.world.map.expeditionActive">ACTIVE</span>
+                            <button type="button" class="world-map-hotspot" data-exp-spot="ng" onclick="selecionarZonaExpedicao('ng', event)" aria-pressed="false">
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.zones.ng.name">Talking Island</span>
+                                    <span class="world-map-plate__role">NG</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-exp-spot="ng" hidden aria-hidden="true" onclick="entrarZonaExpedicao('ng', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
+                    </div>
+                </div>
+                <aside id="world-expedition-dock" class="exp-run-bar" hidden aria-live="polite">
+                    <div class="exp-run-bar__meta">
+                        <span class="exp-run-bar__live" data-i18n="game.world.map.expeditionActive">ACTIVE</span>
+                        <div class="exp-run-bar__titles">
+                            <h3 id="world-exp-dock-zone" class="exp-run-bar__zone">—</h3>
+                            <span id="world-exp-dock-journey" class="exp-run-bar__journey"></span>
+                        </div>
+                    </div>
+                    <div id="world-exp-dock-bag" class="exp-run-bar__bag" role="status"></div>
+                    <div class="exp-run-bar__actions">
+                        <button type="button" id="world-exp-dock-resume" class="exp-run-bar__resume" onclick="ExpeditionEngine.resumeFromWorld()" data-i18n="game.world.expeditionDock.resumeShort">Resume</button>
+                        <button type="button" id="world-exp-dock-extract" class="exp-run-bar__extract" onclick="ExpeditionEngine.promptExitAndExtract()" data-i18n="game.world.expeditionDock.extractShort">Extract</button>
+                    </div>
+                </aside>
+            </div>
         </div>
 
         <div id="tela-floresta" class="screen-content">

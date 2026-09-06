@@ -82,6 +82,12 @@ declare global {
     abrirWorldHuntingZones?: () => void;
     escolherZonaWorld?: (grade: string, ev?: Event) => void;
     renderWorldHuntingZoneCards?: () => void;
+    selecionarZonaExpedicao?: (spotId: string, ev?: Event) => void;
+    entrarZonaExpedicao?: (spotId: string, ev?: Event) => void;
+    limparSelecaoExpeditionMap?: (ev?: Event) => void;
+    voltarValeDaExpedicao?: (ev?: Event) => void;
+    abrirMapaExpedicao?: () => void;
+    syncExpeditionMapActiveBadge?: () => void;
     dismissTownPlazaCoach?: (ev?: Event) => void;
     maybeShowPlazaNpcCoach?: () => void;
     navegarSelecao?: (direcao: number) => void;
@@ -1061,6 +1067,12 @@ declare global {
   function abrirWorldHuntingZones(): void;
   function escolherZonaWorld(grade: string, ev?: Event): void;
   function renderWorldHuntingZoneCards(): void;
+  function selecionarZonaExpedicao(spotId: string, ev?: Event): void;
+  function entrarZonaExpedicao(spotId: string, ev?: Event): void;
+  function limparSelecaoExpeditionMap(ev?: Event): void;
+  function voltarValeDaExpedicao(ev?: Event): void;
+  function abrirMapaExpedicao(): void;
+  function syncExpeditionMapActiveBadge(): void;
   function dismissTownPlazaCoach(ev?: Event): void;
   function maybeShowPlazaNpcCoach(): void;
   function abrirMenuSocial(menu: string): void;

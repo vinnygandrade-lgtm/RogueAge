@@ -70,6 +70,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-09-06',
                         items: [
+                            'Deepgrove now opens a painted trail map — tap Talking Island through Imperial Tomb, then Enter. Same dusk language as the city gate.',
                             'World is now the painted valley. Town lives on the gate at the bottom — tap it, hit Enter, and you walk into the plaza. The Town tab is gone: Profile, World, Social, Bag, Menu.',
                             'Die on an expedition and you wake up on the valley road, not inside town. The woods keep half the bag; the rest is already yours. Need the plaza? The gate is right there.'
                         ]
@@ -2557,7 +2558,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         journey: 'Journey {n}',
                         hint: 'Run upgrades last until you extract. Collect keeps 100% of the bag.',
                         resume: 'Resume Expedition',
-                        extract: 'Collect & exit'
+                        extract: 'Collect & exit',
+                        resumeShort: 'Resume',
+                        extractShort: 'Extract'
                     },
                     cardClanTitle: 'Clan Battlefield',
                     cardClanDesc: 'Massive 12v12 combat with your allies.',
@@ -2600,6 +2603,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         clanWarNeedClan: 'Join a clan to march to war.',
                         clanWarLeaderOnly: 'Only the clan leader can open the war camp.',
                         expeditionActive: 'ACTIVE'
+                    },
+                    expeditionMap: {
+                        title: 'THE TRAIL',
+                        back: '‹ Valley',
+                        runLocked: 'Finish or extract the expedition already on the trail.'
                     }
                 },
                 zones: {
@@ -3094,6 +3102,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         victoryExtractHeader: 'Extract complete',
                         victoryExtractTitle: 'Bag secured',
                         victoryExtractSub: 'You kept everything from the expedition bag.',
+                        victoryReturnWorld: 'BACK TO THE VALLEY',
                         extractSummaryJourney: 'Journey {n}',
                         extractSummaryBosses: '{n} bosses',
                         extractSummaryElites: '{n} elites',
@@ -3724,6 +3733,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     {
                         date: '2026-09-06',
                         items: [
+                            'Deepgrove agora abre um mapa da trilha — toca de Talking Island até Imperial Tomb e depois em Entrar. Mesmo traço do portão da cidade.',
                             'O Mundo agora é o vale pintado. A cidade mora no portão em baixo — toca, entra, e vais pra praça. A aba Cidade saiu: Perfil, Mundo, Social, Bolsa, Menu.',
                             'Morrer na expedição te deixa no vale, não dentro da praça. A mata fica com metade da mochila; o resto já é teu. Quer a praça? É só entrar pelo portão.'
                         ]
@@ -6211,7 +6221,9 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         journey: 'Jornada {n}',
                         hint: 'Upgrades da run valem até o extract. Recolher mantém 100% da bag.',
                         resume: 'Retomar expedição',
-                        extract: 'Recolher e sair'
+                        extract: 'Recolher e sair',
+                        resumeShort: 'Retomar',
+                        extractShort: 'Extrair'
                     },
                     cardClanTitle: 'Campo de batalha do clã',
                     cardClanDesc: 'Combate massivo 12v12 com seus aliados.',
@@ -6254,6 +6266,11 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         clanWarNeedClan: 'Entra num clã para marchar para a guerra.',
                         clanWarLeaderOnly: 'Só o líder do clã pode abrir o acampamento de guerra.',
                         expeditionActive: 'ATIVA'
+                    },
+                    expeditionMap: {
+                        title: 'A TRILHA',
+                        back: '‹ Vale',
+                        runLocked: 'Termina ou extrai a expedição que já está na trilha.'
                     }
                 },
                 zones: {
@@ -6748,6 +6765,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         victoryExtractHeader: 'Extração concluída',
                         victoryExtractTitle: 'Mochila garantida',
                         victoryExtractSub: 'Você ficou com 100% da mochila da expedição.',
+                        victoryReturnWorld: 'VOLTAR PRO VALE',
                         extractSummaryJourney: 'Jornada {n}',
                         extractSummaryBosses: '{n} bosses',
                         extractSummaryElites: '{n} elites',

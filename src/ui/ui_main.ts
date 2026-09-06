@@ -849,6 +849,22 @@ function syncShellBattleChrome() {
     if (tabs) tabs.setAttribute('aria-hidden', immersive ? 'true' : 'false');
 }
 
+function telaIdParaLugar(lugar: string): string {
+    if (lugar === 'clanwar' || lugar === 'clan-war') return 'tela-clan-war';
+    const map: Record<string, string> = {
+        cidade: 'tela-cidade',
+        world: 'tela-world',
+        expedition: 'tela-expedition',
+        floresta: 'tela-floresta',
+        inventario: 'tela-inventario',
+        perfil: 'tela-perfil',
+        social: 'tela-social',
+        'olympiad-arena': 'tela-olympiad-arena',
+        'raid-arena': 'tela-raid-arena',
+    };
+    return map[lugar] || '';
+}
+
 function irPara(lugar) {
     let telaVitoria = document.getElementById('janela-vitoria');
     if (telaVitoria && telaVitoria.style.display === 'flex') return; 
@@ -912,7 +928,7 @@ function irPara(lugar) {
     const currentSubScreen = document.querySelector('.screen-content[style*="display: flex"]') || 
                            document.querySelector('.screen-content[style*="display: block"]');
     
-    const targetId = `tela-${lugar === 'cidade' ? 'cidade' : lugar === 'world' ? 'world' : lugar === 'floresta' ? 'floresta' : lugar === 'inventario' ? 'inventario' : lugar === 'perfil' ? 'perfil' : lugar === 'social' ? 'social' : lugar === 'olympiad-arena' ? 'olympiad-arena' : (lugar === 'clanwar' || lugar === 'clan-war') ? 'clan-war' : lugar === 'raid-arena' ? 'raid-arena' : ''}`;
+    const targetId = telaIdParaLugar(lugar);
     
     if (currentSubScreen && currentSubScreen.id === targetId) return;
 
@@ -988,7 +1004,7 @@ function executarTrocaSubScreen(lugar) {
     }
     
     // 2. Mostrar a Tela Solicitada e Configurar Estado
-    const targetId = `tela-${lugar === 'cidade' ? 'cidade' : lugar === 'world' ? 'world' : lugar === 'floresta' ? 'floresta' : lugar === 'inventario' ? 'inventario' : lugar === 'perfil' ? 'perfil' : lugar === 'social' ? 'social' : lugar === 'olympiad-arena' ? 'olympiad-arena' : (lugar === 'clanwar' || lugar === 'clan-war') ? 'clan-war' : lugar === 'raid-arena' ? 'raid-arena' : ''}`;
+    const targetId = telaIdParaLugar(lugar);
     const target = document.getElementById(targetId) as HTMLElement | null;
 
     if (target) {
@@ -1017,6 +1033,17 @@ function executarTrocaSubScreen(lugar) {
         window.refreshNavMenuNotifications?.();
         if (typeof window.ExpeditionEngine?.syncWorldExpeditionPanel === 'function') {
             window.ExpeditionEngine.syncWorldExpeditionPanel();
+        }
+    }
+
+    if (lugar === 'expedition') {
+        if (typeof window.limparSelecaoExpeditionMap === 'function') window.limparSelecaoExpeditionMap();
+        pararAtaqueMonstro();
+        if (typeof window.ExpeditionEngine?.syncWorldExpeditionPanel === 'function') {
+            window.ExpeditionEngine.syncWorldExpeditionPanel();
+        }
+        if (typeof window.syncExpeditionMapActiveBadge === 'function') {
+            window.syncExpeditionMapActiveBadge();
         }
     }
     
@@ -1078,7 +1105,7 @@ function executarTrocaSubScreen(lugar) {
     // 3. Atualizar Botões do Menu Inferior
     document.querySelectorAll('.btn-travel').forEach(btn => {
         btn.classList.remove('active');
-        const tabId = lugar === 'cidade' ? 'world' : lugar;
+        const tabId = (lugar === 'cidade' || lugar === 'expedition' || lugar === 'floresta') ? 'world' : lugar;
         if (btn.id === `btn-tab-${tabId}`) btn.classList.add('active');
     });
 

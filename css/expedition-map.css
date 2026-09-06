@@ -1,0 +1,401 @@
+/* Expedition trail — same stage language as World (1080×1620)
+   Art: assets/expedition/map_bg.jpg + optional cutouts
+   docs/expedition-map-art.md */
+
+#tela-expedition.screen-content,
+#game-viewport > #tela-expedition.screen-content {
+    padding: 0;
+    border: none;
+    background: #0a0806;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+#praca-expedition.world-map {
+    flex: 1 1 0%;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+}
+
+.exp-map-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    z-index: 1;
+}
+
+.exp-map-layer[hidden] {
+    display: none !important;
+}
+
+.exp-map-layer[data-exp-spot="s"] { z-index: 1; --aura-rgb: 192 132 252; }
+.exp-map-layer[data-exp-spot="a"] { z-index: 2; --aura-rgb: 250 204 21; }
+.exp-map-layer[data-exp-spot="b"] { z-index: 3; --aura-rgb: 249 115 22; }
+.exp-map-layer[data-exp-spot="c"] { z-index: 4; --aura-rgb: 147 197 253; }
+.exp-map-layer[data-exp-spot="d"] { z-index: 5; --aura-rgb: 96 165 250; }
+.exp-map-layer[data-exp-spot="ng"] { z-index: 6; --aura-rgb: 232 197 71; }
+
+#expedition-map-stack[data-selected-spot="s"]:has(.exp-map-actor--s.world-map-actor--has-layer)
+    .exp-map-layer:not([hidden]):not([data-exp-spot="s"]),
+#expedition-map-stack[data-selected-spot="a"]:has(.exp-map-actor--a.world-map-actor--has-layer)
+    .exp-map-layer:not([hidden]):not([data-exp-spot="a"]),
+#expedition-map-stack[data-selected-spot="b"]:has(.exp-map-actor--b.world-map-actor--has-layer)
+    .exp-map-layer:not([hidden]):not([data-exp-spot="b"]),
+#expedition-map-stack[data-selected-spot="c"]:has(.exp-map-actor--c.world-map-actor--has-layer)
+    .exp-map-layer:not([hidden]):not([data-exp-spot="c"]),
+#expedition-map-stack[data-selected-spot="d"]:has(.exp-map-actor--d.world-map-actor--has-layer)
+    .exp-map-layer:not([hidden]):not([data-exp-spot="d"]),
+#expedition-map-stack[data-selected-spot="ng"]:has(.exp-map-actor--ng.world-map-actor--has-layer)
+    .exp-map-layer:not([hidden]):not([data-exp-spot="ng"]) {
+    opacity: 0.78;
+    filter: saturate(0.82);
+}
+
+#expedition-map-stack[data-selected-spot="s"] .exp-map-layer[data-exp-spot="s"],
+#expedition-map-stack[data-selected-spot="a"] .exp-map-layer[data-exp-spot="a"],
+#expedition-map-stack[data-selected-spot="b"] .exp-map-layer[data-exp-spot="b"],
+#expedition-map-stack[data-selected-spot="c"] .exp-map-layer[data-exp-spot="c"],
+#expedition-map-stack[data-selected-spot="d"] .exp-map-layer[data-exp-spot="d"],
+#expedition-map-stack[data-selected-spot="ng"] .exp-map-layer[data-exp-spot="ng"] {
+    opacity: 1;
+    animation: world-spot-aura 1.65s ease-in-out infinite;
+}
+
+.exp-map-back {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 8;
+    min-height: 36px;
+    padding: 4px 12px 5px;
+    border-radius: 999px;
+    border: 1px solid rgba(202, 138, 4, 0.4);
+    background: linear-gradient(180deg, rgba(12, 9, 6, 0.78) 0%, rgba(8, 6, 4, 0.55) 100%);
+    color: #fde68a;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    pointer-events: auto;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.exp-map-back:focus-visible {
+    outline: 2px solid #e8c547;
+    outline-offset: 2px;
+}
+
+.exp-map-back:active {
+    transform: scale(0.97);
+}
+
+#expedition-map-stack .world-map-title {
+    z-index: 8;
+}
+
+/* Landmark boxes on expedition-map-a (Sep 2026). Tune after cutouts. */
+.exp-map-actor--s {
+    left: 28%;
+    top: 1%;
+    width: 44%;
+    height: 16%;
+    --aura: #c084fc;
+    --aura-deep: 28 12 40;
+    --aura-rgb: 192 132 252;
+}
+
+.exp-map-actor--s .world-map-plate {
+    top: auto;
+    bottom: 0;
+    transform: translate(-50%, 108%);
+}
+
+.exp-map-actor--a {
+    left: 58%;
+    top: 12%;
+    width: 38%;
+    height: 22%;
+    --aura: #facc15;
+    --aura-deep: 36 24 6;
+    --aura-rgb: 250 204 21;
+}
+
+.exp-map-actor--a .world-map-enter {
+    bottom: 14%;
+}
+
+.exp-map-actor--b {
+    left: 2%;
+    top: 28%;
+    width: 34%;
+    height: 18%;
+    --aura: #f97316;
+    --aura-deep: 40 16 6;
+    --aura-rgb: 249 115 22;
+}
+
+.exp-map-actor--b .world-map-enter {
+    bottom: 12%;
+}
+
+.exp-map-actor--c {
+    left: 28%;
+    top: 42%;
+    width: 40%;
+    height: 16%;
+    --aura: #93c5fd;
+    --aura-deep: 12 22 40;
+    --aura-rgb: 147 197 253;
+}
+
+.exp-map-actor--c .world-map-enter {
+    bottom: 10%;
+}
+
+.exp-map-actor--d {
+    left: 6%;
+    top: 56%;
+    width: 38%;
+    height: 17%;
+    --aura: #60a5fa;
+    --aura-deep: 10 22 40;
+    --aura-rgb: 96 165 250;
+}
+
+.exp-map-actor--d .world-map-enter {
+    bottom: 12%;
+}
+
+.exp-map-actor--ng {
+    left: 2%;
+    top: 74%;
+    width: 42%;
+    height: 20%;
+    --aura: #e8c547;
+    --aura-deep: 28 18 6;
+    --aura-rgb: 232 197 71;
+}
+
+.exp-map-actor--ng .world-map-enter {
+    bottom: 22%;
+}
+
+.exp-map-actor--ng .world-map-plate {
+    top: 4%;
+    transform: translate(-50%, 0);
+}
+
+/* Parked-run chrome — reserved strip under the painting, never over landmarks. */
+#praca-expedition.world-map--run-dock .world-map-frame {
+    flex: 1 1 0%;
+    min-height: 0;
+}
+
+.exp-run-bar {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 8px 10px 10px;
+    border-top: 1px solid rgba(202, 138, 4, 0.38);
+    background:
+        linear-gradient(180deg, rgba(28, 20, 10, 0.94) 0%, rgba(10, 8, 6, 0.98) 100%);
+    box-shadow: inset 0 1px 0 rgba(253, 230, 138, 0.08);
+    pointer-events: auto;
+}
+
+.exp-run-bar[hidden] {
+    display: none !important;
+}
+
+.exp-run-bar__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.exp-run-bar__live {
+    flex: 0 0 auto;
+    padding: 3px 7px 2px;
+    border-radius: 999px;
+    border: 1px solid rgba(201, 162, 39, 0.55);
+    background: rgba(72, 52, 16, 0.82);
+    color: #f5d76e;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.3;
+}
+
+.exp-run-bar__titles {
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    flex: 1 1 auto;
+}
+
+.exp-run-bar__zone {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #fde68a;
+    text-shadow: 0 1px 0 #000, 0 2px 8px rgba(0, 0, 0, 0.75);
+}
+
+.exp-run-bar__journey {
+    flex: 0 0 auto;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #c4b08a;
+}
+
+.exp-run-bar__bag {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+}
+
+.exp-run-bar .world-expedition-dock__chip {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+
+.exp-run-bar .world-expedition-dock__chip--adena {
+    color: #fde68a;
+    background: rgba(120, 80, 12, 0.4);
+    border-color: rgba(250, 204, 21, 0.28);
+}
+
+.exp-run-bar .world-expedition-dock__chip--xp {
+    color: #93c5fd;
+    background: rgba(30, 58, 100, 0.42);
+    border-color: rgba(96, 165, 250, 0.28);
+}
+
+.exp-run-bar .world-expedition-dock__chip--drop {
+    color: #d8b4fe;
+    background: rgba(60, 30, 80, 0.42);
+    border-color: rgba(192, 132, 252, 0.28);
+}
+
+.exp-run-bar__actions {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 8px;
+}
+
+.exp-run-bar__resume,
+.exp-run-bar__extract {
+    min-height: 40px;
+    margin: 0;
+    padding: 0 12px 1px;
+    border-radius: 999px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.exp-run-bar__resume {
+    border: 1px solid color-mix(in srgb, #fbbf24 78%, #fff);
+    background: linear-gradient(180deg, #d4a017 0%, #8a6410 55%, #5c420c 100%);
+    color: #1a1208;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 248, 220, 0.28);
+}
+
+.exp-run-bar__extract {
+    border: 1px solid rgba(196, 165, 116, 0.45);
+    background: linear-gradient(180deg, rgba(28, 22, 14, 0.96) 0%, rgba(12, 10, 8, 0.98) 100%);
+    color: #e7e0d4;
+}
+
+.exp-run-bar__resume:focus-visible,
+.exp-run-bar__extract:focus-visible {
+    outline: 2px solid #e8c547;
+    outline-offset: 2px;
+}
+
+.exp-run-bar__resume:active,
+.exp-run-bar__extract:active {
+    transform: scale(0.98);
+}
+
+#praca-expedition.world-map--run-dock .world-map-enter {
+    display: none !important;
+}
+
+/* Trail map keeps the painting + run chrome; chat stays on the valley. */
+.game-container.game-ingame:has(#tela-expedition[style*="flex"])
+    .floating-chat-fab:not(.floating-chat-fab--placed) {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+html[data-l2-layout="landscape"] #tela-expedition.screen-content,
+html[data-l2-layout="landscape"] #game-viewport > #tela-expedition.screen-content {
+    padding: 0;
+    overflow: hidden;
+    align-items: stretch;
+    justify-content: stretch;
+}
+
+html[data-l2-layout="landscape"] #praca-expedition {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    height: 100%;
+    background: #070605;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #expedition-map-stack[data-selected-spot="s"] .exp-map-layer[data-exp-spot="s"],
+    #expedition-map-stack[data-selected-spot="a"] .exp-map-layer[data-exp-spot="a"],
+    #expedition-map-stack[data-selected-spot="b"] .exp-map-layer[data-exp-spot="b"],
+    #expedition-map-stack[data-selected-spot="c"] .exp-map-layer[data-exp-spot="c"],
+    #expedition-map-stack[data-selected-spot="d"] .exp-map-layer[data-exp-spot="d"],
+    #expedition-map-stack[data-selected-spot="ng"] .exp-map-layer[data-exp-spot="ng"] {
+        animation: none;
+        filter:
+            drop-shadow(0 0 10px rgb(var(--aura-rgb) / 0.85))
+            drop-shadow(0 0 28px rgb(var(--aura-rgb) / 0.5));
+    }
+}

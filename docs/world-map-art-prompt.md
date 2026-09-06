@@ -1,7 +1,7 @@
 # World Map — brief de arte (mobile portrait)
 
 **Produto:** RogueAge · **Aba:** World (`#tela-world`)  
-**Estado:** arte **locked D2** em `assets/world/map_bg.jpg` (Sep 2026, `assets/world/_incoming/world-map-d2.png`) — mesma língua do portão da tela de personagem (arco cinza, escudo flor-de-lis, bandeiras vermelhas com chevron dourado). Palco `#praca-world` + toques (select → Enter) + overlay de vida. Camadas `assets/world/<id>.png` entram **uma a uma**. **Live agora:** `town`. Recortes do vale antigo (`forest`…`raid`) **não** carregam até haver recorte D2. Grades de caça só no modal `#janela-world-zones`.  
+**Estado:** arte **locked D2** em `assets/world/map_bg.jpg` (Sep 2026, `assets/world/_incoming/world-map-d2.png`) — mesma língua do portão da tela de personagem (arco cinza, escudo flor-de-lis, bandeiras vermelhas com chevron dourado). Palco `#praca-world` + toques (select → Enter) + overlay de vida. Camadas `assets/world/<id>.png` entram **uma a uma**. **Live agora:** `town`. Recortes do vale antigo (`forest`…`raid`) **não** carregam até haver recorte D2. Grades de caça: Deepgrove abre `#tela-expedition` (`docs/expedition-map-art.md`), não o modal de postcards.  
 **Canvas:** **1080×1620** (igual à Praça da Cidade). Display no jogo: scale **3×** → ~**360×540 px**.  
 **Bake (só o fundo):** `node tools/bake_world_d2.mjs`. **Recortes:** manuais — drop `assets/world/_incoming/<id>.png` + `npm run export:world`. Vale anterior: `assets/world/map_bg.vale-blky7o.bak.jpg`.  
 **Tela de personagem:** `assets/ui/char_select_gate.webp` está **aprovada** — não iterar essa arte.  
@@ -12,7 +12,7 @@
 | ID | Visual | Abre |
 |----|--------|------|
 | `town` | portão / cidade em primeiro plano | Praça existente (`irPara('cidade')`) — NPCs ficam na praça, não no mapa |
-| `forest` | floresta / trilha | Expedição → postcards em `#janela-world-zones` → `abrirDetalhesZona(<grade>)`; **6 grades só no modal** |
+| `forest` | floresta / trilha | Expedição → mapa da trilha (`#tela-expedition`) → `abrirDetalhesZona(<grade>)` |
 | `daily` | campo de ossos | Boss diário (`abrirJanelaDailyBoss`) |
 | `olympiad` | coliseu | Grand Olympiad (`abrirOlympiad`) |
 | `raid` | caverna | Raid mundial (`abrirLobbyRaid`) |

@@ -12169,7 +12169,8 @@ html.l2-standalone .settings-section--pwa {
     width: 90%;
 }
 
-#tela-world.screen-content {
+#tela-world.screen-content,
+#tela-expedition.screen-content {
     display: none;
     border: none;
     background: transparent;

@@ -56,7 +56,9 @@ function revealLayer(img: HTMLImageElement): void {
 }
 
 function bindWorldMapLayers(): void {
-  document.querySelectorAll<HTMLImageElement>('.world-map-layer').forEach((img) => {
+  const stack = worldStack();
+  if (!stack) return;
+  stack.querySelectorAll<HTMLImageElement>('.world-map-layer').forEach((img) => {
     const id = (img.getAttribute('data-world-spot') || '').trim() as WorldSpotId;
     const file = WORLD_LAYER_FILES[id];
     img.hidden = true;
@@ -104,11 +106,11 @@ function selecionarDestinoWorld(spotId: string, ev?: Event): void {
 }
 
 function abrirWorldHuntingZones(): void {
-  if (typeof window.ExpeditionEngine?.syncWorldExpeditionPanel === 'function') {
-    window.ExpeditionEngine.syncWorldExpeditionPanel();
+  if (typeof window.abrirMapaExpedicao === 'function') {
+    window.abrirMapaExpedicao();
+    return;
   }
-  renderWorldHuntingZoneCards();
-  if (typeof window.abrirModal === 'function') window.abrirModal('janela-world-zones');
+  if (typeof window.irPara === 'function') window.irPara('expedition');
 }
 
 const HUNT_ZONE_CARD_GRADES = ['No-Grade', 'D', 'C', 'B', 'A', 'S'] as const;
@@ -265,7 +267,8 @@ function entrarDestinoWorld(spotId: string, ev?: Event): void {
       if (typeof window.irPara === 'function') window.irPara('cidade');
       return;
     case 'forest':
-      abrirWorldHuntingZones();
+      if (typeof window.abrirMapaExpedicao === 'function') window.abrirMapaExpedicao();
+      else abrirWorldHuntingZones();
       return;
     case 'daily':
       if (typeof window.abrirJanelaDailyBoss === 'function') window.abrirJanelaDailyBoss();

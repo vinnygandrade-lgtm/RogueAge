@@ -191,9 +191,9 @@ function syncTravelTabFromVisibleScreen(): void {
 
     let tabId: string | null = null;
 
-    if (lugar === 'floresta') tabId = 'btn-tab-world';
+    if (lugar === 'floresta' || lugar === 'expedition' || lugar === 'cidade') tabId = 'btn-tab-world';
 
-    else if (['perfil', 'cidade', 'world', 'social', 'inventario'].includes(lugar)) tabId = `btn-tab-${lugar}`;
+    else if (['perfil', 'world', 'social', 'inventario'].includes(lugar)) tabId = `btn-tab-${lugar}`;
 
 
 

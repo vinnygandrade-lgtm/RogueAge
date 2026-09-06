@@ -3708,12 +3708,16 @@ export class ExpeditionEngine {
         const grid = document.getElementById('world-hunting-zones-grid')
             || document.querySelector('.world-gatekeeper .tp-grid') as HTMLElement | null;
         const subtitle = document.getElementById('world-gk-subtitle');
-        if (!dock || !grid) return;
+        if (!dock) return;
 
         const active = !!this.state.active;
         dock.hidden = !active;
-        grid.hidden = active;
-        grid.style.display = active ? 'none' : 'grid';
+        document.getElementById('praca-expedition')
+            ?.classList.toggle('world-map--run-dock', active);
+        if (grid) {
+            grid.hidden = active;
+            grid.style.display = active ? 'none' : 'grid';
+        }
         const expBadge = document.getElementById('world-notif-expedition');
         if (expBadge) {
             expBadge.hidden = !active;
@@ -3769,12 +3773,12 @@ export class ExpeditionEngine {
         const resumeBtn = document.getElementById('world-exp-dock-resume');
         const extractBtn = document.getElementById('world-exp-dock-extract');
         if (resumeBtn) {
-            resumeBtn.setAttribute('data-i18n', 'game.world.expeditionDock.resume');
-            resumeBtn.textContent = this.t('game.world.expeditionDock.resume', 'Resume Expedition');
+            resumeBtn.setAttribute('data-i18n', 'game.world.expeditionDock.resumeShort');
+            resumeBtn.textContent = this.t('game.world.expeditionDock.resumeShort', 'Resume');
         }
         if (extractBtn) {
-            extractBtn.setAttribute('data-i18n', 'game.world.expeditionDock.extract');
-            extractBtn.textContent = this.t('game.world.expeditionDock.extract', 'Collect & exit');
+            extractBtn.setAttribute('data-i18n', 'game.world.expeditionDock.extractShort');
+            extractBtn.textContent = this.t('game.world.expeditionDock.extractShort', 'Extract');
         }
     }
 

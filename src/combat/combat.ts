@@ -1131,12 +1131,27 @@ function mostrarResumoVitoria() {
     }
     delete (window as any).expeditionExtractSummary;
 
+    const returnBtn = document.querySelector('#janela-vitoria .btn-vitoria-town') as HTMLButtonElement | null;
+    if (returnBtn) {
+        if (isExtract) {
+            returnBtn.setAttribute('data-i18n', 'game.hunt.expedition.victoryReturnWorld');
+            returnBtn.textContent = tx('game.hunt.expedition.victoryReturnWorld', 'BACK TO THE VALLEY');
+        } else {
+            returnBtn.setAttribute('data-i18n', 'game.combat.victoryReturnTown');
+            returnBtn.textContent = tx('game.combat.victoryReturnTown', 'Return to town');
+        }
+    }
+    if (modal) modal.dataset.returnDest = isExtract ? 'world' : 'cidade';
+
     if (window.I18n && typeof window.I18n.refreshDom === 'function' && modal) {
         try { window.I18n.refreshDom(modal); } catch { /* ignore */ }
         // Keep dynamic extract titles after refreshDom (data-i18n would overwrite).
         if (isExtract) {
             if (headerEl) headerEl.textContent = tx('game.hunt.expedition.victoryExtractHeader', 'Extract complete');
             if (titleEl) titleEl.textContent = tx('game.hunt.expedition.victoryExtractTitle', 'Bag secured');
+            if (returnBtn) {
+                returnBtn.textContent = tx('game.hunt.expedition.victoryReturnWorld', 'BACK TO THE VALLEY');
+            }
         }
     }
 
@@ -1167,10 +1182,13 @@ function fecharVitoriaEProcurar() {
 
 function fecharVitoriaEVoltar() {
     travarFlorestaResumoVitoria(false);
+    const modal = document.getElementById('janela-vitoria');
+    const dest = modal?.dataset.returnDest === 'world' ? 'world' : 'cidade';
+    if (modal) delete modal.dataset.returnDest;
     fecharModal('janela-vitoria');
     const exp = (window as any).ExpeditionEngine;
     if (exp) exp._pendingStartZoneAfterExtract = null;
-    window.irPara('cidade');
+    window.irPara(dest);
 }
 
 function showForestFleeFailFloat() {
