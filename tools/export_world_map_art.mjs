@@ -3,7 +3,7 @@
  * Drop the raw cutout in assets/world/_incoming/<id>.png then:
  *   npm run export:world
  *
- * Landmark cutouts live: forest, clanwar, daily, olympiad, raid.
+ * Cutouts are manual. Drop a D2-aligned PNG in _incoming/, then run this.
  * Requires: npm install sharp --no-save
  */
 import { existsSync, mkdirSync, renameSync, statSync, unlinkSync } from 'fs';
@@ -16,8 +16,8 @@ const incoming = join(dir, '_incoming');
 const W = 1080;
 const H = 1620;
 
-/** Expedition first; add an id here when the next cutout is ready. */
-const LAYERS = ['forest', 'daily', 'clanwar', 'olympiad', 'raid'];
+/** Town first on D2; add an id here when the next cutout is ready. */
+const LAYERS = ['town', 'forest', 'daily', 'clanwar', 'olympiad', 'raid'];
 
 function kb(p) {
   return (statSync(p).size / 1024).toFixed(0) + ' KB';
@@ -25,9 +25,7 @@ function kb(p) {
 
 function resolveSource(id) {
   const drop = join(incoming, `${id}.png`);
-  const live = join(dir, `${id}.png`);
   if (existsSync(drop)) return drop;
-  if (existsSync(live)) return live;
   return null;
 }
 

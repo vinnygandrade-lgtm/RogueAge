@@ -854,7 +854,7 @@ function irPara(lugar) {
     if (telaVitoria && telaVitoria.style.display === 'flex') return; 
 
     const deathBlock = document.getElementById('forest-death-overlay');
-    if (deathBlock && deathBlock.dataset.active === '1' && lugar !== 'cidade') {
+    if (deathBlock && deathBlock.dataset.active === '1' && lugar !== 'world') {
         return;
     }
 
@@ -1078,7 +1078,8 @@ function executarTrocaSubScreen(lugar) {
     // 3. Atualizar Botões do Menu Inferior
     document.querySelectorAll('.btn-travel').forEach(btn => {
         btn.classList.remove('active');
-        if (btn.id === `btn-tab-${lugar}`) btn.classList.add('active');
+        const tabId = lugar === 'cidade' ? 'world' : lugar;
+        if (btn.id === `btn-tab-${tabId}`) btn.classList.add('active');
     });
 
     try {

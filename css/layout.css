@@ -421,7 +421,7 @@
     opacity: 1;
 }
 
-/* Tabs só-ícone em ecrãs estreitos (6 tabs no shell 450px) */
+/* Tabs só-ícone em ecrãs estreitos (5 tabs no shell 450px) */
 @media (max-width: 380px) {
     .travel-menu .btn-travel {
         font-size: 0;

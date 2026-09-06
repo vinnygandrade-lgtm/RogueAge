@@ -261,7 +261,7 @@ function handleForestPlayerDefeat(): void {
   } else {
     setTimeout(() => {
       prepararTelaCacada();
-      irPara('cidade');
+      irPara('world');
     }, 1500);
   }
 }

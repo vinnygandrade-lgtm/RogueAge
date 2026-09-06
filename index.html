@@ -1818,12 +1818,9 @@
                 <span class="btn-travel__label" data-i18n="nav.profile">PROFILE</span>
                 <span id="nav-notif-profile-skills" class="nav-notif nav-notif--tab nav-notif--skills" hidden aria-hidden="true"></span>
             </button>
-            <button id="btn-tab-cidade" class="btn-travel" onclick="irPara('cidade')">
-                <span class="btn-travel__label" data-i18n="nav.town">TOWN</span>
-                <span id="nav-notif-cidade-class" class="nav-notif nav-notif--tab nav-notif--class-transfer" hidden aria-hidden="true"></span>
-            </button>
             <button id="btn-tab-world" class="btn-travel" onclick="irPara('world')">
                 <span class="btn-travel__label" data-i18n="nav.world">WORLD</span>
+                <span id="nav-notif-cidade-class" class="nav-notif nav-notif--tab nav-notif--class-transfer" hidden aria-hidden="true"></span>
             </button>
             <button id="btn-tab-social" class="btn-travel" onclick="irPara('social')">
                 <span class="btn-travel__label" data-i18n="nav.social">SOCIAL</span>
@@ -2083,12 +2080,13 @@
             <div id="praca-world" class="world-map">
                 <div class="world-map-frame">
                     <div class="world-map-stack" id="world-map-stack" onclick="limparSelecaoWorldMap(event)">
-                        <img class="world-map-bg" src="assets/world/map_bg.jpg?v=240824" alt="" draggable="false" decoding="async">
+                        <img class="world-map-bg" src="assets/world/map_bg.jpg?v=260906" alt="" draggable="false" decoding="async">
                         <img class="world-map-layer" data-world-spot="raid" alt="" hidden draggable="false">
                         <img class="world-map-layer" data-world-spot="forest" alt="" hidden draggable="false">
                         <img class="world-map-layer" data-world-spot="clanwar" alt="" hidden draggable="false">
                         <img class="world-map-layer" data-world-spot="daily" alt="" hidden draggable="false">
                         <img class="world-map-layer" data-world-spot="olympiad" alt="" hidden draggable="false">
+                        <img class="world-map-layer" data-world-spot="town" alt="" hidden draggable="false">
                         <div class="world-map-vignette" aria-hidden="true"></div>
                         <div class="world-map-life" aria-hidden="true">
                             <span class="world-map-life__glow world-map-life__glow--raid"></span>
@@ -2157,6 +2155,16 @@
                             </button>
                             <button type="button" class="world-map-enter" data-world-spot="olympiad" hidden aria-hidden="true" onclick="entrarDestinoWorld('olympiad', event)" data-i18n="game.world.map.enter">Enter</button>
                         </div>
+                        <div class="world-map-actor world-map-actor--town">
+                            <button type="button" class="world-map-hotspot" data-world-spot="town" onclick="selecionarDestinoWorld('town', event)" aria-pressed="false">
+                                <span id="world-notif-town-class" class="nav-notif nav-notif--town-class nav-notif--dot" hidden aria-hidden="true"></span>
+                                <span class="world-map-plate">
+                                    <span class="world-map-plate__name" data-i18n="game.world.map.town">The Gate</span>
+                                    <span class="world-map-plate__role" data-i18n="game.world.map.townRole">Town</span>
+                                </span>
+                            </button>
+                            <button type="button" class="world-map-enter" data-world-spot="town" hidden aria-hidden="true" onclick="entrarDestinoWorld('town', event)" data-i18n="game.world.map.enter">Enter</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2169,13 +2177,13 @@
             <div id="forest-death-overlay" class="forest-death-overlay" aria-hidden="true">
                 <div class="forest-death-panel">
                     <div class="forest-death-skull" aria-hidden="true">☠</div>
-                    <h2 class="forest-death-title" data-i18n="game.hunt.deathTitle">YOU HAVE FALLEN</h2>
-                    <p class="forest-death-sub" data-i18n="game.hunt.deathSubtitle">Your life force has faded. Retreat to safety and recover.</p>
-                    <p class="forest-death-hint" data-i18n="game.hunt.deathHint">You barely cling to consciousness — only town offers true safety.</p>
+                    <h2 class="forest-death-title" data-i18n="game.hunt.deathTitle">YOU'RE DOWN</h2>
+                    <p class="forest-death-sub" data-i18n="game.hunt.deathSubtitle">Run's over. The woods took half your bag — the rest is already in your pack.</p>
+                    <p class="forest-death-hint" data-i18n="game.hunt.deathHint">You wake up on the valley road. Need town? The gate's right there.</p>
                     <div id="forest-death-loot" class="forest-death-loot" hidden>
                         <div id="forest-death-loot-body" class="forest-death-loot__body"></div>
                     </div>
-                    <button type="button" id="forest-death-to-town" class="forest-death-btn" data-i18n="game.hunt.deathToTown" onclick="confirmForestDeathReturnToTown()">RETURN TO TOWN</button>
+                    <button type="button" id="forest-death-to-town" class="forest-death-btn" data-i18n="game.hunt.deathToTown" onclick="confirmForestDeathReturnToTown()">BACK TO THE VALLEY</button>
                 </div>
             </div>
             <div id="forest-flee-success-overlay" class="forest-flee-success-overlay" aria-hidden="true">

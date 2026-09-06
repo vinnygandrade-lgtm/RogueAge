@@ -1,14 +1,17 @@
 # World Map — brief de arte (mobile portrait)
 
 **Produto:** RogueAge · **Aba:** World (`#tela-world`)  
-**Estado:** arte **locked** em `assets/world/map_bg.jpg` (24 Aug 2026, `Gemini_Generated_Image_blky7oblky7oblky.jpg`) — vale **cheio** (povo, caravanas, luta na arena, dragão na caverna). Palco `#praca-world` + toques (select → Enter) + overlay de vida (brilho / fumo / vaga-lumes). Camadas `assets/world/<id>.png` entram **uma a uma**. Grades de caça só no modal `#janela-world-zones`.  
+**Estado:** arte **locked D2** em `assets/world/map_bg.jpg` (Sep 2026, `assets/world/_incoming/world-map-d2.png`) — mesma língua do portão da tela de personagem (arco cinza, escudo flor-de-lis, bandeiras vermelhas com chevron dourado). Palco `#praca-world` + toques (select → Enter) + overlay de vida. Camadas `assets/world/<id>.png` entram **uma a uma**. **Live agora:** `town`. Recortes do vale antigo (`forest`…`raid`) **não** carregam até haver recorte D2. Grades de caça só no modal `#janela-world-zones`.  
 **Canvas:** **1080×1620** (igual à Praça da Cidade). Display no jogo: scale **3×** → ~**360×540 px**.  
+**Bake (só o fundo):** `node tools/bake_world_d2.mjs`. **Recortes:** manuais — drop `assets/world/_incoming/<id>.png` + `npm run export:world`. Vale anterior: `assets/world/map_bg.vale-blky7o.bak.jpg`.  
+**Tela de personagem:** `assets/ui/char_select_gate.webp` está **aprovada** — não iterar essa arte.  
 **Ler no telemóvel:** se um marco não se reconhece a ~120 px de altura no canvas, no jogo some.
 
 **Gameplay (portas existentes — o desenho não escolhe o grade):**
 
 | ID | Visual | Abre |
 |----|--------|------|
+| `town` | portão / cidade em primeiro plano | Praça existente (`irPara('cidade')`) — NPCs ficam na praça, não no mapa |
 | `forest` | floresta / trilha | Expedição → postcards em `#janela-world-zones` → `abrirDetalhesZona(<grade>)`; **6 grades só no modal** |
 | `daily` | campo de ossos | Boss diário (`abrirJanelaDailyBoss`) |
 | `olympiad` | coliseu | Grand Olympiad (`abrirOlympiad`) |
@@ -516,6 +519,7 @@ Toque = **selecionar**; **Enter** abre o destino (mesmo padrão da praça).
 
 | Hotspot | Visual | Enter |
 |---------|--------|-------|
+| `town` | The Gate | `irPara('cidade')` — praça pintada intacta |
 | `forest` | Deepgrove | modal `#janela-world-zones` (postcards `battle_<slug>.webp`) → `abrirDetalhesZona(<grade>)` — o mapa **não** escolhe o grade |
 | `daily` | Ashen Field | `abrirJanelaDailyBoss()` |
 | `clanwar` | Banner Hill | `ClanWarEngine.abrirLobby()` — **só líder**; sem clã / membro vê `l2Alert` |
@@ -524,7 +528,7 @@ Toque = **selecionar**; **Enter** abre o destino (mesmo padrão da praça).
 
 Placas i18n (`game.world.map.*`, en + pt-BR). Dock de expedição estacionada vive no modal da floresta; badge `ACTIVE` no hotspot `forest`.
 
-**Camadas (como a praça):** `assets/world/map_bg.jpg` + recortes `assets/world/<id>.png` no mesmo canvas 1080×1620. Live: `forest`, `clanwar`, `daily`, `olympiad`, `raid`. O cliente só pede PNGs listados em `WORLD_LAYER_FILES` (`src/ui/ui_world_map.ts`). Sem ficheiro, a `<img>` fica `hidden`. Export: `npm run export:world`. Drop em `assets/world/_incoming/<id>.png`.
+**Camadas (como a praça):** `assets/world/map_bg.jpg` + recortes `assets/world/<id>.png` no mesmo canvas 1080×1620. Recortes são **manuais**. O cliente pede os ids em `WORLD_LAYER_FILES`; sem ficheiro, a `<img>` fica `hidden`. Fundo D2: `node tools/bake_world_d2.mjs`. Drop `assets/world/_incoming/<id>.png` → `npm run export:world`. Vale antigo em `_archive/`.
 
 ---
 
@@ -650,4 +654,24 @@ Mesmo canvas/pose que `map_bg.jpg`. Aura laranja no toque. Enter abre `abrirLobb
 ```
 Same camera and exact 1080x1620 composition as the locked RogueAge world-valley painting. Isolated cutout layer of ONLY The Maw mountain cave at the top of the valley: cave mouth, inner glow, dragon silhouette, adjoining peaks and waterfall if they belong to the same mass, same dusk lighting, everything else fully transparent. Do NOT include the Deepgrove forest, the red palisade war camp, the bone crater, the coliseum, the village, or the foreground dirt road. No UI, no text, no watermark.
 ```
+
+---
+
+## 20. Camada Cidade (`town.png`) — primeira no D2
+
+Mesmo canvas/pose que o `map_bg.jpg` D2. Aura bronze no toque. Enter abre a **praça existente** (`irPara('cidade')`). NPCs **não** são hotspots do mapa.
+
+| | |
+|--|--|
+| Ficheiro live | `assets/world/town.png` |
+| Drop bruto | `assets/world/_incoming/town.png` |
+| Export | `npm run export:world` |
+| Toque | `.world-map-actor--town` → `irPara('cidade')` |
+
+**O que entra:** muralha, arco, torres, bandeiras, forja, banca, guardas, calçada e telhados vermelhos do primeiro plano.  
+**O que fica de fora:** floresta, ossos, acampamento, coliseu, caverna, caminho do vale acima da muralha.
+
+**Recorte:** Photopea / GIMP / Photoshop — abrir o D2 (ou `map_bg.jpg`), apagar tudo fora da silhueta, PNG **1080×1620** com alpha, **mesma pose** (não recentrar). Drop em `_incoming/<id>.png` → `npm run export:world` → hard-refresh no Mundo.
+
+**Não** voltar a carregar recortes do vale antigo (`_archive/`) por cima do D2.
 

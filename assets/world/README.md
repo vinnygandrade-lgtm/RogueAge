@@ -1,18 +1,23 @@
 # World map art
 
-Locked **busy valley** (24 Aug 2026). Client taps + a light living overlay.
+Locked painting **D2** (Sep 2026). Cutouts are **manual**.
 
 | File | Size | Notes |
 |------|------|--------|
-| `map_bg.jpg` | **1080×1620** | Opaque background. |
-| `forest.png` | **1080×1620** alpha | Deepgrove / Expedition — **live**. |
-| `clanwar.png` | **1080×1620** alpha | Banner Hill / Clan War — **live**. |
-| `daily.png` | **1080×1620** alpha | Ashen Field / Daily Boss — **live**. |
-| `olympiad.png` | **1080×1620** alpha | Crown Ring / Olympiad — **live**. |
-| `raid.png` | **1080×1620** alpha | The Maw / World Raid — **live**. |
+| `map_bg.jpg` | **1080×1620** | D2 vale + foreground gate. |
+| `map_bg.vale-blky7o.bak.jpg` | **1080×1620** | Previous busy-vale lock (24 Aug 2026). |
+| `town.png` | **1080×1620** alpha | Manual city cutout — Enter opens the plaza. No Town tab in the dock. |
+| `_archive/` | — | Old vale cutouts (do not load on D2). |
 
-All five landmark cutouts are live. Client only fetches ids listed in `WORLD_LAYER_FILES`.
+**How to land a cutout**
 
-Source bg (Downloads): `Gemini_Generated_Image_blky7oblky7oblky.jpg` (24 Aug 2026).
+1. Open `map_bg.jpg` (or `_incoming/world-map-d2.png`).
+2. Keep only that landmark, same pixels / pose. Rest = transparent.
+3. Save **1080×1620** PNG as `assets/world/_incoming/<id>.png`  
+   ids: `town` · `forest` · `daily` · `clanwar` · `olympiad` · `raid`
+4. `npm run export:world`
+5. Hard-refresh World in the client.
 
-Hotspots + cutout brief: `docs/world-map-art-prompt.md` §14–19.
+Bake (background only): `node tools/bake_world_d2.mjs`.
+
+Brief: `docs/world-map-art-prompt.md`.

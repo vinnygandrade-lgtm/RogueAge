@@ -453,11 +453,17 @@ function paintNpcReadyNotif(
 }
 
 function paintTownTabClassTransferNotif(show: boolean, count: number, ariaLabel: string): void {
-    const townBtn = document.getElementById('btn-tab-cidade');
+    const worldBtn = document.getElementById('btn-tab-world');
     const pill = document.getElementById('nav-notif-cidade-class');
-    if (townBtn) {
-        townBtn.classList.toggle('btn-travel--has-notif', show);
-        townBtn.classList.toggle('btn-travel--has-class-transfer', show);
+    const mapPill = document.getElementById('world-notif-town-class');
+    if (worldBtn) {
+        worldBtn.classList.toggle('btn-travel--has-notif', show);
+        worldBtn.classList.toggle('btn-travel--has-class-transfer', show);
+    }
+    if (mapPill) {
+        mapPill.hidden = !show;
+        mapPill.setAttribute('aria-hidden', show ? 'false' : 'true');
+        mapPill.classList.toggle('nav-notif--active', show);
     }
     if (!pill) return;
     if (!show) {
@@ -501,7 +507,7 @@ function refreshClassTransferNotifs(): void {
         classBtn.classList.toggle('npc-action--class-ready', avail.hasAvailable);
     }
 
-    // Bottom TOWN tab — points players into the plaza / Grand Master NPC.
+    // World tab + gate hotspot — plaza / Grand Master lives inside the city cutout.
     paintTownTabClassTransferNotif(avail.hasAvailable, avail.count, aria);
 }
 

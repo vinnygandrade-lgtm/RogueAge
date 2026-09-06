@@ -62,12 +62,13 @@
     z-index: 1;
 }
 
-/* Depth: mountain behind grove; camp/arena sit on top when those cutouts arrive. */
+/* Depth: mountain behind grove; town sits in the foreground. */
 .world-map-layer[data-world-spot="raid"] { z-index: 1; }
 .world-map-layer[data-world-spot="forest"] { z-index: 2; }
 .world-map-layer[data-world-spot="daily"] { z-index: 2; }
 .world-map-layer[data-world-spot="clanwar"] { z-index: 3; }
 .world-map-layer[data-world-spot="olympiad"] { z-index: 3; }
+.world-map-layer[data-world-spot="town"] { z-index: 4; }
 
 .world-map-layer[hidden] {
     display: none !important;
@@ -78,6 +79,7 @@
 .world-map-layer[data-world-spot="clanwar"] { --aura-rgb: 239 68 68; }
 .world-map-layer[data-world-spot="daily"] { --aura-rgb: 231 229 228; }
 .world-map-layer[data-world-spot="olympiad"] { --aura-rgb: 196 165 116; }
+.world-map-layer[data-world-spot="town"] { --aura-rgb: 196 165 116; }
 
 /* Recede other cutouts only while a cutout-backed landmark is selected. */
 .world-map-stack[data-selected-spot="raid"]:has(.world-map-actor--raid.world-map-actor--has-layer)
@@ -89,7 +91,9 @@
 .world-map-stack[data-selected-spot="daily"]:has(.world-map-actor--daily.world-map-actor--has-layer)
     .world-map-layer:not([hidden]):not([data-world-spot="daily"]),
 .world-map-stack[data-selected-spot="olympiad"]:has(.world-map-actor--olympiad.world-map-actor--has-layer)
-    .world-map-layer:not([hidden]):not([data-world-spot="olympiad"]) {
+    .world-map-layer:not([hidden]):not([data-world-spot="olympiad"]),
+.world-map-stack[data-selected-spot="town"]:has(.world-map-actor--town.world-map-actor--has-layer)
+    .world-map-layer:not([hidden]):not([data-world-spot="town"]) {
     opacity: 0.78;
     filter: saturate(0.82);
 }
@@ -98,7 +102,8 @@
 .world-map-stack[data-selected-spot="forest"] .world-map-layer[data-world-spot="forest"],
 .world-map-stack[data-selected-spot="clanwar"] .world-map-layer[data-world-spot="clanwar"],
 .world-map-stack[data-selected-spot="daily"] .world-map-layer[data-world-spot="daily"],
-.world-map-stack[data-selected-spot="olympiad"] .world-map-layer[data-world-spot="olympiad"] {
+.world-map-stack[data-selected-spot="olympiad"] .world-map-layer[data-world-spot="olympiad"],
+.world-map-stack[data-selected-spot="town"] .world-map-layer[data-world-spot="town"] {
     opacity: 1;
     animation: world-spot-aura 1.65s ease-in-out infinite;
 }
@@ -129,8 +134,8 @@
 }
 
 .world-map-life__glow--raid {
-    left: 43%;
-    top: 9%;
+    left: 42%;
+    top: 5%;
     width: 20%;
     height: 11%;
     background: radial-gradient(circle, rgba(251, 146, 60, 0.55) 0%, rgba(234, 88, 12, 0.18) 42%, transparent 70%);
@@ -138,8 +143,8 @@
 }
 
 .world-map-life__glow--camp {
-    left: 12%;
-    top: 49%;
+    left: 10%;
+    top: 16%;
     width: 14%;
     height: 8%;
     background: radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, rgba(239, 68, 68, 0.22) 45%, transparent 72%);
@@ -147,8 +152,8 @@
 }
 
 .world-map-life__glow--arena {
-    left: 62%;
-    top: 52%;
+    left: 72%;
+    top: 14%;
     width: 16%;
     height: 9%;
     background: radial-gradient(circle, rgba(96, 165, 250, 0.32) 0%, rgba(248, 113, 113, 0.16) 50%, transparent 74%);
@@ -178,8 +183,8 @@
     animation: world-life-smoke 5.5s ease-in-out infinite;
 }
 
-.world-map-life__smoke--a { left: 44%; top: 74%; animation-delay: 0s; }
-.world-map-life__smoke--b { left: 52%; top: 76%; animation-delay: 1.8s; width: 5%; height: 8%; }
+.world-map-life__smoke--a { left: 16%; top: 78%; animation-delay: 0s; }
+.world-map-life__smoke--b { left: 22%; top: 80%; animation-delay: 1.8s; width: 5%; height: 8%; }
 
 .world-map-life__mote {
     position: absolute;
@@ -192,14 +197,14 @@
     animation: world-life-mote 5.2s ease-in-out infinite;
 }
 
-.world-map-life__mote:nth-child(7)  { left: 46%; top: 68%; animation-delay: 0s; background: #93c5fd; }
-.world-map-life__mote:nth-child(8)  { left: 52%; top: 70%; animation-delay: 0.7s; background: #f9a8d4; }
-.world-map-life__mote:nth-child(9)  { left: 49%; top: 66%; animation-delay: 1.4s; }
-.world-map-life__mote:nth-child(10) { left: 55%; top: 72%; animation-delay: 2.1s; background: #93c5fd; width: 4px; height: 4px; }
-.world-map-life__mote:nth-child(11) { left: 43%; top: 71%; animation-delay: 2.8s; background: #f9a8d4; }
-.world-map-life__mote:nth-child(12) { left: 18%; top: 50%; animation-delay: 0.4s; width: 4px; height: 4px; }
-.world-map-life__mote:nth-child(13) { left: 48%; top: 12%; animation-delay: 1.1s; background: #fdba74; }
-.world-map-life__mote:nth-child(14) { left: 72%; top: 54%; animation-delay: 1.9s; background: #93c5fd; width: 4px; height: 4px; }
+.world-map-life__mote:nth-child(7)  { left: 38%; top: 72%; animation-delay: 0s; background: #93c5fd; }
+.world-map-life__mote:nth-child(8)  { left: 62%; top: 72%; animation-delay: 0.7s; background: #f9a8d4; }
+.world-map-life__mote:nth-child(9)  { left: 50%; top: 68%; animation-delay: 1.4s; }
+.world-map-life__mote:nth-child(10) { left: 18%; top: 78%; animation-delay: 2.1s; background: #93c5fd; width: 4px; height: 4px; }
+.world-map-life__mote:nth-child(11) { left: 78%; top: 78%; animation-delay: 2.8s; background: #f9a8d4; }
+.world-map-life__mote:nth-child(12) { left: 16%; top: 18%; animation-delay: 0.4s; width: 4px; height: 4px; }
+.world-map-life__mote:nth-child(13) { left: 50%; top: 8%; animation-delay: 1.1s; background: #fdba74; }
+.world-map-life__mote:nth-child(14) { left: 78%; top: 16%; animation-delay: 1.9s; background: #93c5fd; width: 4px; height: 4px; }
 
 @keyframes world-life-pulse {
     0%, 100% { opacity: 0.55; transform: scale(0.92); }
@@ -246,7 +251,8 @@
     .world-map-stack[data-selected-spot="forest"] .world-map-layer[data-world-spot="forest"],
     .world-map-stack[data-selected-spot="clanwar"] .world-map-layer[data-world-spot="clanwar"],
     .world-map-stack[data-selected-spot="daily"] .world-map-layer[data-world-spot="daily"],
-    .world-map-stack[data-selected-spot="olympiad"] .world-map-layer[data-world-spot="olympiad"] {
+    .world-map-stack[data-selected-spot="olympiad"] .world-map-layer[data-world-spot="olympiad"],
+    .world-map-stack[data-selected-spot="town"] .world-map-layer[data-world-spot="town"] {
         animation: none;
         filter:
             drop-shadow(0 0 10px rgb(var(--aura-rgb) / 0.85))
@@ -287,11 +293,11 @@
     z-index: 7;
 }
 
-/* Positions for the denser 24 Aug 2026 map_bg (blky7o). Tune with cutouts. */
+/* Positions for locked D2 (Sep 2026). Town cutout first; other boxes are landmarks. */
 .world-map-actor--raid {
-    left: 36%;
-    top: 6%;
-    width: 28%;
+    left: 34%;
+    top: 3%;
+    width: 32%;
     height: 16%;
     --aura: #d97706;
     --aura-deep: 36 14 4;
@@ -305,10 +311,10 @@
 }
 
 .world-map-actor--forest {
-    left: 5%;
-    top: 24%;
-    width: 32%;
-    height: 18%;
+    left: 3%;
+    top: 36%;
+    width: 34%;
+    height: 20%;
     --aura: #14b8a6;
     --aura-deep: 6 22 18;
     --aura-rgb: 20 184 166;
@@ -319,9 +325,9 @@
 }
 
 .world-map-actor--clanwar {
-    left: 6%;
-    top: 47%;
-    width: 24%;
+    left: 4%;
+    top: 14%;
+    width: 28%;
     height: 16%;
     --aura: #ef4444;
     --aura-deep: 40 8 8;
@@ -333,10 +339,10 @@
 }
 
 .world-map-actor--daily {
-    left: 59%;
-    top: 30%;
-    width: 37%;
-    height: 16%;
+    left: 62%;
+    top: 36%;
+    width: 34%;
+    height: 20%;
     --aura: #e7e5e4;
     --aura-deep: 32 16 10;
     --aura-rgb: 231 229 228;
@@ -352,10 +358,10 @@
 }
 
 .world-map-actor--olympiad {
-    left: 62%;
-    top: 49%;
-    width: 27%;
-    height: 15%;
+    left: 64%;
+    top: 12%;
+    width: 32%;
+    height: 16%;
     --aura: #c4a574;
     --aura-deep: 28 18 8;
     --aura-rgb: 196 165 116;
@@ -363,6 +369,20 @@
 
 .world-map-actor--olympiad .world-map-enter {
     bottom: 12%;
+}
+
+.world-map-actor--town {
+    left: 4%;
+    top: 56%;
+    width: 92%;
+    height: 43%;
+    --aura: #c4a574;
+    --aura-deep: 28 16 6;
+    --aura-rgb: 196 165 116;
+}
+
+.world-map-actor--town .world-map-enter {
+    bottom: 28%;
 }
 
 .world-map-hotspot {

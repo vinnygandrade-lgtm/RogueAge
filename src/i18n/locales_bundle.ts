@@ -68,6 +68,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-09-06',
+                        items: [
+                            'World is now the painted valley. Town lives on the gate at the bottom — tap it, hit Enter, and you walk into the plaza. The Town tab is gone: Profile, World, Social, Bag, Menu.',
+                            'Die on an expedition and you wake up on the valley road, not inside town. The woods keep half the bag; the rest is already yours. Need the plaza? The gate is right there.'
+                        ]
+                    },
+                    {
                         date: '2026-09-05',
                         items: [
                             'After login, your hero now stands in a painted dawn gate — same thick black anime line as the fighter — not boxed in a paperdoll frame.',
@@ -2578,6 +2585,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         enter: 'Enter',
                         selectHint: 'Choose a destination',
                         zonesTitle: 'HUNTING ZONES',
+                        town: 'The Gate',
+                        townRole: 'Town',
                         forest: 'Deepgrove',
                         forestRole: 'Expedition',
                         daily: 'Ashen Field',
@@ -2653,15 +2662,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     searchEnemies: '🔍 SEARCH ENEMIES',
                     searching: 'Searching for tracks...',
                     escape: 'ESCAPE',
-                    deathTitle: 'YOU HAVE FALLEN',
-                    deathSubtitle: 'Your life force has faded. The wilds claim their toll.',
-                    deathHint: 'You barely cling to consciousness — only town offers true safety.',
+                    deathTitle: 'YOU\'RE DOWN',
+                    deathSubtitle: 'Run\'s over. The woods took half your bag — the rest is already in your pack.',
+                    deathHint: 'You wake up on the valley road. Need town? The gate\'s right there.',
                     deathLootRule: 'You keep half of your expedition bag. Odd stacks stay whole — nothing is split in half.',
                     deathLootJourney: 'Journey {n}',
                     deathLootSaved: 'Kept (credited)',
                     deathLootLost: 'Lost',
                     deathLootEmpty: 'Your expedition bag was empty — nothing to salvage.',
-                    deathToTown: 'RETURN TO TOWN',
+                    deathToTown: 'BACK TO THE VALLEY',
                     fleeSuccessTitle: 'YOU BROKE FREE',
                     fleeSuccessSubtitle: 'You slip past the enemy line and put ground between you and the fight.',
                     fleeSuccessHint: 'Catch your breath in town — the wilds will still be here.',
@@ -3712,6 +3721,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-06',
+                        items: [
+                            'O Mundo agora é o vale pintado. A cidade mora no portão em baixo — toca, entra, e vais pra praça. A aba Cidade saiu: Perfil, Mundo, Social, Bolsa, Menu.',
+                            'Morrer na expedição te deixa no vale, não dentro da praça. A mata fica com metade da mochila; o resto já é teu. Quer a praça? É só entrar pelo portão.'
+                        ]
+                    },
                     {
                         date: '2026-09-05',
                         items: [
@@ -6223,6 +6239,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         enter: 'Entrar',
                         selectHint: 'Escolhe um destino',
                         zonesTitle: 'ZONAS DE CAÇA',
+                        town: 'O Portão',
+                        townRole: 'Cidade',
                         forest: 'Deepgrove',
                         forestRole: 'Expedição',
                         daily: 'Ashen Field',
@@ -6298,15 +6316,15 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     searchEnemies: '🔍 BUSCAR INIMIGOS',
                     searching: 'Procurando rastros...',
                     escape: 'FUGIR',
-                    deathTitle: 'VOCÊ CAIU',
-                    deathSubtitle: 'Sua força vital se esvaiu. A mata cobra seu preço.',
-                    deathHint: 'Você mal mantém a consciência — só a cidade oferece segurança.',
+                    deathTitle: 'FOI DESSA VEZ',
+                    deathSubtitle: 'Acabou a run. A mata ficou com metade da mochila — o resto já tá na tua bolsa.',
+                    deathHint: 'Você acordou no vale. Quer ir pra praça? É só entrar pelo portão.',
                     deathLootRule: 'Você fica com metade da mochila da expedição. Quantidades ímpares permanecem inteiras — nada é partido ao meio.',
                     deathLootJourney: 'Jornada {n}',
                     deathLootSaved: 'Ficou (creditado)',
                     deathLootLost: 'Perdeu',
                     deathLootEmpty: 'Sua mochila da expedição estava vazia — nada a resgatar.',
-                    deathToTown: 'VOLTAR À CIDADE',
+                    deathToTown: 'VOLTAR PRO VALE',
                     fleeSuccessTitle: 'FUGA BEM-SUCEDIDA',
                     fleeSuccessSubtitle: 'Você rompe o cerco e ganha distância antes que o inimigo reaja.',
                     fleeSuccessHint: 'Recupere o fôlego na cidade — a zona de caça continuará lá.',

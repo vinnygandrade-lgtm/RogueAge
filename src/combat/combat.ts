@@ -1240,7 +1240,7 @@ function showForestDeathScreen() {
     const ov = document.getElementById('forest-death-overlay');
     if (!ov) {
         if (typeof prepararTelaCacada === 'function') prepararTelaCacada();
-        if (typeof irPara === 'function') window.irPara('cidade');
+        if (typeof irPara === 'function') window.irPara('world');
         return;
     }
     if (ov.dataset.active === '1') return;
@@ -1284,7 +1284,7 @@ function confirmForestDeathReturnToTown() {
     if (lootBody) lootBody.innerHTML = '';
     delete (window as any).expeditionDeathSummaryHtml;
     if (typeof atualizar === 'function') atualizar();
-    if (typeof irPara === 'function') window.irPara('cidade');
+    if (typeof irPara === 'function') window.irPara('world');
     if (typeof salvarJogo === 'function') window.salvarJogo();
 };
 
