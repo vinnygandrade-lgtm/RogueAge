@@ -2,7 +2,8 @@
  * Dicas leves de onboarding (sem tour guiado). Uma tip por vez.
  *
  * Dois tipos de tip:
- *  - **goal** (world / zone / trail / expedition): aponta o próximo passo até o primeiro combate.
+ *  - **goal** (world / zone / trail / expedition / path → upgrade / extract → skillGo / skill): aponta o
+ *    próximo passo — até o primeiro combate, depois "upgrade + recolher ou continuar", depois "equipa a skill".
  *    Fechar só silencia na sessão; a tip volta na próxima visita ao ecrã até o marco
  *    (`window.onboardingData.done`) ser atingido. Nunca persiste "seen".
  *  - **flag** (hotbar / consumables / menu / mailbox / missions): uma vez só, persistida em `uiCoachFlags`.
@@ -18,6 +19,10 @@ export type BeginnerTipKey =
   | 'trail'
   | 'expedition'
   | 'path'
+  | 'upgrade'
+  | 'extract'
+  | 'skillGo'
+  | 'skill'
   | 'hotbar'
   | 'consumables'
   | 'menu'
@@ -32,9 +37,10 @@ type TipFlag =
   | 'mailboxTipSeen'
   | 'missionsTipSeen';
 
+/** `screen` — the nav id(s) the tip belongs to; leaving them hides the tip (goal tips come back later). */
 type TipRule =
-  | { kind: 'flag'; flag: TipFlag; screen?: string }
-  | { kind: 'goal'; milestone: OnboardingMilestone; screen: string };
+  | { kind: 'flag'; flag: TipFlag; screen?: string | string[] }
+  | { kind: 'goal'; milestone: OnboardingMilestone; screen: string | string[] };
 
 const TIP_RULE: Record<BeginnerTipKey, TipRule> = {
   world: { kind: 'goal', milestone: 'forest', screen: 'perfil' },
@@ -42,6 +48,12 @@ const TIP_RULE: Record<BeginnerTipKey, TipRule> = {
   trail: { kind: 'goal', milestone: 'forest', screen: 'expedition' },
   expedition: { kind: 'goal', milestone: 'mob_spawn', screen: 'floresta' },
   path: { kind: 'goal', milestone: 'mob_spawn', screen: 'floresta' },
+  // After the first win: take the upgrade, then decide — push on or bank the bag.
+  upgrade: { kind: 'goal', milestone: 'upgrade_picked', screen: 'floresta' },
+  extract: { kind: 'goal', milestone: 'first_extract', screen: 'floresta' },
+  // Out of the run: your level-1 skill is waiting in the Spellbook (Profile → Skills → slot).
+  skillGo: { kind: 'goal', milestone: 'skill_equipped', screen: ['world', 'floresta', 'cidade'] },
+  skill: { kind: 'goal', milestone: 'skill_equipped', screen: 'perfil' },
   // Combat-bound flag tips: hide when leaving the forest (not marked seen → return on next spawn/hit).
   hotbar: { kind: 'flag', flag: 'hotbarTipSeen', screen: 'floresta' },
   consumables: { kind: 'flag', flag: 'consumablesTipSeen', screen: 'floresta' },
@@ -56,6 +68,10 @@ const TIP_I18N: Record<BeginnerTipKey, { title: string; body: string }> = {
   trail: { title: 'navCoach.trailTitle', body: 'navCoach.trailBody' },
   expedition: { title: 'navCoach.expeditionTitle', body: 'navCoach.expeditionBody' },
   path: { title: 'navCoach.pathTitle', body: 'navCoach.pathBody' },
+  upgrade: { title: 'navCoach.upgradeTitle', body: 'navCoach.upgradeBody' },
+  extract: { title: 'navCoach.extractTitle', body: 'navCoach.extractBody' },
+  skillGo: { title: 'navCoach.skillGoTitle', body: 'navCoach.skillGoBody' },
+  skill: { title: 'navCoach.skillTitle', body: 'navCoach.skillBody' },
   hotbar: { title: 'navCoach.hotbarTitle', body: 'navCoach.hotbarBody' },
   consumables: { title: 'navCoach.consumablesTitle', body: 'navCoach.consumablesBody' },
   menu: { title: 'navCoach.menuTownTitle', body: 'navCoach.menuTownBody' },
@@ -124,8 +140,19 @@ function clearPulses(): void {
   document
     .querySelectorAll('.l2-tip-pulse, .l2-tip-pulse--spot')
     .forEach((n) => n.classList.remove('l2-tip-pulse', 'l2-tip-pulse--spot'));
-  document.getElementById('btn-tab-menu')?.classList.remove('nav-menu-town-coach__target-pulse');
-  document.getElementById('btn-tab-world')?.classList.remove('nav-menu-town-coach__target-pulse');
+  ['btn-tab-menu', 'btn-tab-world', 'btn-tab-perfil', 'btn-profile-spellbook'].forEach((id) => {
+    document.getElementById(id)?.classList.remove('nav-menu-town-coach__target-pulse');
+  });
+}
+
+function ruleScreens(rule: TipRule): string[] {
+  if (!rule.screen) return [];
+  return Array.isArray(rule.screen) ? rule.screen : [rule.screen];
+}
+
+function ruleOnScreen(rule: TipRule, lugar: string): boolean {
+  const screens = ruleScreens(rule);
+  return screens.length === 0 || screens.includes(lugar);
 }
 
 /** Element the tip points at (pulsed + used to keep the toast from covering it). */
@@ -137,6 +164,14 @@ function tipTargetEl(key: BeginnerTipKey): HTMLElement | null {
       return document.getElementById('btn-tab-menu');
     case 'world':
       return document.getElementById('btn-tab-world');
+    case 'skillGo':
+      return document.getElementById('btn-tab-perfil');
+    case 'skill':
+      return document.getElementById('btn-profile-spellbook');
+    case 'upgrade':
+      return document.getElementById('exp-upgrade-cards');
+    case 'extract':
+      return document.querySelector<HTMLElement>('.expedition-bag-bar__extract');
     case 'zone':
       return document.querySelector<HTMLElement>('.world-map-actor--forest');
     case 'trail':
@@ -159,7 +194,7 @@ function pulseForTip(key: BeginnerTipKey): void {
   clearPulses();
   const target = tipTargetEl(key);
   if (!target) return;
-  if (key === 'menu' || key === 'mailbox' || key === 'missions' || key === 'world') {
+  if (key === 'menu' || key === 'mailbox' || key === 'missions' || key === 'world' || key === 'skillGo' || key === 'skill') {
     target.classList.add('nav-menu-town-coach__target-pulse');
     return;
   }
@@ -180,7 +215,7 @@ function pulseForTip(key: BeginnerTipKey): void {
  */
 function positionTipAwayFromTarget(el: HTMLElement, key: BeginnerTipKey): void {
   el.style.bottom = '';
-  if (key === 'world' || key === 'menu' || key === 'mailbox' || key === 'missions') return;
+  if (key === 'world' || key === 'menu' || key === 'mailbox' || key === 'missions' || key === 'skillGo') return;
   const target = tipTargetEl(key);
   if (!target) return;
   try {
@@ -313,15 +348,14 @@ function dismissActiveTip(persist = true): void {
 function hideBeginnerTipForNav(lugar: string): void {
   (Object.keys(TIP_RULE) as BeginnerTipKey[]).forEach((k) => {
     const rule = TIP_RULE[k];
-    if (rule.kind === 'goal' && rule.screen !== lugar) snoozedGoalTips.delete(k);
+    if (rule.kind === 'goal' && !ruleOnScreen(rule, lugar)) snoozedGoalTips.delete(k);
   });
   if (showTimer) {
     clearTimeout(showTimer);
     showTimer = null;
   }
   if (!activeTip) return;
-  const rule = TIP_RULE[activeTip];
-  if (rule.screen && rule.screen !== lugar) hideTipUi();
+  if (!ruleOnScreen(TIP_RULE[activeTip], lugar)) hideTipUi();
 }
 
 /** Milestone reached: any goal tip pointing at it is done — hide it if on screen. */

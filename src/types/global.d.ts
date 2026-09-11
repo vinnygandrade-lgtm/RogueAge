@@ -596,7 +596,8 @@ declare global {
     maybeShowNavCoachToasts?: (mailUnread: number, missionsPending: number) => void;
     dismissNavCoachToast?: () => void;
     scheduleBeginnerTip?: (
-      key: 'world' | 'zone' | 'trail' | 'expedition' | 'path' | 'hotbar' | 'consumables' | 'menu' | 'mailbox' | 'missions',
+      key: 'world' | 'zone' | 'trail' | 'expedition' | 'path' | 'upgrade' | 'extract' | 'skillGo' | 'skill'
+        | 'hotbar' | 'consumables' | 'menu' | 'mailbox' | 'missions',
       delayMs?: number
     ) => void;
     dismissBeginnerTip?: () => void;
@@ -714,6 +715,14 @@ declare global {
       notifyPlayerHit?: () => void;
       notifyMobKilled?: () => void;
       notifyLevelUp?: (level: number) => void;
+      /** Post-fight upgrade cards are on screen (expedition run). */
+      notifyUpgradeOffered?: () => void;
+      /** Player took an upgrade card → journey advanced (path cards + Collect & exit visible). */
+      notifyUpgradePicked?: () => void;
+      /** Run ended with a successful extract (bag secured). */
+      notifyExpeditionExtracted?: () => void;
+      /** Victory / extract recap closed while staying in the forest hub. */
+      notifyVictoryModalClosed?: () => void;
       /** True until the player reaches the forest hub for the first time (skips zone modal once). */
       isFirstExpedition?: () => boolean;
       isMilestoneDone?: (milestone: OnboardingMilestone) => boolean;

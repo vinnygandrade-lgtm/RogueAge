@@ -4,7 +4,8 @@
 --
 -- Client: src/systems/tutorial_engine.ts → SupabaseAPI.logOnboardingMilestone (fire-and-forget).
 -- One row per (char_name, milestone); repeats are ignored (ON CONFLICT DO NOTHING).
--- Milestones: world, forest, mob_spawn, first_attack, first_hit, first_kill, level_up, skill_equipped.
+-- Milestones: world, forest, mob_spawn, first_attack, first_hit, first_kill, level_up,
+--             upgrade_picked, first_extract, skill_equipped.
 -- Purpose: measure where new players stall before the first fight (docs/onboarding-flow.md).
 -- ========================================================
 

@@ -1172,6 +1172,9 @@ function fecharVitoriaEProcurar() {
     } else if (exp && typeof exp.showHub === 'function') {
         exp.showHub();
         if (typeof exp.wireStartButton === 'function') exp.wireStartButton();
+        try {
+            window.TutorialEngine?.notifyVictoryModalClosed?.();
+        } catch { /* ignore */ }
     } else {
         procurarMonstros();
     }

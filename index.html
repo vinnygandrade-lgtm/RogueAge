@@ -140,6 +140,20 @@
 
     <div id="modal-overlay" onclick="fecharTopModal()" aria-hidden="true"></div>
 
+    <!-- Beginner tip toast — body level (sibling of #modal-overlay) so it can sit above game modals
+         (upgrade pick, Spellbook); inside #screen-game its z-index was capped by that stacking context. -->
+    <div id="l2-tip-toast" class="l2-tip l2-tip--hidden" role="dialog" aria-labelledby="l2-tip-title" aria-hidden="true" hidden>
+        <div class="l2-tip__card">
+            <div class="l2-tip__top">
+                <span id="l2-tip-badge" class="l2-tip__badge" data-i18n="navCoach.badge">Dica</span>
+                <button type="button" id="l2-tip-close" class="l2-tip__close" data-i18n-aria-label="navCoach.closeAria" aria-label="Fechar">×</button>
+            </div>
+            <h3 id="l2-tip-title" class="l2-tip__title"></h3>
+            <p id="l2-tip-body" class="l2-tip__body"></p>
+            <button type="button" id="l2-tip-ok" class="btn-l2 l2-tip__btn" data-i18n="navCoach.gotIt">Beleza</button>
+        </div>
+    </div>
+
     <!-- Quick Menu (barra inferior — destinos secundários; irmão do #modal-overlay, padrão §5) -->
     <div id="janela-nav-menu" class="nav-menu-sheet" role="dialog" aria-modal="true" data-i18n-aria-label="navMenu.title" aria-label="Quick menu">
         <div class="nav-menu-sheet__handle" aria-hidden="true"></div>
@@ -3046,18 +3060,6 @@
             <div id="hotbar-combat-bundle" class="hotbar-combat-bundle">
                 <div id="consumables-bar" class="consumables-bar" role="toolbar" aria-label="Consumables" hidden></div>
                 <div class="action-bar" id="barra-de-atalhos-dinamica" style="display: none;"></div>
-            </div>
-        </div>
-
-        <div id="l2-tip-toast" class="l2-tip l2-tip--hidden" role="dialog" aria-labelledby="l2-tip-title" aria-hidden="true" hidden>
-            <div class="l2-tip__card">
-                <div class="l2-tip__top">
-                    <span id="l2-tip-badge" class="l2-tip__badge" data-i18n="navCoach.badge">Dica</span>
-                    <button type="button" id="l2-tip-close" class="l2-tip__close" data-i18n-aria-label="navCoach.closeAria" aria-label="Fechar">×</button>
-                </div>
-                <h3 id="l2-tip-title" class="l2-tip__title"></h3>
-                <p id="l2-tip-body" class="l2-tip__body"></p>
-                <button type="button" id="l2-tip-ok" class="btn-l2 l2-tip__btn" data-i18n="navCoach.gotIt">Beleza</button>
             </div>
         </div>
 

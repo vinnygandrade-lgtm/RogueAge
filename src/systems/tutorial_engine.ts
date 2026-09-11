@@ -3,8 +3,9 @@
  *
  * O tour passo-a-passo antigo foi aposentado (qualquer save fica `completed`). Em vez disso:
  *  - `window.onboardingData.done[<marco>]` regista quando o jogador atingiu cada passo da primeira sessão;
- *  - tips **goal** (world → zone → trail → expedition) apontam sempre o próximo passo até o primeiro combate
- *    e voltam a aparecer até o marco ser atingido (ver `ui_nav_coach.ts`);
+ *  - tips **goal** (world → zone → trail → expedition → path) apontam sempre o próximo passo até o primeiro
+ *    combate; depois **upgrade → extract** (recolher ou continuar) e **skillGo → skill** (equipar a 1ª skill).
+ *    Voltam a aparecer até o marco ser atingido (ver `ui_nav_coach.ts`);
  *  - tips **flag** (hotbar, consumables, menu, …) disparam quando o elemento está visível e são uma vez só;
  *  - cada marco é espelhado na nuvem (RPC `log_onboarding_milestone`, fire-and-forget) para medir o funil.
  *
@@ -17,6 +18,12 @@ const DONE_STEP = 99;
 
 /** Marcos que fecham o "primeiro combate" — quando todos existem, o onboarding está completo. */
 const CORE_MILESTONES: OnboardingMilestone[] = ['world', 'forest', 'mob_spawn', 'first_attack', 'first_kill'];
+
+/** Every milestone the funnel knows (keep in sync with `OnboardingMilestone`). */
+const ALL_MILESTONES: OnboardingMilestone[] = [
+  'world', 'forest', 'mob_spawn', 'first_attack', 'first_hit', 'first_kill', 'level_up',
+  'upgrade_picked', 'first_extract', 'skill_equipped',
+];
 
 window.tutorialFirstAttackDone = false;
 
@@ -91,9 +98,18 @@ export function freshOnboarding(): OnboardingSave {
 /** Veteran / legacy save without `onboarding`: everything counts as done (no beginner nagging). */
 export function completedOnboarding(): OnboardingSave {
   const done: OnboardingSave['done'] = {};
-  (['world', 'forest', 'mob_spawn', 'first_attack', 'first_hit', 'first_kill', 'level_up', 'skill_equipped'] as OnboardingMilestone[])
-    .forEach((m) => { done[m] = 0; });
+  ALL_MILESTONES.forEach((m) => { done[m] = 0; });
   return { startedAt: 0, done };
+}
+
+/**
+ * Veteran marker (`startedAt === 0`, written by `completedOnboarding`): milestones added later
+ * (upgrade / extract / skill lessons) are back-filled so old hands never see the new tips.
+ */
+export function backfillVeteranOnboarding(o: OnboardingSave | null): OnboardingSave | null {
+  if (!o || o.startedAt !== 0) return o;
+  ALL_MILESTONES.forEach((m) => { if (o.done[m] == null) o.done[m] = 0; });
+  return o;
 }
 
 /** Normalize anything coming from a save / JSONB into a safe OnboardingSave. */
@@ -180,10 +196,12 @@ function mark(m: OnboardingMilestone): boolean {
   return true;
 }
 
-function scheduleTip(
-  key: 'world' | 'zone' | 'trail' | 'expedition' | 'path' | 'hotbar' | 'consumables' | 'menu',
-  delay = 500,
-): void {
+type TipKey =
+  | 'world' | 'zone' | 'trail' | 'expedition' | 'path'
+  | 'upgrade' | 'extract' | 'skillGo' | 'skill'
+  | 'hotbar' | 'consumables' | 'menu';
+
+function scheduleTip(key: TipKey, delay = 500): void {
   try {
     if (typeof window.scheduleBeginnerTip === 'function') {
       window.scheduleBeginnerTip(key, delay);
@@ -227,6 +245,30 @@ function maybeCoachMenuAfterFirstKill(lugar: string): void {
   if (lugar === 'perfil' || lugar === 'world' || lugar === 'cidade') scheduleTip('menu', 900);
 }
 
+/**
+ * Skill lesson — the player has fought (and, by design, left or parked the run) but never equipped a
+ * skill. Every class owns a level-1 skill, so it is always actionable. Returns true when it claimed
+ * the slot (the MENU tip waits for the next visit).
+ */
+function coachSkillLesson(lugar: string, delay: number): boolean {
+  if (!isDone('first_kill') || isDone('skill_equipped')) return false;
+  if (lugar === 'perfil') {
+    scheduleTip('skill', delay);
+    return true;
+  }
+  if (lugar === 'world' || lugar === 'cidade' || (lugar === 'floresta' && !expeditionRunActive())) {
+    scheduleTip('skillGo', delay);
+    return true;
+  }
+  return false;
+}
+
+/** Everything after the first fight: skill first, then the MENU introduction. */
+function coachPostCombat(lugar: string, delay: number): void {
+  if (coachSkillLesson(lugar, delay)) return;
+  maybeCoachMenuAfterFirstKill(lugar);
+}
+
 window.TutorialEngine = {
   bootstrapNewCharacter: function () {
     window.tutorialFirstAttackDone = false;
@@ -249,9 +291,12 @@ window.TutorialEngine = {
     retireGuidedTour();
     ob();
     persistSilent();
-    if (isOnboardingComplete()) return;
     // Character just landed (usually Profile): point at the next step right away.
     const lugar = currentScreen() || 'perfil';
+    if (isOnboardingComplete()) {
+      coachSkillLesson(lugar, 1200);
+      return;
+    }
     coachForScreen(lugar, 900);
   },
 
@@ -278,7 +323,7 @@ window.TutorialEngine = {
       coachForScreen(lugar, 450);
       return;
     }
-    maybeCoachMenuAfterFirstKill(lugar);
+    coachPostCombat(lugar, 700);
   },
 
   notifySpellbookOpened: function () {
@@ -303,13 +348,47 @@ window.TutorialEngine = {
     scheduleTip('path', 700);
   },
 
-  /** Path confirmed → combat is about to start; the path tip has done its job. */
+  /**
+   * Path confirmed → combat is about to start. Counts as "got it" for whatever tip is up
+   * (path / extract): a goal tip is only snoozed for the session, so it can still return later.
+   */
   notifyExpeditionNodeConfirmed: function () {
     try {
-      window.hideBeginnerTip?.();
+      window.dismissBeginnerTip?.();
     } catch {
       /* ignore */
     }
+  },
+
+  /** First win → upgrade cards on screen: explain the pick (run-only buff) and what comes next. */
+  notifyUpgradeOffered: function () {
+    if (isDone('upgrade_picked')) return;
+    try {
+      // Whatever combat tip was up (hotbar / potions) has been on screen for a whole fight.
+      window.dismissBeginnerTip?.();
+    } catch {
+      /* ignore */
+    }
+    scheduleTip('upgrade', 650);
+  },
+
+  /** Upgrade taken → journey advanced: now the real lesson — push on, or bank the bag with Collect & exit. */
+  notifyUpgradePicked: function () {
+    mark('upgrade_picked');
+    if (isDone('first_extract')) return;
+    if (!expeditionRunActive()) return;
+    scheduleTip('extract', 800);
+  },
+
+  /** Bag secured for the first time — the extract lesson is done; the skill lesson follows on the next nav. */
+  notifyExpeditionExtracted: function () {
+    mark('first_extract');
+  },
+
+  /** Recap closed while staying in the forest hub (no nav happens) — coach the skill lesson here. */
+  notifyVictoryModalClosed: function () {
+    if (currentScreen() !== 'floresta') return;
+    coachSkillLesson('floresta', 600);
   },
 
   /** First pull on screen: the combat bar is visible now — explain it here, not on Profile. */

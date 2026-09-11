@@ -3360,6 +3360,9 @@ export class ExpeditionEngine {
         const scrollEl = document.querySelector('#janela-expedition-upgrade .exp-upgrade-scroll') as HTMLElement | null;
         if (scrollEl) scrollEl.scrollTop = 0;
         this.persistRun({ silent: true });
+        try {
+            window.TutorialEngine?.notifyUpgradeOffered?.();
+        } catch { /* onboarding tips never block the run */ }
     }
 
     static refreshUpgradeDom(root?: HTMLElement | null) {
@@ -3389,6 +3392,9 @@ export class ExpeditionEngine {
 
         this.advanceJourney();
         this._upgradePickLocked = false;
+        try {
+            window.TutorialEngine?.notifyUpgradePicked?.();
+        } catch { /* onboarding tips never block the run */ }
     }
 
     static syncNavigationLock() {
@@ -5942,6 +5948,9 @@ export class ExpeditionEngine {
             if (typeof win.registrarProgressoMissaoDiaria === 'function') {
                 win.registrarProgressoMissaoDiaria('expedition_complete', 1);
             }
+            try {
+                window.TutorialEngine?.notifyExpeditionExtracted?.();
+            } catch { /* onboarding tips never block the payout */ }
             if (!opts?.skipVictoryModal) {
                 if (typeof win.setLootTurno === 'function') {
                     win.setLootTurno(bagSnapshot);

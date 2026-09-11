@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 21 as const;
+export const L2MINI_SAVE_VERSION = 22 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -767,6 +767,10 @@ export type OnboardingMilestone =
   | 'first_hit'
   | 'first_kill'
   | 'level_up'
+  /** First post-fight upgrade card taken inside an expedition run. */
+  | 'upgrade_picked'
+  /** First successful "Collect & exit" (bag secured). */
+  | 'first_extract'
   | 'skill_equipped';
 
 /** Persisted onboarding state (save v21). `done[m]` = epoch ms when reached; absent = pending. */

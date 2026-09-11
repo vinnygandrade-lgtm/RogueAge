@@ -17,6 +17,7 @@ import {
   resolveInventarioStackKey,
 } from './inventory_stack_keys';
 import {
+  backfillVeteranOnboarding,
   completedOnboarding,
   freshOnboarding,
   normalizeOnboarding,
@@ -711,6 +712,14 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
             data.onboarding = veteran21 ? completedOnboarding() : freshOnboarding();
         }
         v = 21;
+    }
+
+    if (v < 22) {
+        // New onboarding lessons (upgrade pick, Collect & exit, equip a skill). Veterans flagged by
+        // v21 (`startedAt === 0`) get them back-filled so nobody who already plays sees beginner tips.
+        var ob22 = normalizeOnboarding(data.onboarding);
+        if (ob22) data.onboarding = backfillVeteranOnboarding(ob22);
+        v = 22;
     }
 
     data.saveVersion = L2MINI_SAVE_VERSION;
