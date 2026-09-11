@@ -68,6 +68,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-09-10',
+                        items: [
+                            'Grocer scrolls now spend the Adena you see on the HUD. Buying 3 Enchant Armor (D) no longer fails after a hunt because the cloud wallet was still catching up.'
+                        ]
+                    },
+                    {
                         date: '2026-09-06',
                         items: [
                             'Deepgrove now opens a painted trail map — tap Talking Island through Imperial Tomb, then Enter. Same dusk language as the city gate.',
@@ -363,14 +369,22 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 badge: 'TIP',
                 gotIt: 'Got it',
                 closeAria: 'Close tip',
+                worldTitle: 'Your first hunt awaits',
+                worldBody: 'Tap WORLD at the bottom. The valley map is where every adventure starts.',
+                zoneTitle: 'Head for Deepgrove',
+                zoneBody: 'Tap the glowing forest, then Enter. That is the hunting trail for new heroes.',
+                trailTitle: 'Pick the trailhead',
+                trailBody: 'Tap the glowing NG camp, then Enter. It is free and tuned for level 1.',
                 hotbarTitle: 'Your action bar',
-                hotbarBody: 'Attack is already in slot 1. Skills go on the empty slots — grab them from the Spellbook in Profile.',
+                hotbarBody: 'Tap a monster to target it, then tap Attack (slot 1). Skills you unlock go on the empty slots — grab them from the Spellbook in Profile.',
                 expeditionTitle: 'Time to hunt',
-                expeditionBody: 'Tap Start Expedition to jump into the forest and pick your path.',
+                expeditionBody: 'Tap Begin Expedition to step onto the trail and pick your path.',
+                pathTitle: 'Pick your first path',
+                pathBody: 'Start with the ⚔️ Fight card — a fair pull and an upgrade if you win. Save Elite for when you feel strong.',
                 consumablesTitle: 'Potions & shots',
-                consumablesBody: 'That little bar above your skills is HP, MP, and shots. Hit AUTO on the shot so it fires every attack.',
+                consumablesBody: 'Taking hits? The small bar above your skills holds HP, MP, and shots. Tap HP to heal; turn AUTO on so shots fire every attack.',
                 menuTownTitle: 'Quick Menu',
-                menuTownBody: 'MENU is your shortcut for mail, daily missions, and settings. Marketplace and clan live on the Social tab.',
+                menuTownBody: 'MENU holds your mail, daily missions, and settings. Marketplace and clan live on the Social tab.',
                 mailboxTitle: 'Mail waiting',
                 mailboxBody: 'You have mail! Open MENU → Mailbox and claim your stuff.',
                 missionsTitle: 'Missions ready',
@@ -912,6 +926,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 shop: {
                     insufficientAdena: 'Not enough Adena!',
                     insufficientCurrency: '{currency} insufficient!',
+                    insufficientCurrencyNeedHave: 'Not enough {currency}. Need {need}, you have {have}.',
                     invalidSellAmount: 'Enter a valid amount to sell!',
                     fighterBuffActive: 'Fighter buffs are already active!',
                     mageBuffActive: 'Mage buffs are already active!',
@@ -3731,6 +3746,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: 'Novidades',
                 entries: [
                     {
+                        date: '2026-09-10',
+                        items: [
+                            'Os scrolls do Grocer agora gastam a Adena que aparece no HUD. Comprar 3 Enchant Armor (D) deixa de falhar depois da caça porque a nuvem ainda não tinha o saldo novo.'
+                        ]
+                    },
+                    {
                         date: '2026-09-06',
                         items: [
                             'Deepgrove agora abre um mapa da trilha — toca de Talking Island até Imperial Tomb e depois em Entrar. Mesmo traço do portão da cidade.',
@@ -4026,14 +4047,22 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 badge: 'Dica',
                 gotIt: 'Beleza',
                 closeAria: 'Fechar dica',
+                worldTitle: 'Sua primeira caçada te espera',
+                worldBody: 'Toca em MUNDO aqui embaixo. O mapa do vale é onde toda aventura começa.',
+                zoneTitle: 'Rumo a Deepgrove',
+                zoneBody: 'Toca na floresta brilhando e depois em Entrar. É a trilha de caça pra heróis novos.',
+                trailTitle: 'Escolhe o início da trilha',
+                trailBody: 'Toca no acampamento NG brilhando e depois em Entrar. É grátis e feito pro nível 1.',
                 hotbarTitle: 'Sua barra de combate',
-                hotbarBody: 'O Attack já tá no 1º slot. Skills você joga nos vazios pelo Spellbook no Perfil — bem fácil.',
+                hotbarBody: 'Toca num monstro pra mirar e depois em Attack (slot 1). As skills que você desbloquear vão nos slots vazios — pega elas no Spellbook, no Perfil.',
                 expeditionTitle: 'Bora caçar?',
-                expeditionBody: 'Toca em Iniciar Expedição pra entrar na floresta e escolher o caminho.',
+                expeditionBody: 'Toca em Iniciar expedição pra entrar na trilha e escolher o caminho.',
+                pathTitle: 'Escolhe teu primeiro caminho',
+                pathBody: 'Começa pela carta ⚔️ Luta — um combate justo e um upgrade se vencer. Deixa a Elite pra quando estiver forte.',
                 consumablesTitle: 'Poções e shots',
-                consumablesBody: 'Aquela barrinha em cima das skills é HP, MP e shot. Liga o AUTO no shot que ele dispara sozinho.',
+                consumablesBody: 'Tá apanhando? A barrinha em cima das skills tem HP, MP e shot. Toca em HP pra curar; liga o AUTO que o shot dispara sozinho.',
                 menuTownTitle: 'Menu rápido',
-                menuTownBody: 'O MENU é teu atalho pro correio, missões e configurações. Mercado e clã ficam na aba Social.',
+                menuTownBody: 'O MENU guarda correio, missões diárias e configurações. Mercado e clã ficam na aba Social.',
                 mailboxTitle: 'Tem correio!',
                 mailboxBody: 'Chegou carta pra você. Abre MENU → Correio e resgata logo.',
                 missionsTitle: 'Missões te esperando',
@@ -4575,6 +4604,7 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 shop: {
                     insufficientAdena: 'Adena insuficiente!',
                     insufficientCurrency: '{currency} insuficiente!',
+                    insufficientCurrencyNeedHave: '{currency} insuficiente. Precisa de {need} e você tem {have}.',
                     invalidSellAmount: 'Informe uma quantidade válida para vender!',
                     fighterBuffActive: 'Os buffs de guerreiro já estão ativos!',
                     mageBuffActive: 'Os buffs de mago já estão ativos!',

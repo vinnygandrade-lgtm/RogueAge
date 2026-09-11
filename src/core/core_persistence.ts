@@ -16,6 +16,11 @@ import {
   remapInventarioRecentStackAliases,
   resolveInventarioStackKey,
 } from './inventory_stack_keys';
+import {
+  completedOnboarding,
+  freshOnboarding,
+  normalizeOnboarding,
+} from '../systems/tutorial_engine';
 
 type LooseRecord = Record<string, unknown>;
 type LooseEquip = LooseRecord & {
@@ -692,6 +697,22 @@ function migrarDadosSave(data: CharacterSave): CharacterSave {
         v = 20;
     }
 
+    if (v < 21) {
+        // Onboarding milestones (first-session funnel). Pre-existing saves that already hunted
+        // (level > 1, XP, or beginner tips seen) count as fully onboarded so veterans are not nagged;
+        // a level-1 save that never fought keeps the guided path.
+        if (!normalizeOnboarding(data.onboarding)) {
+            var uc21 = (data.uiCoach && typeof data.uiCoach === 'object') ? data.uiCoach : {};
+            var veteran21 = (Number(data.nivel) || 1) > 1
+                || (Number(data.xpAtual) || 0) > 0
+                || uc21.hotbarTipSeen === true
+                || uc21.expeditionTipSeen === true
+                || uc21.consumablesTipSeen === true;
+            data.onboarding = veteran21 ? completedOnboarding() : freshOnboarding();
+        }
+        v = 21;
+    }
+
     data.saveVersion = L2MINI_SAVE_VERSION;
     return data;
 }
@@ -780,6 +801,7 @@ function salvarJogo(opts?: SalvarJogoOptions): void {
                 plazaNpcTipSeen: !!window.uiCoachFlags.plazaNpcTipSeen,
             }
             : undefined,
+        onboarding: normalizeOnboarding(window.onboardingData) || freshOnboarding(),
         levelRewards: typeof window.getLevelRewardsSavePayload === 'function'
             ? window.getLevelRewardsSavePayload()
             : { claimed: [] },
@@ -883,8 +905,8 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
                 : null;
         
         // CORREÇÃO: Nomes consistentes (plural)
-        window.adenas = Number(data.adenas || data.adena || 0); 
-        window.ancientCoins = Number(data.ancientCoins || 0); 
+        window.adenas = Math.max(0, Math.floor(Number(data.adenas || data.adena || 0) || 0));
+        window.ancientCoins = Math.max(0, Math.floor(Number(data.ancientCoins || 0) || 0)); 
         
         window.enchant = data.enchant || 0; 
         window.enchantArmor = data.enchantArmor || 0; 
@@ -1001,6 +1023,10 @@ async function carregarJogo(nome: string, opts?: CarregarJogoOptions): Promise<b
                 plazaNpcTipSeen: typeof uc.plazaNpcTipSeen === 'boolean' ? uc.plazaNpcTipSeen : false,
             };
         }
+
+        // Onboarding milestones — migrarDadosSave already filled a default for legacy saves.
+        window.onboardingData = normalizeOnboarding(data.onboarding)
+            || (tutDone ? completedOnboarding() : freshOnboarding());
         
         if (typeof window.EndgamePursuits !== 'undefined' && typeof window.EndgamePursuits.normalizeAfterLoad === 'function') {
             window.EndgamePursuits.normalizeAfterLoad();

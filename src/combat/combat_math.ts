@@ -328,6 +328,11 @@ function executarDanoDeUmMonstro(mob: ForestMob) {
       }
 
       window.playerHP -= danoRecebido;
+      try {
+        window.TutorialEngine?.notifyPlayerHit?.();
+      } catch {
+        /* ignore */
+      }
       const maxHp = Math.max(1, Number(window.playerStats?.maxHp) || 100);
       const hitRatio = danoRecebido / maxHp;
       const extraThreat = onMobThreatHitPlayer(mob, danoRecebido, mobPower);
@@ -611,13 +616,11 @@ function executarGolpeAtaqueBasico(): boolean {
         : `You dealt <span style="color:white">${danoFinal}</span> damage!`,
   );
 
-  if (typeof window.TutorialEngine !== 'undefined' && window.TutorialEngine.isRunning?.()) {
-    if (window.tutorialProgress?.step === 9) {
-      window.tutorialFirstAttackDone = true;
-      if (typeof window.TutorialEngine.notifyFirstAttack === 'function') {
-        window.TutorialEngine.notifyFirstAttack();
-      }
-    }
+  // Onboarding milestone (idempotent — engine ignores after the first call).
+  try {
+    window.TutorialEngine?.notifyFirstAttack?.();
+  } catch {
+    /* ignore */
   }
 
   window.aplicarDanoNoMonstro(tIdx, danoFinal, foiCritico);

@@ -83,7 +83,9 @@ function iniciarJogo(): void {
     window.playerCP = (window.playerStats && window.playerStats.maxCp) ? window.playerStats.maxCp : 60;
     
     mudarTela('screen-game'); 
-    try { writeGameLog(`Aventure-se em Aden! HP: ${window.playerStats.maxHp}`); } catch(e) {}
+    try {
+        writeGameLog(typeof window.t === 'function' ? window.t('game.core.welcomeLog') : 'Welcome to the Rogue Age.');
+    } catch(e) {}
     if (typeof window.iniciarSistemaClans === 'function') window.iniciarSistemaClans();
     if (typeof CastleEngine !== 'undefined' && CastleEngine.init) CastleEngine.init();
     

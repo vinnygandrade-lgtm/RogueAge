@@ -1154,6 +1154,29 @@ const SupabaseAPI = {
     },
 
     /**
+     * Onboarding funnel — `log_onboarding_milestone` (supabase_onboarding_metrics.sql / MASTER 5J).
+     * Fire-and-forget: idempotent per (char, milestone) on the server; never blocks gameplay.
+     */
+    async logOnboardingMilestone(charName, milestone, level, elapsedMs) {
+        if (!SUPABASE_CONFIG.enabled) return { success: false, error: 'offline' };
+        if (!this.client) await this.init();
+        if (!this.client || !this.getUser()) return { success: false, error: 'not_authenticated' };
+        try {
+            const { data, error } = await this.client.rpc('log_onboarding_milestone', {
+                p_char_name: String(charName || '').trim(),
+                p_milestone: String(milestone || '').trim(),
+                p_level: Math.max(1, Math.floor(Number(level) || 1)),
+                p_elapsed_ms: Math.max(0, Math.floor(Number(elapsedMs) || 0)),
+            });
+            if (error) return { success: false, error: error.message || 'rpc_error' };
+            return data && typeof data === 'object' ? data : { success: true };
+        } catch (e) {
+            console.warn('[SupabaseAPI.logOnboardingMilestone]', e);
+            return { success: false, error: 'network' };
+        }
+    },
+
+    /**
      * Registo server-side de duelo PvP vs jogador real antes do combate (`create_olympiad_match_secure`).
      * O resolve de MMR para humano exige o UUID devolvido em `match_id`.
      */
@@ -1547,7 +1570,7 @@ const SupabaseAPI = {
             const { data, error } = await this.client.rpc('npc_shop_buy_stackable', {
                 p_char_name: charName,
                 p_item_id: String(itemCatalogId),
-                p_qty: Math.max(1, Math.min(9999, parseInt(qty, 10) || 1))
+                p_qty: Math.max(1, Math.min(9999, Math.floor(Number(qty)) || 1))
             });
             if (error) return { data: null, error };
             return { data, error: null };

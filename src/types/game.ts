@@ -4,7 +4,7 @@
  */
 
 /** Versão actual do formato de save (js/core_persistence.js). */
-export const L2MINI_SAVE_VERSION = 20 as const;
+export const L2MINI_SAVE_VERSION = 21 as const;
 
 /** Atalhos visíveis na barra de ação (2 linhas × 6 colunas). */
 export const L2MINI_HOTBAR_SLOT_COUNT = 12 as const;
@@ -413,6 +413,9 @@ export interface NpcShopBuyStackableResult {
   ancient_coins?: number | string;
   item_name?: string;
   qty_after?: number | string;
+  need?: number | string;
+  have?: number | string;
+  unit?: number | string;
 }
 
 export type CraftCategory = 'special' | 'mats' | 'consumables';
@@ -752,6 +755,26 @@ export interface UiCoachSave {
   plazaNpcTipSeen?: boolean;
 }
 
+/**
+ * First-session milestones (onboarding funnel). Order roughly follows the
+ * new-player path: Profile → World → trail map → forest hub → first fight.
+ */
+export type OnboardingMilestone =
+  | 'world'
+  | 'forest'
+  | 'mob_spawn'
+  | 'first_attack'
+  | 'first_hit'
+  | 'first_kill'
+  | 'level_up'
+  | 'skill_equipped';
+
+/** Persisted onboarding state (save v21). `done[m]` = epoch ms when reached; absent = pending. */
+export interface OnboardingSave {
+  startedAt: number;
+  done: Partial<Record<OnboardingMilestone, number>>;
+}
+
 /** Claimed level milestone rewards (Achievements hub). */
 export interface LevelRewardsSave {
   claimed: number[];
@@ -953,6 +976,8 @@ export interface CharacterSave {
   uiLayoutMode?: UiLayoutMode;
   tutorial?: TutorialProgress;
   uiCoach?: UiCoachSave;
+  /** First-session milestones — drives beginner tips and the onboarding funnel (save v21). */
+  onboarding?: OnboardingSave;
   /** Level milestone rewards — claimed level numbers (1..N). */
   levelRewards?: LevelRewardsSave;
   /** Lifetime gameplay achievements + equipped chat title. */
@@ -1915,6 +1940,13 @@ export interface SupabaseApi {
   recordEliteChampionKillWithRetry?: (
     weekKey: string,
   ) => Promise<EndgameRpcEnvelope<EndgameKillRpcResult>>;
+  /** Onboarding funnel — fire-and-forget; RPC `log_onboarding_milestone` (idempotent per char+milestone). */
+  logOnboardingMilestone?: (
+    charName: string,
+    milestone: OnboardingMilestone,
+    level: number,
+    elapsedMs: number,
+  ) => Promise<{ success: boolean; error?: string }>;
   broadcastGM?: (action: string, target: string, data?: Record<string, unknown>) => Promise<boolean> | void;
   broadcastChat?: (
     autor: string,

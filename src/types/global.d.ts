@@ -34,6 +34,8 @@ import type {
   SupabaseApi,
   SupabaseConfig,
   TutorialProgress,
+  OnboardingSave,
+  OnboardingMilestone,
   ZonalMobTuneEntry,
   CloudRankingPlayer,
   MergedRankingEntry,
@@ -594,11 +596,17 @@ declare global {
     maybeShowNavCoachToasts?: (mailUnread: number, missionsPending: number) => void;
     dismissNavCoachToast?: () => void;
     scheduleBeginnerTip?: (
-      key: 'hotbar' | 'expedition' | 'consumables' | 'menu' | 'mailbox' | 'missions',
+      key: 'world' | 'zone' | 'trail' | 'expedition' | 'path' | 'hotbar' | 'consumables' | 'menu' | 'mailbox' | 'missions',
       delayMs?: number
     ) => void;
     dismissBeginnerTip?: () => void;
     hideBeginnerTip?: () => void;
+    /** Hide a screen-bound goal tip when the player leaves its screen (no persistence). */
+    hideBeginnerTipForNav?: (lugar: string) => void;
+    /** Hide the tip bound to a milestone once it is reached. */
+    hideBeginnerTipForMilestone?: (milestone: OnboardingMilestone) => void;
+    /** First-session milestones (persisted in save `onboarding`). */
+    onboardingData?: OnboardingSave;
     toggleChatCollapse?: () => void;
     toggleFloatingChat?: () => void;
     setFloatingChatOpen?: (open: boolean) => void;
@@ -702,6 +710,14 @@ declare global {
       notifyHuntSearch?: () => void;
       notifyExpeditionNodeConfirmed?: () => void;
       notifyMenuOpened?: () => void;
+      notifyMobSpawn?: () => void;
+      notifyPlayerHit?: () => void;
+      notifyMobKilled?: () => void;
+      notifyLevelUp?: (level: number) => void;
+      /** True until the player reaches the forest hub for the first time (skips zone modal once). */
+      isFirstExpedition?: () => boolean;
+      isMilestoneDone?: (milestone: OnboardingMilestone) => boolean;
+      markMilestone?: (milestone: OnboardingMilestone) => void;
       skipTutorial?: () => void;
       render?: () => void;
     };

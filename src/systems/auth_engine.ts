@@ -1314,7 +1314,9 @@ const AuthEngine = {
                             hotbarTipSeen: false,
                             expeditionTipSeen: false,
                             consumablesTipSeen: false
-                        }
+                        },
+                        // Fresh character: no onboarding milestone reached yet (save v21).
+                        onboarding: { startedAt: Date.now(), done: {} }
                     };
 
                     // Usa UPSERT com onConflict para nunca duplicar o mesmo nome

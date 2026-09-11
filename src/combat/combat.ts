@@ -257,6 +257,7 @@ function aplicarXpGanhoFloresta(quantia) {
         if (typeof window.RetentionEngine?.onGameEvent === 'function') {
             window.RetentionEngine.onGameEvent('reach_level', nl);
         }
+        try { window.TutorialEngine?.notifyLevelUp?.(nl); } catch (eOb) { /* ignore */ }
         if (nl === 20 || nl === 40 || nl === 76) {
             if (typeof window.escreverLog === 'function') {
                 const hint = (typeof window.t === 'function')
@@ -408,6 +409,8 @@ function spawnMonstros() {
         window.CombatAutoPrefs.tryStartAutoAttackFromPrefs();
     }
     window.syncShellBattleChrome?.();
+    // Onboarding: first pull on screen → combat bar is visible, coach it now.
+    try { window.TutorialEngine?.notifyMobSpawn?.(); } catch (eOb) { /* ignore */ }
 }
 
 function prefersReducedMobMotion(): boolean {
@@ -656,13 +659,6 @@ function iniciarAtaqueMonstro() {
         const mobs = window.monstrosAtivos;
         if (!mobs.length || window.playerHP <= 0) return;
 
-        // Tutorial: O monstro espera o primeiro ataque do jogador no Step 8
-        if (typeof window.TutorialEngine !== 'undefined' && window.TutorialEngine.isRunning()) {
-            if (window.tutorialProgress.step === 9 && !window.tutorialFirstAttackDone) {
-                return; // Espera o jogador atacar
-            }
-        }
-
         let anyAlive = false;
         const threatSuspendedUntil = Number((window as Window & { _forestMobAttackSuspendedUntil?: number })._forestMobAttackSuspendedUntil) || 0;
         const threatSuspended = threatSuspendedUntil > Date.now();
@@ -830,6 +826,7 @@ function processarMorteMonstro(index: number, mobRef?: ForestMob | null) {
     }
 
     if(typeof tocarSom === 'function') tocarSom('adenas');
+    try { window.TutorialEngine?.notifyMobKilled?.(); } catch (eOb) { /* ignore */ }
     
     // --- MULTIPLICADORES DE RECOMPENSA (CHAMPION & SPOIL) ---
     let multiplicadorChampion = mobMorto.isChampion ? 5 : 1;
@@ -1217,6 +1214,8 @@ function showForestFleeSuccessScreen() {
     ov.dataset.active = '1';
     ov.classList.add('forest-flee-success-overlay--visible');
     ov.setAttribute('aria-hidden', 'false');
+    // Beginner tips are combat-bound — never leave one floating over the run-end screen.
+    try { window.hideBeginnerTip?.(); } catch (eOb) { /* ignore */ }
     if (window.I18n && typeof window.I18n.refreshDom === 'function') {
         try { window.I18n.refreshDom(ov); } catch (e) {}
     }
@@ -1284,6 +1283,8 @@ function showForestDeathScreen() {
 
     ov.classList.add('forest-death-overlay--visible');
     ov.setAttribute('aria-hidden', 'false');
+    // Beginner tips are combat-bound — never leave one floating over the death screen.
+    try { window.hideBeginnerTip?.(); } catch (eOb) { /* ignore */ }
     if (window.I18n && typeof window.I18n.refreshDom === 'function') {
         try { window.I18n.refreshDom(ov); } catch (e) {}
     }

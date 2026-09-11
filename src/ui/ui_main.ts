@@ -1946,6 +1946,15 @@ function abrirDetalhesZona(grade) {
     if (!dados) return;
     const tFn = typeof window.t === 'function' ? window.t : null;
 
+    // Onboarding: first trip to a free zone goes straight to the trail hub (one tap less before
+    // the first fight). The details modal returns from the second visit on.
+    try {
+        if (dados.custo === 0 && window.TutorialEngine?.isFirstExpedition?.()) {
+            teleportarParaZona(grade);
+            return;
+        }
+    } catch (eOb) { /* ignore */ }
+
     document.getElementById('zona-detalhe-titulo').innerText = zoneDisplayName(grade);
     document.getElementById('zona-detalhe-grade').innerText = zoneGradeLabel(grade);
     document.getElementById('zona-detalhe-grade').style.backgroundColor = dados.cor;
