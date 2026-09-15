@@ -11,6 +11,7 @@ import type {
   ShopEquipTab,
   ShopGrocerCategory,
 } from '../types/game';
+import { sincronizarSaveComNuvem } from '../systems/cloud_sync';
 
 function consumiveisCatalog(): ShopCatalogItem[] {
     return (window.catalogoConsumiveis || []) as ShopCatalogItem[];
@@ -87,6 +88,7 @@ function effectiveShopUnitForCatalogItem(item: ShopCatalogItem | null | undefine
 
 let qtdCompraSelecionada = 1;
 let itemSelecionado: ShopCatalogItem | null = null;
+let _shopBuyInFlight = false;
 
 function _shopGradeDetailRow(grade: unknown): string {
     var label = (typeof window.t === 'function') ? window.t('game.shop.labelGrade') : 'Grade:';
@@ -172,6 +174,39 @@ function _shopCurrencyKindFromItem(item: ShopCatalogItem | null | undefined): Sh
 function _shopBalanceForKind(kind: ShopCurrencyKind): number {
     if (kind === 'ancient') return Math.max(0, Math.floor(Number(window.ancientCoins) || 0));
     return Math.max(0, Math.floor(Number(window.adenas) || 0));
+}
+
+function _shopRpcMoney(v: unknown): number {
+    const n = typeof v === 'number' ? v : Number.parseInt(String(v ?? ''), 10);
+    return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+}
+
+function _shopMaxAffordableQty(item: ShopCatalogItem): number {
+    const unit = effectiveShopUnitForCatalogItem(item);
+    if (unit <= 0) return 1;
+    return Math.max(0, Math.floor(_shopBalanceForKind(_shopCurrencyKindFromItem(item)) / unit));
+}
+
+function _shopWarnInsufficient(kind: ShopCurrencyKind, need?: number, have?: number): void {
+    const currency = kind === 'ancient' ? shopT('game.shop.currencyAncientCoins') : shopT('game.shop.currencyAdenasShort');
+    const needN = Math.max(0, Math.floor(Number(need) || 0));
+    const haveN = have != null ? Math.max(0, Math.floor(Number(have) || 0)) : _shopBalanceForKind(kind);
+    if (needN > 0) {
+        window.mostrarAviso(shopT('game.shop.insufficientCurrencyNeedHave', {
+            currency,
+            need: _shopFormatMoney(needN, kind),
+            have: _shopFormatMoney(haveN, kind),
+        }));
+        return;
+    }
+    window.mostrarAviso(shopT('game.shop.insufficientCurrency', { currency }));
+}
+
+async function _flushShopWalletToCloud(): Promise<void> {
+    if (typeof window.salvarJogo === 'function') {
+        window.salvarJogo({ silent: true, skipCloud: true });
+    }
+    await sincronizarSaveComNuvem(true);
 }
 
 function _shopFormatMoney(amount: unknown, kind: ShopCurrencyKind): string {
@@ -396,7 +431,6 @@ function selecionarConsumivel(id: string, categoria: ShopGrocerCategory, element
     itemSelecionado = catalogo.find(i => i.id === id) || null;
     if (!itemSelecionado || !btnBuy) return;
 
-    let siglaMoeda = itemSelecionado.moeda === 'Ancient' ? 'ac' : 'a';
     let corMoeda = itemSelecionado.moeda === 'Ancient' ? '#60a5fa' : '#ffcc00';
     const unitEff = effectiveShopUnitForCatalogItem(itemSelecionado);
 
@@ -407,7 +441,7 @@ function selecionarConsumivel(id: string, categoria: ShopGrocerCategory, element
             : '') || (itemSelecionado.desc ? String(itemSelecionado.desc) : undefined),
         statsHtml: _shopStatChip(
             shopT('game.shop.labelPrice'),
-            '<span style="color:' + corMoeda + '">' + unitEff + siglaMoeda + '</span> ' +
+            '<span style="color:' + corMoeda + '">' + _shopFormatMoney(unitEff, _shopCurrencyKindFromItem(itemSelecionado)) + '</span> ' +
             '<span class="shop-stat__hint">' + _shopEscHtml(shopT('game.shop.eachLabel')) + '</span>',
             itemSelecionado.moeda === 'Ancient' ? 'ancient' : 'adena'
         ),
@@ -443,13 +477,11 @@ function alterarQtdCompra(delta: number): void {
 
 function setQtdCompraMax(): void {
     if (!itemSelecionado) return;
-    let saldoDisponivel = (itemSelecionado.moeda === 'Ancient') ? window.ancientCoins : window.adenas;
     const unitEff = effectiveShopUnitForCatalogItem(itemSelecionado);
     if (unitEff <= 0) return;
-    let max = Math.floor(Number(saldoDisponivel) / unitEff);
-    if (max < 1) max = 1;
+    const max = _shopMaxAffordableQty(itemSelecionado);
     const inputEl = document.getElementById('input-qtd-compra') as HTMLInputElement | null;
-    if (inputEl) inputEl.value = String(max);
+    if (inputEl) inputEl.value = String(Math.max(1, max));
     atualizarPrecoTotalCompra();
 }
 
@@ -459,21 +491,25 @@ function atualizarPrecoTotalCompra(): void {
     if (!inputEl) return;
     let val = parseInt(inputEl.value, 10);
     if (isNaN(val) || val < 1) val = 1;
+    if (val > 9999) val = 9999;
     qtdCompraSelecionada = val;
+    if (String(val) !== inputEl.value) inputEl.value = String(val);
     _refreshShopBuyCheckoutSummary();
 }
 
-function confirmarCompraMultipla(categoria: ShopGrocerCategory): void {
-    if (!itemSelecionado) return;
+function confirmarCompraMultipla(_categoria: ShopGrocerCategory): void {
+    if (!itemSelecionado || _shopBuyInFlight) return;
     atualizarPrecoTotalCompra();
-    const unitEff = effectiveShopUnitForCatalogItem(itemSelecionado);
-    let total = unitEff * qtdCompraSelecionada;
-    
-    let carteira = itemSelecionado.moeda === 'Ancient' ? window.ancientCoins : window.adenas;
-    let nomeMoeda = itemSelecionado.moeda === 'Ancient' ? shopT('game.shop.currencyAncientCoins') : shopT('game.shop.currencyAdenasShort');
+    const selected = itemSelecionado;
+    const kind = _shopCurrencyKindFromItem(selected);
+    const unitEff = effectiveShopUnitForCatalogItem(selected);
+    const qty = qtdCompraSelecionada;
+    const total = unitEff * qty;
+    const carteira = _shopBalanceForKind(kind);
 
     if (carteira < total) {
-        window.mostrarAviso(shopT('game.shop.insufficientCurrency', { currency: nomeMoeda }));
+        _shopWarnInsufficient(kind, total, carteira);
+        _refreshShopBuyCheckoutSummary();
         return;
     }
 
@@ -486,14 +522,16 @@ function confirmarCompraMultipla(categoria: ShopGrocerCategory): void {
             window.mostrarAviso(shopT('game.cloud.shopStackableFailed'));
             return;
         }
+        _shopBuyInFlight = true;
+        _syncShopBuyButton(false);
         void (async () => {
             try {
-                const selected = itemSelecionado;
-                if (!selected || !window.SupabaseAPI?.npcShopBuyStackable) return;
+                await _flushShopWalletToCloud();
+                if (!window.SupabaseAPI?.npcShopBuyStackable) return;
                 const { data: rawData, error } = await window.SupabaseAPI.npcShopBuyStackable(
                     window.charName as string,
                     selected.id,
-                    qtdCompraSelecionada
+                    qty
                 );
                 let data: NpcShopBuyStackableResult | null = rawData as NpcShopBuyStackableResult | null;
                 if (typeof data === 'string') {
@@ -507,17 +545,16 @@ function confirmarCompraMultipla(categoria: ShopGrocerCategory): void {
                 if (error || !rpcOk) {
                     const code = data && data.error;
                     if (code === 'insufficient_funds') {
-                        window.mostrarAviso(shopT('game.shop.insufficientCurrency', { currency: nomeMoeda }));
+                        const need = data && data.need != null && data.need !== '' ? _shopRpcMoney(data.need) : total;
+                        const have = data && data.have != null && data.have !== '' ? _shopRpcMoney(data.have) : _shopBalanceForKind(kind);
+                        _shopWarnInsufficient(kind, need, have);
                     } else {
                         window.mostrarAviso(shopT('game.cloud.shopStackableFailed'));
                     }
                     return;
                 }
-                window.adenas = typeof data.adenas === 'number' ? data.adenas : parseInt(data.adenas, 10) || 0;
-                window.ancientCoins =
-                    typeof data.ancient_coins === 'number'
-                        ? data.ancient_coins
-                        : parseInt(data.ancient_coins, 10) || 0;
+                window.adenas = _shopRpcMoney(data.adenas);
+                window.ancientCoins = _shopRpcMoney(data.ancient_coins);
                 if (typeof window.syncMoedasInventarioComCarteira === 'function') {
                     window.syncMoedasInventarioComCarteira();
                 }
@@ -525,27 +562,23 @@ function confirmarCompraMultipla(categoria: ShopGrocerCategory): void {
                     window.inventario = {};
                 }
                 const inm = data.item_name || selected.nome;
-                const qAfter =
-                    typeof data.qty_after === 'number'
-                        ? data.qty_after
-                        : parseInt(data.qty_after, 10);
-                if (inm && Number.isFinite(qAfter)) {
-                    window.inventario[inm] = qAfter;
+                if (inm && data.qty_after != null && data.qty_after !== '') {
+                    window.inventario[inm] = _shopRpcMoney(data.qty_after);
                     if (window.InventarioRecent && typeof window.InventarioRecent.touchStack === 'function') {
                         window.InventarioRecent.touchStack(inm);
                     }
                 } else if (selected.nome) {
                     if (window.InventoryManager && typeof window.InventoryManager.adicionarStack === 'function') {
-                        window.InventoryManager.adicionarStack(selected.nome, qtdCompraSelecionada);
+                        window.InventoryManager.adicionarStack(selected.nome, qty);
                     } else {
                         const cur = Number(window.inventario[selected.nome]) || 0;
-                        window.inventario[selected.nome] = cur + qtdCompraSelecionada;
+                        window.inventario[selected.nome] = cur + qty;
                     }
                 }
                 window.tocarSom('adenas');
                 window.escreverLog(
                     '<span style="color:#00ff00">' +
-                        shopT('game.shop.logBoughtMats', { qtd: qtdCompraSelecionada, name: selected.nome }) +
+                        shopT('game.shop.logBoughtMats', { qtd: qty, name: selected.nome }) +
                         '</span>'
                 );
                 window.atualizar();
@@ -555,28 +588,28 @@ function confirmarCompraMultipla(categoria: ShopGrocerCategory): void {
             } catch (e) {
                 console.error('[Grocer cloud purchase]', e);
                 window.mostrarAviso(shopT('game.cloud.shopStackableFailed'));
+            } finally {
+                _shopBuyInFlight = false;
+                _refreshShopBuyCheckoutSummary();
             }
         })();
         return;
     }
 
-    if (carteira >= total) {
-        if (itemSelecionado.moeda === 'Ancient') window.ancientCoins -= total;
-        else window.adenas -= total;
+    if (kind === 'ancient') window.ancientCoins = carteira - total;
+    else window.adenas = carteira - total;
 
-        window.tocarSom('adenas');
-        if (window.InventoryManager && typeof window.InventoryManager.adicionarStack === 'function') {
-            window.InventoryManager.adicionarStack(itemSelecionado.nome, qtdCompraSelecionada);
-        } else if(window.inventario[itemSelecionado.nome]) window.inventario[itemSelecionado.nome] += qtdCompraSelecionada;
-        else window.inventario[itemSelecionado.nome] = qtdCompraSelecionada;
-        
-        window.escreverLog('<span style="color:#00ff00">' + shopT('game.shop.logBoughtMats', { qtd: qtdCompraSelecionada, name: itemSelecionado.nome }) + '</span>');
-        window.atualizar(); window.salvarJogo();
-        animarBotaoCompra();
-        atualizarPrecoTotalCompra();
-    } else {
-        window.mostrarAviso(shopT('game.shop.insufficientCurrency', { currency: nomeMoeda }));
-    }
+    window.tocarSom('adenas');
+    if (window.InventoryManager && typeof window.InventoryManager.adicionarStack === 'function') {
+        window.InventoryManager.adicionarStack(selected.nome, qty);
+    } else if (window.inventario[selected.nome]) window.inventario[selected.nome] += qty;
+    else window.inventario[selected.nome] = qty;
+
+    window.escreverLog('<span style="color:#00ff00">' + shopT('game.shop.logBoughtMats', { qtd: qty, name: selected.nome }) + '</span>');
+    window.atualizar();
+    window.salvarJogo();
+    animarBotaoCompra();
+    atualizarPrecoTotalCompra();
 }
 
 // ==========================================
@@ -783,7 +816,7 @@ function selecionarItemLoja(id: string, tipo: ShopEquipTab, elemento: HTMLElemen
 function confirmarCompraArmor(): void { 
     if (!itemSelecionado) return;
     const preco = effectiveShopUnitForCatalogItem(itemSelecionado);
-    if (window.adenas < preco) {
+    if (_shopBalanceForKind('adena') < preco) {
         window.mostrarAviso(shopT('game.shop.insufficientAdena'));
         return;
     }
@@ -798,7 +831,7 @@ function confirmarCompraArmor(): void {
 function confirmarCompraWeapon(): void { 
     if (!itemSelecionado) return; 
     const preco = effectiveShopUnitForCatalogItem(itemSelecionado);
-    if (window.adenas < preco) {
+    if (_shopBalanceForKind('adena') < preco) {
         window.mostrarAviso(shopT('game.shop.insufficientAdena'));
         return;
     }
@@ -813,7 +846,7 @@ function confirmarCompraWeapon(): void {
 function confirmarCompraJewel(): void { 
     if (!itemSelecionado) return; 
     const preco = effectiveShopUnitForCatalogItem(itemSelecionado);
-    if (window.adenas < preco) {
+    if (_shopBalanceForKind('adena') < preco) {
         window.mostrarAviso(shopT('game.shop.insufficientAdena'));
         return;
     }

@@ -68,6 +68,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-09-15',
+                        items: [
+                            'World: every valley landmark is a painted cutout now — grove, bones, war camp, coliseum, cave, and the city gate. Tap one, then Enter.',
+                            'Names sit on each place instead of floating in empty sky. The Valley chip moved off the dragon. A hint at the bottom fades when you pick a destination.'
+                        ]
+                    },
+                    {
                         date: '2026-09-10',
                         items: [
                             'Grocer scrolls now spend the Adena you see on the HUD. Buying 3 Enchant Armor (D) no longer fails after a hunt because the cloud wallet was still catching up.'
@@ -3753,6 +3760,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-15',
+                        items: [
+                            'Mundo: cada marco do vale agora é um recorte pintado — floresta, ossos, acampamento, coliseu, caverna e o portão. Toca num, depois em Entrar.',
+                            'Os nomes sentam em cada sítio, não a flutuar no céu. O título O Vale saiu de cima do dragão. Em baixo, a dica some quando escolhes um destino.'
+                        ]
+                    },
                     {
                         date: '2026-09-10',
                         items: [

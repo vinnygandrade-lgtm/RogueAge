@@ -59,16 +59,17 @@
 }
 
 .world-map-layer {
-    z-index: 1;
+    z-index: 2;
+    transition: opacity 0.2s ease;
 }
 
 /* Depth: mountain behind grove; town sits in the foreground. */
-.world-map-layer[data-world-spot="raid"] { z-index: 1; }
-.world-map-layer[data-world-spot="forest"] { z-index: 2; }
-.world-map-layer[data-world-spot="daily"] { z-index: 2; }
-.world-map-layer[data-world-spot="clanwar"] { z-index: 3; }
-.world-map-layer[data-world-spot="olympiad"] { z-index: 3; }
-.world-map-layer[data-world-spot="town"] { z-index: 4; }
+.world-map-layer[data-world-spot="raid"] { z-index: 2; }
+.world-map-layer[data-world-spot="forest"] { z-index: 3; }
+.world-map-layer[data-world-spot="daily"] { z-index: 3; }
+.world-map-layer[data-world-spot="clanwar"] { z-index: 4; }
+.world-map-layer[data-world-spot="olympiad"] { z-index: 4; }
+.world-map-layer[data-world-spot="town"] { z-index: 5; }
 
 .world-map-layer[hidden] {
     display: none !important;
@@ -81,21 +82,18 @@
 .world-map-layer[data-world-spot="olympiad"] { --aura-rgb: 196 165 116; }
 .world-map-layer[data-world-spot="town"] { --aura-rgb: 196 165 116; }
 
-/* Recede other cutouts only while a cutout-backed landmark is selected. */
-.world-map-stack[data-selected-spot="raid"]:has(.world-map-actor--raid.world-map-actor--has-layer)
-    .world-map-layer:not([hidden]):not([data-world-spot="raid"]),
-.world-map-stack[data-selected-spot="forest"]:has(.world-map-actor--forest.world-map-actor--has-layer)
-    .world-map-layer:not([hidden]):not([data-world-spot="forest"]),
-.world-map-stack[data-selected-spot="clanwar"]:has(.world-map-actor--clanwar.world-map-actor--has-layer)
-    .world-map-layer:not([hidden]):not([data-world-spot="clanwar"]),
-.world-map-stack[data-selected-spot="daily"]:has(.world-map-actor--daily.world-map-actor--has-layer)
-    .world-map-layer:not([hidden]):not([data-world-spot="daily"]),
-.world-map-stack[data-selected-spot="olympiad"]:has(.world-map-actor--olympiad.world-map-actor--has-layer)
-    .world-map-layer:not([hidden]):not([data-world-spot="olympiad"]),
-.world-map-stack[data-selected-spot="town"]:has(.world-map-actor--town.world-map-actor--has-layer)
-    .world-map-layer:not([hidden]):not([data-world-spot="town"]) {
-    opacity: 0.78;
-    filter: saturate(0.82);
+.world-map-stack[data-selected-spot] .world-map-layer:not([hidden]) {
+    opacity: 0.88;
+}
+
+.world-map-stack[data-selected-spot="raid"] .world-map-layer[data-world-spot="raid"],
+.world-map-stack[data-selected-spot="forest"] .world-map-layer[data-world-spot="forest"],
+.world-map-stack[data-selected-spot="clanwar"] .world-map-layer[data-world-spot="clanwar"],
+.world-map-stack[data-selected-spot="daily"] .world-map-layer[data-world-spot="daily"],
+.world-map-stack[data-selected-spot="olympiad"] .world-map-layer[data-world-spot="olympiad"],
+.world-map-stack[data-selected-spot="town"] .world-map-layer[data-world-spot="town"],
+.world-map-stack[data-selected-spot]:not([data-selected-spot="town"]) .world-map-layer[data-world-spot="town"] {
+    opacity: 1;
 }
 
 .world-map-stack[data-selected-spot="raid"] .world-map-layer[data-world-spot="raid"],
@@ -104,24 +102,23 @@
 .world-map-stack[data-selected-spot="daily"] .world-map-layer[data-world-spot="daily"],
 .world-map-stack[data-selected-spot="olympiad"] .world-map-layer[data-world-spot="olympiad"],
 .world-map-stack[data-selected-spot="town"] .world-map-layer[data-world-spot="town"] {
-    opacity: 1;
     animation: world-spot-aura 1.65s ease-in-out infinite;
 }
 
 .world-map-vignette {
     position: absolute;
     inset: 0;
-    z-index: 2;
+    z-index: 1;
     pointer-events: none;
     background:
-        linear-gradient(180deg, rgba(8, 6, 4, 0.22) 0%, transparent 12%, transparent 84%, rgba(6, 4, 3, 0.32) 100%),
-        radial-gradient(ellipse 92% 72% at 50% 52%, transparent 58%, rgba(0, 0, 0, 0.16) 100%);
+        linear-gradient(180deg, rgba(8, 6, 4, 0.1) 0%, transparent 14%, transparent 86%, rgba(6, 4, 3, 0.28) 100%),
+        radial-gradient(ellipse 92% 72% at 50% 52%, transparent 62%, rgba(0, 0, 0, 0.12) 100%);
 }
 
 .world-map-life {
     position: absolute;
     inset: 0;
-    z-index: 3;
+    z-index: 6;
     pointer-events: none;
     overflow: hidden;
 }
@@ -134,17 +131,17 @@
 }
 
 .world-map-life__glow--raid {
-    left: 42%;
-    top: 5%;
-    width: 20%;
-    height: 11%;
+    left: 40%;
+    top: 4%;
+    width: 18%;
+    height: 10%;
     background: radial-gradient(circle, rgba(251, 146, 60, 0.55) 0%, rgba(234, 88, 12, 0.18) 42%, transparent 70%);
     animation: world-life-pulse 2.8s ease-in-out infinite;
 }
 
 .world-map-life__glow--camp {
-    left: 10%;
-    top: 16%;
+    left: 9%;
+    top: 17%;
     width: 14%;
     height: 8%;
     background: radial-gradient(circle, rgba(251, 191, 36, 0.5) 0%, rgba(239, 68, 68, 0.22) 45%, transparent 72%);
@@ -152,19 +149,37 @@
 }
 
 .world-map-life__glow--arena {
-    left: 72%;
-    top: 14%;
+    left: 70%;
+    top: 13%;
     width: 16%;
     height: 9%;
-    background: radial-gradient(circle, rgba(96, 165, 250, 0.32) 0%, rgba(248, 113, 113, 0.16) 50%, transparent 74%);
+    background: radial-gradient(circle, rgba(252, 211, 77, 0.28) 0%, rgba(196, 165, 116, 0.16) 50%, transparent 74%);
     animation: world-life-pulse 3.4s ease-in-out infinite 0.6s;
 }
 
+.world-map-life__glow--grove {
+    left: 6%;
+    top: 36%;
+    width: 22%;
+    height: 16%;
+    background: radial-gradient(circle, rgba(45, 212, 191, 0.22) 0%, rgba(15, 118, 110, 0.1) 48%, transparent 74%);
+    animation: world-life-pulse 4.2s ease-in-out infinite 0.4s;
+}
+
+.world-map-life__glow--bones {
+    left: 72%;
+    top: 34%;
+    width: 18%;
+    height: 12%;
+    background: radial-gradient(circle, rgba(231, 229, 228, 0.22) 0%, rgba(168, 162, 158, 0.08) 50%, transparent 74%);
+    animation: world-life-pulse 3.8s ease-in-out infinite 1s;
+}
+
 .world-map-life__fall {
-    left: 34%;
-    top: 10%;
-    width: 8%;
-    height: 18%;
+    left: 24%;
+    top: 8%;
+    width: 7%;
+    height: 14%;
     position: absolute;
     background: linear-gradient(180deg, rgba(226, 232, 240, 0.18) 0%, rgba(147, 197, 253, 0.08) 55%, transparent 100%);
     filter: blur(1.5px);
@@ -183,8 +198,8 @@
     animation: world-life-smoke 5.5s ease-in-out infinite;
 }
 
-.world-map-life__smoke--a { left: 16%; top: 78%; animation-delay: 0s; }
-.world-map-life__smoke--b { left: 22%; top: 80%; animation-delay: 1.8s; width: 5%; height: 8%; }
+.world-map-life__smoke--a { left: 10%; top: 76%; animation-delay: 0s; }
+.world-map-life__smoke--b { left: 14%; top: 78%; animation-delay: 1.8s; width: 5%; height: 8%; }
 
 .world-map-life__mote {
     position: absolute;
@@ -265,7 +280,7 @@
     top: 8px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 5;
+    z-index: 9;
     margin: 0;
     padding: 4px 14px 5px;
     font-family: 'Cinzel', serif;
@@ -281,24 +296,60 @@
     white-space: nowrap;
 }
 
+/* Cave sits in the top-center — keep the valley chip off the Maw. */
+#world-map-stack > .world-map-title {
+    top: 8px;
+    left: 8px;
+    transform: none;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    padding: 3px 10px 4px;
+}
+
+.world-map-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    z-index: 9;
+    margin: 0;
+    padding: 4px 12px 5px;
+    transform: translateX(-50%);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #e7e5e4;
+    text-shadow: 0 1px 0 #000, 0 2px 8px rgba(0, 0, 0, 0.9);
+    background: linear-gradient(180deg, rgba(12, 9, 6, 0.55) 0%, rgba(8, 6, 4, 0.32) 100%);
+    border: 1px solid rgba(202, 138, 4, 0.28);
+    border-radius: 999px;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.18s ease;
+}
+
+.world-map-stack[data-selected-spot] .world-map-hint {
+    opacity: 0;
+}
+
 .world-map-actor {
     --aura: #fbbf24;
     --aura-deep: 20 12 4;
     position: absolute;
-    z-index: 4;
+    z-index: 7;
     pointer-events: none;
 }
 
 .world-map-actor:has(.world-map-enter:not([hidden])) {
-    z-index: 7;
+    z-index: 8;
 }
 
-/* Positions for locked D2 (Sep 2026). Town cutout first; other boxes are landmarks. */
+/* Positions for locked D2 (Sep 2026). Labels sit on the landmark mass. */
 .world-map-actor--raid {
-    left: 34%;
-    top: 3%;
-    width: 32%;
-    height: 16%;
+    left: 30%;
+    top: 0%;
+    width: 38%;
+    height: 18%;
     --aura: #d97706;
     --aura-deep: 36 14 4;
     --aura-rgb: 217 119 6;
@@ -306,55 +357,77 @@
 
 .world-map-actor--raid .world-map-plate {
     top: auto;
-    bottom: 0;
-    transform: translate(-50%, 108%);
+    bottom: -6%;
+    left: 52%;
+    transform: translate(-50%, 0);
+}
+
+.world-map-actor--raid .world-map-enter {
+    bottom: auto;
+    top: 132%;
 }
 
 .world-map-actor--forest {
-    left: 3%;
-    top: 36%;
-    width: 34%;
-    height: 20%;
+    left: 0%;
+    top: 25%;
+    width: 40%;
+    height: 31%;
     --aura: #14b8a6;
     --aura-deep: 6 22 18;
     --aura-rgb: 20 184 166;
 }
 
+.world-map-actor--forest .world-map-plate {
+    top: 46%;
+    left: 42%;
+    transform: translate(-50%, 0);
+}
+
 .world-map-actor--forest .world-map-enter {
-    bottom: 18%;
+    bottom: 10%;
+    left: 42%;
 }
 
 .world-map-actor--clanwar {
-    left: 4%;
-    top: 14%;
-    width: 28%;
-    height: 16%;
+    left: 0%;
+    top: 11%;
+    width: 34%;
+    height: 18%;
     --aura: #ef4444;
     --aura-deep: 40 8 8;
     --aura-rgb: 239 68 68;
 }
 
+.world-map-actor--clanwar .world-map-plate {
+    top: 48%;
+    left: 48%;
+    transform: translate(-50%, 0);
+}
+
 .world-map-actor--clanwar .world-map-enter {
-    bottom: 14%;
+    bottom: auto;
+    top: 108%;
+    left: 48%;
 }
 
 .world-map-actor--daily {
     left: 62%;
-    top: 36%;
-    width: 34%;
-    height: 20%;
+    top: 28%;
+    width: 38%;
+    height: 24%;
     --aura: #e7e5e4;
     --aura-deep: 32 16 10;
     --aura-rgb: 231 229 228;
 }
 
 .world-map-actor--daily .world-map-plate {
-    top: 8%;
+    top: 20%;
+    left: 48%;
     transform: translate(-50%, 0);
 }
 
 .world-map-actor--daily .world-map-enter {
-    bottom: 12%;
+    bottom: 8%;
 }
 
 .world-map-actor--olympiad {
@@ -367,8 +440,14 @@
     --aura-rgb: 196 165 116;
 }
 
+.world-map-actor--olympiad .world-map-plate {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -92%);
+}
+
 .world-map-actor--olympiad .world-map-enter {
-    bottom: 12%;
+    bottom: 16%;
 }
 
 .world-map-actor--town {
@@ -381,8 +460,14 @@
     --aura-rgb: 196 165 116;
 }
 
+.world-map-actor--town .world-map-plate {
+    top: 32%;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
 .world-map-actor--town .world-map-enter {
-    bottom: 28%;
+    bottom: 22%;
 }
 
 .world-map-hotspot {
@@ -491,15 +576,27 @@
     flex-direction: column;
     align-items: center;
     gap: 0;
+    min-width: 4.6rem;
+    max-width: 9.2rem;
+    padding: 3px 8px 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(202, 138, 4, 0.28);
+    background: linear-gradient(180deg, rgba(12, 9, 6, 0.72) 0%, rgba(8, 6, 4, 0.5) 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
     pointer-events: none;
     text-align: center;
 }
 
+.world-map-hotspot.is-selected .world-map-plate {
+    border-color: color-mix(in srgb, var(--aura) 55%, rgba(202, 138, 4, 0.28));
+    background: linear-gradient(180deg, rgba(16, 12, 8, 0.86) 0%, rgba(10, 8, 6, 0.64) 100%);
+}
+
 .world-map-plate__name {
     font-family: 'Cinzel', serif;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     color: #fde68a;
     line-height: 1.15;
     text-shadow:
@@ -511,11 +608,12 @@
 }
 
 .world-map-plate__role {
-    font-size: 0.58rem;
+    font-size: 0.54rem;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: #e7e5e4;
+    line-height: 1.2;
     text-shadow: 0 1px 0 #000, 0 2px 6px rgba(0, 0, 0, 0.85);
 }
 
@@ -531,10 +629,41 @@
 .world-map-hotspot .adv-notif-pill,
 .world-map-actor .adv-badge {
     position: absolute;
-    top: 2px;
-    right: 8%;
+    top: 6%;
+    right: 10%;
+    left: auto;
     z-index: 3;
     pointer-events: none;
+}
+
+.world-map-actor .adv-badge {
+    top: 6%;
+    right: 8%;
+    border-radius: 999px;
+    border: 1px solid rgba(202, 138, 4, 0.4);
+    border-left: 1px solid rgba(202, 138, 4, 0.4);
+    border-bottom: 1px solid rgba(202, 138, 4, 0.4);
+    background: rgba(72, 24, 16, 0.88);
+    color: #fde68a;
+    font-size: 0.52rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.world-map-actor--forest .adv-badge {
+    top: 38%;
+    right: auto;
+    left: 58%;
+    background: rgba(6, 40, 36, 0.88);
+    color: #99f6e4;
+    border-color: rgba(45, 212, 191, 0.4);
+}
+
+.world-map-actor--daily .adv-badge {
+    top: 6%;
+    right: 10%;
 }
 
 #janela-world-zones.store-window {

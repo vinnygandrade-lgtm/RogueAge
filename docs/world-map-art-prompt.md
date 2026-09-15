@@ -1,7 +1,7 @@
 # World Map — brief de arte (mobile portrait)
 
 **Produto:** RogueAge · **Aba:** World (`#tela-world`)  
-**Estado:** arte **locked D2** em `assets/world/map_bg.jpg` (Sep 2026, `assets/world/_incoming/world-map-d2.png`) — mesma língua do portão da tela de personagem (arco cinza, escudo flor-de-lis, bandeiras vermelhas com chevron dourado). Palco `#praca-world` + toques (select → Enter) + overlay de vida. Camadas `assets/world/<id>.png` entram **uma a uma**. **Live agora:** `town`. Recortes do vale antigo (`forest`…`raid`) **não** carregam até haver recorte D2. Grades de caça: Deepgrove abre `#tela-expedition` (`docs/expedition-map-art.md`), não o modal de postcards.  
+**Estado:** arte **locked D2** em `assets/world/map_bg.jpg` (Sep 2026, `assets/world/_incoming/world-map-d2.png`) — mesma língua do portão da tela de personagem (arco cinza, escudo flor-de-lis, bandeiras vermelhas com chevron dourado). Palco `#praca-world` + toques (select → Enter) + overlay de vida. Camadas `assets/world/<id>.png` entram **uma a uma**. **Live agora:** `town`, `olympiad`, `clanwar`, `daily`, `forest`, `raid`. Recortes do vale antigo **não** carregam. Grades de caça: Deepgrove abre `#tela-expedition` (`docs/expedition-map-art.md`), não o modal de postcards.  
 **Canvas:** **1080×1620** (igual à Praça da Cidade). Display no jogo: scale **3×** → ~**360×540 px**.  
 **Bake (só o fundo):** `node tools/bake_world_d2.mjs`. **Recortes:** manuais — drop `assets/world/_incoming/<id>.png` + `npm run export:world`. Vale anterior: `assets/world/map_bg.vale-blky7o.bak.jpg`.  
 **Tela de personagem:** `assets/ui/char_select_gate.webp` está **aprovada** — não iterar essa arte.  
@@ -526,7 +526,7 @@ Toque = **selecionar**; **Enter** abre o destino (mesmo padrão da praça).
 | `olympiad` | Crown Ring | `abrirOlympiad()` |
 | `raid` | The Maw | `abrirLobbyRaid()` |
 
-Placas i18n (`game.world.map.*`, en + pt-BR). Dock de expedição estacionada vive no modal da floresta; badge `ACTIVE` no hotspot `forest`.
+Placas i18n (`game.world.map.*`, en + pt-BR). Cada placa senta **na massa do marco** (não acima da caixa de toque); chip `THE VALLEY` no canto superior esquerdo para não tapar a Maw. Dock de expedição estacionada vive no modal da floresta; badge `ACTIVE` no hotspot `forest`.
 
 **Camadas (como a praça):** `assets/world/map_bg.jpg` + recortes `assets/world/<id>.png` no mesmo canvas 1080×1620. Recortes são **manuais**. O cliente pede os ids em `WORLD_LAYER_FILES`; sem ficheiro, a `<img>` fica `hidden`. Fundo D2: `node tools/bake_world_d2.mjs`. Drop `assets/world/_incoming/<id>.png` → `npm run export:world`. Vale antigo em `_archive/`.
 
@@ -542,7 +542,7 @@ Mesmo fluxo da praça: o **fundo já está locked**; esta PNG é só o recorte d
 | Drop bruto | `assets/world/_incoming/forest.png` |
 | Canvas | **1080×1620**, PNG, **alpha** fora da silhueta |
 | Alinhamento | pixels = `map_bg.jpg` — **não** recentrar, **não** escalar só a floresta no meio do canvas |
-| Toque | `.world-map-actor--forest` → Enter → `#janela-world-zones` |
+| Toque | `.world-map-actor--forest` → Enter → `#tela-expedition` |
 
 **O que entra no recorte**
 

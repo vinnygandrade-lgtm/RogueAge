@@ -1,6 +1,5 @@
 /**
  * World valley (D2) — select a landmark, then Enter.
- * Town cutout lights the gate; other D2 layers land one by one.
  */
 import { registerGlobalFn } from '../runtime/register-global';
 
@@ -9,9 +8,14 @@ export type WorldSpotId = 'town' | 'forest' | 'daily' | 'clanwar' | 'olympiad' |
 /** Only listed files are fetched. Add an id when that D2 cutout is dropped. */
 const WORLD_LAYER_FILES: Partial<Record<WorldSpotId, string>> = {
   town: 'assets/world/town.png',
+  olympiad: 'assets/world/olympiad.png',
+  clanwar: 'assets/world/clanwar.png',
+  daily: 'assets/world/daily.png',
+  forest: 'assets/world/forest.png',
+  raid: 'assets/world/raid.png',
 };
 
-const WORLD_LAYER_REV = '9';
+const WORLD_LAYER_REV = '14';
 
 function worldStack(): HTMLElement | null {
   return document.getElementById('world-map-stack');

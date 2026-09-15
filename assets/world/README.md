@@ -7,6 +7,11 @@ Locked painting **D2** (Sep 2026). Cutouts are **manual**.
 | `map_bg.jpg` | **1080×1620** | D2 vale + foreground gate. |
 | `map_bg.vale-blky7o.bak.jpg` | **1080×1620** | Previous busy-vale lock (24 Aug 2026). |
 | `town.png` | **1080×1620** alpha | Manual city cutout — Enter opens the plaza. No Town tab in the dock. |
+| `olympiad.png` | **1080×1620** alpha | Manual Crown Ring cutout — Enter opens Grand Olympiad. |
+| `clanwar.png` | **1080×1620** alpha | Manual war-camp cutout — Enter opens Clan War (leader). |
+| `daily.png` | **1080×1620** alpha | Manual bone-field cutout — Enter opens the daily boss. |
+| `forest.png` | **1080×1620** alpha | Manual Deepgrove cutout — Enter opens the expedition trail. |
+| `raid.png` | **1080×1620** alpha | Manual Maw cave cutout — Enter opens the world raid lobby. |
 | `_archive/` | — | Old vale cutouts (do not load on D2). |
 
 **How to land a cutout**

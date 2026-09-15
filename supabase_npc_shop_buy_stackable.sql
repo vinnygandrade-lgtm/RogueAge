@@ -1,6 +1,8 @@
 -- NPC Grocer / Scrolls — compra de stackables (autoridade servidor)
 -- Preços base e nomes de inventário devem manter-se alinhados a src/db/db_items.ts e src/economy/economy_balance.ts
 -- (coef. nível 0.018, cap 2.35; Adena: ceil(base * inflation(base) * mult); Ancient: ceil(base * mult))
+-- Carteira: lê adenas/ancientCoins do JSONB como NUMERIC (floor). Nível de preço: data.nivel, senão characters.level.
+-- O cliente faz flush do save (force) imediatamente antes desta RPC para o saldo da caça já estar na nuvem.
 
 CREATE OR REPLACE FUNCTION public.npc_shop_buy_stackable(
     p_char_name TEXT,
@@ -98,7 +100,14 @@ BEGIN
         RETURN jsonb_build_object('ok', false, 'error', 'unknown_item');
     END IF;
 
-    v_level := GREATEST(1, LEAST(85, COALESCE(v_level, 1)));
+    v_level := GREATEST(1, LEAST(85, COALESCE(
+        CASE
+            WHEN (v_data->>'nivel') ~ '^[0-9]+' THEN (v_data->>'nivel')::INT
+            ELSE NULL
+        END,
+        v_level,
+        1
+    )));
     v_mult := LEAST(2.35::NUMERIC, 1::NUMERIC + GREATEST(0, v_level - 1) * 0.018);
     -- Adena SKUs: inflation by item id / price band (sync src/economy/economy_balance.ts).
     -- Ancient Coin SKUs: face value × level mult only.
@@ -130,17 +139,36 @@ BEGIN
     END IF;
     v_total := v_unit * p_qty;
 
-    v_adena := COALESCE((v_data->>'adenas')::BIGINT, 0);
-    v_coin := COALESCE((v_data->>'ancientCoins')::BIGINT, 0);
+    v_adena := GREATEST(0, FLOOR(COALESCE(
+        CASE WHEN (v_data->>'adenas') ~ '^-?[0-9]+(\.[0-9]+)?' THEN (v_data->>'adenas')::NUMERIC ELSE NULL END,
+        CASE WHEN (v_data->>'adena') ~ '^-?[0-9]+(\.[0-9]+)?' THEN (v_data->>'adena')::NUMERIC ELSE NULL END,
+        0
+    ))::BIGINT);
+    v_coin := GREATEST(0, FLOOR(COALESCE(
+        CASE WHEN (v_data->>'ancientCoins') ~ '^-?[0-9]+(\.[0-9]+)?' THEN (v_data->>'ancientCoins')::NUMERIC ELSE NULL END,
+        0
+    ))::BIGINT);
 
     IF v_currency = 'ancient' THEN
         IF v_coin < v_total THEN
-            RETURN jsonb_build_object('ok', false, 'error', 'insufficient_funds');
+            RETURN jsonb_build_object(
+                'ok', false,
+                'error', 'insufficient_funds',
+                'need', v_total,
+                'have', v_coin,
+                'unit', v_unit
+            );
         END IF;
         v_coin := v_coin - v_total;
     ELSE
         IF v_adena < v_total THEN
-            RETURN jsonb_build_object('ok', false, 'error', 'insufficient_funds');
+            RETURN jsonb_build_object(
+                'ok', false,
+                'error', 'insufficient_funds',
+                'need', v_total,
+                'have', v_adena,
+                'unit', v_unit
+            );
         END IF;
         v_adena := v_adena - v_total;
     END IF;
