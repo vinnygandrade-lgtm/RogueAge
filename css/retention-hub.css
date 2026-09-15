@@ -115,173 +115,231 @@
     text-align: center;
 }
 
+.retention-today {
+    flex-shrink: 0;
+    margin: 0 12px 10px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(179, 138, 77, 0.45);
+    background:
+        radial-gradient(120% 80% at 12% 0%, rgba(251, 191, 36, 0.16) 0%, transparent 55%),
+        linear-gradient(180deg, rgba(36, 24, 12, 0.96) 0%, rgba(16, 12, 10, 0.94) 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.retention-today--claimable {
+    border-color: #34d399;
+    box-shadow: 0 0 16px rgba(52, 211, 153, 0.22);
+    background:
+        radial-gradient(120% 80% at 12% 0%, rgba(52, 211, 153, 0.18) 0%, transparent 55%),
+        linear-gradient(180deg, rgba(8, 40, 32, 0.95) 0%, rgba(16, 12, 10, 0.94) 100%);
+}
+
+.retention-today--claimed {
+    opacity: 0.88;
+}
+
+.retention-today__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.retention-today__kicker {
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #fde68a;
+}
+
+.retention-today__badge {
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.4);
+    color: #d6d3d1;
+}
+
+.retention-today--claimable .retention-today__badge {
+    color: #6ee7b7;
+    background: rgba(6, 95, 70, 0.55);
+}
+
+.retention-today__prizes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.retention-today__prizes .mission-reward-icons--row {
+    width: 100%;
+}
+
+.retention-today__claim {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    font-size: 0.72em;
+    letter-spacing: 0.1em;
+}
+
 .retention-grid {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     display: grid;
-    gap: 6px;
-    padding: 0 12px 10px;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-auto-rows: 58px;
+    align-content: start;
+    gap: 5px;
+    padding: 0 12px 14px;
     -webkit-overflow-scrolling: touch;
 }
 
-.retention-grid--monthly {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
+.retention-grid--monthly,
 .retention-grid--newbie {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-auto-rows: 58px;
 }
 
 .retention-tile {
+    position: relative;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-    min-height: 96px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 3px;
+    height: 58px;
+    min-height: 58px;
+    max-height: 58px;
     margin: 0;
-    padding: 10px 8px;
+    padding: 4px 2px 5px;
     border-radius: 8px;
     border: 1px solid #3f3a34;
     background: #141210;
     color: #e7e5e4;
-    cursor: default;
-    text-align: left;
+    cursor: pointer;
+    text-align: center;
     font: inherit;
     box-sizing: border-box;
-}
-
-.retention-tile--inactive {
-    opacity: 0.55;
+    overflow: hidden;
 }
 
 .retention-tile--claimable {
     border-color: #34d399;
-    background: linear-gradient(180deg, rgba(6, 78, 59, 0.35) 0%, rgba(20, 18, 16, 0.95) 100%);
-    box-shadow: 0 0 10px rgba(52, 211, 153, 0.15);
-    opacity: 1;
+    background: linear-gradient(180deg, rgba(6, 78, 59, 0.4) 0%, rgba(20, 18, 16, 0.95) 100%);
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+    animation: retention-claim-pulse 1.8s ease-in-out infinite;
+}
+
+.retention-tile--featured:not(.retention-tile--claimed) {
+    box-shadow: inset 0 0 0 1px rgba(253, 230, 138, 0.7);
 }
 
 .retention-tile--claimed {
     border-color: #57534e;
-    opacity: 0.72;
+    opacity: 0.7;
 }
 
-.retention-tile--missed .retention-tile__badge {
-    color: #78716c;
+.retention-tile--claimed::after {
+    content: '✓';
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #a8a29e;
+    pointer-events: none;
+}
+
+.retention-tile--missed {
+    opacity: 0.45;
+}
+
+.retention-tile--future,
+.retention-tile--locked {
+    opacity: 0.55;
 }
 
 .retention-tile--milestone {
-    border-color: rgba(251, 191, 36, 0.45);
-    background: linear-gradient(160deg, rgba(120, 53, 15, 0.28) 0%, rgba(20, 16, 12, 0.92) 100%);
-}
-
-.retention-tile__head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 4px;
+    border-color: rgba(251, 191, 36, 0.5);
+    background: linear-gradient(160deg, rgba(120, 53, 15, 0.32) 0%, rgba(20, 16, 12, 0.92) 100%);
 }
 
 .retention-tile__day {
+    align-self: flex-start;
     font-family: 'Cinzel', serif;
-    font-size: 0.82rem;
+    font-size: 0.62rem;
     font-weight: 800;
     color: #fde68a;
-}
-
-.retention-tile__badge {
-    font-size: 0.52rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 2px 5px;
-    border-radius: 4px;
-    background: rgba(0, 0, 0, 0.35);
-    color: #a8a29e;
-}
-
-.retention-tile--claimable .retention-tile__badge {
-    color: #6ee7b7;
-    background: rgba(6, 95, 70, 0.45);
-}
-
-.retention-tile--claimed .retention-tile__badge {
-    color: #a8a29e;
+    line-height: 1;
+    padding-left: 2px;
 }
 
 .retention-tile__reward {
     margin: 0;
+    width: 100%;
     min-height: 0;
     flex: 1;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 4px;
-    font-size: 0.58rem;
-    line-height: 1.3;
-    color: #d6d3d1;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .retention-tile__reward .mission-reward-icons {
-    flex-wrap: wrap;
-    gap: 3px;
-    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 0;
+    justify-content: center;
+    overflow: hidden;
+    max-width: 100%;
 }
 
 .retention-tile__reward .mission-reward-icon {
-    min-width: 32px;
-    max-width: 40px;
+    min-width: 0;
+    max-width: none;
+    pointer-events: none;
 }
 
-.retention-tile__reward .mission-reward-icon__frame {
-    width: 32px;
-    height: 32px;
-}
-
+.retention-tile__reward .mission-reward-icon__frame,
 .retention-tile__reward .mission-reward-icon__frame .inv-icon-frame {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
 }
 
 .retention-tile__reward .mission-reward-icon__frame .inv-img,
 .retention-tile__reward .mission-reward-icon__img {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
 }
 
 .retention-tile__reward .mission-reward-icon__frame .l2-coin-img,
 .retention-tile__reward .mission-reward-icon__img--coin {
-    width: 24px;
-    height: 24px;
-}
-
-.retention-tile__reward .mission-reward-icon__qty {
-    font-size: 0.52rem;
-    max-width: 40px;
+    width: 28px;
+    height: 28px;
 }
 
 .retention-tile__weapon-picks {
-    margin-top: 2px;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
+    margin-top: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3px;
     width: 100%;
+    grid-template-columns: none;
 }
 
-.retention-tile__claim {
-    width: 100%;
-    min-height: 40px;
-    margin: 2px 0 0;
-    padding: 8px 6px;
-    font-size: 0.62em;
-    letter-spacing: 0.06em;
-    flex-shrink: 0;
-}
-
-.retention-tile__claim:disabled {
-    display: none;
+@keyframes retention-claim-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(52, 211, 153, 0.16); }
+    50% { box-shadow: 0 0 16px rgba(52, 211, 153, 0.38); }
 }
 
 .retention-journey-card__reward .mission-reward-icons {
@@ -295,6 +353,32 @@
     font-weight: 700;
     color: #fbbf24;
     line-height: 1.25;
+}
+
+.retention-day7-pick {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.retention-day7-weapons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 100%;
+}
+
+.retention-today .retention-day7-weapons .mission-reward-icon__frame,
+.retention-today .retention-day7-weapons .mission-reward-icon__frame .inv-icon-frame {
+    width: 48px;
+    height: 48px;
+}
+
+.retention-today .retention-day7-weapons .mission-reward-icon__frame .inv-img,
+.retention-today .retention-day7-weapons .mission-reward-icon__img {
+    width: 42px;
+    height: 42px;
 }
 
 .retention-journey-list {
@@ -547,74 +631,92 @@
     border-color: rgba(255, 255, 255, 0.2);
 }
 
-html[data-l2-layout="portrait"] .retention-grid--monthly,
-html[data-l2-layout="portrait"] .retention-grid--newbie {
-    display: flex;
-    flex-direction: column;
+html[data-l2-layout="portrait"] .retention-today {
+    padding: 10px;
     gap: 8px;
 }
 
-html[data-l2-layout="portrait"] .retention-tile {
-    min-height: unset;
-    padding: 12px;
-    gap: 10px;
+html[data-l2-layout="portrait"] .retention-today__kicker {
+    font-size: 0.8rem;
 }
 
-html[data-l2-layout="portrait"] .retention-tile__head {
-    width: 100%;
+html[data-l2-layout="portrait"] .retention-today__prizes {
+    gap: 4px;
+    max-height: 28vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-html[data-l2-layout="portrait"] .retention-tile__day {
-    font-size: 0.95rem;
+html[data-l2-layout="portrait"] .retention-today__prizes .mission-reward-icon--row {
+    padding: 4px 6px;
+    gap: 6px;
 }
 
-html[data-l2-layout="portrait"] .retention-tile__badge {
-    font-size: 0.58rem;
-    padding: 3px 6px;
+html[data-l2-layout="portrait"] .retention-today__prizes .mission-reward-icon--row .mission-reward-icon__frame,
+html[data-l2-layout="portrait"] .retention-today__prizes .mission-reward-icon--row .mission-reward-icon__frame .inv-icon-frame {
+    width: 40px;
+    height: 40px;
 }
 
-html[data-l2-layout="portrait"] .retention-tile__reward {
-    width: 100%;
+html[data-l2-layout="portrait"] .retention-today__prizes .mission-reward-icon--row .mission-reward-icon__frame .inv-img,
+html[data-l2-layout="portrait"] .retention-today__prizes .mission-reward-icon--row .mission-reward-icon__img {
+    width: 36px;
+    height: 36px;
 }
 
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icons {
-    gap: 8px;
-}
-
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon {
-    min-width: 40px;
-    max-width: 48px;
-}
-
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame {
-    width: 38px;
-    height: 38px;
-}
-
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .inv-icon-frame {
-    width: 38px;
-    height: 38px;
-}
-
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .inv-img,
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__img {
+html[data-l2-layout="portrait"] .retention-today__prizes .mission-reward-icon--row .mission-reward-icon__frame .l2-coin-img,
+html[data-l2-layout="portrait"] .retention-today__prizes .mission-reward-icon--row .mission-reward-icon__img--coin {
     width: 32px;
     height: 32px;
 }
 
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .l2-coin-img,
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__img--coin {
+html[data-l2-layout="portrait"] .retention-today__claim {
+    min-height: 40px;
+}
+
+html[data-l2-layout="portrait"] .retention-grid--monthly,
+html[data-l2-layout="portrait"] .retention-grid--newbie {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-auto-rows: 54px;
+    gap: 4px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile {
+    height: 54px;
+    min-height: 54px;
+    max-height: 54px;
+    padding: 3px 1px 4px;
+    gap: 2px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__day {
+    font-size: 0.55rem;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame,
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .inv-icon-frame {
     width: 28px;
     height: 28px;
 }
 
-html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__qty {
-    font-size: 0.56rem;
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .inv-img,
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__img {
+    width: 24px;
+    height: 24px;
 }
 
-html[data-l2-layout="portrait"] .retention-tile__claim {
-    min-height: 44px;
-    font-size: 0.68em;
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__frame .l2-coin-img,
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon__img--coin {
+    width: 22px;
+    height: 22px;
+}
+
+html[data-l2-layout="portrait"] .retention-tile__reward .mission-reward-icon--badge .mission-reward-icon__qty {
+    font-size: 0.52rem;
+    padding: 0 3px;
+    right: -1px;
+    bottom: -1px;
 }
 
 html[data-l2-layout="portrait"] .retention-day7-tag {
@@ -636,4 +738,10 @@ html[data-l2-layout="portrait"] .retention-hub-tab {
 
 html[data-l2-layout="portrait"] .retention-hint {
     font-size: 0.66em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .retention-tile--claimable {
+        animation: none;
+    }
 }

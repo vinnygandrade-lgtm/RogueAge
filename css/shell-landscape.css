@@ -4570,19 +4570,16 @@ html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__re
     gap: 8px 10px;
 }
 
-html[data-l2-layout="landscape"] #janela-missoes-diarias .mission-reward-icon__frame {
-    width: 38px;
-    height: 38px;
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame,
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame .inv-icon-frame {
+    width: 56px;
+    height: 56px;
 }
 
-html[data-l2-layout="landscape"] #janela-missoes-diarias .mission-reward-icon__frame .inv-icon-frame {
-    width: 38px;
-    height: 38px;
-}
-
-html[data-l2-layout="landscape"] #janela-missoes-diarias .mission-reward-icon__frame .inv-img {
-    width: 34px;
-    height: 34px;
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame .inv-img,
+html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__img {
+    width: 50px;
+    height: 50px;
 }
 
 html[data-l2-layout="landscape"] #janela-missoes-diarias .daily-mission-card__btn,

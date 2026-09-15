@@ -944,7 +944,7 @@ function htmlRecompensaMissao(
   const icons = htmlMissionRewardIcons(recompensa, {
     adena: dailyMissionT('game.achievements.rowAdena'),
     ac: dailyMissionT('game.achievements.rowAc'),
-  });
+  }, { layout: 'badge', compactQty: true });
   const fallback = escapeHtmlDaily(textoRecompensa(recompensa));
   if (!icons) {
     return '<div class="daily-mission-card__reward">' + escapeHtmlDaily(dailyMissionT(prefix + '.reward')) + ' ' + fallback + '</div>';
@@ -1213,7 +1213,7 @@ function renderizarBonusBox(
   const bonusIcons = htmlMissionRewardIcons(bonusPreview, {
     adena: dailyMissionT('game.achievements.rowAdena'),
     ac: dailyMissionT('game.achievements.rowAc'),
-  });
+  }, { layout: 'badge', compactQty: true });
   const ultimoHistorico = (data.historicoEncerrado && data.historicoEncerrado[0])
     ? data.historicoEncerrado[0]
     : null;

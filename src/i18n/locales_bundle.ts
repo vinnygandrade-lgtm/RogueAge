@@ -1586,8 +1586,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     tabNewbie: 'Novice Week',
                     tabMonthly: 'Monthly',
                     tabJourney: 'Recruit Journey',
-                    hintNewbie: 'Claim today with the button below each day. Tap icons to preview items. Missed days are lost. Day 7: pick your +4 weapon.',
-                    hintMonthly: 'One reward per login day — use CLAIM on today\'s row. Tap icons to preview. Missed days cannot be recovered.',
+                    hintNewbie: 'Today\'s prize is the big card. CLAIM it there. Tap any day to inspect. Missed days are lost. Day 7: pick your +4 weapon.',
+                    hintMonthly: 'Tap a day to see its prizes on the big card. CLAIM there. Each square shows one icon — the rest is on the card. Missed days cannot be recovered.',
                     hintJourney: 'Learn every core loop: hunt, enchant, expedition, clan, and more.',
                     claim: 'CLAIM',
                     closeBtn: 'CLOSE',
@@ -1622,8 +1622,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         missed: 'Missed',
                         missedShort: 'Missed',
                         rewardSoon: '—',
-                        tapIconsHint: 'Tap icons to preview'
+                        tapIconsHint: 'Tap icons to preview',
+                        tapDayHint: 'Tap a day to see prizes'
                     },
+                    todayKicker: 'Day {day} · Today',
+                    todayClaimed: 'Day {day} · Claimed',
+                    todayLocked: 'Day {day}',
                     weaponStyle: {
                         sword: 'Heavy blade',
                         dagger: 'Assassin dagger',
@@ -5279,8 +5283,8 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                     tabNewbie: 'Semana Novato',
                     tabMonthly: 'Mensal',
                     tabJourney: 'Jornada do Recruta',
-                    hintNewbie: 'Resgate hoje com o botão em cada dia. Toque nos ícones para ver o item. Dias perdidos não voltam. Dia 7: escolha sua arma +4.',
-                    hintMonthly: 'Um prêmio por dia de login — use RESGATAR na linha de hoje. Toque nos ícones para preview. Dias perdidos não recuperam.',
+                    hintNewbie: 'O prêmio de hoje é o cartão grande. RESGATAR ali. Toque num dia para ver. Dias perdidos não voltam. Dia 7: escolha sua arma +4.',
+                    hintMonthly: 'Toque num dia para ver os prêmios no cartão grande. RESGATAR ali. Cada quadrado mostra um ícone — o resto fica no cartão. Dias perdidos não recuperam.',
                     hintJourney: 'Aprenda cada loop do jogo: caça, enchant, expedição, clã e mais.',
                     claim: 'RESGATAR',
                     closeBtn: 'FECHAR',
@@ -5315,8 +5319,12 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                         missed: 'Perdido',
                         missedShort: 'Perdido',
                         rewardSoon: '—',
-                        tapIconsHint: 'Toque nos ícones para ver'
+                        tapIconsHint: 'Toque nos ícones para ver',
+                        tapDayHint: 'Toque num dia para ver os prêmios'
                     },
+                    todayKicker: 'Dia {day} · Hoje',
+                    todayClaimed: 'Dia {day} · Resgatado',
+                    todayLocked: 'Dia {day}',
                     weaponStyle: {
                         sword: 'Espada pesada',
                         dagger: 'Adaga assassina',

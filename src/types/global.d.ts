@@ -1183,6 +1183,7 @@ declare global {
   function contarPendenciasRetention(): number;
   function applyRetentionFromSave(raw: RetentionSave | null | undefined, nivel?: number): void;
   function getRetentionSavePayload(): RetentionSave;
+  function onRetentionCalendarTap(ev: Event, progressKey: 'newbie' | 'monthly', day: number): void;
   function onRetentionNewbieDayClick(day: number): void;
   function onRetentionMonthlyDayClick(day: number): void;
   function claimRetentionJourneyStep(step: number): void;

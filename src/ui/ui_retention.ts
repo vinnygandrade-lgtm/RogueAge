@@ -16,6 +16,7 @@ import {
   htmlMissionRewardIcons,
   htmlRewardIconFrame,
   rewardPreviewTapAttrsHtml,
+  type MissionRewardIconOpts,
 } from './ui_reward_icons';
 import { scrollClaimableIntoView, sortMissionEntries, paintHubTabNotif } from './ui_mission_toasts';
 import type { MissionSortState } from './ui_mission_toasts';
@@ -23,6 +24,10 @@ import type { MissionSortState } from './ui_mission_toasts';
 let hubTab: RetentionHubTab = 'newbie';
 let pendingWeaponDay = 0;
 let selectedWeaponId = '';
+let calendarFocus: { newbie: number | null; monthly: number | null } = {
+  newbie: null,
+  monthly: null,
+};
 
 function rt(key: string, params?: Record<string, string | number>): string {
   return typeof window.t === 'function' ? window.t(key, params) : key;
@@ -48,46 +53,104 @@ function rewardIconLabels(): { adena: string; ac: string } {
   };
 }
 
-function htmlRetentionRewardIcons(reward: DailyMissionReward | null | undefined): string {
-  return htmlMissionRewardIcons(reward, rewardIconLabels());
+function htmlRetentionRewardIcons(
+  reward: DailyMissionReward | null | undefined,
+  opts?: MissionRewardIconOpts,
+): string {
+  return htmlMissionRewardIcons(reward, rewardIconLabels(), opts);
 }
 
-function htmlRetentionDay7WeaponIcons(): string {
+function htmlRetentionDay7WeaponIcons(layout: 'badge' | 'row' = 'badge', size: 'tile' | 'hero' = 'tile'): string {
   const chips: string[] = [];
   RETENTION_DAY7_WEAPONS.forEach((w) => {
     const cat = window.catalogoArmas?.find((x) => String(x.id) === w.id);
     const src = cat?.img ? String(cat.img) : REWARD_ICON_FALLBACK;
+    const name = cat?.nome ? String(cat.nome) : w.id;
+    const nameHtml = layout === 'row'
+      ? '<span class="mission-reward-icon__name">' + escapeHtml(name) + '</span>'
+      : '';
+    const qty = '<span class="mission-reward-icon__qty">+4</span>';
+    const body = layout === 'row'
+      ? htmlRewardIconFrame(src, false) + '<span class="mission-reward-icon__meta">' + nameHtml + qty + '</span>'
+      : htmlRewardIconFrame(src, false) + qty;
     chips.push(
-      `<button type="button" class="mission-reward-icon mission-reward-icon--tap" ${rewardPreviewTapAttrsHtml(w.id, 1)}>`
-      + htmlRewardIconFrame(src, false)
-      + '<span class="mission-reward-icon__qty">+4</span>'
+      `<button type="button" class="mission-reward-icon mission-reward-icon--tap mission-reward-icon--${layout}" ${rewardPreviewTapAttrsHtml(w.id, 1)}>`
+      + body
       + '</button>',
     );
   });
   if (!chips.length) return '';
-  return `<div class="mission-reward-icons retention-tile__weapon-picks">${chips.join('')}</div>`;
+  const extra = layout === 'badge'
+    ? (size === 'hero' ? ' retention-day7-weapons' : ' retention-tile__weapon-picks')
+    : '';
+  return `<div class="mission-reward-icons mission-reward-icons--${layout}${extra}">${chips.join('')}</div>`;
 }
 
-function htmlRetentionDay7Preview(): string {
-  const parts: string[] = [
-    `<span class="retention-day7-tag">${escapeHtml(rt('game.retention.newbie.day7Pick'))}</span>`,
-  ];
-  const coins = htmlRetentionRewardIcons(retentionNewbieReward(7));
-  if (coins) parts.push(coins);
-  const weapons = htmlRetentionDay7WeaponIcons();
-  if (weapons) parts.push(weapons);
-  return parts.join('');
+function htmlRetentionDay7Preview(layout: 'badge' | 'row'): string {
+  if (layout === 'row') {
+    const coins = htmlRetentionRewardIcons(retentionNewbieReward(7), {
+      layout: 'row',
+      showName: true,
+    });
+    const weapons = htmlRetentionDay7WeaponIcons('badge', 'hero');
+    return [
+      coins,
+      `<div class="retention-day7-pick">`
+      + `<span class="retention-day7-tag">${escapeHtml(rt('game.retention.newbie.day7Pick'))}</span>`
+      + weapons
+      + '</div>',
+    ].filter(Boolean).join('');
+  }
+  const w = RETENTION_DAY7_WEAPONS[0];
+  const cat = w ? window.catalogoArmas?.find((x) => String(x.id) === w.id) : null;
+  const src = cat?.img ? String(cat.img) : REWARD_ICON_FALLBACK;
+  if (!w) return '';
+  return `<div class="mission-reward-icons mission-reward-icons--badge">`
+    + `<button type="button" class="mission-reward-icon mission-reward-icon--tap mission-reward-icon--badge" ${rewardPreviewTapAttrsHtml(w.id, 1)}>`
+    + htmlRewardIconFrame(src, false)
+    + '<span class="mission-reward-icon__qty">+4</span></button></div>';
+}
+
+function pickCalendarFaceReward(reward: DailyMissionReward | null | undefined): DailyMissionReward | null {
+  if (!reward) return null;
+  const items = reward.itens || {};
+  const names = Object.keys(items);
+  const score = (nome: string): number => {
+    const n = nome.toLowerCase();
+    if (n.includes('blessed enchant')) return 5;
+    if (n.includes('enchant')) return 4;
+    if (n.includes('spiritshot') || n.includes('soulshot')) return 3;
+    if (n.includes('potion')) return 1;
+    return 2;
+  };
+  names.sort((a, b) => score(b) - score(a));
+  if (names[0]) return { itens: { [names[0]]: items[names[0]] } };
+  if (reward.ancientCoins) return { ancientCoins: reward.ancientCoins };
+  if (reward.adenas) return { adenas: reward.adenas };
+  return null;
 }
 
 function htmlRetentionTileReward(
   day: number,
   progressKey: 'newbie' | 'monthly',
   reward: DailyMissionReward | null | undefined,
+  layout: 'badge' | 'row',
 ): string {
   if (progressKey === 'newbie' && day === 7) {
-    return htmlRetentionDay7Preview();
+    return htmlRetentionDay7Preview(layout);
   }
-  return htmlRetentionRewardIcons(reward);
+  if (layout === 'badge') {
+    return htmlRetentionRewardIcons(pickCalendarFaceReward(reward), {
+      layout: 'badge',
+      compactQty: true,
+      maxChips: 1,
+      hideOverflow: true,
+    });
+  }
+  return htmlRetentionRewardIcons(reward, {
+    layout: 'row',
+    showName: true,
+  });
 }
 
 function tileState(
@@ -113,7 +176,49 @@ function htmlRetentionTileClaimBtn(
   const label = progressKey === 'newbie' && day === 7
     ? rt('game.retention.newbie.claimDay7')
     : rt('game.retention.claim');
-  return `<button type="button" class="btn-l2 retention-tile__claim" onclick="event.stopPropagation(); ${fn}(${day})">${escapeHtml(label)}</button>`;
+  return `<button type="button" class="btn-l2 retention-today__claim" onclick="${fn}(${day})">${escapeHtml(label)}</button>`;
+}
+
+function kickerForState(st: ReturnType<typeof tileState>, day: number): string {
+  if (st === 'claimable') return rt('game.retention.todayKicker', { day });
+  if (st === 'claimed') return rt('game.retention.todayClaimed', { day });
+  return rt('game.retention.todayLocked', { day });
+}
+
+function pickFeaturedDay(
+  dayCount: number,
+  claimed: number[],
+  currentDay: number,
+  canClaimFn: (d: number) => boolean,
+  progressKey: 'newbie' | 'monthly',
+): number {
+  const focused = calendarFocus[progressKey];
+  if (focused != null && focused >= 1 && focused <= dayCount) return focused;
+  for (let d = 1; d <= dayCount; d++) {
+    if (tileState(d, claimed, currentDay, canClaimFn) === 'claimable') return d;
+  }
+  return Math.max(1, Math.min(dayCount, currentDay || 1));
+}
+
+function renderTodayCard(
+  hostId: string,
+  featured: number,
+  st: ReturnType<typeof tileState>,
+  progressKey: 'newbie' | 'monthly',
+  reward: DailyMissionReward | null | undefined,
+): void {
+  const host = document.getElementById(hostId);
+  if (!host) return;
+  const claimable = st === 'claimable';
+  host.className = `retention-today retention-today--${st}`;
+  host.innerHTML = `
+    <div class="retention-today__head">
+      <span class="retention-today__kicker">${escapeHtml(kickerForState(st, featured))}</span>
+      <span class="retention-today__badge">${escapeHtml(badgeForState(st))}</span>
+    </div>
+    <div class="retention-today__prizes">${htmlRetentionTileReward(featured, progressKey, reward, 'row')}</div>
+    ${htmlRetentionTileClaimBtn(claimable, featured, progressKey)}
+  `;
 }
 
 function badgeForState(st: ReturnType<typeof tileState>): string {
@@ -141,27 +246,29 @@ function renderCalendarGrid(
 
   let pending = 0;
   let html = '';
+  const featured = pickFeaturedDay(dayCount, claimed, currentDay, canClaimFn, progressKey);
+  const featuredState = tileState(featured, claimed, currentDay, canClaimFn);
+  renderTodayCard(
+    `${rootId.replace(/-grid$/, '')}-today`,
+    featured,
+    featuredState,
+    progressKey,
+    rewardFn(featured),
+  );
 
   for (let d = 1; d <= dayCount; d++) {
     const st = tileState(d, claimed, currentDay, canClaimFn);
     if (st === 'claimable') pending++;
     const milestone = progressKey === 'newbie' ? d === 7 : d % 7 === 0;
     const reward = rewardFn(d);
-    const icons = htmlRetentionTileReward(d, progressKey, reward);
-    let preview = icons;
+    let preview = htmlRetentionTileReward(d, progressKey, reward, 'badge');
     if (!preview) {
       preview = escapeHtml(rt('game.retention.tile.rewardSoon'));
     }
-    const claimable = st === 'claimable';
-    const inactive = st === 'future' || st === 'claimed' || st === 'missed';
 
-    html += `<div class="retention-tile retention-tile--${st}${milestone ? ' retention-tile--milestone' : ''}${inactive ? ' retention-tile--inactive' : ''}" aria-disabled="${inactive ? 'true' : 'false'}">
-      <span class="retention-tile__head">
-        <span class="retention-tile__day">${d}</span>
-        <span class="retention-tile__badge">${escapeHtml(badgeForState(st))}</span>
-      </span>
+    html += `<div class="retention-tile retention-tile--${st}${milestone ? ' retention-tile--milestone' : ''}${d === featured ? ' retention-tile--featured' : ''}" onclick="onRetentionCalendarTap(event, '${progressKey}', ${d})" role="button">
+      <span class="retention-tile__day">${d}</span>
       <div class="retention-tile__reward">${preview}</div>
-      ${htmlRetentionTileClaimBtn(claimable, d, progressKey)}
     </div>`;
   }
 
@@ -187,11 +294,16 @@ function renderCalendarGrid(
       progressKey === 'newbie' ? 'game.retention.newbie.progress' : 'game.retention.monthly.progress',
       base,
     );
-    const hintLine = rt('game.retention.tile.tapIconsHint');
-    summary.textContent = pending > 0 ? `${progressLine} · ${hintLine}` : progressLine;
+    const hintLine = rt('game.retention.tile.tapDayHint');
+    summary.textContent = `${progressLine} · ${hintLine}`;
   }
 
-  scrollClaimableIntoView(root, '.retention-tile--claimable');
+  const focusTile = root.querySelector('.retention-tile--featured') as HTMLElement | null;
+  if (focusTile) {
+    focusTile.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  } else {
+    scrollClaimableIntoView(root, '.retention-tile--claimable');
+  }
 }
 
 function renderNewbieCalendar(): void {
@@ -282,7 +394,7 @@ function renderJourneyList(): void {
       </div>
       <div class="retention-journey-card__progress">${escapeHtml(rt('game.retention.journey.progress', { current: curProg, target: def.target }))}</div>
       <div class="retention-journey-card__hint">${escapeHtml(rt(def.hintKey))}</div>
-      <div class="retention-journey-card__reward">${htmlRetentionRewardIcons(def.reward)}</div>
+      <div class="retention-journey-card__reward">${htmlRetentionRewardIcons(def.reward, { layout: 'row', showName: true })}</div>
       ${st === 'claimable'
         ? `<button type="button" class="btn-l2 retention-journey-claim" onclick="claimRetentionJourneyStep(${def.step})">${escapeHtml(rt('game.retention.claim'))}</button>`
         : ''}
@@ -338,7 +450,7 @@ function renderComebackBanner(): void {
       <strong>${escapeHtml(rt('game.retention.comeback.bannerTitle'))}</strong>
       <span>${escapeHtml(rt(`game.retention.comeback.tier.${tier}`, { hours }))}</span>
     </div>
-    <div class="retention-comeback-banner__reward">${htmlRetentionRewardIcons(preview)}</div>
+    <div class="retention-comeback-banner__reward">${htmlRetentionRewardIcons(preview, { layout: 'badge', compactQty: true })}</div>
     <div class="retention-clan-banner__actions">
       <button type="button" class="btn-l2" onclick="claimRetentionComeback()">${escapeHtml(rt('game.retention.comeback.claim'))}</button>
       <button type="button" class="btn-l2 btn-l2--ghost" onclick="abrirRetentionComeback()">${escapeHtml(rt('game.retention.comeback.details'))}</button>
@@ -419,6 +531,8 @@ function abrirRetentionHub(tab?: RetentionHubTab): void {
     window.l2Alert?.(rt('game.retention.errorNotReady'));
     return;
   }
+  calendarFocus.newbie = null;
+  calendarFocus.monthly = null;
   setRetentionHubTab(tab ?? pickRetentionHubTabDefault());
   refreshRetentionHud();
   window.abrirModal('janela-retention-hub', 1500);
@@ -428,6 +542,14 @@ function abrirRetentionHub(tab?: RetentionHubTab): void {
 function fecharRetentionHub(): void {
   window.fecharModal('janela-retention-hub');
   window.syncNavMenuActiveItem?.();
+}
+
+function onRetentionCalendarTap(ev: Event, progressKey: 'newbie' | 'monthly', day: number): void {
+  const t = ev.target as Element | null;
+  if (t?.closest('[data-reward-preview-key]')) return;
+  calendarFocus[progressKey] = day;
+  if (progressKey === 'newbie') renderNewbieCalendar();
+  else renderMonthlyCalendar();
 }
 
 function onRetentionNewbieDayClick(day: number): void {
@@ -525,7 +647,7 @@ function abrirRetentionComeback(): void {
   const tier = eng.getComebackTierKey?.() ?? 'short';
   const preview = eng.getComebackPreview?.() ?? null;
   body.innerHTML = `<p>${escapeHtml(rt(`game.retention.comeback.tier.${tier}`, { hours }))}</p>
-    <div class="retention-comeback-reward">${htmlRetentionRewardIcons(preview)}</div>`;
+    <div class="retention-comeback-reward">${htmlRetentionRewardIcons(preview, { layout: 'row', showName: true })}</div>`;
   window.abrirModal('janela-retention-comeback', 1480);
 }
 
@@ -562,6 +684,7 @@ function contarPendenciasRetention(): number {
 window.setRetentionHubTab = setRetentionHubTab;
 window.abrirRetentionHub = abrirRetentionHub;
 window.fecharRetentionHub = fecharRetentionHub;
+window.onRetentionCalendarTap = onRetentionCalendarTap;
 window.onRetentionNewbieDayClick = onRetentionNewbieDayClick;
 window.onRetentionMonthlyDayClick = onRetentionMonthlyDayClick;
 window.claimRetentionJourneyStep = claimRetentionJourneyStep;

@@ -8727,15 +8727,19 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
 }
 
 .daily-mission-card {
-    background: rgba(10, 10, 10, 0.85);
+    background:
+        linear-gradient(180deg, rgba(28, 24, 18, 0.55) 0%, rgba(10, 10, 10, 0.92) 100%);
     border: 1px solid #3f3f46;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 10px;
 }
 
 .daily-mission-card--claimable {
     border-color: #10b981;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 14px rgba(16, 185, 129, 0.22);
+    background:
+        radial-gradient(120% 80% at 8% 0%, rgba(16, 185, 129, 0.16) 0%, transparent 55%),
+        linear-gradient(180deg, rgba(8, 32, 24, 0.7) 0%, rgba(10, 10, 10, 0.94) 100%);
 }
 
 .daily-mission-card--claimed {
@@ -8796,19 +8800,52 @@ html:not([data-l2-layout="landscape"]) #janela-augment .enchant-box .enchant-gri
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px 8px;
+    gap: 8px 10px;
     font-size: 0.72em;
     color: #facc15;
-    margin-top: 6px;
+    margin-top: 8px;
+    padding: 8px 8px 10px;
     line-height: 1.3;
+    border-radius: 10px;
+    border: 1px solid rgba(202, 138, 4, 0.28);
+    background: rgba(8, 6, 4, 0.42);
+    overflow: visible;
+}
+.daily-mission-card--claimable .daily-mission-card__reward {
+    border-color: rgba(52, 211, 153, 0.4);
+    background: rgba(6, 32, 24, 0.45);
 }
 .daily-mission-card__reward-label {
     flex-shrink: 0;
-    font-size: 0.92em;
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    width: 100%;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #a8a29e;
+    color: #d6d3d1;
+}
+#janela-missoes-diarias .daily-mission-card__reward .mission-reward-icons {
+    flex-wrap: wrap;
+    gap: 10px 12px;
+}
+#janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame,
+#janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame .inv-icon-frame {
+    width: 52px;
+    height: 52px;
+}
+#janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame .inv-img,
+#janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__img {
+    width: 46px;
+    height: 46px;
+}
+#janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame .l2-coin-img,
+#janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__img--coin {
+    width: 40px;
+    height: 40px;
+}
+#janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__qty {
+    font-size: 0.68rem;
+    padding: 1px 5px;
 }
 .mission-reward-icons {
     display: flex;
@@ -8889,8 +8926,108 @@ button.mission-reward-icon--tap:focus-visible {
     border-radius: 8px;
 }
 
-button.mission-reward-icon--tap:active {
-    transform: scale(0.96);
+.mission-reward-icon--badge {
+    position: relative;
+    min-width: 0;
+    max-width: none;
+    gap: 0;
+}
+
+.mission-reward-icon--badge .mission-reward-icon__qty {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    z-index: 1;
+    min-width: 1.15em;
+    max-width: none;
+    padding: 1px 4px;
+    border-radius: 5px;
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    background: rgba(8, 6, 4, 0.94);
+    font-size: 0.62rem;
+    line-height: 1.15;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+}
+
+.mission-reward-icon--row {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+    padding: 6px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(202, 138, 4, 0.28);
+    background: rgba(8, 6, 4, 0.42);
+    box-sizing: border-box;
+}
+
+.mission-reward-icon--row .mission-reward-icon__frame,
+.mission-reward-icon--row .mission-reward-icon__frame .inv-icon-frame {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+}
+
+.mission-reward-icon--row .mission-reward-icon__frame .inv-img,
+.mission-reward-icon--row .mission-reward-icon__img {
+    width: 50px;
+    height: 50px;
+}
+
+.mission-reward-icon--row .mission-reward-icon__frame .l2-coin-img,
+.mission-reward-icon--row .mission-reward-icon__img--coin {
+    width: 44px;
+    height: 44px;
+}
+
+.mission-reward-icon__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+}
+
+.mission-reward-icon__name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fafaf9;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 12rem;
+}
+
+.mission-reward-icon--row .mission-reward-icon__qty {
+    font-size: 0.82rem;
+    max-width: none;
+    color: #fde68a;
+}
+
+.mission-reward-icons--row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+
+.mission-reward-icon--more {
+    min-width: 28px;
+    max-width: none;
+    height: 28px;
+    justify-content: center;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #fde68a;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    border-radius: 6px;
+}
+
+.mission-reward-icons--badge .mission-reward-icon--more {
+    align-self: center;
 }
 
 .level-claim-row__icon--tap {
@@ -9020,22 +9157,27 @@ button.mission-reward-icon--tap:active {
 .daily-bonus__preview {
     margin-bottom: 8px;
     min-height: 0;
+    overflow: visible;
 }
 .daily-bonus__preview .mission-reward-icons {
     justify-content: center;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
-.daily-bonus__preview .mission-reward-icon__frame {
-    width: 38px;
-    height: 38px;
+.daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__frame,
+.daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__frame .inv-icon-frame {
+    width: 48px;
+    height: 48px;
 }
-.daily-bonus__preview .mission-reward-icon__frame .inv-icon-frame {
-    width: 38px;
-    height: 38px;
+.daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__frame .inv-img,
+.daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__img {
+    width: 42px;
+    height: 42px;
 }
-.daily-bonus__preview .mission-reward-icon__frame .inv-img {
-    width: 34px;
-    height: 34px;
+.daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__frame .l2-coin-img,
+.daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__img--coin {
+    width: 36px;
+    height: 36px;
 }
 
 .daily-bonus__history {
@@ -9075,9 +9217,11 @@ button.mission-reward-icon--tap:active {
 #missoes-bonus-box-weekly {
     width: 100%;
     margin-top: 10px;
-    background: rgba(15, 15, 15, 0.8);
-    border: 1px solid #3f3f46;
-    border-radius: 6px;
+    background:
+        radial-gradient(120% 80% at 8% 0%, rgba(168, 85, 247, 0.14) 0%, transparent 55%),
+        rgba(15, 15, 15, 0.88);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    border-radius: 10px;
     padding: 10px;
     color: #d4d4d8;
     font-size: 0.8em;
@@ -9178,13 +9322,15 @@ html[data-l2-layout="portrait"] #missoes-semanais-container {
     max-height: none;
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    overflow: hidden;
-    padding: 0 1px 4px;
+    gap: 8px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 1px 6px;
 }
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card {
-    flex: 1 1 0;
+    flex: 0 0 auto;
     min-height: 0;
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(68px, 78px);
@@ -9198,7 +9344,7 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card {
     gap: 3px 6px;
     padding: 6px 8px;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
 }
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__head,
@@ -9236,13 +9382,14 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__rew
     grid-area: rewards;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 4px;
-    margin: 0;
-    padding: 0;
-    border: none;
+    gap: 6px 8px;
+    margin: 2px 0 0;
+    padding: 7px 8px 9px;
+    border-radius: 8px;
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward-label {
@@ -9250,9 +9397,9 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__rew
 }
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icons {
-    flex-wrap: nowrap;
-    gap: 4px;
-    overflow: hidden;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    overflow: visible;
     min-width: 0;
 }
 
@@ -9263,31 +9410,27 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon {
     gap: 0;
 }
 
-html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__frame {
-    width: 26px;
-    height: 26px;
-    border-radius: 5px;
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame .inv-icon-frame {
+    width: 44px;
+    height: 44px;
 }
 
-html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__frame .inv-icon-frame {
-    width: 26px;
-    height: 26px;
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame .inv-img,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__img {
+    width: 38px;
+    height: 38px;
 }
 
-html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__frame .inv-img,
-html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__img {
-    width: 22px;
-    height: 22px;
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__frame .l2-coin-img,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__reward .mission-reward-icon--badge .mission-reward-icon__img--coin {
+    width: 34px;
+    height: 34px;
 }
 
-html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__frame .l2-coin-img,
-html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__img--coin {
-    width: 20px;
-    height: 20px;
-}
-
-html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon__qty {
-    display: none;
+html[data-l2-layout="portrait"] #janela-missoes-diarias .mission-reward-icon--badge .mission-reward-icon__qty {
+    display: block;
+    font-size: 0.62rem;
 }
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-mission-card__actions {
@@ -9387,33 +9530,31 @@ html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview {
     grid-area: preview;
     margin: 0;
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icons {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 4px;
-    overflow: hidden;
+    gap: 8px;
+    overflow: visible;
 }
 
-html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon__frame {
-    width: 28px;
-    height: 28px;
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__frame,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__frame .inv-icon-frame {
+    width: 40px;
+    height: 40px;
 }
 
-html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon__frame .inv-icon-frame {
-    width: 28px;
-    height: 28px;
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__frame .inv-img,
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__img {
+    width: 34px;
+    height: 34px;
 }
 
-html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon__frame .inv-img {
-    width: 24px;
-    height: 24px;
-}
-
-html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon__qty {
-    font-size: 0.62em;
+html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__preview .mission-reward-icon--badge .mission-reward-icon__qty {
+    display: block;
+    font-size: 0.58rem;
 }
 
 html[data-l2-layout="portrait"] #janela-missoes-diarias .daily-bonus__btn {

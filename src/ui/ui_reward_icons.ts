@@ -116,15 +116,53 @@ function htmlMissionRewardChip(
   iconSrc: string,
   isCoin: boolean,
   qtyLabel: string,
-  title: string,
   catalogKey: string,
   previewQty: number,
+  opts: MissionRewardIconOpts,
+  displayName?: string,
 ): string {
-  return '<button type="button" class="mission-reward-icon mission-reward-icon--tap" '
+  const layout = opts.layout || 'stack';
+  const nameHtml = opts.showName && displayName
+    ? '<span class="mission-reward-icon__name">' + escapeRewardHtml(displayName) + '</span>'
+    : '';
+  const qtyHtml = '<span class="mission-reward-icon__qty">' + escapeRewardHtml(qtyLabel) + '</span>';
+  const body = layout === 'row'
+    ? htmlRewardIconFrame(iconSrc, isCoin) + '<span class="mission-reward-icon__meta">' + nameHtml + qtyHtml + '</span>'
+    : htmlRewardIconFrame(iconSrc, isCoin) + qtyHtml;
+  return '<button type="button" class="mission-reward-icon mission-reward-icon--tap mission-reward-icon--'
+    + layout + '" '
     + rewardPreviewTapAttrs(catalogKey, previewQty) + '>'
-    + htmlRewardIconFrame(iconSrc, isCoin)
-    + '<span class="mission-reward-icon__qty">' + escapeRewardHtml(qtyLabel) + '</span>'
+    + body
     + '</button>';
+}
+
+export type MissionRewardIconOpts = {
+  layout?: 'stack' | 'badge' | 'row';
+  compactQty?: boolean;
+  showName?: boolean;
+  maxChips?: number;
+  hideOverflow?: boolean;
+};
+
+export function formatRewardCount(n: number, compact = false): string {
+  const v = Math.max(0, Math.floor(Number(n) || 0));
+  if (compact && v >= 10000) return String(Math.round(v / 1000)) + 'k';
+  if (compact && v >= 1000) {
+    const k = v / 1000;
+    const t = k >= 10 ? String(Math.round(k)) : k.toFixed(1).replace(/\.0$/, '');
+    return t + 'k';
+  }
+  return String(v);
+}
+
+function qtyLabelFor(
+  kind: 'currency' | 'item',
+  n: number,
+  opts: MissionRewardIconOpts,
+): string {
+  const num = formatRewardCount(n, !!opts.compactQty);
+  if (opts.layout === 'badge') return num;
+  return kind === 'currency' ? '+' + num : '×' + num;
 }
 
 /** Opens the same read-only item modal used by the bag (reward preview). */
@@ -161,12 +199,14 @@ export function rewardPreviewTapAttrsHtml(catalogKey: string, previewQty: number
   return rewardPreviewTapAttrs(catalogKey, previewQty);
 }
 
-/** Compact horizontal icon row for mission cards / bonus strip. */
+/** Compact horizontal icon row for mission cards / bonus strip / login calendar. */
 export function htmlMissionRewardIcons(
   recompensa: DailyMissionReward | null | undefined,
   labels?: { adena?: string; ac?: string },
+  opts: MissionRewardIconOpts = {},
 ): string {
   if (!recompensa) return '';
+  const layout = opts.layout || 'stack';
   const chips: string[] = [];
   const adenaLabel = labels?.adena || 'Adena';
   const acLabel = labels?.ac || 'Ancient Coins';
@@ -177,20 +217,22 @@ export function htmlMissionRewardIcons(
     chips.push(htmlMissionRewardChip(
       REWARD_ADENA_ICON,
       true,
-      '+' + String(recompensa.adenas),
-      adenaLabel + ' +' + recompensa.adenas,
+      qtyLabelFor('currency', recompensa.adenas, opts),
       kAd,
       recompensa.adenas,
+      opts,
+      adenaLabel,
     ));
   }
   if (recompensa.ancientCoins) {
     chips.push(htmlMissionRewardChip(
       REWARD_AC_ICON,
       true,
-      '+' + String(recompensa.ancientCoins),
-      acLabel + ' +' + recompensa.ancientCoins,
+      qtyLabelFor('currency', recompensa.ancientCoins, opts),
       kAc,
       recompensa.ancientCoins,
+      opts,
+      acLabel,
     ));
   }
   if (recompensa.itens) {
@@ -200,19 +242,29 @@ export function htmlMissionRewardIcons(
       chips.push(htmlMissionRewardChip(
         resolveRewardIconSrc(nome),
         false,
-        '×' + String(qty),
-        display + ' ×' + qty,
+        qtyLabelFor('item', qty, opts),
         nome,
         qty,
+        opts,
+        display,
       ));
     });
   }
   if (chips.length <= 0) return '';
-  return '<div class="mission-reward-icons">' + chips.join('') + '</div>';
+  const max = opts.maxChips && opts.maxChips > 0 ? opts.maxChips : chips.length;
+  const shown = chips.slice(0, max);
+  const extra = chips.length - shown.length;
+  if (extra > 0 && !opts.hideOverflow) {
+    shown.push(
+      '<span class="mission-reward-icon mission-reward-icon--more" aria-hidden="true">+'
+      + extra + '</span>',
+    );
+  }
+  return '<div class="mission-reward-icons mission-reward-icons--' + layout + '">' + shown.join('') + '</div>';
 }
 
 ensureRewardPreviewDelegation();
 registerGlobalFn('abrirPreviewPremioRecompensa', abrirPreviewPremioRecompensa);
 
 export {};
-
+
