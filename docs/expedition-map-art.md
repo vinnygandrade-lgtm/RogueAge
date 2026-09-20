@@ -5,7 +5,7 @@
 **Fluxo:** World → Deepgrove → Enter → este mapa → toque na zona → Enter → `abrirDetalhesZona(<grade>)`.  
 **Canvas:** **1080×1620**. Display no jogo: scale **3×** → ~**360×540 px**.  
 **Bake (só o fundo):** `node tools/bake_expedition_map.mjs`.  
-**Recortes:** manuais — drop `assets/expedition/_incoming/<id>.png` + `npm run export:expedition`. Sem recorte, o cliente esconde a `<img>` e usa o oval de selecção.
+**Recortes:** manuais — drop `assets/expedition/_incoming/<id>.png` + `npm run export:expedition`. Sem recorte, o cliente esconde a `<img>` e usa o oval de selecção. **Live:** `ng` · `d` · `c` · `b` · `a` · `s` (all six trail landmarks).
 
 Não iterar a tela de personagem (`assets/ui/char_select_gate.webp`).
 

@@ -101,100 +101,152 @@
     transform: scale(0.97);
 }
 
-#expedition-map-stack .world-map-title {
-    z-index: 8;
+#expedition-map-stack .world-map-plate {
+    max-width: 7.6rem;
+    padding: 3px 7px 3px;
 }
 
-/* Landmark boxes on expedition-map-a (Sep 2026). Tune after cutouts. */
+#expedition-map-stack .world-map-plate__name {
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+}
+
+#expedition-map-stack > .world-map-title {
+    top: 10px;
+    left: 88px;
+    transform: none;
+    z-index: 8;
+    font-size: 0.64rem;
+    letter-spacing: 0.16em;
+    padding: 4px 10px 5px;
+}
+
+/* Landmark boxes — tap covers the cutout; plates sit on the landmark, not the box edge. */
 .exp-map-actor--s {
-    left: 28%;
-    top: 1%;
-    width: 44%;
-    height: 16%;
+    left: 6%;
+    top: 0%;
+    width: 50%;
+    height: 24%;
     --aura: #c084fc;
     --aura-deep: 28 12 40;
     --aura-rgb: 192 132 252;
 }
 
 .exp-map-actor--s .world-map-plate {
-    top: auto;
-    bottom: 0;
-    transform: translate(-50%, 108%);
+    left: 56%;
+    top: 70%;
+    transform: translate(-50%, 0);
+}
+
+.exp-map-actor--s .world-map-enter {
+    left: 56%;
+    bottom: 4%;
 }
 
 .exp-map-actor--a {
-    left: 58%;
-    top: 12%;
-    width: 38%;
-    height: 22%;
+    left: 55%;
+    top: 1%;
+    width: 35%;
+    height: 41%;
     --aura: #facc15;
     --aura-deep: 36 24 6;
     --aura-rgb: 250 204 21;
 }
 
+.exp-map-actor--a .world-map-plate {
+    left: 48%;
+    top: 84%;
+    transform: translate(-50%, 0);
+}
+
 .exp-map-actor--a .world-map-enter {
-    bottom: 14%;
+    left: 48%;
+    bottom: 2%;
 }
 
 .exp-map-actor--b {
-    left: 2%;
-    top: 28%;
-    width: 34%;
-    height: 18%;
+    left: 0%;
+    top: 17%;
+    width: 46%;
+    height: 29%;
     --aura: #f97316;
     --aura-deep: 40 16 6;
     --aura-rgb: 249 115 22;
 }
 
+.exp-map-actor--b .world-map-plate {
+    left: 28%;
+    top: auto;
+    bottom: 8%;
+    transform: translate(-50%, 0);
+}
+
 .exp-map-actor--b .world-map-enter {
-    bottom: 12%;
+    left: 30%;
+    bottom: 28%;
 }
 
 .exp-map-actor--c {
-    left: 28%;
-    top: 42%;
-    width: 40%;
-    height: 16%;
+    left: 52%;
+    top: 33%;
+    width: 48%;
+    height: 45%;
     --aura: #93c5fd;
     --aura-deep: 12 22 40;
     --aura-rgb: 147 197 253;
 }
 
+.exp-map-actor--c .world-map-plate {
+    left: 42%;
+    top: 46%;
+    transform: translate(-50%, 0);
+}
+
 .exp-map-actor--c .world-map-enter {
-    bottom: 10%;
+    left: 42%;
+    bottom: 36%;
 }
 
 .exp-map-actor--d {
-    left: 6%;
-    top: 56%;
-    width: 38%;
-    height: 17%;
+    left: 0%;
+    top: 40%;
+    width: 51%;
+    height: 32%;
     --aura: #60a5fa;
     --aura-deep: 10 22 40;
     --aura-rgb: 96 165 250;
 }
 
+.exp-map-actor--d .world-map-plate {
+    left: 32%;
+    top: 58%;
+    transform: translate(-50%, 0);
+}
+
 .exp-map-actor--d .world-map-enter {
-    bottom: 12%;
+    left: 32%;
+    bottom: 10%;
 }
 
 .exp-map-actor--ng {
-    left: 2%;
-    top: 74%;
-    width: 42%;
-    height: 20%;
+    left: 0%;
+    top: 68%;
+    width: 48%;
+    height: 24%;
     --aura: #e8c547;
     --aura-deep: 28 18 6;
     --aura-rgb: 232 197 71;
 }
 
-.exp-map-actor--ng .world-map-enter {
-    bottom: 22%;
+.exp-map-actor--ng .world-map-plate {
+    left: 38%;
+    top: 18%;
+    transform: translate(-50%, 0);
 }
 
-.exp-map-actor--ng .world-map-plate {
-    top: 4%;
-    transform: translate(-50%, 0);
+.exp-map-actor--ng .world-map-enter {
+    left: 38%;
+    bottom: 18%;
 }
 
 /* Parked-run chrome — reserved strip under the painting, never over landmarks. */

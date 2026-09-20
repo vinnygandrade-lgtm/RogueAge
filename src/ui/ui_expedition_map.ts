@@ -25,7 +25,7 @@ const EXP_LAYER_FILES: Record<ExpSpotId, string> = {
   s: 'assets/expedition/s.png',
 };
 
-const EXP_LAYER_REV = '1';
+const EXP_LAYER_REV = '7';
 
 function expStack(): HTMLElement | null {
   return document.getElementById('expedition-map-stack');
