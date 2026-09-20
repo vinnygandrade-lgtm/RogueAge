@@ -68,6 +68,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 reopen: "What's New",
                 entries: [
                     {
+                        date: '2026-09-20',
+                        items: [
+                            'Deepgrove: every grade on the trail is a painted cutout now — island, ruins, stone arch, lava vale, tower, and the mountain tomb. Tap a landmark, then Enter.',
+                            'Zone names sit on each place, not stacked in the sky. THE TRAIL chip sits next to Valley, off the peak.'
+                        ]
+                    },
+                    {
                         date: '2026-09-15',
                         items: [
                             'World: every valley landmark is a painted cutout now — grove, bones, war camp, coliseum, cave, and the city gate. Tap one, then Enter.',
@@ -3764,6 +3771,13 @@ import { mergePolish12CatalogIntoLocales } from './polish12_catalog_i18n';
                 continue: 'Continuar para o Login',
                 reopen: 'Novidades',
                 entries: [
+                    {
+                        date: '2026-09-20',
+                        items: [
+                            'Deepgrove: cada grade da trilha agora é um recorte pintado — ilha, ruínas, arco, vale de lava, torre e o túmulo no pico. Toca no marco, depois em Entrar.',
+                            'Os nomes sentam em cada sítio, sem empilhar no céu. O título A TRILHA ficou ao lado de Vale, fora do pico.'
+                        ]
+                    },
                     {
                         date: '2026-09-15',
                         items: [
